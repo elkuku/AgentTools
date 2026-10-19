@@ -144,7 +144,7 @@ private fun Section(@DrawableRes icon: Int, title: String, content: @Composable 
 
 /** A 50 dp badge with an optional "X n" count, as on 4e-website. */
 @Composable
-private fun Badge(
+internal fun Badge(
     @DrawableRes image: Int,
     description: String,
     modifier: Modifier = Modifier,

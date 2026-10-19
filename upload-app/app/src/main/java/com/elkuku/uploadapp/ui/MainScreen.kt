@@ -22,7 +22,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,8 +38,7 @@ fun MainScreen(
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
     onRefresh: () -> Unit,
-    onSave: () -> Unit,
-    onDiscard: () -> Unit,
+    onDismissImportResult: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -82,8 +80,6 @@ fun MainScreen(
                 }
             }
 
-            state.pending?.let { PendingCard(it, canSave = state.canSave, onSave = onSave, onDiscard = onDiscard) }
-
             state.status?.let { status ->
                 Card(
                     colors = CardDefaults.cardColors(
@@ -99,6 +95,8 @@ fun MainScreen(
                 }
             }
 
+            state.importResult?.let { ImportResultView(it, onDismiss = onDismissImportResult) }
+
             val latest = state.latest
             when {
                 session == null -> Unit
@@ -107,24 +105,6 @@ fun MainScreen(
                     "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
                         "with this app.",
                 )
-            }
-        }
-    }
-}
-
-/** Stats shared from Ingress: a summary to check before saving them. */
-@Composable
-private fun PendingCard(pending: PendingStats, canSave: Boolean, onSave: () -> Unit, onDiscard: () -> Unit) {
-    val entry = pending.entry
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("New stats from Ingress", style = MaterialTheme.typography.titleMedium)
-            Text("${entry.nickname} (${entry.faction})", fontWeight = FontWeight.Bold)
-            Text(entry.datetime)
-            Text("Level ${entry["level"] ?: "–"} · AP ${entry["ap"].formatted()}")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                Button(onClick = onSave, enabled = canSave) { Text("Save agent stats") }
-                OutlinedButton(onClick = onDiscard) { Text("Discard") }
             }
         }
     }
@@ -147,13 +127,12 @@ private fun MainScreenPreview() {
             state = UiState(
                 session = GoogleSession("token", "jane@example.com", "Jane"),
                 entries = listOf(AgentStatEntry.fromJson(stats)),
-                pending = PendingStats(stats),
+                status = Status("Agent stats saved.", false),
             ),
             onSignIn = {},
             onSignOut = {},
             onRefresh = {},
-            onSave = {},
-            onDiscard = {},
+            onDismissImportResult = {},
         )
     }
 }

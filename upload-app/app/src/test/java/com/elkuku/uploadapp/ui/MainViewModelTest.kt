@@ -109,32 +109,58 @@ class MainViewModelTest {
     }
 
     @Test
-    fun sharedIngressStatsWaitForSave() {
+    fun sharedStatsAreSavedRightAwayAndReloaded() {
         val viewModel = signedIn()
+        val newest = entry.copy(id = 2, datetime = "2026-10-19 15:35:56")
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(newest, entry))
 
-        viewModel.onShared(ingressStats())
+        viewModel.onShared(context, ingressStats())
 
-        val pending = viewModel.state.value.pending!!
-        assertEquals("TestAgent", pending.entry.nickname)
-        assertEquals(243517130L, pending.entry["ap"])
-        assertTrue(viewModel.state.value.canSave)
-        assertTrue(api.saved.isEmpty())
+        val (token, stats) = api.saved.single()
+        assertEquals("token-1", token)
+        assertEquals(JsonPrimitive("TestAgent"), stats["nickname"])
+        assertEquals(JsonPrimitive("2026-10-19 15:35:56"), stats["datetime"])
+        assertEquals(JsonPrimitive(243517130L), stats["ap"])
+        assertNull(viewModel.state.value.pending)
+        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(newest, viewModel.state.value.latest)
+        assertEquals(entry, viewModel.state.value.first)
+        assertFalse(viewModel.state.value.busy)
+    }
+
+    @Test
+    fun savedStatsShowWhatChanged() {
+        val viewModel = signedIn()
+        val newest = entry.copy(id = 2, datetime = "2026-10-19 15:35:56", stats = mapOf("ap" to 5L))
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(newest, entry))
+
+        viewModel.onShared(context, ingressStats())
+
+        val result = viewModel.state.value.importResult!!
+        assertEquals(newest, result.entry)
+        assertEquals(entry, result.previous)
+        assertEquals(mapOf("ap" to 4L), result.diff)
+
+        viewModel.dismissImportResult()
+        assertNull(viewModel.state.value.importResult)
     }
 
     @Test
     fun otherSharedTextShowsHint() {
         val viewModel = signedIn()
 
-        viewModel.onShared("Buy milk")
+        viewModel.onShared(context, "Buy milk")
 
-        assertNull(viewModel.state.value.pending)
+        assertTrue(api.saved.isEmpty())
         assertEquals(Status(MainViewModel.NOT_STATS_MESSAGE, true), viewModel.state.value.status)
     }
 
     @Test
     fun shareHintSurvivesSignIn() {
         val viewModel = MainViewModel(auth, api)
-        viewModel.onShared("Buy milk")
+        viewModel.onShared(context, "Buy milk")
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
 
@@ -144,70 +170,59 @@ class MainViewModelTest {
     }
 
     @Test
-    fun savingRequiresSignIn() {
+    fun statsSharedBeforeSignInAreSavedAfterSignIn() {
         val viewModel = MainViewModel(auth, api)
-        viewModel.onShared(ingressStats())
 
-        assertFalse(viewModel.state.value.canSave)
-        viewModel.savePending(context)
+        viewModel.onShared(context, ingressStats())
 
         assertTrue(api.saved.isEmpty())
-    }
+        assertEquals(Status("Sign in to save the shared stats.", false), viewModel.state.value.status)
 
-    @Test
-    fun saveSendsStatsAndReloads() {
-        val viewModel = signedIn()
-        viewModel.onShared(ingressStats())
-        val newest = entry.copy(id = 2, datetime = "2026-10-19 15:35:56")
+        auth.interactiveSession = session
         api.saves += SaveResult.Success(2, "now")
-        api.lists += AgentStatsResult.Success(listOf(newest, entry))
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.signIn(context)
 
-        viewModel.savePending(context)
-
-        val (token, stats) = api.saved.single()
-        assertEquals("token-1", token)
-        assertEquals(JsonPrimitive("TestAgent"), stats["nickname"])
-        assertEquals(JsonPrimitive("2026-10-19 15:35:56"), stats["datetime"])
+        assertEquals(1, api.saved.size)
         assertNull(viewModel.state.value.pending)
         assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
-        assertEquals(newest, viewModel.state.value.latest)
-        assertEquals(entry, viewModel.state.value.first)
-        assertFalse(viewModel.state.value.busy)
     }
 
     @Test
-    fun duplicateKeepsPendingAndShowsServerMessage() {
+    fun statsSharedBeforeSessionRestoreAreSavedOnce() {
+        val viewModel = MainViewModel(auth, api)
+        viewModel.onShared(context, ingressStats())
+        auth.silentSessions += session
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.restoreSession(context)
+
+        assertEquals(1, api.saved.size)
+        assertEquals(listOf("token-1"), api.listTokens)
+    }
+
+    @Test
+    fun duplicateShowsServerMessage() {
         val viewModel = signedIn()
-        viewModel.onShared(ingressStats())
         api.saves += SaveResult.Failure("Stat entry already added!")
 
-        viewModel.savePending(context)
+        viewModel.onShared(context, ingressStats())
 
         assertEquals(Status("Stat entry already added!", true), viewModel.state.value.status)
-        assertTrue(viewModel.state.value.pending != null)
-    }
-
-    @Test
-    fun discardDropsPendingStats() {
-        val viewModel = signedIn()
-        viewModel.onShared(ingressStats())
-
-        viewModel.discardPending()
-
         assertNull(viewModel.state.value.pending)
     }
 
     @Test
     fun expiredTokenIsRefreshedOnce() {
         val viewModel = signedIn()
-        viewModel.onShared(ingressStats())
         val refreshed = session.copy(idToken = "token-2")
         auth.silentSessions += refreshed
         api.saves += SaveResult.Unauthorized("Invalid ID token.")
         api.saves += SaveResult.Success(2, "now")
         api.lists += AgentStatsResult.Success(listOf(entry))
 
-        viewModel.savePending(context)
+        viewModel.onShared(context, ingressStats())
 
         assertEquals(listOf("token-1", "token-2"), api.saved.map { it.first })
         assertEquals(refreshed, viewModel.state.value.session)

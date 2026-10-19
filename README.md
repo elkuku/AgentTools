@@ -17,8 +17,8 @@ Symfony web app, which stores them like 4e-website and shows them with medals.
 
 1. The app signs the user in with **Sign in with Google** and gets a Google **ID token**.
 2. In Ingress the agent shares their **all-time stats** with the app. The app converts them to an
-   `agent_stat` row (the column names of 4e-website) and, after a review, sends
-   `POST /api/agent-stats` with `Authorization: Bearer <id token>`:
+   `agent_stat` row (the column names of 4e-website) and saves it right away with
+   `POST /api/agent-stats` and `Authorization: Bearer <id token>`:
 
    ```json
    { "datetime": "2026-10-19 15:35:56", "nickname": "Agent", "faction": "Enlightened", "ap": 243517130, … }

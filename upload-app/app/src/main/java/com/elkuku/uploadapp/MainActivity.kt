@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Only on first creation: after a rotation the ViewModel already holds the shared stats
+        // Only on first creation: after a rotation the shared stats were already handled
         if (savedInstanceState == null) handleShare(intent)
 
         setContent {
@@ -44,8 +44,7 @@ class MainActivity : ComponentActivity() {
                     onSignIn = { viewModel.signIn(activity) },
                     onSignOut = { viewModel.signOut(activity) },
                     onRefresh = { viewModel.refresh(activity) },
-                    onSave = { viewModel.savePending(activity) },
-                    onDiscard = viewModel::discardPending,
+                    onDismissImportResult = viewModel::dismissImportResult,
                 )
             }
         }
@@ -61,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             val text = withContext(Dispatchers.IO) { readSharedText(intent, contentResolver) }
-            if (text != null) viewModel.onShared(text)
+            if (text != null) viewModel.onShared(this@MainActivity, text)
         }
     }
 }

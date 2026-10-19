@@ -63,9 +63,10 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   `422` / other to `SaveResult` and the list to `AgentStatsResult`.
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
-- `ui/MainViewModel.kt` — UI state: session, the user's stats, shared stats waiting to be saved;
-  on `401` fetches a fresh ID token silently and retries once.
-- `ui/MainScreen.kt` — the one screen: sign-in, the review card for shared stats, the stats.
+- `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right
+  away (or after sign-in, if shared before); on `401` fetches a fresh ID token silently and
+  retries once.
+- `ui/MainScreen.kt` — the one screen: sign-in, status messages, the stats.
 - `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
   Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
   `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.

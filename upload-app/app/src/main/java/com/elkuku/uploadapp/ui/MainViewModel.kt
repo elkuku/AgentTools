@@ -8,8 +8,10 @@ import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
 import com.elkuku.uploadapp.data.AgentStatEntry
 import com.elkuku.uploadapp.data.AgentStatsResult
+import com.elkuku.uploadapp.data.ImportResult
 import com.elkuku.uploadapp.data.SaveResult
 import com.elkuku.uploadapp.data.StatsApi
+import com.elkuku.uploadapp.data.importResultFor
 import com.elkuku.uploadapp.data.parseIngressStats
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,24 +22,20 @@ import kotlinx.serialization.json.JsonObject
 
 data class Status(val text: String, val isError: Boolean)
 
-/** Stats shared from Ingress, waiting for the user to save them. */
-data class PendingStats(val json: JsonObject) {
-    val entry: AgentStatEntry = AgentStatEntry.fromJson(json)
-}
-
 data class UiState(
     val session: GoogleSession? = null,
     val busy: Boolean = false,
     /** The user's stats, newest first; null until loaded. */
     val entries: List<AgentStatEntry>? = null,
-    val pending: PendingStats? = null,
+    /** Stats shared from Ingress before the user signed in; saved after sign-in. */
+    val pending: JsonObject? = null,
+    /** What changed with the last saved stats, as on 4e-website after an import. */
+    val importResult: ImportResult? = null,
     val status: Status? = null,
 ) {
     val latest: AgentStatEntry? get() = entries?.firstOrNull()
 
     val first: AgentStatEntry? get() = entries?.lastOrNull()
-
-    val canSave: Boolean get() = session != null && pending != null && !busy
 }
 
 class MainViewModel(
@@ -57,7 +55,7 @@ class MainViewModel(
         launchBusy {
             val session = auth.signInSilently(context) ?: return@launchBusy
             _state.update { it.copy(session = session) }
-            loadStats(context)
+            savePendingOrLoad(context)
         }
     }
 
@@ -66,7 +64,7 @@ class MainViewModel(
             val session = auth.signIn(context)
             // No "signed in" message: the account is shown, and a share hint must stay visible
             _state.update { it.copy(session = session) }
-            loadStats(context)
+            savePendingOrLoad(context)
         } catch (e: AuthException) {
             _state.update { it.copy(status = if (e.cancelled) null else Status(e.message.orEmpty(), true)) }
         }
@@ -74,7 +72,7 @@ class MainViewModel(
 
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
-        _state.update { it.copy(session = null, entries = null, status = Status("Signed out.", false)) }
+        _state.update { it.copy(session = null, entries = null, importResult = null, status = Status("Signed out.", false)) }
     }
 
     fun refresh(context: Context) {
@@ -82,35 +80,52 @@ class MainViewModel(
         launchBusy { loadStats(context) }
     }
 
-    /** Text shared from another app: Ingress all-time stats wait for the user to save them. */
-    fun onShared(text: String) = _state.update {
+    /**
+     * Text shared from another app: Ingress all-time stats are saved right away, or after sign-in
+     * when the user is not signed in yet.
+     */
+    fun onShared(context: Context, text: String) {
         val stats = parseIngressStats(text)
         if (stats == null) {
-            it.copy(status = Status(NOT_STATS_MESSAGE, true))
+            _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
+            return
+        }
+
+        _state.update { it.copy(pending = stats, importResult = null, status = null) }
+        if (_state.value.session == null) {
+            _state.update { it.copy(status = Status("Sign in to save the shared stats.", false)) }
         } else {
-            it.copy(pending = PendingStats(stats), status = null)
+            launchBusy { savePendingOrLoad(context) }
         }
     }
 
-    fun discardPending() = _state.update { it.copy(pending = null, status = null) }
+    fun dismissImportResult() = _state.update { it.copy(importResult = null) }
 
-    fun savePending(context: Context) {
-        val pending = _state.value.pending ?: return
-        if (!_state.value.canSave) return
+    /** Saves stats shared before sign-in (which reloads the stats), or just loads the stats. */
+    private suspend fun savePendingOrLoad(context: Context) {
+        val stats = _state.value.pending
+        if (stats == null) {
+            loadStats(context)
+            return
+        }
 
-        launchBusy {
-            val result = withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, pending.json) }
+        // Taken before saving, so a sign-in and a share at the same time save it only once
+        _state.update { it.copy(pending = null) }
+        val result = withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, stats) }
 
-            when (result) {
-                is SaveResult.Success -> {
-                    _state.update { it.copy(pending = null, status = Status("Agent stats saved.", false)) }
-                    loadStats(context)
+        when (result) {
+            is SaveResult.Success -> {
+                _state.update { it.copy(status = Status("Agent stats saved.", false)) }
+                loadStats(context)
+                _state.update { state ->
+                    val entries = state.entries.orEmpty()
+                    state.copy(importResult = entries.find { it.id == result.id }?.let { importResultFor(it, entries) })
                 }
-                is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
-                is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
-                is SaveResult.Unauthorized -> signedOutBy(result.message)
-                null -> Unit
             }
+            is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
+            is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is SaveResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
         }
     }
 
