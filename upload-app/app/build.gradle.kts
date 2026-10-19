@@ -30,6 +30,8 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "SERVER_BASE_URL", "\"${localProperty("server.baseUrl.debug", "http://10.0.2.2:8000")}\"")
+            // Fake sign-in without Google (needs APP_FAKE_GOOGLE_TOKENS=1 on the dev server)
+            buildConfigField("String", "FAKE_SIGN_IN_EMAIL", "\"${localProperty("debug.fakeSignInEmail")}\"")
         }
         release {
             isMinifyEnabled = true

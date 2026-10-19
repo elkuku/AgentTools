@@ -41,6 +41,20 @@ The emulator reaches the host at `http://10.0.2.2:8000`. Plain HTTP is allowed f
 debug builds only (`app/src/debug/res/xml/network_security_config.xml`). Use an emulator image
 **with Google Play** so Sign in with Google is available.
 
+### Without Google (fake tokens)
+
+For an end-to-end test before the Google clients exist:
+
+1. `upload-page/.env.local`: `APP_FAKE_GOOGLE_TOKENS=1` (dev env only; the server then also
+   accepts `fake|<googleId>|<email>|verified` tokens).
+2. Create a user with that email as identifier (`symfony console user-admin`).
+3. `upload-app/local.properties`: `debug.fakeSignInEmail=<that email>`. Debug builds then skip
+   Google; release builds don't contain the fake sign-in at all.
+4. Serve on loopback only, so nobody else can use fake tokens:
+   `symfony server:start --no-tls --port=8001 -d` with `server.baseUrl.debug=http://10.0.2.2:8001`.
+
+Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to real sign-in.
+
 ## Structure
 
 - `auth/GoogleAuth.kt` — Credential Manager: interactive "Sign in with Google", silent sign-in
