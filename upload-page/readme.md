@@ -1,4 +1,4 @@
-# Symfony Playground "two"
+# Upload Page
 
 [![Symfony tests](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml)
 
