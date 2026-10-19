@@ -7,6 +7,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -46,8 +47,15 @@ sealed interface UploadResult {
     data class Failure(val message: String) : UploadResult
 }
 
-fun interface UploadApi {
+interface UploadApi {
+    /** `POST /api/uploads`: a titled, free-form JSON object. */
     suspend fun upload(idToken: String, request: UploadRequest): UploadResult
+
+    /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
+    suspend fun uploadAgentStats(idToken: String, stats: JsonObject): UploadResult
+
+    /** `GET /api/agent-stats`: the user's agent stats, newest first. */
+    suspend fun agentStats(idToken: String): AgentStatsResult
 }
 
 class KtorUploadApi(
@@ -61,13 +69,42 @@ class KtorUploadApi(
         install(ContentNegotiation) { json(json) }
     }
 
-    override suspend fun upload(idToken: String, request: UploadRequest): UploadResult {
+    override suspend fun upload(idToken: String, request: UploadRequest): UploadResult =
+        post("/api/uploads", idToken, request)
+
+    override suspend fun uploadAgentStats(idToken: String, stats: JsonObject): UploadResult =
+        post("/api/agent-stats", idToken, stats)
+
+    override suspend fun agentStats(idToken: String): AgentStatsResult {
         val response = try {
-            client.post("${baseUrl.trimEnd('/')}/api/uploads") {
+            client.get("${baseUrl.trimEnd('/')}/api/agent-stats") {
+                bearerAuth(idToken)
+                accept(ContentType.Application.Json)
+            }
+        } catch (e: IOException) {
+            return AgentStatsResult.Failure("Network error: ${e.message ?: e::class.simpleName}")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<List<JsonObject>>()
+                ?.let { list -> AgentStatsResult.Success(list.map(AgentStatEntry::fromJson)) }
+                ?: AgentStatsResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> AgentStatsResult.Unauthorized(
+                response.decodeOrNull<ErrorResponse>()?.error?.ifBlank { null } ?: "Unauthorized."
+            )
+
+            else -> AgentStatsResult.Failure("Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    private suspend inline fun <reified T> post(path: String, idToken: String, payload: T): UploadResult {
+        val response = try {
+            client.post("${baseUrl.trimEnd('/')}$path") {
                 bearerAuth(idToken)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                setBody(request)
+                setBody(payload)
             }
         } catch (e: IOException) {
             return UploadResult.Failure("Network error: ${e.message ?: e::class.simpleName}")
@@ -89,7 +126,11 @@ class KtorUploadApi(
                     ?: listOf("The server rejected the data.")
             )
 
-            else -> UploadResult.Failure("Server error: HTTP ${response.status.value}")
+            // e.g. 409 "Stat entry already added!"
+            else -> UploadResult.Failure(
+                response.decodeOrNull<ErrorResponse>()?.error?.ifBlank { null }
+                    ?: "Server error: HTTP ${response.status.value}"
+            )
         }
     }
 

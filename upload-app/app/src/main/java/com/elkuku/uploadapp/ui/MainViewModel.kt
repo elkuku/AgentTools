@@ -7,10 +7,14 @@ import com.elkuku.uploadapp.auth.AuthException
 import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
 import com.elkuku.uploadapp.data.JsonInput
+import com.elkuku.uploadapp.data.SharedData
 import com.elkuku.uploadapp.data.UploadApi
 import com.elkuku.uploadapp.data.UploadRequest
 import com.elkuku.uploadapp.data.UploadResult
+import com.elkuku.uploadapp.data.parseIngressStats
 import com.elkuku.uploadapp.data.parseJsonObject
+import com.elkuku.uploadapp.data.title
+import com.elkuku.uploadapp.data.toJsonText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,8 +23,12 @@ import kotlinx.coroutines.launch
 
 data class Status(val text: String, val isError: Boolean)
 
+/** Where the data goes: a generic upload, or Ingress agent stats. */
+enum class UploadTarget { UPLOAD, AGENT_STATS }
+
 data class UiState(
     val session: GoogleSession? = null,
+    val target: UploadTarget = UploadTarget.UPLOAD,
     val title: String = "",
     val json: String = DEFAULT_JSON,
     val jsonError: String? = null,
@@ -28,7 +36,8 @@ data class UiState(
     val status: Status? = null,
 ) {
     val canSend: Boolean
-        get() = session != null && !busy && title.isNotBlank() && jsonError == null
+        get() = session != null && !busy && jsonError == null &&
+            (target == UploadTarget.AGENT_STATS || title.isNotBlank())
 
     companion object {
         const val DEFAULT_JSON = "{\n  \"hello\": \"world\"\n}"
@@ -74,30 +83,69 @@ class MainViewModel(
         it.copy(json = json, jsonError = (parseJsonObject(json) as? JsonInput.Invalid)?.message)
     }
 
+    /**
+     * Fills the form with data shared from another app; the user reviews it and uploads.
+     * Ingress all-time stats go to the agent stats instead of the uploads.
+     */
+    fun onShared(shared: SharedData) = _state.update {
+        val isAgentStats = parseIngressStats(shared.text) != null
+        it.copy(
+            target = if (isAgentStats) UploadTarget.AGENT_STATS else UploadTarget.UPLOAD,
+            title = shared.title(),
+            json = shared.toJsonText(),
+            jsonError = null,
+            status = Status(
+                if (isAgentStats) {
+                    "Ingress agent stats loaded. Review them and tap Save agent stats."
+                } else {
+                    "Shared data loaded. Review it and tap Upload."
+                },
+                false,
+            ),
+        )
+    }
+
+    /** Sends the data as a generic upload instead of agent stats. */
+    fun onUploadAsPlainData() = _state.update { it.copy(target = UploadTarget.UPLOAD) }
+
     fun upload(context: Context) {
         val current = _state.value
         val session = current.session ?: return
         val data = (parseJsonObject(current.json) as? JsonInput.Valid)?.value ?: return
-        val request = UploadRequest(current.title.trim(), data)
+        val target = current.target
+        val send: suspend (String) -> UploadResult = when (target) {
+            UploadTarget.UPLOAD -> UploadRequest(current.title.trim(), data).let { request ->
+                { idToken -> api.upload(idToken, request) }
+            }
+            UploadTarget.AGENT_STATS -> { idToken -> api.uploadAgentStats(idToken, data) }
+        }
 
         launchBusy {
-            var result = api.upload(session.idToken, request)
+            var result = send(session.idToken)
 
             // ID tokens expire after about an hour: get a fresh one and retry once
             if (result is UploadResult.Unauthorized) {
                 val refreshed = auth.signInSilently(context)
                 if (refreshed != null) {
                     _state.update { it.copy(session = refreshed) }
-                    result = api.upload(refreshed.idToken, request)
+                    result = send(refreshed.idToken)
                 }
             }
 
-            _state.update { it.withResult(result) }
+            _state.update { it.withResult(result, target) }
         }
     }
 
-    private fun UiState.withResult(result: UploadResult): UiState = when (result) {
-        is UploadResult.Success -> copy(status = Status("Uploaded (id ${result.id}).", false))
+    private fun UiState.withResult(result: UploadResult, target: UploadTarget): UiState = when (result) {
+        is UploadResult.Success -> copy(
+            status = Status(
+                when (target) {
+                    UploadTarget.UPLOAD -> "Uploaded (id ${result.id})."
+                    UploadTarget.AGENT_STATS -> "Agent stats saved (id ${result.id})."
+                },
+                false,
+            ),
+        )
         is UploadResult.Invalid -> copy(status = Status(result.messages.joinToString("\n"), true))
         is UploadResult.Failure -> copy(status = Status(result.message, true))
         is UploadResult.Unauthorized -> copy(

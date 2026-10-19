@@ -63,3 +63,10 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `data/JsonInput.kt` — validates the editor text (non-empty JSON object, like the server).
 - `ui/MainViewModel.kt` — UI state; on `401` fetches a fresh ID token silently and retries once.
 - `ui/MainScreen.kt` — Compose UI.
+- Share target (`ShareIntent.kt`, `data/SharedData.kt`) — text or text/JSON files shared from other
+  apps fill the form. Ingress all-time stats (`data/IngressStats.kt`) are converted to an
+  `agent_stat` row (column names of 4e-website) and saved via `POST /api/agent-stats`.
+- `ui/StatsScreen.kt` — "Stats" page: the latest agent stats from `GET /api/agent-stats` with
+  medals, laid out like 4e-website's agent stats page. Medal levels in `data/Medals.kt` (from
+  4e-website's `MedalChecker`); the badge images in `res/drawable-nodpi` are 4e-website's, scaled
+  to 150 px WebP.

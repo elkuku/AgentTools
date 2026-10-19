@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,9 +40,20 @@ fun MainScreen(
     onSignOut: () -> Unit,
     onTitleChange: (String) -> Unit,
     onJsonChange: (String) -> Unit,
+    onUploadAsPlainData: () -> Unit,
     onUpload: () -> Unit,
+    onShowStats: () -> Unit,
 ) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Upload App") }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Upload App") },
+                actions = {
+                    if (state.session != null) TextButton(onClick = onShowStats) { Text("Stats") }
+                },
+            )
+        },
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -70,13 +82,23 @@ fun MainScreen(
                     OutlinedButton(onClick = onSignOut, enabled = !state.busy) { Text("Sign out") }
                 }
 
-                OutlinedTextField(
-                    value = state.title,
-                    onValueChange = onTitleChange,
-                    label = { Text("Title") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                if (state.target == UploadTarget.AGENT_STATS) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "Ingress agent stats, saved to your agent stats.",
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = onUploadAsPlainData, enabled = !state.busy) { Text("Plain upload") }
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = state.title,
+                        onValueChange = onTitleChange,
+                        label = { Text("Title") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
                 OutlinedTextField(
                     value = state.json,
@@ -91,7 +113,7 @@ fun MainScreen(
                 )
 
                 Button(onClick = onUpload, enabled = state.canSend, modifier = Modifier.fillMaxWidth()) {
-                    Text("Upload")
+                    Text(if (state.target == UploadTarget.AGENT_STATS) "Save agent stats" else "Upload")
                 }
             }
 
@@ -127,7 +149,9 @@ private fun MainScreenPreview() {
             onSignOut = {},
             onTitleChange = {},
             onJsonChange = {},
+            onUploadAsPlainData = {},
             onUpload = {},
+            onShowStats = {},
         )
     }
 }
