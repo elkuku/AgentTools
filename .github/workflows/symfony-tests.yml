@@ -1,8 +1,19 @@
-name: Tests
-on: [push]
+name: Symfony tests
+on:
+    push:
+        paths:
+            - 'upload-page/**'
+            - '.github/workflows/symfony-tests.yml'
+    pull_request:
+        paths:
+            - 'upload-page/**'
+            - '.github/workflows/symfony-tests.yml'
 jobs:
     php-unit-and-functional-tests:
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: upload-page
         # Docs: https://docs.github.com/en/actions/using-containerized-services
         services:
             postgres:
@@ -37,6 +48,8 @@ jobs:
             # —— Composer —————————————————————————————————————————————————————————
             - name: Install dependencies
               uses: php-actions/composer@v6
+              with:
+                  working_dir: upload-page
             # —— Symfony ——————————————————————————————————————————————————————————
             - name: Check the Symfony console
               run: bin/console -V
