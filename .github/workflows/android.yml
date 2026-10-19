@@ -1,0 +1,63 @@
+name: Android
+
+on:
+    push:
+        paths:
+            - 'upload-app/**'
+            - '.github/workflows/android.yml'
+    pull_request:
+        paths:
+            - 'upload-app/**'
+            - '.github/workflows/android.yml'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: upload-app
+        steps:
+            # https://github.com/actions/checkout (official)
+            - name: Git checkout
+              uses: actions/checkout@v7
+
+            # AGP 9 needs JDK 17+ to run Gradle; the app itself targets Java 17
+            - name: Setup JDK
+              uses: actions/setup-java@v6
+              with:
+                  distribution: temurin
+                  java-version: '21'
+
+            # Caches Gradle and validates the wrapper jar
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v6
+
+            # The runner's Android SDK (ANDROID_HOME) is used; AGP installs missing platforms.
+            # google.serverClientId is left empty: sign-in is not exercised by the unit tests.
+            - name: Unit tests, lint and debug build
+              run: ./gradlew --console=plain testDebugUnitTest lintDebug assembleDebug
+
+            - name: Upload test and lint reports
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: reports
+                  path: |
+                      upload-app/app/build/reports/
+                      upload-app/app/build/test-results/
+                  retention-days: 7
+
+            - name: Upload debug APK
+              uses: actions/upload-artifact@v7
+              with:
+                  name: app-debug
+                  path: upload-app/app/build/outputs/apk/debug/app-debug.apk
+                  retention-days: 7
