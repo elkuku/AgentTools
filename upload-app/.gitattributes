@@ -1,0 +1,5 @@
+# Windows scripts need CRLF line endings
+*.bat text eol=crlf
+
+# Unix scripts must keep LF
+gradlew text eol=lf
