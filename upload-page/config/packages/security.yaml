@@ -54,6 +54,7 @@ security:
     access_control:
         - { path: ^/api/, roles: ROLE_USER }
         - { path: ^/uploads, roles: ROLE_USER }
+        - { path: ^/agent-stats, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

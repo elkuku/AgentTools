@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agent stats{% endblock %}
+
+{% block body %}
+    <h1 id="agent-stat-title">{{ agent_stat.nickname }} – {{ agent_stat.datetime|date('Y-m-d H:i:s') }}</h1>
+
+    <div class="float-end">
+        <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}">back to list</a>
+    </div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>faction</th>
+                <td>{{ agent_stat.faction }}</td>
+            </tr>
+            {% for column, value in agent_stat.stats %}
+                <tr>
+                    <th>{{ column }}</th>
+                    <td>{{ value is null ? '–' : value|number_format }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <th>imported</th>
+                <td>{{ agent_stat.createdAt|date('Y-m-d H:i:s') }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

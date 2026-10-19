@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My agent stats{% endblock %}
+
+{% block body %}
+    <h1>My agent stats</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Agent</th>
+            <th>Level</th>
+            <th class="text-end">AP</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for agent_stat in agent_stats %}
+            <tr>
+                <td>{{ agent_stat.datetime|date('Y-m-d H:i:s') }}</td>
+                <td>{{ agent_stat.nickname }} <span class="text-secondary">({{ agent_stat.faction }})</span></td>
+                <td>{{ agent_stat.level }}</td>
+                <td class="text-end">{{ agent_stat.ap|number_format }}</td>
+                <td>
+                    <a href="{{ path('app_agent_stat_show', {'id': agent_stat.id}) }}">show</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

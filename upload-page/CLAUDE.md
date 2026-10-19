@@ -42,6 +42,7 @@ symfony console user-admin  # Interactive user management CLI
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
 - **`Upload`** — a JSON object (`data`) with a `title`, owned by a `User` (cascade delete). `UploadSource` enum: `app` (API) or `web` (form).
+- **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
 - **`UploadInput`** (`src/Dto/`) — readonly DTO shared by the API (`#[MapRequestPayload]`) and the web form (`UploadType` builds it via `empty_data`). Data must be a non-empty JSON object, max 64 KB. Persisted through `UploadService`.
 
 ### Controllers
@@ -50,6 +51,8 @@ Single-action controller pattern under `src/Controller/`:
 - `Security/` — OAuth authenticators (Google, GitHub, GitLab) plus `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
 - `Upload/` — the user's own uploads: Index, Read (owner only, `UploadVoter`), Create (web form)
+- `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`)
+- `Api/AgentStatCreate` — `POST /api/agent-stats`; `201 {id, createdAt}`, `401`, `409 {error}`, `422`
 - `Api/UploadCreate` — `POST /api/uploads` for the Android app (`upload-app/` in the monorepo); `201 {id, createdAt}`, `401 {error}`, `422` with `violations`
 - `ProfileController`, `DefaultController`
 
