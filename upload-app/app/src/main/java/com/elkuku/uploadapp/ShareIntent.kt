@@ -4,23 +4,21 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.IntentCompat
-import com.elkuku.uploadapp.data.SharedData
 
-/** The server accepts at most 64 KB of JSON; stop reading shared files well above that. */
+/** Ingress stats are a few KB; stop reading shared files well above that. */
 private const val MAX_SHARED_BYTES = 256 * 1024
 
 /**
  * Reads an ACTION_SEND intent: the text in EXTRA_TEXT, or else the file in EXTRA_STREAM.
  * Returns null for other intents or when nothing could be read. Blocking: call off the main thread.
  */
-fun readSharedData(intent: Intent, resolver: ContentResolver): SharedData? {
+fun readSharedText(intent: Intent, resolver: ContentResolver): String? {
     if (intent.action != Intent.ACTION_SEND) return null
 
-    val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT) ?: intent.getStringExtra(Intent.EXTRA_TITLE)
     val text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
         ?: IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)?.let { readText(it, resolver) }
 
-    return text?.takeIf { it.isNotBlank() }?.let { SharedData(it, subject) }
+    return text?.takeIf { it.isNotBlank() }
 }
 
 private fun readText(uri: Uri, resolver: ContentResolver): String? = try {

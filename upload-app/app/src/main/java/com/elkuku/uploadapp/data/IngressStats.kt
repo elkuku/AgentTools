@@ -92,3 +92,26 @@ fun parseIngressStats(text: String): JsonObject? {
 
     return JsonObject(values)
 }
+
+/**
+ * Splits tab-separated text into its header and data rows (each padded to the header size);
+ * null if the text is not such a table.
+ */
+private fun splitTable(text: String): Pair<List<String>, List<List<String>>>? {
+    val lines = text.lines().filter { it.isNotBlank() }
+    if (lines.size < 2 || '\t' !in lines.first()) return null
+
+    // Ingress ends every line with a tab: drop trailing empty cells
+    val header = lines.first().splitCells()
+    if (header.any { it.isEmpty() } || header.toSet().size != header.size) return null
+
+    val rows = lines.drop(1).map { line ->
+        val cells = line.splitCells()
+        if (cells.size > header.size) return null
+        cells + List(header.size - cells.size) { "" }
+    }
+
+    return header to rows
+}
+
+private fun String.splitCells(): List<String> = split('\t').map { it.trim() }.dropLastWhile { it.isEmpty() }

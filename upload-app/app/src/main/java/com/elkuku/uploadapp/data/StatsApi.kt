@@ -21,9 +21,6 @@ import kotlinx.serialization.json.JsonObject
 import java.io.IOException
 
 @Serializable
-data class UploadRequest(val title: String, val data: JsonObject)
-
-@Serializable
 private data class CreatedResponse(val id: Int, val createdAt: String)
 
 @Serializable
@@ -35,33 +32,33 @@ private data class Violation(val propertyPath: String = "", val title: String = 
 @Serializable
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
 
-sealed interface UploadResult {
-    data class Success(val id: Int, val createdAt: String) : UploadResult
+sealed interface SaveResult {
+    data class Success(val id: Int, val createdAt: String) : SaveResult
 
     /** The ID token was rejected (expired, invalid, or the user is unknown to the server). */
-    data class Unauthorized(val message: String) : UploadResult
+    data class Unauthorized(val message: String) : SaveResult
 
-    /** The server rejected the payload; one message per violation. */
-    data class Invalid(val messages: List<String>) : UploadResult
+    /** The server rejected the stats; one message per violation. */
+    data class Invalid(val messages: List<String>) : SaveResult
 
-    data class Failure(val message: String) : UploadResult
+    /** E.g. a network error, or 409 "Stat entry already added!". */
+    data class Failure(val message: String) : SaveResult
 }
 
-interface UploadApi {
-    /** `POST /api/uploads`: a titled, free-form JSON object. */
-    suspend fun upload(idToken: String, request: UploadRequest): UploadResult
-
+interface StatsApi {
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
-    suspend fun uploadAgentStats(idToken: String, stats: JsonObject): UploadResult
+    suspend fun save(idToken: String, stats: JsonObject): SaveResult
 
     /** `GET /api/agent-stats`: the user's agent stats, newest first. */
-    suspend fun agentStats(idToken: String): AgentStatsResult
+    suspend fun list(idToken: String): AgentStatsResult
 }
 
-class KtorUploadApi(
-    private val baseUrl: String,
+class KtorStatsApi(
+    baseUrl: String,
     engine: HttpClientEngine = OkHttp.create(),
-) : UploadApi {
+) : StatsApi {
+    private val url = "${baseUrl.trimEnd('/')}/api/agent-stats"
+
     private val json = Json { ignoreUnknownKeys = true }
 
     private val client = HttpClient(engine) {
@@ -69,20 +66,43 @@ class KtorUploadApi(
         install(ContentNegotiation) { json(json) }
     }
 
-    override suspend fun upload(idToken: String, request: UploadRequest): UploadResult =
-        post("/api/uploads", idToken, request)
-
-    override suspend fun uploadAgentStats(idToken: String, stats: JsonObject): UploadResult =
-        post("/api/agent-stats", idToken, stats)
-
-    override suspend fun agentStats(idToken: String): AgentStatsResult {
+    override suspend fun save(idToken: String, stats: JsonObject): SaveResult {
         val response = try {
-            client.get("${baseUrl.trimEnd('/')}/api/agent-stats") {
+            client.post(url) {
+                bearerAuth(idToken)
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(stats)
+            }
+        } catch (e: IOException) {
+            return SaveResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.Created -> response.body<CreatedResponse>().let { SaveResult.Success(it.id, it.createdAt) }
+
+            HttpStatusCode.Unauthorized -> SaveResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            HttpStatusCode.UnprocessableEntity -> SaveResult.Invalid(
+                response.decodeOrNull<ValidationResponse>()?.violations
+                    ?.map { if (it.propertyPath.isBlank()) it.title else "${it.propertyPath}: ${it.title}" }
+                    ?.ifEmpty { null }
+                    ?: listOf("The server rejected the stats.")
+            )
+
+            // e.g. 409 "Stat entry already added!"
+            else -> SaveResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    override suspend fun list(idToken: String): AgentStatsResult {
+        val response = try {
+            client.get(url) {
                 bearerAuth(idToken)
                 accept(ContentType.Application.Json)
             }
         } catch (e: IOException) {
-            return AgentStatsResult.Failure("Network error: ${e.message ?: e::class.simpleName}")
+            return AgentStatsResult.Failure(networkError(e))
         }
 
         return when (response.status) {
@@ -90,51 +110,17 @@ class KtorUploadApi(
                 ?.let { list -> AgentStatsResult.Success(list.map(AgentStatEntry::fromJson)) }
                 ?: AgentStatsResult.Failure("Unexpected response from the server.")
 
-            HttpStatusCode.Unauthorized -> AgentStatsResult.Unauthorized(
-                response.decodeOrNull<ErrorResponse>()?.error?.ifBlank { null } ?: "Unauthorized."
-            )
+            HttpStatusCode.Unauthorized -> AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
             else -> AgentStatsResult.Failure("Server error: HTTP ${response.status.value}")
         }
     }
 
-    private suspend inline fun <reified T> post(path: String, idToken: String, payload: T): UploadResult {
-        val response = try {
-            client.post("${baseUrl.trimEnd('/')}$path") {
-                bearerAuth(idToken)
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(payload)
-            }
-        } catch (e: IOException) {
-            return UploadResult.Failure("Network error: ${e.message ?: e::class.simpleName}")
-        }
-
-        return when (response.status) {
-            HttpStatusCode.Created -> response.body<CreatedResponse>().let {
-                UploadResult.Success(it.id, it.createdAt)
-            }
-
-            HttpStatusCode.Unauthorized -> UploadResult.Unauthorized(
-                response.decodeOrNull<ErrorResponse>()?.error?.ifBlank { null } ?: "Unauthorized."
-            )
-
-            HttpStatusCode.UnprocessableEntity -> UploadResult.Invalid(
-                response.decodeOrNull<ValidationResponse>()?.violations
-                    ?.map { if (it.propertyPath.isBlank()) it.title else "${it.propertyPath}: ${it.title}" }
-                    ?.ifEmpty { null }
-                    ?: listOf("The server rejected the data.")
-            )
-
-            // e.g. 409 "Stat entry already added!"
-            else -> UploadResult.Failure(
-                response.decodeOrNull<ErrorResponse>()?.error?.ifBlank { null }
-                    ?: "Server error: HTTP ${response.status.value}"
-            )
-        }
-    }
-
     fun close() = client.close()
+
+    private fun networkError(e: IOException) = "Network error: ${e.message ?: e::class.simpleName}"
+
+    private suspend fun HttpResponse.errorMessage(): String? = decodeOrNull<ErrorResponse>()?.error?.ifBlank { null }
 
     private suspend inline fun <reified T> HttpResponse.decodeOrNull(): T? =
         try {

@@ -9,24 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elkuku.uploadapp.R
 import com.elkuku.uploadapp.data.AgentStatEntry
@@ -49,63 +39,16 @@ import com.elkuku.uploadapp.data.CORE_BADGE_MONTHS
 import com.elkuku.uploadapp.data.LEVEL_NAMES
 import com.elkuku.uploadapp.data.MedalLevel
 import com.elkuku.uploadapp.data.medalLevels
-import com.elkuku.uploadapp.ui.theme.UploadAppTheme
 import java.text.NumberFormat
 
 private val numberFormat: NumberFormat = NumberFormat.getIntegerInstance()
 
-private fun Long?.formatted(): String = numberFormat.format(this ?: 0)
+internal fun Long?.formatted(): String = numberFormat.format(this ?: 0)
 
 /** The latest agent stats with medals, laid out like 4e-website's agent stats page. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StatsScreen(
-    state: StatsUiState,
-    onBack: () -> Unit,
-    onRefresh: () -> Unit,
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Agent stats") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
-                actions = { TextButton(onClick = onRefresh, enabled = !state.loading) { Text("Refresh") } },
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            if (state.loading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-
-            state.error?.let { error ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(error, modifier = Modifier.padding(12.dp))
-                }
-            }
-
-            val latest = state.latest
-            when {
-                latest != null -> AgentStats(latest, first = state.first ?: latest)
-                state.entries != null -> Text("There are no statistics yet. Share your stats from Ingress to this app.")
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
+fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
     var selected by remember { mutableStateOf<MedalLevel?>(null) }
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -254,23 +197,4 @@ private fun MedalDialog(medal: MedalLevel, onDismiss: () -> Unit) {
             }
         },
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun StatsScreenPreview() {
-    val entry = AgentStatEntry(
-        id = 1,
-        datetime = "2026-10-19 15:35:56",
-        nickname = "TestAgent",
-        faction = "Enlightened",
-        stats = mapOf(
-            "level" to 16, "ap" to 243517130, "recursions" to 2, "months_subscribed" to 69,
-            "explorer" to 27659, "trekker" to 10490, "mind_controller" to 35236, "hacker" to 144170,
-            "maverick" to 9249, "drone_portals_visited" to 326, "kinetic_capsules_completed" to 117,
-        ).mapValues { (_, v) -> v.toLong() },
-    )
-    UploadAppTheme {
-        StatsScreen(StatsUiState(entries = listOf(entry)), onBack = {}, onRefresh = {})
-    }
 }

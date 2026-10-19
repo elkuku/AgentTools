@@ -5,11 +5,10 @@ import android.content.ContextWrapper
 import com.elkuku.uploadapp.auth.AuthException
 import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
+import com.elkuku.uploadapp.data.AgentStatEntry
 import com.elkuku.uploadapp.data.AgentStatsResult
-import com.elkuku.uploadapp.data.SharedData
-import com.elkuku.uploadapp.data.UploadApi
-import com.elkuku.uploadapp.data.UploadRequest
-import com.elkuku.uploadapp.data.UploadResult
+import com.elkuku.uploadapp.data.SaveResult
+import com.elkuku.uploadapp.data.StatsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -17,8 +16,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,9 +30,11 @@ class MainViewModelTest {
 
     private val session = GoogleSession("token-1", "jane@example.com", "Jane")
 
+    private val entry = AgentStatEntry(1, "2026-10-01 10:00:00", "TestAgent", "Enlightened", mapOf("ap" to 1L))
+
     private val auth = FakeGoogleAuth()
 
-    private val api = FakeUploadApi()
+    private val api = FakeStatsApi()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -44,15 +43,37 @@ class MainViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun restoresSessionSilentlyOnce() {
+    fun restoresSessionSilentlyOnceAndLoadsStats() {
         auth.silentSessions += session
+        api.lists += AgentStatsResult.Success(listOf(entry))
         val viewModel = MainViewModel(auth, api)
 
         viewModel.restoreSession(context)
         viewModel.restoreSession(context)
 
         assertEquals(session, viewModel.state.value.session)
+        assertEquals(entry, viewModel.state.value.latest)
         assertEquals(1, auth.silentCalls)
+        assertEquals(listOf("token-1"), api.listTokens)
+    }
+
+    @Test
+    fun withoutAuthorizationNothingIsLoaded() {
+        val viewModel = MainViewModel(auth, api)
+
+        viewModel.restoreSession(context)
+
+        assertNull(viewModel.state.value.session)
+        assertNull(viewModel.state.value.entries)
+        assertTrue(api.listTokens.isEmpty())
+    }
+
+    @Test
+    fun signInLoadsStats() {
+        val viewModel = signedIn()
+
+        assertEquals(session, viewModel.state.value.session)
+        assertEquals(listOf(entry), viewModel.state.value.entries)
     }
 
     @Test
@@ -77,153 +98,145 @@ class MainViewModelTest {
     }
 
     @Test
-    fun invalidJsonDisablesUpload() {
-        val viewModel = signedIn()
-        viewModel.onTitleChange("Title")
-
-        viewModel.onJsonChange("[1, 2]")
-
-        assertFalse(viewModel.state.value.canSend)
-        assertTrue(viewModel.state.value.jsonError!!.startsWith("The data must be a JSON object"))
-    }
-
-    @Test
-    fun sharedDataFillsTheFormAndUploads() {
-        val viewModel = signedIn()
-        viewModel.onJsonChange("[")
-
-        viewModel.onShared(SharedData("Buy milk", subject = "Shopping"))
-
-        val state = viewModel.state.value
-        assertEquals("Shopping", state.title)
-        assertNull(state.jsonError)
-        assertTrue(state.canSend)
-
-        api.results += UploadResult.Success(7, "now")
-        viewModel.upload(context)
-
-        assertEquals(buildJsonObject { put("text", "Buy milk") }, api.calls.single().second.data)
-    }
-
-    @Test
-    fun sharedIngressStatsAreSavedAsAgentStats() {
-        val viewModel = signedIn()
-
-        viewModel.onShared(SharedData(ingressStats()))
-
-        assertEquals(UploadTarget.AGENT_STATS, viewModel.state.value.target)
-        viewModel.onTitleChange("")
-        assertTrue(viewModel.state.value.canSend)
-
-        api.results += UploadResult.Success(3, "now")
-        viewModel.upload(context)
-
-        assertTrue(api.calls.isEmpty())
-        val stats = api.statsCalls.single().second
-        assertEquals(JsonPrimitive("TestAgent"), stats["nickname"])
-        assertEquals(JsonPrimitive(243517130L), stats["ap"])
-        assertEquals(Status("Agent stats saved (id 3).", false), viewModel.state.value.status)
-    }
-
-    @Test
-    fun ingressStatsCanBeSentAsPlainUpload() {
-        val viewModel = signedIn()
-        viewModel.onShared(SharedData(ingressStats()))
-
-        viewModel.onUploadAsPlainData()
-
-        api.results += UploadResult.Success(4, "now")
-        viewModel.upload(context)
-
-        assertTrue(api.statsCalls.isEmpty())
-        assertEquals("Ingress stats: TestAgent, 2026-10-19 15:35:56", api.calls.single().second.title)
-    }
-
-    @Test
-    fun duplicateAgentStatsShowServerMessage() {
-        val viewModel = signedIn()
-        viewModel.onShared(SharedData(ingressStats()))
-
-        api.results += UploadResult.Failure("Stat entry already added!")
-        viewModel.upload(context)
-
-        assertEquals(Status("Stat entry already added!", true), viewModel.state.value.status)
-    }
-
-    @Test
-    fun otherSharedDataStaysAnUpload() {
-        val viewModel = signedIn()
-
-        viewModel.onShared(SharedData("Buy milk"))
-
-        assertEquals(UploadTarget.UPLOAD, viewModel.state.value.target)
-    }
-
-    @Test
-    fun uploadSendsTokenAndShowsSuccess() {
-        api.results += UploadResult.Success(5, "now")
-        val viewModel = signedIn()
-        viewModel.onTitleChange("  Title  ")
-        viewModel.onJsonChange("""{"a": 1}""")
-
-        viewModel.upload(context)
-
-        val (token, request) = api.calls.single()
-        assertEquals("token-1", token)
-        assertEquals("Title", request.title)
-        assertEquals(Status("Uploaded (id 5).", false), viewModel.state.value.status)
-        assertFalse(viewModel.state.value.busy)
-    }
-
-    @Test
-    fun expiredTokenIsRefreshedAndRetriedOnce() {
-        api.results += UploadResult.Unauthorized("Invalid ID token.")
-        api.results += UploadResult.Success(6, "now")
-        auth.silentSessions += session.copy(idToken = "token-2")
-        val viewModel = signedIn()
-        viewModel.onTitleChange("Title")
-
-        viewModel.upload(context)
-
-        assertEquals(listOf("token-1", "token-2"), api.calls.map { it.first })
-        assertEquals("token-2", viewModel.state.value.session?.idToken)
-        assertEquals(Status("Uploaded (id 6).", false), viewModel.state.value.status)
-    }
-
-    @Test
-    fun unauthorizedAfterRefreshSignsOut() {
-        api.results += UploadResult.Unauthorized("Unknown user.")
-        api.results += UploadResult.Unauthorized("Unknown user.")
-        auth.silentSessions += session.copy(idToken = "token-2")
-        val viewModel = signedIn()
-        viewModel.onTitleChange("Title")
-
-        viewModel.upload(context)
-
-        assertEquals(2, api.calls.size)
-        assertNull(viewModel.state.value.session)
-        assertTrue(viewModel.state.value.status!!.isError)
-    }
-
-    @Test
-    fun validationErrorsAreShown() {
-        api.results += UploadResult.Invalid(listOf("title: too long", "data: too large"))
-        val viewModel = signedIn()
-        viewModel.onTitleChange("Title")
-
-        viewModel.upload(context)
-
-        assertEquals(Status("title: too long\ndata: too large", true), viewModel.state.value.status)
-    }
-
-    @Test
-    fun signOutClearsSession() {
+    fun signOutClearsSessionAndStats() {
         val viewModel = signedIn()
 
         viewModel.signOut(context)
 
-        assertNull(viewModel.state.value.session)
         assertTrue(auth.signedOut)
+        assertNull(viewModel.state.value.session)
+        assertNull(viewModel.state.value.entries)
+    }
+
+    @Test
+    fun sharedIngressStatsWaitForSave() {
+        val viewModel = signedIn()
+
+        viewModel.onShared(ingressStats())
+
+        val pending = viewModel.state.value.pending!!
+        assertEquals("TestAgent", pending.entry.nickname)
+        assertEquals(243517130L, pending.entry["ap"])
+        assertTrue(viewModel.state.value.canSave)
+        assertTrue(api.saved.isEmpty())
+    }
+
+    @Test
+    fun otherSharedTextShowsHint() {
+        val viewModel = signedIn()
+
+        viewModel.onShared("Buy milk")
+
+        assertNull(viewModel.state.value.pending)
+        assertEquals(Status(MainViewModel.NOT_STATS_MESSAGE, true), viewModel.state.value.status)
+    }
+
+    @Test
+    fun shareHintSurvivesSignIn() {
+        val viewModel = MainViewModel(auth, api)
+        viewModel.onShared("Buy milk")
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.signIn(context)
+
+        assertEquals(Status(MainViewModel.NOT_STATS_MESSAGE, true), viewModel.state.value.status)
+    }
+
+    @Test
+    fun savingRequiresSignIn() {
+        val viewModel = MainViewModel(auth, api)
+        viewModel.onShared(ingressStats())
+
+        assertFalse(viewModel.state.value.canSave)
+        viewModel.savePending(context)
+
+        assertTrue(api.saved.isEmpty())
+    }
+
+    @Test
+    fun saveSendsStatsAndReloads() {
+        val viewModel = signedIn()
+        viewModel.onShared(ingressStats())
+        val newest = entry.copy(id = 2, datetime = "2026-10-19 15:35:56")
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(newest, entry))
+
+        viewModel.savePending(context)
+
+        val (token, stats) = api.saved.single()
+        assertEquals("token-1", token)
+        assertEquals(JsonPrimitive("TestAgent"), stats["nickname"])
+        assertEquals(JsonPrimitive("2026-10-19 15:35:56"), stats["datetime"])
+        assertNull(viewModel.state.value.pending)
+        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(newest, viewModel.state.value.latest)
+        assertEquals(entry, viewModel.state.value.first)
+        assertFalse(viewModel.state.value.busy)
+    }
+
+    @Test
+    fun duplicateKeepsPendingAndShowsServerMessage() {
+        val viewModel = signedIn()
+        viewModel.onShared(ingressStats())
+        api.saves += SaveResult.Failure("Stat entry already added!")
+
+        viewModel.savePending(context)
+
+        assertEquals(Status("Stat entry already added!", true), viewModel.state.value.status)
+        assertTrue(viewModel.state.value.pending != null)
+    }
+
+    @Test
+    fun discardDropsPendingStats() {
+        val viewModel = signedIn()
+        viewModel.onShared(ingressStats())
+
+        viewModel.discardPending()
+
+        assertNull(viewModel.state.value.pending)
+    }
+
+    @Test
+    fun expiredTokenIsRefreshedOnce() {
+        val viewModel = signedIn()
+        viewModel.onShared(ingressStats())
+        val refreshed = session.copy(idToken = "token-2")
+        auth.silentSessions += refreshed
+        api.saves += SaveResult.Unauthorized("Invalid ID token.")
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.savePending(context)
+
+        assertEquals(listOf("token-1", "token-2"), api.saved.map { it.first })
+        assertEquals(refreshed, viewModel.state.value.session)
+        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun unauthorizedWithoutRefreshSignsOut() {
+        val viewModel = signedIn()
+        api.lists += AgentStatsResult.Unauthorized("Unknown user.")
+
+        viewModel.refresh(context)
+
+        assertNull(viewModel.state.value.session)
+        assertEquals(
+            Status("Not authorized: Unknown user. Please sign in again.", true),
+            viewModel.state.value.status,
+        )
+    }
+
+    @Test
+    fun loadFailureKeepsStats() {
+        val viewModel = signedIn()
+        api.lists += AgentStatsResult.Failure("Network error: timeout")
+
+        viewModel.refresh(context)
+
+        assertEquals(entry, viewModel.state.value.latest)
+        assertEquals(Status("Network error: timeout", true), viewModel.state.value.status)
     }
 
     private fun ingressStats(): String =
@@ -231,6 +244,7 @@ class MainViewModelTest {
 
     private fun signedIn(): MainViewModel {
         auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
         return MainViewModel(auth, api).also { it.signIn(context) }
     }
 
@@ -256,21 +270,20 @@ class MainViewModelTest {
         }
     }
 
-    private class FakeUploadApi : UploadApi {
-        val results = ArrayDeque<UploadResult>()
-        val calls = mutableListOf<Pair<String, UploadRequest>>()
-        val statsCalls = mutableListOf<Pair<String, JsonObject>>()
+    private class FakeStatsApi : StatsApi {
+        val saves = ArrayDeque<SaveResult>()
+        val lists = ArrayDeque<AgentStatsResult>()
+        val saved = mutableListOf<Pair<String, JsonObject>>()
+        val listTokens = mutableListOf<String>()
 
-        override suspend fun upload(idToken: String, request: UploadRequest): UploadResult {
-            calls += idToken to request
-            return results.removeFirst()
+        override suspend fun save(idToken: String, stats: JsonObject): SaveResult {
+            saved += idToken to stats
+            return saves.removeFirst()
         }
 
-        override suspend fun uploadAgentStats(idToken: String, stats: JsonObject): UploadResult {
-            statsCalls += idToken to stats
-            return results.removeFirst()
+        override suspend fun list(idToken: String): AgentStatsResult {
+            listTokens += idToken
+            return lists.removeFirst()
         }
-
-        override suspend fun agentStats(idToken: String): AgentStatsResult = error("not used")
     }
 }

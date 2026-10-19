@@ -2,8 +2,8 @@
 
 [![Android](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml)
 
-Android app (Kotlin, Jetpack Compose) that signs in with Google and uploads a JSON object to
-`upload-page` (`POST /api/uploads`).
+Android app (Kotlin, Jetpack Compose) that signs in with Google, saves Ingress agent stats shared
+from Ingress to `upload-page` (`POST /api/agent-stats`) and shows them with medals.
 
 ## Setup
 
@@ -59,14 +59,13 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 
 - `auth/GoogleAuth.kt` — Credential Manager: interactive "Sign in with Google", silent sign-in
   for returning users and token refresh, sign-out.
-- `data/UploadApi.kt` — Ktor client; maps `201` / `401` / `422` / other to `UploadResult`.
-- `data/JsonInput.kt` — validates the editor text (non-empty JSON object, like the server).
-- `ui/MainViewModel.kt` — UI state; on `401` fetches a fresh ID token silently and retries once.
-- `ui/MainScreen.kt` — Compose UI.
-- Share target (`ShareIntent.kt`, `data/SharedData.kt`) — text or text/JSON files shared from other
-  apps fill the form. Ingress all-time stats (`data/IngressStats.kt`) are converted to an
-  `agent_stat` row (column names of 4e-website) and saved via `POST /api/agent-stats`.
-- `ui/StatsScreen.kt` — "Stats" page: the latest agent stats from `GET /api/agent-stats` with
-  medals, laid out like 4e-website's agent stats page. Medal levels in `data/Medals.kt` (from
-  4e-website's `MedalChecker`); the badge images in `res/drawable-nodpi` are 4e-website's, scaled
-  to 150 px WebP.
+- `data/StatsApi.kt` — Ktor client for `POST` / `GET /api/agent-stats`; maps `201` / `401` / `409` /
+  `422` / other to `SaveResult` and the list to `AgentStatsResult`.
+- Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
+  all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
+- `ui/MainViewModel.kt` — UI state: session, the user's stats, shared stats waiting to be saved;
+  on `401` fetches a fresh ID token silently and retries once.
+- `ui/MainScreen.kt` — the one screen: sign-in, the review card for shared stats, the stats.
+- `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
+  Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
+  `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.

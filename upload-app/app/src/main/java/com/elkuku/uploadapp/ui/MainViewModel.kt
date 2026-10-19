@@ -6,67 +6,67 @@ import androidx.lifecycle.viewModelScope
 import com.elkuku.uploadapp.auth.AuthException
 import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
-import com.elkuku.uploadapp.data.JsonInput
-import com.elkuku.uploadapp.data.SharedData
-import com.elkuku.uploadapp.data.UploadApi
-import com.elkuku.uploadapp.data.UploadRequest
-import com.elkuku.uploadapp.data.UploadResult
+import com.elkuku.uploadapp.data.AgentStatEntry
+import com.elkuku.uploadapp.data.AgentStatsResult
+import com.elkuku.uploadapp.data.SaveResult
+import com.elkuku.uploadapp.data.StatsApi
 import com.elkuku.uploadapp.data.parseIngressStats
-import com.elkuku.uploadapp.data.parseJsonObject
-import com.elkuku.uploadapp.data.title
-import com.elkuku.uploadapp.data.toJsonText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonObject
 
 data class Status(val text: String, val isError: Boolean)
 
-/** Where the data goes: a generic upload, or Ingress agent stats. */
-enum class UploadTarget { UPLOAD, AGENT_STATS }
+/** Stats shared from Ingress, waiting for the user to save them. */
+data class PendingStats(val json: JsonObject) {
+    val entry: AgentStatEntry = AgentStatEntry.fromJson(json)
+}
 
 data class UiState(
     val session: GoogleSession? = null,
-    val target: UploadTarget = UploadTarget.UPLOAD,
-    val title: String = "",
-    val json: String = DEFAULT_JSON,
-    val jsonError: String? = null,
     val busy: Boolean = false,
+    /** The user's stats, newest first; null until loaded. */
+    val entries: List<AgentStatEntry>? = null,
+    val pending: PendingStats? = null,
     val status: Status? = null,
 ) {
-    val canSend: Boolean
-        get() = session != null && !busy && jsonError == null &&
-            (target == UploadTarget.AGENT_STATS || title.isNotBlank())
+    val latest: AgentStatEntry? get() = entries?.firstOrNull()
 
-    companion object {
-        const val DEFAULT_JSON = "{\n  \"hello\": \"world\"\n}"
-    }
+    val first: AgentStatEntry? get() = entries?.lastOrNull()
+
+    val canSave: Boolean get() = session != null && pending != null && !busy
 }
 
 class MainViewModel(
     private val auth: GoogleAuth,
-    private val api: UploadApi,
+    private val api: StatsApi,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private var restoreAttempted = false
 
-    /** Signs in without UI if the user already authorized the app. Runs once. */
+    /** Signs in without UI if the user already authorized the app, then loads the stats. Runs once. */
     fun restoreSession(context: Context) {
         if (restoreAttempted) return
         restoreAttempted = true
 
         launchBusy {
-            auth.signInSilently(context)?.let { session -> _state.update { it.copy(session = session) } }
+            val session = auth.signInSilently(context) ?: return@launchBusy
+            _state.update { it.copy(session = session) }
+            loadStats(context)
         }
     }
 
     fun signIn(context: Context) = launchBusy {
         try {
             val session = auth.signIn(context)
-            _state.update { it.copy(session = session, status = Status("Signed in as ${session.email}", false)) }
+            // No "signed in" message: the account is shown, and a share hint must stay visible
+            _state.update { it.copy(session = session) }
+            loadStats(context)
         } catch (e: AuthException) {
             _state.update { it.copy(status = if (e.cancelled) null else Status(e.message.orEmpty(), true)) }
         }
@@ -74,84 +74,76 @@ class MainViewModel(
 
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
-        _state.update { it.copy(session = null, status = Status("Signed out.", false)) }
+        _state.update { it.copy(session = null, entries = null, status = Status("Signed out.", false)) }
     }
 
-    fun onTitleChange(title: String) = _state.update { it.copy(title = title) }
+    fun refresh(context: Context) {
+        if (_state.value.session == null) return
+        launchBusy { loadStats(context) }
+    }
 
-    fun onJsonChange(json: String) = _state.update {
-        it.copy(json = json, jsonError = (parseJsonObject(json) as? JsonInput.Invalid)?.message)
+    /** Text shared from another app: Ingress all-time stats wait for the user to save them. */
+    fun onShared(text: String) = _state.update {
+        val stats = parseIngressStats(text)
+        if (stats == null) {
+            it.copy(status = Status(NOT_STATS_MESSAGE, true))
+        } else {
+            it.copy(pending = PendingStats(stats), status = null)
+        }
+    }
+
+    fun discardPending() = _state.update { it.copy(pending = null, status = null) }
+
+    fun savePending(context: Context) {
+        val pending = _state.value.pending ?: return
+        if (!_state.value.canSave) return
+
+        launchBusy {
+            val result = withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, pending.json) }
+
+            when (result) {
+                is SaveResult.Success -> {
+                    _state.update { it.copy(pending = null, status = Status("Agent stats saved.", false)) }
+                    loadStats(context)
+                }
+                is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
+                is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+                is SaveResult.Unauthorized -> signedOutBy(result.message)
+                null -> Unit
+            }
+        }
+    }
+
+    private suspend fun loadStats(context: Context) {
+        when (val result = withToken(context, { it is AgentStatsResult.Unauthorized }) { api.list(it) }) {
+            is AgentStatsResult.Success -> _state.update { it.copy(entries = result.entries) }
+            is AgentStatsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is AgentStatsResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
     }
 
     /**
-     * Fills the form with data shared from another app; the user reviews it and uploads.
-     * Ingress all-time stats go to the agent stats instead of the uploads.
+     * Calls [call] with the session's ID token. ID tokens expire after about an hour: when the
+     * result [isUnauthorized], gets a fresh token silently and retries once. Null without a session.
      */
-    fun onShared(shared: SharedData) = _state.update {
-        val isAgentStats = parseIngressStats(shared.text) != null
-        it.copy(
-            target = if (isAgentStats) UploadTarget.AGENT_STATS else UploadTarget.UPLOAD,
-            title = shared.title(),
-            json = shared.toJsonText(),
-            jsonError = null,
-            status = Status(
-                if (isAgentStats) {
-                    "Ingress agent stats loaded. Review them and tap Save agent stats."
-                } else {
-                    "Shared data loaded. Review it and tap Upload."
-                },
-                false,
-            ),
-        )
+    private suspend fun <T> withToken(
+        context: Context,
+        isUnauthorized: (T) -> Boolean,
+        call: suspend (String) -> T,
+    ): T? {
+        val session = _state.value.session ?: return null
+        val result = call(session.idToken)
+        if (!isUnauthorized(result)) return result
+
+        val refreshed = auth.signInSilently(context) ?: return result
+        _state.update { it.copy(session = refreshed) }
+
+        return call(refreshed.idToken)
     }
 
-    /** Sends the data as a generic upload instead of agent stats. */
-    fun onUploadAsPlainData() = _state.update { it.copy(target = UploadTarget.UPLOAD) }
-
-    fun upload(context: Context) {
-        val current = _state.value
-        val session = current.session ?: return
-        val data = (parseJsonObject(current.json) as? JsonInput.Valid)?.value ?: return
-        val target = current.target
-        val send: suspend (String) -> UploadResult = when (target) {
-            UploadTarget.UPLOAD -> UploadRequest(current.title.trim(), data).let { request ->
-                { idToken -> api.upload(idToken, request) }
-            }
-            UploadTarget.AGENT_STATS -> { idToken -> api.uploadAgentStats(idToken, data) }
-        }
-
-        launchBusy {
-            var result = send(session.idToken)
-
-            // ID tokens expire after about an hour: get a fresh one and retry once
-            if (result is UploadResult.Unauthorized) {
-                val refreshed = auth.signInSilently(context)
-                if (refreshed != null) {
-                    _state.update { it.copy(session = refreshed) }
-                    result = send(refreshed.idToken)
-                }
-            }
-
-            _state.update { it.withResult(result, target) }
-        }
-    }
-
-    private fun UiState.withResult(result: UploadResult, target: UploadTarget): UiState = when (result) {
-        is UploadResult.Success -> copy(
-            status = Status(
-                when (target) {
-                    UploadTarget.UPLOAD -> "Uploaded (id ${result.id})."
-                    UploadTarget.AGENT_STATS -> "Agent stats saved (id ${result.id})."
-                },
-                false,
-            ),
-        )
-        is UploadResult.Invalid -> copy(status = Status(result.messages.joinToString("\n"), true))
-        is UploadResult.Failure -> copy(status = Status(result.message, true))
-        is UploadResult.Unauthorized -> copy(
-            session = null,
-            status = Status("Not authorized: ${result.message} Please sign in again.", true),
-        )
+    private fun signedOutBy(message: String) = _state.update {
+        it.copy(session = null, entries = null, status = Status("Not authorized: $message Please sign in again.", true))
     }
 
     private fun launchBusy(block: suspend () -> Unit) {
@@ -163,5 +155,10 @@ class MainViewModel(
                 _state.update { it.copy(busy = false) }
             }
         }
+    }
+
+    companion object {
+        const val NOT_STATS_MESSAGE =
+            "That is not Ingress all-time stats. In Ingress, open your agent profile, select ALL TIME and share the stats."
     }
 }

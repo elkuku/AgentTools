@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,7 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,12 +22,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elkuku.uploadapp.auth.GoogleSession
+import com.elkuku.uploadapp.data.AgentStatEntry
 import com.elkuku.uploadapp.ui.theme.UploadAppTheme
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,18 +38,18 @@ fun MainScreen(
     state: UiState,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
-    onTitleChange: (String) -> Unit,
-    onJsonChange: (String) -> Unit,
-    onUploadAsPlainData: () -> Unit,
-    onUpload: () -> Unit,
-    onShowStats: () -> Unit,
+    onRefresh: () -> Unit,
+    onSave: () -> Unit,
+    onDiscard: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Upload App") },
+                title = { Text("Agent stats") },
                 actions = {
-                    if (state.session != null) TextButton(onClick = onShowStats) { Text("Stats") }
+                    if (state.session != null) {
+                        TextButton(onClick = onRefresh, enabled = !state.busy) { Text("Refresh") }
+                    }
                 },
             )
         },
@@ -58,7 +58,6 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -69,7 +68,7 @@ fun MainScreen(
 
             val session = state.session
             if (session == null) {
-                Text("Sign in with your Google account to upload data.")
+                Text("Sign in with your Google account to see and save your agent stats.")
                 Button(onClick = onSignIn, enabled = !state.busy) { Text("Sign in with Google") }
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -81,41 +80,9 @@ fun MainScreen(
                     )
                     OutlinedButton(onClick = onSignOut, enabled = !state.busy) { Text("Sign out") }
                 }
-
-                if (state.target == UploadTarget.AGENT_STATS) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "Ingress agent stats, saved to your agent stats.",
-                            modifier = Modifier.weight(1f),
-                        )
-                        TextButton(onClick = onUploadAsPlainData, enabled = !state.busy) { Text("Plain upload") }
-                    }
-                } else {
-                    OutlinedTextField(
-                        value = state.title,
-                        onValueChange = onTitleChange,
-                        label = { Text("Title") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.json,
-                    onValueChange = onJsonChange,
-                    label = { Text("Data (JSON object)") },
-                    isError = state.jsonError != null,
-                    supportingText = state.jsonError?.let { { Text(it) } },
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 200.dp),
-                )
-
-                Button(onClick = onUpload, enabled = state.canSend, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (state.target == UploadTarget.AGENT_STATS) "Save agent stats" else "Upload")
-                }
             }
+
+            state.pending?.let { PendingCard(it, canSave = state.canSave, onSave = onSave, onDiscard = onDiscard) }
 
             state.status?.let { status ->
                 Card(
@@ -131,6 +98,34 @@ fun MainScreen(
                     Text(status.text, modifier = Modifier.padding(12.dp))
                 }
             }
+
+            val latest = state.latest
+            when {
+                session == null -> Unit
+                latest != null -> AgentStats(latest, first = state.first ?: latest)
+                state.entries != null -> Text(
+                    "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
+                        "with this app.",
+                )
+            }
+        }
+    }
+}
+
+/** Stats shared from Ingress: a summary to check before saving them. */
+@Composable
+private fun PendingCard(pending: PendingStats, canSave: Boolean, onSave: () -> Unit, onDiscard: () -> Unit) {
+    val entry = pending.entry
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("New stats from Ingress", style = MaterialTheme.typography.titleMedium)
+            Text("${entry.nickname} (${entry.faction})", fontWeight = FontWeight.Bold)
+            Text(entry.datetime)
+            Text("Level ${entry["level"] ?: "–"} · AP ${entry["ap"].formatted()}")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                Button(onClick = onSave, enabled = canSave) { Text("Save agent stats") }
+                OutlinedButton(onClick = onDiscard) { Text("Discard") }
+            }
         }
     }
 }
@@ -138,20 +133,27 @@ fun MainScreen(
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
+    val stats = buildJsonObject {
+        put("datetime", JsonPrimitive("2026-10-19 15:35:56"))
+        put("nickname", JsonPrimitive("TestAgent"))
+        put("faction", JsonPrimitive("Enlightened"))
+        put("level", JsonPrimitive(16))
+        put("ap", JsonPrimitive(243517130))
+        put("explorer", JsonPrimitive(27659))
+        put("trekker", JsonPrimitive(10490))
+    }
     UploadAppTheme {
         MainScreen(
             state = UiState(
                 session = GoogleSession("token", "jane@example.com", "Jane"),
-                title = "Hello",
-                status = Status("Uploaded (id 1).", false),
+                entries = listOf(AgentStatEntry.fromJson(stats)),
+                pending = PendingStats(stats),
             ),
             onSignIn = {},
             onSignOut = {},
-            onTitleChange = {},
-            onJsonChange = {},
-            onUploadAsPlainData = {},
-            onUpload = {},
-            onShowStats = {},
+            onRefresh = {},
+            onSave = {},
+            onDiscard = {},
         )
     }
 }
