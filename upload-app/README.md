@@ -1,5 +1,7 @@
 # Upload App
 
+[![Android](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml)
+
 Android app (Kotlin, Jetpack Compose) that signs in with Google and uploads a JSON object to
 `upload-page` (`POST /api/uploads`).
 
