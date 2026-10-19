@@ -107,7 +107,7 @@ Run `symfony serve --no-tls --allow-all-ip`. The emulator uses `http://10.0.2.2:
 
 ## Build order
 
-1. [ ] Google Cloud (manual): confirm the Web client, then create the Android client with the debug SHA-1 (`./gradlew signingReport`)
+1. [ ] Google Cloud (manual): confirm the Web client, then create the Android client with the debug SHA-1 (`./gradlew signingReport`). See [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md)
 2. [x] Symfony API: verifier extraction, `Upload` entity and migration, DTO, service, endpoint, firewall, tests
 3. [x] Symfony web: list, detail and form pages, tests
 4. [x] Android: scaffold, sign-in, upload screen, tests (sign-in is untested on a device until step 1 is done)

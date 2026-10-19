@@ -5,6 +5,8 @@ Android app (Kotlin, Jetpack Compose) that signs in with Google and uploads a JS
 
 ## Setup
 
+Step-by-step guide: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.md).
+
 1. **Google Cloud** (in the same project as the `upload-page` web OAuth client):
    - Create an OAuth client of type **Android** with package name `com.elkuku.uploadapp` and the
      SHA-1 of your signing key (`./gradlew signingReport`, debug variant).
