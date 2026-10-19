@@ -2,9 +2,7 @@
 
 [![Symfony tests](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml)
 
-![screenshot](https://github.com/user-attachments/assets/c43f0b5d-8279-4737-b194-87cc0c74a140)
-
-## What's this??
+## What's this?
 The [Symfony](https://symfony.com) web app that receives JSON uploads from the Android app in
 [`../upload-app`](../upload-app) and lists them on the web. It includes:
 
@@ -19,14 +17,20 @@ The [Symfony](https://symfony.com) web app that receives JSON uploads from the A
 Setting up Google Sign-In for the app: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.md).
 
 ## Installation
-Clone the repo then use the
+In this folder (`upload-page/`), run
+
 ```shell
 bin/install
 ```
-command OR execute the script content manually.
-   
+
+or run the steps in that script by hand. It installs the dependencies, starts the database
+container, runs the migrations and starts the Symfony server.
+
+Google credentials (`OAUTH_GOOGLE_ID`, …) go in `.env.local`.
+
 ## Usage
-Create and administer user accounts.
+Create and administer user accounts. The API only accepts Google accounts that exist here,
+with their email address as identifier.
 ```shell
 symfony console user-admin
 ```
@@ -38,6 +42,23 @@ bin/start
 bin/stop
 ```
 
+## API
+
+```http
+POST /api/uploads
+Authorization: Bearer <Google ID token>
+Content-Type: application/json
+
+{ "title": "My upload", "data": { "any": "json" } }
+```
+
+| Status | Body                                                               |
+|--------|--------------------------------------------------------------------|
+| `201`  | `{"id": 1, "createdAt": "…"}`, `Location` header to the upload page |
+| `401`  | `{"error": "…"}` — missing/invalid token, unverified email, unknown user |
+| `422`  | validation errors in `violations`                                  |
+
+`title` is required (max 255 characters); `data` must be a non-empty JSON object, max 64 KB.
 
 ## Testing
 
@@ -45,8 +66,10 @@ bin/stop
 make tests
 ```
 
+Runs PHPUnit, PHPStan, Rector (dry run) and PHP-CS-Fixer.
+
 ## Check for updates
-Check four outdated PHP deps, recipes and assets.
+Check for outdated PHP deps, recipes and assets.
 
 ```shell
 composer check

@@ -12,7 +12,7 @@ The Symfony 8.x web app of the `android-upload-test` monorepo: it receives JSON 
 
 ### Setup
 ```bash
-bin/install   # Full setup: Docker, migrations, fixtures
+bin/install   # Full setup: composer install, Docker, migrations, Symfony server (no fixtures)
 bin/start     # Start dev environment (Docker + Symfony server)
 bin/stop      # Stop Docker containers
 ```
