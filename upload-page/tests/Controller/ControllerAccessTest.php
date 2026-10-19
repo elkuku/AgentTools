@@ -36,9 +36,6 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_login' => [
                 'statusCodes' => ['GET' => 200],
             ],
-            'api_upload_create' => [
-                'statusCodes' => ['POST' => 401],
-            ],
             'api_agent_stat_create' => [
                 'statusCodes' => ['POST' => 401],
             ],

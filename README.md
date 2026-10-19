@@ -3,29 +3,32 @@
 [![Symfony tests](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml)
 [![Android](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/android.yml)
 
-An Android app that signs in with Google and sends JSON to a Symfony web app, which stores it
-and lists it on the web.
+An Android app that signs in with Google and saves Ingress agent stats, shared from Ingress, to a
+Symfony web app, which stores them like 4e-website and shows them with medals.
 
 | Folder                         | What                                                                                   |
 |--------------------------------|----------------------------------------------------------------------------------------|
 | [`upload-app/`](upload-app)    | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)                   |
-| [`upload-page/`](upload-page)  | Symfony 8 web app (PostgreSQL): `POST /api/uploads`, upload list, web form, user admin |
+| [`upload-page/`](upload-page)  | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, paste import, user admin |
 | [`docs/`](docs)                | [Google Sign-In setup](docs/google-sign-in-setup.md)                                   |
 | [`PLAN.md`](PLAN.md)           | Design decisions and build plan                                                        |
 
 ## How it works
 
 1. The app signs the user in with **Sign in with Google** and gets a Google **ID token**.
-2. It sends `POST /api/uploads` with `Authorization: Bearer <id token>` and the payload:
+2. In Ingress the agent shares their **all-time stats** with the app. The app converts them to an
+   `agent_stat` row (the column names of 4e-website) and, after a review, sends
+   `POST /api/agent-stats` with `Authorization: Bearer <id token>`:
 
    ```json
-   { "title": "My upload", "data": { "any": "json", "nested": [1, 2] } }
+   { "datetime": "2026-10-19 15:35:56", "nickname": "Agent", "faction": "Enlightened", "ap": 243517130, … }
    ```
 
 3. `upload-page` verifies the token against its Google **Web** client ID (`OAUTH_GOOGLE_ID`),
-   finds the user and stores the upload. Unknown accounts get `401`; users are never created
-   from the API.
-4. Logged-in users see their uploads at `/uploads` and can add one through a web form.
+   finds the user and stores the stats (once per `datetime`). Unknown accounts get `401`; users
+   are never created from the API.
+4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
+   see their stats at `/agent-stats` and can paste stats from Ingress at `/agent-stats/new`.
 
 The app uses the **Web** client ID as `serverClientId`; the Android OAuth client only registers
 the package name and SHA-1. See [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md).

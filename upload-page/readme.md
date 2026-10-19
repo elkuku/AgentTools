@@ -3,13 +3,14 @@
 [![Symfony tests](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/android-upload-test/actions/workflows/symfony-tests.yml)
 
 ## What's this?
-The [Symfony](https://symfony.com) web app that receives JSON uploads from the Android app in
-[`../upload-app`](../upload-app) and lists them on the web. It includes:
+The [Symfony](https://symfony.com) web app that stores Ingress agent stats, sent by the Android app
+in [`../upload-app`](../upload-app) or pasted on the web, and lists them. It includes:
 
-* `POST /api/uploads` — JSON API, authenticated with a Google ID token (`Authorization: Bearer …`).
-  Only known users are accepted; accounts are never created automatically.
-* `/uploads` — each user's uploads, plus a web form to create one by hand
-* `POST /api/agent-stats`, `/agent-stats` — Ingress agent stats, stored like in 4e-website
+* `POST /api/agent-stats`, `GET /api/agent-stats` — JSON API, authenticated with a Google ID token
+  (`Authorization: Bearer …`). Only known users are accepted; accounts are never created
+  automatically.
+* `/agent-stats` — each user's stats; `/agent-stats/new` imports stats pasted from Ingress
+* Stats stored in `agent_stat` with the columns of 4e-website
 * Symfony 8.*, PostgreSQL via Docker compose
 * `dev` login form <br/> `prod` Social login with Google, GitLab, GitHub
 * A user CRUD interface
@@ -45,24 +46,6 @@ bin/stop
 
 ## API
 
-```http
-POST /api/uploads
-Authorization: Bearer <Google ID token>
-Content-Type: application/json
-
-{ "title": "My upload", "data": { "any": "json" } }
-```
-
-| Status | Body                                                               |
-|--------|--------------------------------------------------------------------|
-| `201`  | `{"id": 1, "createdAt": "…"}`, `Location` header to the upload page |
-| `401`  | `{"error": "…"}` — missing/invalid token, unverified email, unknown user |
-| `422`  | validation errors in `violations`                                  |
-
-`title` is required (max 255 characters); `data` must be a non-empty JSON object, max 64 KB.
-
-### Agent stats
-
 Ingress all-time stats, stored in `agent_stat` with the columns of 4e-website. The app converts
 stats shared from Ingress into this format; the keys are the column names.
 
@@ -76,8 +59,18 @@ Content-Type: application/json
 ```
 
 `datetime`, `nickname`, `faction` and `ap` are required; the other stats are optional integers.
-Responses as above, plus `409 {"error": "Stat entry already added!"}` when the same user already
-imported stats with that `datetime`. Logged-in users see their stats at `/agent-stats`.
+
+| Status | Body                                                                      |
+|--------|---------------------------------------------------------------------------|
+| `201`  | `{"id": 1, "createdAt": "…"}`, `Location` header to the stats page         |
+| `401`  | `{"error": "…"}` — missing/invalid token, unverified email, unknown user   |
+| `409`  | `{"error": "Stat entry already added!"}` — same user and `datetime` again  |
+| `422`  | validation errors in `violations`                                          |
+
+`GET /api/agent-stats` returns the user's stats, newest first, in the same format (plus `id`).
+
+On the web, `/agent-stats/new` takes the stats as copied from Ingress (a tab-separated header and
+data line) and parses them with `IngressStatsParser`, like 4e-website's `CsvParser`.
 
 ## Testing
 

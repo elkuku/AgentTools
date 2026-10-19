@@ -1,5 +1,9 @@
 # Plan: Android → Symfony JSON upload with Google Sign-In
 
+> **Superseded:** the generic upload (`Upload`, `POST /api/uploads`, `/uploads`) was later replaced
+> by Ingress agent stats (`AgentStat`, `POST`/`GET /api/agent-stats`, `/agent-stats`). This file is
+> the original plan; see the READMEs for the current state.
+
 Monorepo:
 - `upload-page/` — Symfony 8 web app (existing template, PostgreSQL, Google OAuth already set up)
 - `upload-app/` — new Android app (Kotlin, Jetpack Compose)

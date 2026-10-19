@@ -113,7 +113,7 @@ symfony console user-admin
 # → Create User → Identifier: you@gmail.com → Role: ROLE_USER
 ```
 
-On the first upload the server stores the account's Google ID on that user. Signing in once
+On the first request the server stores the account's Google ID on that user. Signing in once
 through the web login works as well.
 
 ## 7. Try it
@@ -123,8 +123,9 @@ cd upload-page && symfony serve --no-tls --allow-all-ip --port=8000
 ```
 
 Start an emulator with a **Google Play** system image and add your Google account under
-*Settings → Passwords & accounts*. Then install the app (`./gradlew installDebug`), sign in, and
-upload. The upload appears at <http://localhost:8000/uploads>.
+*Settings → Passwords & accounts*. Then install the app (`./gradlew installDebug`) and sign in.
+Share your all-time stats from Ingress with the app and save them. They appear at
+<http://localhost:8000/agent-stats>.
 
 ## Troubleshooting
 
@@ -134,7 +135,7 @@ upload. The upload appears at <http://localhost:8000/uploads>.
 | "No Google account available on this device."                           | No Google account on the device, or the emulator image has no Google Play services.                                         |
 | "Access blocked" / app not verified                                     | Consent screen is in Testing and the account is not a test user.                                                            |
 | `google.serverClientId is not set in local.properties.`                 | Fill in `local.properties` and rebuild.                                                                                     |
-| Upload returns `401 Invalid ID token.`                                  | `OAUTH_GOOGLE_ID` on the server differs from the app's `google.serverClientId` (audience mismatch), or the server clock is off. |
-| Upload returns `401 Unknown user.`                                      | No user with that email as identifier, see step 6.                                                                          |
-| Upload returns `401 Email address is not verified.`                     | The Google account's email is not verified.                                                                                 |
+| Saving or loading returns `401 Invalid ID token.`                       | `OAUTH_GOOGLE_ID` on the server differs from the app's `google.serverClientId` (audience mismatch), or the server clock is off. |
+| Saving or loading returns `401 Unknown user.`                           | No user with that email as identifier, see step 6.                                                                          |
+| Saving or loading returns `401 Email address is not verified.`          | The Google account's email is not verified.                                                                                 |
 | Network error / connection refused                                      | Server not started with `--allow-all-ip`, wrong port, or TLS enabled (the debug app uses plain HTTP to `10.0.2.2`).          |

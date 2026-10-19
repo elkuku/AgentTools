@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-The Symfony 8.x web app of the `android-upload-test` monorepo: it receives JSON uploads from the Android app (`../upload-app`) via a Google-authenticated API and lists them on the web. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
+The Symfony 8.x web app of the `android-upload-test` monorepo: it stores Ingress agent stats, sent by the Android app (`../upload-app`) via a Google-authenticated API or pasted into a web form, and lists them. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
 
 ## Commands
 
@@ -41,19 +41,17 @@ symfony console user-admin  # Interactive user management CLI
 ### Entities & Enums
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
-- **`Upload`** — a JSON object (`data`) with a `title`, owned by a `User` (cascade delete). `UploadSource` enum: `app` (API) or `web` (form).
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
-- **`UploadInput`** (`src/Dto/`) — readonly DTO shared by the API (`#[MapRequestPayload]`) and the web form (`UploadType` builds it via `empty_data`). Data must be a non-empty JSON object, max 64 KB. Persisted through `UploadService`.
+- **`IngressStatsParser`** (`src/Service/`) — parses stats pasted from Ingress (tab-separated header + one data line, all-time only) into a validated `AgentStatInput`; throws `InvalidStatsException`. Same header → column map as the app's `IngressStats.kt`.
 
 ### Controllers
 Single-action controller pattern under `src/Controller/`:
 - `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
 - `Security/` — OAuth authenticators (Google, GitHub, GitLab) plus `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
-- `Upload/` — the user's own uploads: Index, Read (owner only, `UploadVoter`), Create (web form)
-- `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`)
-- `Api/AgentStatCreate` — `POST /api/agent-stats`; `201 {id, createdAt}`, `401`, `409 {error}`, `422`
-- `Api/UploadCreate` — `POST /api/uploads` for the Android app (`upload-app/` in the monorepo); `201 {id, createdAt}`, `401 {error}`, `422` with `violations`
+- `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`), Create (paste import form, `AgentStatImportType`)
+- `Api/AgentStatCreate` — `POST /api/agent-stats` for the Android app (`upload-app/` in the monorepo); `201 {id, createdAt}`, `401 {error}`, `409 {error}`, `422` with `violations`
+- `Api/AgentStatIndex` — `GET /api/agent-stats`: the user's stats, newest first
 - `ProfileController`, `DefaultController`
 
 Keep controllers at most one directory below `src/Controller/`: `ControllerAccessTest` (from `elkuku/symfony-utils`) cannot resolve deeper namespaces.

@@ -7,6 +7,7 @@ namespace App\Tests\Controller\AgentStat;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
 use App\Entity\User;
+use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -34,7 +35,7 @@ class AgentStatControllerTest extends WebTestCase
     {
         $agentStat = $this->createAgentStat($this->getUserByIdentifier('user'), 'Mine');
 
-        foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
+        foreach (['/agent-stats', '/agent-stats/new', '/agent-stats/'.$agentStat->id] as $path) {
             $this->client->request(Request::METHOD_GET, $path);
             self::assertResponseRedirects();
         }
@@ -75,6 +76,63 @@ class AgentStatControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/agent-stats/'.$agentStat->id);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testImportFormCreatesAgentStat(): void
+    {
+        $this->client->loginUser($this->getUserByIdentifier('user'));
+        $this->client->request(Request::METHOD_GET, '/agent-stats/new');
+        self::assertResponseIsSuccessful();
+
+        $this->client->submitForm('Import', ['agent_stat_import[stats]' => $this->sample()]);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('#agent-stat-title', 'TestAgent – 2026-10-19 15:35:56');
+        self::assertSelectorTextContains('table', '243,517,130');
+
+        $stats = $this->agentStatRepository()->findAll();
+        self::assertCount(1, $stats);
+        self::assertSame('user', $stats[0]->owner->getIdentifier());
+        self::assertSame(35236, $stats[0]->mindController);
+    }
+
+    public function testImportFormRejectsInvalidStats(): void
+    {
+        $this->assertImportError('just some text', 'Paste the stats as copied from Ingress');
+        $this->assertImportError(\str_replace('ALL TIME', 'WEEK', $this->sample()), 'Only all-time stats can be imported, not');
+    }
+
+    public function testImportFormRejectsDuplicate(): void
+    {
+        $this->createAgentStat($this->getUserByIdentifier('user'), 'TestAgent');
+
+        $this->assertImportError($this->sample(), 'Stat entry already added!');
+        self::assertCount(1, $this->agentStatRepository()->findAll());
+    }
+
+    private function assertImportError(string $stats, string $message): void
+    {
+        $this->client->loginUser($this->getUserByIdentifier('user'));
+        $this->client->request(Request::METHOD_GET, '/agent-stats/new');
+
+        $this->client->submitForm('Import', ['agent_stat_import[stats]' => $stats]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSelectorTextContains('form[name="agent_stat_import"]', $message);
+    }
+
+    private function sample(): string
+    {
+        return (string) \file_get_contents(__DIR__.'/../../fixtures/ingress-stats-all-time.tsv');
+    }
+
+    private function agentStatRepository(): AgentStatRepository
+    {
+        $repository = static::getContainer()->get(AgentStatRepository::class);
+        self::assertInstanceOf(AgentStatRepository::class, $repository);
+
+        return $repository;
     }
 
     private function createAgentStat(User $owner, string $nickname): AgentStat
