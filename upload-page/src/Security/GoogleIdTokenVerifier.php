@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Google\Client;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+#[AsAlias(GoogleIdTokenVerifierInterface::class)]
 final readonly class GoogleIdTokenVerifier implements GoogleIdTokenVerifierInterface
 {
     public function __construct(

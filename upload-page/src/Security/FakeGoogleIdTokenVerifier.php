@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Security;
-
-use App\Security\GoogleIdTokenVerifierInterface;
+namespace App\Security;
 
 /**
- * Test double for Google ID token verification.
+ * Fake Google ID token verification for the test env (and opt-in in dev, see DevGoogleIdTokenVerifier).
  *
  * Accepts tokens built with {@see self::token()}; anything else is invalid.
  */

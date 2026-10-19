@@ -25,4 +25,4 @@ services:
 when@test:
     services:
         App\Security\GoogleIdTokenVerifierInterface:
-            class: App\Tests\Security\FakeGoogleIdTokenVerifier
+            class: App\Security\FakeGoogleIdTokenVerifier

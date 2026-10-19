@@ -8,7 +8,7 @@ use App\Entity\User;
 use App\Enum\UploadSource;
 use App\Repository\UploadRepository;
 use App\Repository\UserRepository;
-use App\Tests\Security\FakeGoogleIdTokenVerifier;
+use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
