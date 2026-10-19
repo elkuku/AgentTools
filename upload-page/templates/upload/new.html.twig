@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New upload{% endblock %}
+
+{% block body %}
+    <h1>Create new upload</h1>
+
+    <div class="float-end">
+        <a class="btn btn-outline-secondary" href="{{ path('app_upload_index') }}">back to list</a>
+    </div>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-outline-success">Upload</button>
+    {{ form_end(form) }}
+{% endblock %}

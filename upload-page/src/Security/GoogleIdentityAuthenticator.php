@@ -5,9 +5,7 @@ namespace App\Security;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Google\Client;
 use League\OAuth2\Client\Provider\GoogleUser;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -26,7 +24,7 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
     use TargetPathTrait;
 
     public function __construct(
-        #[Autowire(env: 'OAUTH_GOOGLE_ID')] private readonly string $oauthGoogleId,
+        private readonly GoogleIdTokenVerifierInterface $idTokenVerifier,
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -48,10 +46,9 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
             throw new AuthenticationException('Missing credentials :(');
         }
 
-        $payload = new Client(['client_id' => $this->oauthGoogleId])
-            ->verifyIdToken($idToken);
+        $payload = $this->idTokenVerifier->verify($idToken);
 
-        if (!$payload) {
+        if (null === $payload) {
             throw new AuthenticationException('Invalid ID token :(');
         }
 

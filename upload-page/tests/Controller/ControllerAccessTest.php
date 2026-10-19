@@ -36,6 +36,9 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_login' => [
                 'statusCodes' => ['GET' => 200],
             ],
+            'api_upload_create' => [
+                'statusCodes' => ['POST' => 401],
+            ],
         ];
 
     public function testAllRoutesAreProtected(): void

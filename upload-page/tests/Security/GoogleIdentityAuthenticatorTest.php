@@ -5,6 +5,7 @@ namespace App\Tests\Security;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\GoogleIdentityAuthenticator;
+use App\Security\GoogleIdTokenVerifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\GoogleUser;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -35,7 +36,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
 
         $this->authenticator = new GoogleIdentityAuthenticator(
-            'test-google-client-id',
+            $this->createStub(GoogleIdTokenVerifierInterface::class),
             $this->userRepository,
             $this->entityManager,
             $this->urlGenerator,
