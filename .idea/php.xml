@@ -10,8 +10,189 @@
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpCSFixer">
+    <phpcsfixer_settings>
+      <PhpCSFixerConfiguration tool_path="$PROJECT_DIR$/upload-page/vendor/bin/php-cs-fixer" />
+    </phpcsfixer_settings>
+  </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/upload-page/vendor/rector/rector" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/twig/extra-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/twig/html-extra" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-php86" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/dependency-injection" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/security-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/doctrine-diagram-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/entity-draw" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/http-client-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/db-draw" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/dom-crawler" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-php85" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-php84" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/browser-kit" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-php82" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/validator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-deepclone" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/cache" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-intl-icu" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/the-lost-functions" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/plantuml-encoding" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/doctrine-diagram-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/plantuml-client" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/monolog-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/jawira/plantuml-to-image" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/property-access" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/doctrine-messenger" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/runtime" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/twig-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/asset-mapper" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/doctrine-bridge" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/options-resolver" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/security-core" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/maker-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/expression-language" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/ux-twig-component" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/security-csrf" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/phpunit-bridge" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/serializer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/web-profiler-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/var-exporter" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/web-link" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/security-http" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/flex" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/debug-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/type-info" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/stimulus-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/ux-icons" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/framework-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/property-info" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/cache-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/notifier" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/messenger" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/sql-formatter" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/form" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/dotenv" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/http-client" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/orm" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/twig-bridge" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/dbal" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/event-manager" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/intl" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/password-hasher" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/stopwatch" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/doctrine-migrations-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/php-cs-fixer/shim" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/doctrine-fixtures-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/monolog-bridge" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/migrations" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/asset" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/collections" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/data-fixtures" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/doctrine-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/persistence" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/tomasvotruba/cognitive-complexity" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/composer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/elkuku/symfony-utils" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/elkuku/kuku-sf-system-tools-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/link" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/league/oauth2-google" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/league/oauth2-github" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/league/oauth2-client" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/google/apiclient" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/google/apiclient-services" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/google/auth" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/knpuniversity/oauth2-client-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpstan/phpdoc-parser" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpstan/phpstan-phpunit" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpstan/phpstan" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/firebase/php-jwt" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/git-state" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/file-filter" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/environment" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.5" />
+  <component name="PhpStan">
+    <PhpStan_settings>
+      <PhpStanConfiguration tool_path="$PROJECT_DIR$/upload-page/vendor/bin/phpstan" />
+    </PhpStan_settings>
+  </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/upload-page/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/upload-page/vendor/autoload.php" use_configuration_file="true" />
+    </phpunit_settings>
   </component>
   <component name="PsalmOptionsConfiguration">
     <option name="transferred" value="true" />
