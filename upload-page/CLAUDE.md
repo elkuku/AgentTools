@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An opinionated Symfony 8.x project template for user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
+The Symfony 8.x web app of the `android-upload-test` monorepo: it receives JSON uploads from the Android app (`../upload-app`) via a Google-authenticated API and lists them on the web. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
 
 ## Commands
 
