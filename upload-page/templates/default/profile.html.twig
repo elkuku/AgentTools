@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} - User Profile{% endblock %}
+
+{% block body %}
+    <h1>User Profile</h1>
+
+    <p>Identifier: <code>{{ app.user.userIdentifier }}</code></p>
+
+    {{ form_start(form) }}
+
+    {{ form_widget(form) }}
+
+    <button type="submit" class="btn btn-lg btn-outline-success" title="Save">
+        <span class="bi-check"></span>
+    </button>
+
+    {{ form_end(form) }}
+
+{% endblock %}
+
+

@@ -1,0 +1,84 @@
+name: GitHub Pages
+
+on:
+    push:
+        branches: [master]
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+concurrency:
+    group: pages
+    cancel-in-progress: false
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: postgres
+                ports:
+                    - 5432/tcp
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP with coverage
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: pcov
+                  extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, dom, filter, gd, json, pdo
+
+            - name: Install dependencies
+              uses: php-actions/composer@v6
+
+            - name: Install assets
+              run: bin/console importmap:install
+
+            - name: Setup test database
+              run: |
+                  bin/console doctrine:database:create
+                  bin/console doctrine:migrations:migrate -n
+                  bin/console doctrine:fixtures:load -n
+              env:
+                  APP_ENV: test
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8
+
+            - name: Generate coverage report
+              run: vendor/bin/phpunit --coverage-html docs/coverage --coverage-clover docs/coverage.xml
+              env:
+                  APP_ENV: test
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8
+
+            - name: Apply dark theme to coverage report
+              run: |
+                  find docs/coverage -name "*.html" -exec sed -i 's/<html lang="en">/<html lang="en" data-bs-theme="dark">/' {} \;
+
+            - name: Generate project page
+              run: php .github/scripts/generate-page.php
+
+            - name: Configure Pages
+              uses: actions/configure-pages@v5
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: docs/
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

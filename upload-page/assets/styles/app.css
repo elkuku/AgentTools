@@ -1,0 +1,12 @@
+main > .container {
+    padding: 60px 15px 0;
+}
+
+.bg-logo {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url("../images/wtfpl-logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}

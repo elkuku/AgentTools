@@ -1,0 +1,50 @@
+name: Tests
+on: [push]
+jobs:
+    php-unit-and-functional-tests:
+        runs-on: ubuntu-latest
+        # Docs: https://docs.github.com/en/actions/using-containerized-services
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: postgres
+                ports:
+                    - 5432/tcp
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        strategy:
+            fail-fast: true
+            matrix:
+                php-versions: ['8.5']
+        steps:
+            # —— Setup GitHub actions —————————————————————————————————————————————
+            # https://github.com/actions/checkout (official)
+            - name: Git checkout
+              uses: actions/checkout@v3
+            # https://github.com/shivammathur/setup-php (community)
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  coverage: none
+                  extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+              env:
+                  update: true
+            - name: Check PHP Version
+              run: php -v
+            # —— Composer —————————————————————————————————————————————————————————
+            - name: Install dependencies
+              uses: php-actions/composer@v6
+            # —— Symfony ——————————————————————————————————————————————————————————
+            - name: Check the Symfony console
+              run: bin/console -V
+
+            - name: Install assets
+              run: bin/console importmap:install
+            ## —— Tests ———————————————————————————————————————————————————————————
+            - name: Run functional and unit tests
+              run: make citests
+              env:
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8

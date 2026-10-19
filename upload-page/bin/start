@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Startup script
+#
+# License: WTFPL
+# Author: Nikolai Plath
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
+cd "$DIR" || exit 1
+DOCKER_CONTAINER="$(basename "$DIR" | tr "[:upper:]" "[:lower:]")-database-1"
+
+. ./bin/functions.sh
+
+checkIsInstalled symfony
+checkIsInstalled docker-compose
+
+echo "🚀 Starting dev env in $DIR ..."
+docker-compose up -d
+
+printf "Waiting for DB to get ready "
+waitContainer "$DOCKER_CONTAINER"
+echo " ✅  "
+
+echo "Starting the server... "
+symfony server:start -d
+
+printf "Opening page..."
+symfony open:local
+
+echo "✨  hF =;) 🤪"
+echo "✅  "
