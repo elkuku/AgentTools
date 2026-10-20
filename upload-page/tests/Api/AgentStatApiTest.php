@@ -209,7 +209,11 @@ class AgentStatApiTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/api/docs.jsonopenapi');
 
         self::assertResponseIsSuccessful();
-        self::assertArrayHasKey('/api/agent-stats', $this->responseJson()['paths']);
+        $json = $this->responseJson();
+        self::assertArrayHasKey('/api/agent-stats', $json['paths']);
+        self::assertIsArray($json['components']['securitySchemes']['GoogleIdToken']);
+        self::assertSame('bearer', $json['components']['securitySchemes']['GoogleIdToken']['scheme']);
+        self::assertSame([['GoogleIdToken' => []]], $json['security']);
     }
 
     /**

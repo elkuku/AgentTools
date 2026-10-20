@@ -3,6 +3,12 @@ api_platform:
     description: 'Ingress agent stats. Authenticate with "Authorization: Bearer <Google ID token>".'
     version: 1.0.0
     path_segment_name_generator: api_platform.metadata.path_segment_name_generator.dash
+    swagger:
+        # The "Authorize" button in /api/docs: paste a Google ID token (in dev with APP_FAKE_GOOGLE_TOKENS=1: fake|<googleId>|<email>|verified)
+        http_auth:
+            GoogleIdToken:
+                scheme: bearer
+                bearerFormat: JWT
     defaults:
         stateless: true
         cache_headers:

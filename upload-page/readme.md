@@ -50,7 +50,9 @@ Ingress all-time stats, stored in `agent_stat` with the columns of 4e-website. T
 stats shared from Ingress into this format; the keys are the column names.
 
 Built with [API Platform](https://api-platform.com): JSON-LD (`application/ld+json`), errors as
-RFC 7807 problems (`application/problem+json`). The interactive docs are at `/api/docs`.
+RFC 7807 problems (`application/problem+json`). The interactive docs are at `/api/docs` (linked in
+the footer): click **Authorize** and paste a Google ID token (without `Bearer `). In `dev` with
+`APP_FAKE_GOOGLE_TOKENS=1`, a fake token works: `fake|<googleId>|<email>|verified`.
 
 ```http
 POST /api/agent-stats
