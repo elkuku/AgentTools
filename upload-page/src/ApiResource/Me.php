@@ -12,6 +12,7 @@ use App\State\MeProvider;
  * GET /api/me: the signed-in user.
  */
 #[ApiResource(
+    description: 'The signed-in user.',
     operations: [
         new Get(uriTemplate: '/me', security: "is_granted('ROLE_USER')", provider: MeProvider::class),
     ],

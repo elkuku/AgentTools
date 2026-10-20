@@ -1,6 +1,7 @@
 api_platform:
     title: Upload Page API
-    description: 'Ingress agent stats. Authenticate with "Authorization: Bearer <Google ID token>".'
+    # Markdown; no <…>, Swagger UI strips it as HTML
+    description: 'Ingress agent stats. Click **Authorize** and paste a Google ID token: after a Google sign-in, copy yours from [your profile](/profile).'
     version: 1.0.0
     path_segment_name_generator: api_platform.metadata.path_segment_name_generator.dash
     swagger:

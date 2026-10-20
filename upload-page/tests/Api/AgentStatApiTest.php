@@ -214,6 +214,13 @@ class AgentStatApiTest extends WebTestCase
         self::assertIsArray($json['components']['securitySchemes']['GoogleIdToken']);
         self::assertSame('bearer', $json['components']['securitySchemes']['GoogleIdToken']['scheme']);
         self::assertSame([['GoogleIdToken' => []]], $json['security']);
+        self::assertIsArray($json['info']);
+        self::assertIsString($json['info']['description']);
+        self::assertStringNotContainsString('<', $json['info']['description']);
+        self::assertContains(
+            ['name' => 'AgentStat', 'description' => "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, newest first."],
+            $json['tags'],
+        );
     }
 
     /**
