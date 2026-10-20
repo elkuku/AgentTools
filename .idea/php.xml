@@ -178,6 +178,28 @@
       <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/file-filter" />
       <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/exporter" />
       <path value="$PROJECT_DIR$/upload-page/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/willdurand/negotiation" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/nelmio/cors-bundle" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/uid" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/symfony/polyfill-uuid" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/doctrine/common" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/serializer" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/json-schema" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/jsonld" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/doctrine-orm" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/metadata" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/validator" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/symfony" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/state" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/hydra" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/documentation" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/http-cache" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/openapi" />
+      <path value="$PROJECT_DIR$/upload-page/vendor/api-platform/doctrine-common" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.5" />

@@ -166,6 +166,28 @@
       <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/twig/extra-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/twig/html-extra" />
       <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/twig/twig" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/doctrine-common" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/doctrine-orm" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/documentation" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/http-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/hydra" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/json-schema" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/jsonld" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/metadata" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/openapi" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/serializer" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/state" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/symfony" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/api-platform/validator" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/doctrine/common" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/nelmio/cors-bundle" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/phpdocumentor/reflection-common" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/phpdocumentor/reflection-docblock" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/phpdocumentor/type-resolver" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/symfony/polyfill-uuid" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/symfony/uid" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/webmozart/assert" />
+      <excludeFolder url="file://$MODULE_DIR$/upload-page/vendor/willdurand/negotiation" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
