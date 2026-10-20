@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Controller\Api;
+namespace App\Tests\Api;
 
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
@@ -14,9 +14,11 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AgentStatCreateTest extends WebTestCase
+class AgentStatApiTest extends WebTestCase
 {
     private const string GOOGLE_ID = 'gid-stats-user';
+
+    private const string ADMIN_GOOGLE_ID = 'gid-stats-admin';
 
     /**
      * What the app sends for Ingress all-time stats.
@@ -42,9 +44,12 @@ class AgentStatCreateTest extends WebTestCase
     {
         $this->client = static::createClient();
 
-        $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
-        self::assertNotNull($user);
-        $user->setGoogleId(self::GOOGLE_ID);
+        foreach (['user' => self::GOOGLE_ID, 'admin' => self::ADMIN_GOOGLE_ID] as $identifier => $googleId) {
+            $user = $this->userRepository()->findOneBy(['identifier' => $identifier]);
+            self::assertNotNull($user);
+            $user->setGoogleId($googleId);
+        }
+
         $this->entityManager()->flush();
     }
 
@@ -62,6 +67,7 @@ class AgentStatCreateTest extends WebTestCase
         $this->postJson(self::STATS, null);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        self::assertSame('Authentication required.', $this->responseJson()['detail']);
         self::assertSame([], $this->agentStatRepository()->findAll());
     }
 
@@ -73,8 +79,14 @@ class AgentStatCreateTest extends WebTestCase
 
         $json = $this->responseJson();
         self::assertIsInt($json['id']);
+        self::assertSame('/api/agent-stats/'.$json['id'], $json['@id']);
+        self::assertSame('AgentStat', $json['@type']);
         self::assertIsString($json['createdAt']);
-        self::assertResponseHeaderSame('Location', 'http://localhost/agent-stats/'.$json['id']);
+        self::assertSame('2026-10-19 15:35:56', $json['datetime']);
+        self::assertSame(35236, $json['mind_controller']);
+        self::assertArrayNotHasKey('owner', $json);
+        self::assertArrayNotHasKey('stats', $json);
+        self::assertResponseHeaderSame('Location', '/api/agent-stats/'.$json['id']);
 
         $stat = $this->agentStatRepository()->find($json['id']);
         self::assertNotNull($stat);
@@ -101,7 +113,7 @@ class AgentStatCreateTest extends WebTestCase
         $this->postJson(['ap' => 243517131] + self::STATS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
-        self::assertSame(['error' => 'Stat entry already added!'], $this->responseJson());
+        self::assertSame('Stat entry already added!', $this->responseJson()['detail']);
         self::assertCount(1, $this->agentStatRepository()->findAll());
     }
 
@@ -109,15 +121,16 @@ class AgentStatCreateTest extends WebTestCase
     {
         $this->postJson(['datetime' => '2026-10-01 10:00:00', 'ap' => 1000] + self::STATS);
         $this->postJson(self::STATS);
+        $this->postJson(self::STATS, self::ADMIN_GOOGLE_ID);
 
-        $this->client->request(Request::METHOD_GET, '/api/agent-stats', server: [
-            'HTTP_ACCEPT' => 'application/json',
-            'HTTP_AUTHORIZATION' => 'Bearer '.FakeGoogleIdTokenVerifier::token(self::GOOGLE_ID, 'user@example.com'),
-        ]);
+        $this->get('/api/agent-stats');
 
         self::assertResponseIsSuccessful();
+        $json = $this->responseJson();
+        self::assertSame('Collection', $json['@type']);
+        self::assertSame(2, $json['totalItems']);
         /** @var list<array<string, mixed>> $list */
-        $list = $this->responseJson();
+        $list = $json['member'];
         self::assertCount(2, $list);
         self::assertSame('2026-10-19 15:35:56', $list[0]['datetime']);
         self::assertSame('TestAgent', $list[0]['nickname']);
@@ -127,59 +140,140 @@ class AgentStatCreateTest extends WebTestCase
         self::assertSame(1000, $list[1]['ap']);
     }
 
+    public function testListLinksTheNextPage(): void
+    {
+        for ($minute = 0; $minute <= 30; ++$minute) {
+            $this->postJson(['datetime' => \sprintf('2026-10-19 10:%02d:00', $minute)] + self::STATS);
+        }
+
+        $this->get('/api/agent-stats');
+
+        $json = $this->responseJson();
+        self::assertSame(31, $json['totalItems']);
+        self::assertIsArray($json['member']);
+        self::assertCount(30, $json['member']);
+        self::assertIsArray($json['view']);
+        self::assertSame('/api/agent-stats?page=2', $json['view']['next']);
+
+        $this->get('/api/agent-stats?page=2');
+
+        $json = $this->responseJson();
+        self::assertIsArray($json['member']);
+        self::assertCount(1, $json['member']);
+        self::assertIsArray($json['view']);
+        self::assertArrayNotHasKey('next', $json['view']);
+    }
+
     public function testListRequiresToken(): void
     {
-        $this->client->request(Request::METHOD_GET, '/api/agent-stats', server: ['HTTP_ACCEPT' => 'application/json']);
+        $this->get('/api/agent-stats', null);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
+    public function testShowsOnlyOwnStat(): void
+    {
+        $this->postJson(self::STATS);
+        $iri = $this->responseJson()['@id'];
+        self::assertIsString($iri);
+
+        $this->get($iri);
+        self::assertResponseIsSuccessful();
+        self::assertSame(243517130, $this->responseJson()['ap']);
+
+        $this->get($iri, self::ADMIN_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testShowsCurrentUser(): void
+    {
+        $this->get('/api/me');
+
+        self::assertResponseIsSuccessful();
+        $json = $this->responseJson();
+        self::assertSame('/api/me', $json['@id']);
+        self::assertSame('user', $json['identifier']);
+        self::assertSame('ROLE_USER', $json['role']);
+        self::assertIsInt($json['id']);
+    }
+
+    public function testCurrentUserRequiresToken(): void
+    {
+        $this->get('/api/me', null);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testDocsArePublic(): void
+    {
+        $this->client->request(Request::METHOD_GET, '/api/docs.jsonopenapi');
+
+        self::assertResponseIsSuccessful();
+        self::assertArrayHasKey('/api/agent-stats', $this->responseJson()['paths']);
+    }
+
     /**
-     * @return iterable<string, array{array<mixed>}>
+     * @return iterable<string, array{array<mixed>, string}>
      */
     public static function invalidPayloadProvider(): iterable
     {
         $without = static fn (string $key): array => \array_diff_key(self::STATS, [$key => true]);
 
-        yield 'missing datetime' => [$without('datetime')];
-        yield 'bad datetime' => [['datetime' => '19.10.2026 15:35'] + self::STATS];
-        yield 'missing nickname' => [$without('nickname')];
-        yield 'blank faction' => [['faction' => ' '] + self::STATS];
-        yield 'missing ap' => [$without('ap')];
-        yield 'negative stat' => [['explorer' => -1] + self::STATS];
-        yield 'stat too large for INT' => [['explorer' => 2147483648] + self::STATS];
-        yield 'stat as text' => [['explorer' => 'lots'] + self::STATS];
+        yield 'missing datetime' => [$without('datetime'), 'datetime'];
+        yield 'bad datetime' => [['datetime' => '19.10.2026 15:35'] + self::STATS, 'datetime'];
+        yield 'missing nickname' => [$without('nickname'), 'nickname'];
+        yield 'blank faction' => [['faction' => ' '] + self::STATS, 'faction'];
+        yield 'missing ap' => [$without('ap'), 'ap'];
+        yield 'negative stat' => [['explorer' => -1] + self::STATS, 'explorer'];
+        yield 'stat too large for INT' => [['explorer' => 2147483648] + self::STATS, 'explorer'];
+        yield 'stat as text' => [['explorer' => 'lots'] + self::STATS, 'explorer'];
     }
 
     /**
      * @param array<mixed> $payload
      */
     #[DataProvider('invalidPayloadProvider')]
-    public function testRejectsInvalidPayload(array $payload): void
+    public function testRejectsInvalidPayload(array $payload, string $propertyPath): void
     {
         $this->postJson($payload);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var list<array{propertyPath: string, message: string}> $violations */
+        $violations = $this->responseJson()['violations'];
+        self::assertContains($propertyPath, \array_column($violations, 'propertyPath'));
         self::assertSame([], $this->agentStatRepository()->findAll());
     }
 
     /**
      * @param array<mixed> $payload
      */
-    private function postJson(array $payload, ?string $token = 'default'): void
+    private function postJson(array $payload, ?string $googleId = self::GOOGLE_ID): void
     {
-        $server = ['CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json'];
-
-        if (null !== $token) {
-            $server['HTTP_AUTHORIZATION'] = 'Bearer '.FakeGoogleIdTokenVerifier::token(self::GOOGLE_ID, 'user@example.com');
-        }
-
         $this->client->request(
             Request::METHOD_POST,
             '/api/agent-stats',
-            server: $server,
+            server: ['CONTENT_TYPE' => 'application/ld+json'] + $this->headers($googleId),
             content: (string) \json_encode($payload),
         );
+    }
+
+    private function get(string $uri, ?string $googleId = self::GOOGLE_ID): void
+    {
+        $this->client->request(Request::METHOD_GET, $uri, server: $this->headers($googleId));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function headers(?string $googleId): array
+    {
+        $headers = ['HTTP_ACCEPT' => 'application/ld+json'];
+
+        if (null !== $googleId) {
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer '.FakeGoogleIdTokenVerifier::token($googleId, $googleId.'@example.com');
+        }
+
+        return $headers;
     }
 
     /**

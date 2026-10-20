@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Dto\AgentStatInput;
+use App\Exception\StatsAlreadyAddedException;
 use App\Repository\AgentStatRepository;
+use App\Security\Voter\AgentStatVoter;
+use App\State\AgentStatProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -14,13 +21,33 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Attribute\Ignore;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * Ingress all-time agent stats, with the columns of 4e-website's agent_stat table.
  * 4e-website links a row to its Agent; here it belongs to the User who imported it.
+ *
+ * API: the user's own stats, newest first (OwnerExtension), and POST of an AgentStatInput.
  */
 #[Entity(repositoryClass: AgentStatRepository::class)]
 #[UniqueConstraint(name: 'agent_stat_owner_datetime', columns: ['owner_id', 'datetime'])]
+#[ApiResource(
+    operations: [
+        new GetCollection(security: "is_granted('ROLE_USER')"),
+        new Get(security: "is_granted('".AgentStatVoter::VIEW."', object)"),
+        new Post(
+            exceptionToStatus: [StatsAlreadyAddedException::class => 409],
+            collectDenormalizationErrors: true,
+            security: "is_granted('ROLE_USER')",
+            input: AgentStatInput::class,
+            processor: AgentStatProcessor::class,
+        ),
+    ],
+    order: ['datetime' => 'DESC'],
+)]
 class AgentStat
 {
     #[Column, Id, GeneratedValue]
@@ -30,7 +57,9 @@ class AgentStat
         }
     }
 
+    /** The same format as AgentStatInput::$datetime. */
     #[Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => AgentStatInput::DATETIME_FORMAT])]
     public private(set) \DateTimeImmutable $datetime;
 
     #[Column(type: Types::DATETIME_IMMUTABLE)]
@@ -67,6 +96,7 @@ class AgentStat
     public private(set) ?int $connector;
 
     #[Column(nullable: true)]
+    #[SerializedName('mind_controller')]
     public private(set) ?int $mindController;
 
     #[Column(nullable: true)]
@@ -106,57 +136,70 @@ class AgentStat
     public private(set) ?int $missionday;
 
     #[Column(nullable: true)]
+    #[SerializedName('nl1331_meetups')]
     public private(set) ?int $nl1331Meetups;
 
     #[Column(nullable: true)]
     public private(set) ?int $ifs;
 
     #[Column(nullable: true)]
+    #[SerializedName('current_challenge')]
     public private(set) ?int $currentChallenge;
 
     #[Column(nullable: true)]
     public private(set) ?int $scout;
 
     #[Column(nullable: true)]
+    #[SerializedName('scout_controller')]
     public private(set) ?int $scoutController;
 
     #[Column(nullable: true)]
+    #[SerializedName('longest_link')]
     public private(set) ?int $longestLink;
 
     #[Column(nullable: true)]
+    #[SerializedName('largest_field')]
     public private(set) ?int $largestField;
 
     #[Column(nullable: true)]
     public private(set) ?int $recursions;
 
     #[Column(nullable: true)]
+    #[SerializedName('drone_flight_distance')]
     public private(set) ?int $droneFlightDistance;
 
     #[Column(nullable: true)]
     public private(set) ?int $maverick;
 
     #[Column(nullable: true)]
+    #[SerializedName('drone_portals_visited')]
     public private(set) ?int $dronePortalsVisited;
 
     #[Column(nullable: true)]
+    #[SerializedName('drone_forced_recalls')]
     public private(set) ?int $droneForcedRecalls;
 
     #[Column(nullable: true)]
+    #[SerializedName('kinetic_capsules_completed')]
     public private(set) ?int $kineticCapsulesCompleted;
 
     #[Column(nullable: true)]
+    #[SerializedName('months_subscribed')]
     public private(set) ?int $monthsSubscribed;
 
     #[Column(nullable: true)]
     public private(set) ?int $epoch;
 
     #[Column(nullable: true)]
+    #[SerializedName('portals_discovered')]
     public private(set) ?int $portalsDiscovered;
 
     #[Column(nullable: true)]
+    #[SerializedName('drones_returned')]
     public private(set) ?int $dronesReturned;
 
     #[Column(nullable: true)]
+    #[SerializedName('second_sunday')]
     public private(set) ?int $secondSunday;
 
     #[Column(nullable: true)]
@@ -165,7 +208,7 @@ class AgentStat
     /**
      * @param AgentStatInput $input validated input
      */
-    public function __construct(#[ManyToOne, JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    public function __construct(#[ManyToOne, JoinColumn(nullable: false, onDelete: 'CASCADE'), Ignore]
         public private(set) User $owner, AgentStatInput $input)
     {
         $this->datetime = $input->getDateTime();
@@ -219,6 +262,7 @@ class AgentStat
      *
      * @return array<string, int|null>
      */
+    #[Ignore]
     public function getStats(): array
     {
         return [

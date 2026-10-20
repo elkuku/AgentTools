@@ -111,12 +111,20 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
         return $user;
     }
 
+    /**
+     * An RFC 7807 problem, like API Platform's own errors.
+     */
     private function unauthorized(string $message): JsonResponse
     {
         return new JsonResponse(
-            ['error' => $message],
+            [
+                'type' => '/errors/401',
+                'title' => 'An error occurred',
+                'status' => Response::HTTP_UNAUTHORIZED,
+                'detail' => $message,
+            ],
             Response::HTTP_UNAUTHORIZED,
-            ['WWW-Authenticate' => 'Bearer'],
+            ['WWW-Authenticate' => 'Bearer', 'Content-Type' => 'application/problem+json'],
         );
     }
 }

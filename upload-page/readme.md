@@ -6,9 +6,9 @@
 The [Symfony](https://symfony.com) web app that stores Ingress agent stats, sent by the Android app
 in [`../upload-app`](../upload-app) or pasted on the web, and lists them. It includes:
 
-* `POST /api/agent-stats`, `GET /api/agent-stats` — JSON API, authenticated with a Google ID token
-  (`Authorization: Bearer …`). Only known users are accepted; accounts are never created
-  automatically.
+* [API Platform](https://api-platform.com) JSON-LD API (`/api/agent-stats`, `/api/me`),
+  authenticated with a Google ID token (`Authorization: Bearer …`). Only known users are accepted;
+  accounts are never created automatically. OpenAPI docs at `/api/docs`.
 * `/agent-stats` — each user's stats; `/agent-stats/new` imports stats pasted from Ingress
 * Stats stored in `agent_stat` with the columns of 4e-website
 * Symfony 8.*, PostgreSQL via Docker compose
@@ -49,10 +49,13 @@ bin/stop
 Ingress all-time stats, stored in `agent_stat` with the columns of 4e-website. The app converts
 stats shared from Ingress into this format; the keys are the column names.
 
+Built with [API Platform](https://api-platform.com): JSON-LD (`application/ld+json`), errors as
+RFC 7807 problems (`application/problem+json`). The interactive docs are at `/api/docs`.
+
 ```http
 POST /api/agent-stats
 Authorization: Bearer <Google ID token>
-Content-Type: application/json
+Content-Type: application/ld+json
 
 { "datetime": "2026-10-19 15:35:56", "nickname": "Agent", "faction": "Enlightened",
   "ap": 243517130, "level": 16, "explorer": 27659, "mind_controller": 35236, … }
@@ -60,14 +63,20 @@ Content-Type: application/json
 
 `datetime`, `nickname`, `faction` and `ap` are required; the other stats are optional integers.
 
-| Status | Body                                                                      |
-|--------|---------------------------------------------------------------------------|
-| `201`  | `{"id": 1, "createdAt": "…"}`, `Location` header to the stats page         |
-| `401`  | `{"error": "…"}` — missing/invalid token, unverified email, unknown user   |
-| `409`  | `{"error": "Stat entry already added!"}` — same user and `datetime` again  |
-| `422`  | validation errors in `violations`                                          |
+| Status | Body                                                                              |
+|--------|-----------------------------------------------------------------------------------|
+| `201`  | the `AgentStat` (`@id`, `id`, `createdAt`, the stats), `Location: /api/agent-stats/1` |
+| `401`  | problem, `detail`: missing/invalid token, unverified email, unknown user          |
+| `409`  | problem, `detail`: `Stat entry already added!` (same user and `datetime` again)   |
+| `422`  | problem with `violations` (`propertyPath`, `message`)                             |
 
-`GET /api/agent-stats` returns the user's stats, newest first, in the same format (plus `id`).
+| Endpoint                   | Returns                                                                    |
+|----------------------------|----------------------------------------------------------------------------|
+| `GET /api/agent-stats`     | the user's stats, newest first: a collection (`member`, `totalItems`), 30 per page, `view.next` links the next page |
+| `GET /api/agent-stats/{id}`| one stat, `403` if it is someone else's                                    |
+| `GET /api/me`              | the signed-in user: `id`, `identifier`, `role`                             |
+
+`datetime` comes back in the input format (`Y-m-d H:i:s`), the stats under their column names.
 
 On the web, `/agent-stats/new` takes the stats as copied from Ingress (a tab-separated header and
 data line) and parses them with `IngressStatsParser`, like 4e-website's `CsvParser`.
