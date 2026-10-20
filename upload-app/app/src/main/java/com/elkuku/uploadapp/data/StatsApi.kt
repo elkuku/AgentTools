@@ -13,6 +13,8 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLBuilder
+import io.ktor.http.takeFrom
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
@@ -20,17 +22,28 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import java.io.IOException
 
+/** API Platform speaks JSON-LD; its errors are RFC 7807 problems. */
+private val LdJson = ContentType("application", "ld+json")
+private val ProblemJson = ContentType("application", "problem+json")
+
 @Serializable
 private data class CreatedResponse(val id: Int, val createdAt: String)
 
 @Serializable
-private data class ErrorResponse(val error: String = "")
+private data class Problem(val detail: String = "")
 
 @Serializable
-private data class Violation(val propertyPath: String = "", val title: String = "")
+private data class Violation(val propertyPath: String = "", val message: String = "")
 
 @Serializable
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
+
+@Serializable
+private data class CollectionView(val next: String? = null)
+
+/** One page of a Hydra collection. */
+@Serializable
+private data class CollectionPage(val member: List<JsonObject> = emptyList(), val view: CollectionView? = null)
 
 sealed interface SaveResult {
     data class Success(val id: Int, val createdAt: String) : SaveResult
@@ -49,7 +62,7 @@ interface StatsApi {
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
     suspend fun save(idToken: String, stats: JsonObject): SaveResult
 
-    /** `GET /api/agent-stats`: the user's agent stats, newest first. */
+    /** `GET /api/agent-stats`: the user's agent stats, newest first (all pages). */
     suspend fun list(idToken: String): AgentStatsResult
 }
 
@@ -63,15 +76,18 @@ class KtorStatsApi(
 
     private val client = HttpClient(engine) {
         expectSuccess = false
-        install(ContentNegotiation) { json(json) }
+        install(ContentNegotiation) {
+            json(json, LdJson)
+            json(json, ProblemJson)
+        }
     }
 
     override suspend fun save(idToken: String, stats: JsonObject): SaveResult {
         val response = try {
             client.post(url) {
                 bearerAuth(idToken)
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
+                contentType(LdJson)
+                accept(LdJson)
                 setBody(stats)
             }
         } catch (e: IOException) {
@@ -85,7 +101,7 @@ class KtorStatsApi(
 
             HttpStatusCode.UnprocessableEntity -> SaveResult.Invalid(
                 response.decodeOrNull<ValidationResponse>()?.violations
-                    ?.map { if (it.propertyPath.isBlank()) it.title else "${it.propertyPath}: ${it.title}" }
+                    ?.map { if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}" }
                     ?.ifEmpty { null }
                     ?: listOf("The server rejected the stats.")
             )
@@ -96,31 +112,44 @@ class KtorStatsApi(
     }
 
     override suspend fun list(idToken: String): AgentStatsResult {
-        val response = try {
-            client.get(url) {
-                bearerAuth(idToken)
-                accept(ContentType.Application.Json)
+        val entries = mutableListOf<AgentStatEntry>()
+        var pageUrl: String? = url
+
+        while (pageUrl != null) {
+            val currentUrl: String = pageUrl
+            val response = try {
+                client.get(currentUrl) {
+                    bearerAuth(idToken)
+                    accept(LdJson)
+                }
+            } catch (e: IOException) {
+                return AgentStatsResult.Failure(networkError(e))
             }
-        } catch (e: IOException) {
-            return AgentStatsResult.Failure(networkError(e))
+
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    val page = response.decodeOrNull<CollectionPage>()
+                        ?: return AgentStatsResult.Failure("Unexpected response from the server.")
+                    entries += page.member.map(AgentStatEntry::fromJson)
+                    // view.next is an IRI like "/api/agent-stats?page=2"
+                    pageUrl = page.view?.next?.let { URLBuilder(currentUrl).takeFrom(it).buildString() }
+                }
+
+                HttpStatusCode.Unauthorized ->
+                    return AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+                else -> return AgentStatsResult.Failure("Server error: HTTP ${response.status.value}")
+            }
         }
 
-        return when (response.status) {
-            HttpStatusCode.OK -> response.decodeOrNull<List<JsonObject>>()
-                ?.let { list -> AgentStatsResult.Success(list.map(AgentStatEntry::fromJson)) }
-                ?: AgentStatsResult.Failure("Unexpected response from the server.")
-
-            HttpStatusCode.Unauthorized -> AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
-
-            else -> AgentStatsResult.Failure("Server error: HTTP ${response.status.value}")
-        }
+        return AgentStatsResult.Success(entries)
     }
 
     fun close() = client.close()
 
     private fun networkError(e: IOException) = "Network error: ${e.message ?: e::class.simpleName}"
 
-    private suspend fun HttpResponse.errorMessage(): String? = decodeOrNull<ErrorResponse>()?.error?.ifBlank { null }
+    private suspend fun HttpResponse.errorMessage(): String? = decodeOrNull<Problem>()?.detail?.ifBlank { null }
 
     private suspend inline fun <reified T> HttpResponse.decodeOrNull(): T? =
         try {

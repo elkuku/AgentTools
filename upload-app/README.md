@@ -59,8 +59,9 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 
 - `auth/GoogleAuth.kt` — Credential Manager: interactive "Sign in with Google", silent sign-in
   for returning users and token refresh, sign-out.
-- `data/StatsApi.kt` — Ktor client for `POST` / `GET /api/agent-stats`; maps `201` / `401` / `409` /
-  `422` / other to `SaveResult` and the list to `AgentStatsResult`.
+- `data/StatsApi.kt` — Ktor client for the API Platform (JSON-LD) `POST` / `GET /api/agent-stats`;
+  maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
+  and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right

@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.longOrNull
 
-/** One agent_stat row as returned by `GET /api/agent-stats`. */
+/** One agent_stat row as returned by `GET /api/agent-stats` (a member of the JSON-LD collection). */
 data class AgentStatEntry(
     val id: Int,
     val datetime: String,
@@ -17,7 +17,7 @@ data class AgentStatEntry(
     operator fun get(column: String): Long? = stats[column]
 
     companion object {
-        private val TEXT_KEYS = setOf("id", "datetime", "nickname", "faction")
+        private val NON_STAT_KEYS = setOf("id", "datetime", "createdAt", "nickname", "faction")
 
         fun fromJson(json: JsonObject): AgentStatEntry {
             fun text(key: String) = (json[key] as? JsonPrimitive)?.contentOrNull.orEmpty()
@@ -27,7 +27,7 @@ data class AgentStatEntry(
                 datetime = text("datetime"),
                 nickname = text("nickname"),
                 faction = text("faction"),
-                stats = json.filterKeys { it !in TEXT_KEYS }.mapValues { (_, v) -> (v as? JsonPrimitive)?.longOrNull },
+                stats = json.filterKeys { it !in NON_STAT_KEYS && !it.startsWith("@") }.mapValues { (_, v) -> (v as? JsonPrimitive)?.longOrNull },
             )
         }
     }

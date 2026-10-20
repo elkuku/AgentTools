@@ -18,7 +18,12 @@ import java.io.IOException
 class KtorStatsApiTest {
     private val stats = JsonObject(mapOf("nickname" to JsonPrimitive("TestAgent"), "ap" to JsonPrimitive(1)))
 
-    private val jsonHeaders = headersOf(HttpHeaders.ContentType, "application/json")
+    private val jsonHeaders = headersOf(HttpHeaders.ContentType, "application/ld+json")
+
+    private val problemHeaders = headersOf(HttpHeaders.ContentType, "application/problem+json")
+
+    private fun problem(status: Int, detail: String) =
+        """{"type": "/errors/$status", "title": "An error occurred", "status": $status, "detail": "$detail"}"""
 
     @Test
     fun savePostsStatsWithBearerToken() = runTest {
@@ -26,9 +31,16 @@ class KtorStatsApiTest {
             assertEquals(HttpMethod.Post, req.method)
             assertEquals("http://server/api/agent-stats", req.url.toString())
             assertEquals("Bearer id-token", req.headers[HttpHeaders.Authorization])
+            assertEquals("application/ld+json", req.headers[HttpHeaders.Accept])
+            assertEquals("application/ld+json", req.body.contentType?.toString())
             assertEquals(stats, Json.parseToJsonElement(String(req.body.toByteArray())))
 
-            respond("""{"id": 9, "createdAt": "2026-10-19T12:00:00+00:00"}""", HttpStatusCode.Created, jsonHeaders)
+            respond(
+                """{"@context": "/api/contexts/AgentStat", "@id": "/api/agent-stats/9", "@type": "AgentStat",
+                    "id": 9, "createdAt": "2026-10-19T12:00:00+00:00", "ap": 1}""",
+                HttpStatusCode.Created,
+                jsonHeaders,
+            )
         }
 
         val result = KtorStatsApi("http://server/", engine).save("id-token", stats)
@@ -38,7 +50,7 @@ class KtorStatsApiTest {
 
     @Test
     fun saveMapsUnauthorized() = runTest {
-        val engine = MockEngine { respond("""{"error": "Unknown user."}""", HttpStatusCode.Unauthorized, jsonHeaders) }
+        val engine = MockEngine { respond(problem(401, "Unknown user."), HttpStatusCode.Unauthorized, problemHeaders) }
 
         assertEquals(SaveResult.Unauthorized("Unknown user."), KtorStatsApi("http://server", engine).save("t", stats))
     }
@@ -46,12 +58,12 @@ class KtorStatsApiTest {
     @Test
     fun saveMapsValidationViolations() = runTest {
         val body = """
-            {"title": "Validation Failed", "status": 422, "violations": [
-                {"propertyPath": "ap", "title": "This value should not be null."},
-                {"propertyPath": "", "title": "Something general."}
+            {"@type": "ConstraintViolation", "status": 422, "detail": "ap: This value should not be null.", "violations": [
+                {"propertyPath": "ap", "message": "This value should not be null.", "code": "c1"},
+                {"propertyPath": "", "message": "Something general.", "code": "c2"}
             ]}
         """.trimIndent()
-        val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, jsonHeaders) }
+        val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, problemHeaders) }
 
         assertEquals(
             SaveResult.Invalid(listOf("ap: This value should not be null.", "Something general.")),
@@ -62,7 +74,7 @@ class KtorStatsApiTest {
     @Test
     fun saveMapsConflictToServerMessage() = runTest {
         val engine = MockEngine {
-            respond("""{"error": "Stat entry already added!"}""", HttpStatusCode.Conflict, jsonHeaders)
+            respond(problem(409, "Stat entry already added!"), HttpStatusCode.Conflict, problemHeaders)
         }
 
         assertEquals(SaveResult.Failure("Stat entry already added!"), KtorStatsApi("http://server", engine).save("t", stats))
@@ -93,8 +105,10 @@ class KtorStatsApiTest {
             assertEquals("Bearer id-token", req.headers[HttpHeaders.Authorization])
 
             respond(
-                """[{"id": 2, "datetime": "2026-10-19 15:35:56", "nickname": "TestAgent",
-                    "faction": "Enlightened", "ap": 243517130, "level": 16, "recon": null}]""",
+                """{"@context": "/api/contexts/AgentStat", "@id": "/api/agent-stats", "@type": "Collection",
+                    "totalItems": 1, "member": [{"@id": "/api/agent-stats/2", "@type": "AgentStat", "id": 2,
+                    "datetime": "2026-10-19 15:35:56", "createdAt": "2026-10-19T15:40:00+00:00",
+                    "nickname": "TestAgent", "faction": "Enlightened", "ap": 243517130, "level": 16, "recon": null}]}""",
                 HttpStatusCode.OK,
                 jsonHeaders,
             )
@@ -119,8 +133,28 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun listFollowsNextPages() = runTest {
+        val requested = mutableListOf<String>()
+        val engine = MockEngine { req ->
+            requested += req.url.toString()
+            val (ids, view) = when (req.url.parameters["page"]) {
+                null -> listOf(3, 2) to """{"@id": "/sub/api/agent-stats?page=1", "next": "/sub/api/agent-stats?page=2"}"""
+                else -> listOf(1) to """{"@id": "/sub/api/agent-stats?page=2", "previous": "/sub/api/agent-stats?page=1"}"""
+            }
+            val member = ids.joinToString { """{"id": $it, "datetime": "2026-10-0$it 10:00:00", "ap": $it}""" }
+
+            respond("""{"totalItems": 3, "member": [$member], "view": $view}""", HttpStatusCode.OK, jsonHeaders)
+        }
+
+        val result = KtorStatsApi("https://server/sub/", engine).list("t")
+
+        assertEquals(listOf("https://server/sub/api/agent-stats", "https://server/sub/api/agent-stats?page=2"), requested)
+        assertEquals(listOf(3, 2, 1), (result as AgentStatsResult.Success).entries.map { it.id })
+    }
+
+    @Test
     fun listMapsUnauthorized() = runTest {
-        val engine = MockEngine { respond("""{"error": "Invalid ID token."}""", HttpStatusCode.Unauthorized, jsonHeaders) }
+        val engine = MockEngine { respond(problem(401, "Invalid ID token."), HttpStatusCode.Unauthorized, problemHeaders) }
 
         assertEquals(AgentStatsResult.Unauthorized("Invalid ID token."), KtorStatsApi("http://server", engine).list("t"))
     }
