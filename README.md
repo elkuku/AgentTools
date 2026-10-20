@@ -9,7 +9,7 @@ Symfony web app, which stores them like 4e-website and shows them with medals.
 | Folder                         | What                                                                                   |
 |--------------------------------|----------------------------------------------------------------------------------------|
 | [`upload-app/`](upload-app)    | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)                   |
-| [`upload-page/`](upload-page)  | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, paste import, user admin |
+| [`upload-page/`](upload-page)  | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, user admin |
 | [`docs/`](docs)                | [Google Sign-In setup](docs/google-sign-in-setup.md)                                   |
 | [`PLAN.md`](PLAN.md)           | Design decisions and build plan                                                        |
 
@@ -28,7 +28,7 @@ Symfony web app, which stores them like 4e-website and shows them with medals.
    finds the user and stores the stats (once per `datetime`). Unknown accounts get `401`; users
    are never created from the API.
 4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
-   see their stats at `/agent-stats` and can paste stats from Ingress at `/agent-stats/new`.
+   see their stats at `/agent-stats`.
 
 The app uses the **Web** client ID as `serverClientId`; the Android OAuth client only registers
 the package name and SHA-1. See [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md).

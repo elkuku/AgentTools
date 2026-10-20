@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-The Symfony 8.x web app of the `android-upload-test` monorepo: it stores Ingress agent stats, sent by the Android app (`../upload-app`) via a Google-authenticated API or pasted into a web form, and lists them. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
+The Symfony 8.x web app of the `android-upload-test` monorepo: it stores Ingress agent stats, sent by the Android app (`../upload-app`) via a Google-authenticated API, and lists them. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
 
 ## Commands
 
@@ -42,14 +42,13 @@ symfony console user-admin  # Interactive user management CLI
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Also the API Platform resource (see API below); `#[SerializedName]` gives the stats their column names, `owner` and `getStats()` are `#[Ignore]`d. Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
-- **`IngressStatsParser`** (`src/Service/`) — parses stats pasted from Ingress (tab-separated header + one data line, all-time only) into a validated `AgentStatInput`; throws `InvalidStatsException`. Same header → column map as the app's `IngressStats.kt`.
 
 ### Controllers
 Single-action controller pattern under `src/Controller/`:
 - `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
 - `Security/` — OAuth authenticators (Google, GitHub, GitLab) plus `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
-- `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`), Create (paste import form, `AgentStatImportType`)
+- `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`). Stats come in only through the API (the app)
 - `ProfileController`, `DefaultController`
 
 Keep controllers at most one directory below `src/Controller/`: `ControllerAccessTest` (from `elkuku/symfony-utils`) cannot resolve deeper namespaces.

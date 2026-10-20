@@ -4,12 +4,12 @@
 
 ## What's this?
 The [Symfony](https://symfony.com) web app that stores Ingress agent stats, sent by the Android app
-in [`../upload-app`](../upload-app) or pasted on the web, and lists them. It includes:
+in [`../upload-app`](../upload-app), and lists them. It includes:
 
 * [API Platform](https://api-platform.com) JSON-LD API (`/api/agent-stats`, `/api/me`),
   authenticated with a Google ID token (`Authorization: Bearer …`). Only known users are accepted;
   accounts are never created automatically. OpenAPI docs at `/api/docs`.
-* `/agent-stats` — each user's stats; `/agent-stats/new` imports stats pasted from Ingress
+* `/agent-stats` — each user's stats
 * Stats stored in `agent_stat` with the columns of 4e-website
 * Symfony 8.*, PostgreSQL via Docker compose
 * `dev` login form <br/> `prod` Social login with Google, GitLab, GitHub
@@ -80,9 +80,6 @@ Content-Type: application/ld+json
 | `GET /api/me`              | the signed-in user: `id`, `identifier`, `role`                             |
 
 `datetime` comes back in the input format (`Y-m-d H:i:s`), the stats under their column names.
-
-On the web, `/agent-stats/new` takes the stats as copied from Ingress (a tab-separated header and
-data line) and parses them with `IngressStatsParser`, like 4e-website's `CsvParser`.
 
 ## Testing
 
