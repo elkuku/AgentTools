@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class ProfileControllerTest extends WebTestCase
         $user = $userRepository->findOneBy(['identifier' => 'user']);
         if (null !== $user) {
             $user->setParams([]);
+            $user->setGoogleId(null);
             $em->flush();
         }
 
@@ -77,5 +79,37 @@ class ProfileControllerTest extends WebTestCase
         $user = $userRepository->findOneBy(['identifier' => 'user']);
         self::assertNotNull($user);
         self::assertSame('test_username', $user->getParam('user_name'));
+    }
+
+    public function testProfileShowsTheApiTokenOfAGoogleSignIn(): void
+    {
+        $client = static::createClient();
+        $idToken = FakeGoogleIdTokenVerifier::token('gid-profile', 'user');
+
+        $client->request(Request::METHOD_POST, '/connect/google/verify', ['credential' => $idToken]);
+        self::assertResponseRedirects();
+
+        $client->request(Request::METHOD_GET, '/profile');
+
+        self::assertResponseIsSuccessful();
+        self::assertInputValueSame('api-token', $idToken);
+        self::assertSelectorExists('[data-controller="clipboard"] button[data-action="clipboard#copy"]');
+    }
+
+    public function testProfileExplainsHowToGetAnApiToken(): void
+    {
+        $client = static::createClient();
+
+        /** @var UserRepository $userRepository */
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $user = $userRepository->findOneBy(['identifier' => 'user']);
+        self::assertNotNull($user);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/profile');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('#api-token');
+        self::assertSelectorTextContains('body', 'sign in with Google to get a token');
     }
 }

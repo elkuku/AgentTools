@@ -4,6 +4,7 @@ namespace App\Tests\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\ApiTokenStore;
 use App\Security\GoogleIdentityAuthenticator;
 use App\Security\GoogleIdTokenVerifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,6 +41,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
             $this->userRepository,
             $this->entityManager,
             $this->urlGenerator,
+            new ApiTokenStore(false),
         );
     }
 

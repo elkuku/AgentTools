@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Enum\UserRole;
 use App\Form\UserParamsType;
+use App\Security\ApiTokenStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(UserRole::USER->value)]
 class ProfileController extends BaseController
 {
-    public function __invoke(Request $request, EntityManagerInterface $entityManager): Response
+    public function __invoke(Request $request, EntityManagerInterface $entityManager, ApiTokenStore $apiTokenStore): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(UserParamsType::class, $user->getParams());
@@ -32,6 +33,7 @@ class ProfileController extends BaseController
 
         return $this->render('default/profile.html.twig', [
             'form' => $form,
+            'apiToken' => $apiTokenStore->get($request->getSession(), $user),
         ]);
     }
 }

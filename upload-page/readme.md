@@ -51,7 +51,8 @@ stats shared from Ingress into this format; the keys are the column names.
 
 Built with [API Platform](https://api-platform.com): JSON-LD (`application/ld+json`), errors as
 RFC 7807 problems (`application/problem+json`). The interactive docs are at `/api/docs` (linked in
-the footer): click **Authorize** and paste a Google ID token (without `Bearer `). In `dev` with
+the footer): click **Authorize** and paste a Google ID token (without `Bearer `). After a Google
+sign-in on the web, `/profile` shows yours with a copy button (valid for about an hour). In `dev` with
 `APP_FAKE_GOOGLE_TOKENS=1`, a fake token works: `fake|<googleId>|<email>|verified`.
 
 ```http

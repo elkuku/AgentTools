@@ -4,6 +4,8 @@ namespace App\Tests\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\ApiTokenStore;
+use App\Security\FakeGoogleIdTokenVerifier;
 use App\Security\GoogleAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -46,6 +48,8 @@ class GoogleAuthenticatorTest extends TestCase
             $this->entityManager,
             $this->userRepository,
             $this->urlGenerator,
+            new FakeGoogleIdTokenVerifier(),
+            new ApiTokenStore(false),
         );
     }
 
@@ -83,6 +87,31 @@ class GoogleAuthenticatorTest extends TestCase
         $passport = $this->authenticator->authenticate($request);
 
         self::assertInstanceOf(SelfValidatingPassport::class, $passport);
+        self::assertNull(new ApiTokenStore(false)->get($request->getSession(), $existingUser));
+    }
+
+    public function testAuthenticateKeepsTheIdTokenForTheApi(): void
+    {
+        $idToken = FakeGoogleIdTokenVerifier::token('google-789', 'test@example.com');
+        $accessToken = new AccessToken(['access_token' => 'at', 'id_token' => $idToken]);
+
+        $googleUser = $this->createStub(GoogleUser::class);
+        $googleUser->method('getId')->willReturn('google-789');
+
+        $oauthClient = $this->createStub(OAuth2ClientInterface::class);
+        $oauthClient->method('getAccessToken')->willReturn($accessToken);
+        $oauthClient->method('fetchUserFromToken')->willReturn($googleUser);
+        $this->clientRegistry->method('getClient')->willReturn($oauthClient);
+
+        $existingUser = new User()->setIdentifier('test@example.com')->setGoogleId('google-789');
+        $this->userRepository->method('findOneBy')->willReturn($existingUser);
+
+        $request = Request::create('/connect/google/check');
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        $this->authenticator->authenticate($request);
+
+        self::assertSame($idToken, new ApiTokenStore(false)->get($request->getSession(), $existingUser)?->token);
     }
 
     public function testGetUserReturnsExistingUserByGoogleId(): void

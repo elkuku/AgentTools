@@ -20,6 +20,7 @@ class GoogleController extends AbstractController
             ->getClient('google')
             ->redirect(
                 [
+                    'openid', // for the ID token the API accepts (ApiTokenStore)
                     'profile',
                     'email', // the scopes you want to access
                 ],

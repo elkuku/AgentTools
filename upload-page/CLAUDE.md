@@ -61,6 +61,7 @@ JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name
 - `AgentStat` (`#[ApiResource]` on the entity) — `GET /api/agent-stats` (own stats only via `Doctrine/AgentStatOwnerExtension`, newest first, paginated), `GET /api/agent-stats/{id}` (`AgentStatVoter`), `POST /api/agent-stats` with `AgentStatInput` → `State/AgentStatProcessor` → `AgentStatService`. `StatsAlreadyAddedException` → `409`; type errors are collected as `422` violations.
 - `ApiResource/Me` — `GET /api/me` via `State/MeProvider`.
 - Errors are `application/problem+json` with `detail`; `GoogleApiTokenAuthenticator`'s `401` uses the same shape.
+- `/profile` shows an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleAuthenticator` with the `openid` scope, `GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
 - Operations check `ROLE_USER` themselves (`security:`); there is no `access_control` rule for `^/api/`, so `/api/docs` is public.
 
 ### Security

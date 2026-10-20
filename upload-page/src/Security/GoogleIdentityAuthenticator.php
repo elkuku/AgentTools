@@ -28,6 +28,7 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ApiTokenStore $apiTokenStore,
     ) {
     }
 
@@ -53,6 +54,7 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         }
 
         $user = $this->getUser(new GoogleUser($payload));
+        $this->apiTokenStore->store($request->getSession(), $idToken, $payload);
 
         return new SelfValidatingPassport(
             new UserBadge($user->getUserIdentifier()),

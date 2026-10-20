@@ -30,6 +30,8 @@ class GoogleAuthenticator extends AbstractAuthenticator
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly GoogleIdTokenVerifierInterface $idTokenVerifier,
+        private readonly ApiTokenStore $apiTokenStore,
     ) {
     }
 
@@ -52,6 +54,12 @@ class GoogleAuthenticator extends AbstractAuthenticator
             ->fetchUserFromToken($token);
 
         $user = $this->getUser($googleUser);
+
+        // With the openid scope Google also returns an ID token, which the API accepts
+        $idToken = $token->getValues()['id_token'] ?? null;
+        if (\is_string($idToken) && null !== $payload = $this->idTokenVerifier->verify($idToken)) {
+            $this->apiTokenStore->store($request->getSession(), $idToken, $payload);
+        }
 
         return new SelfValidatingPassport(
             new UserBadge($user->getUserIdentifier()),
