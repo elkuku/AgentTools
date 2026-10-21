@@ -13,15 +13,20 @@ class MedalGridTest {
     private val pitchY = 76
 
     /** Medals as filled boxes (not touching, unlike hexagons they don't interlock): rows of 4, every second row shifted by half a medal. */
-    private fun grid(rows: Int, top: Int, missing: Set<Pair<Int, Int>> = emptySet()): ArgbImage {
+    private fun grid(
+        rows: Int,
+        top: Int,
+        missing: Set<Pair<Int, Int>> = emptySet(),
+        rowPitch: Double = pitchY.toDouble(),
+    ): ArgbImage {
         val width = 4 * pitchX + pitchX / 2 + 20
-        val height = top + rows * pitchY + h
+        val height = top + (rows * rowPitch).toInt() + h
         val pixels = IntArray(width * height) { black }
         for (row in 0 until rows) for (col in 0 until 4) {
             if (row to col in missing) continue
             val left = 10 + col * pitchX + if (row % 2 == 1) pitchX / 2 else 0
             for (y in 0 until h) for (x in 0 until w) {
-                val py = top + row * pitchY + y
+                val py = top + (row * rowPitch).toInt() + y
                 if (py in 0 until height) pixels[py * width + left + x] = argb(100 + row * 10, 80, 150 + col * 20)
             }
         }
@@ -53,6 +58,19 @@ class MedalGridTest {
 
         assertEquals(12, cells.size)
         assertTrue(cells.all { it.y >= 0 })
+    }
+
+    @Test
+    fun aFractionalPitchDoesNotDriftOnATallScreenshot() {
+        // Like a phone screenshot: the rows are not a whole number of pixels apart
+        val rowPitch = 76.5
+        val cells = findMedalCells(grid(rows = 16, top = 10, rowPitch = rowPitch))
+
+        assertEquals(64, cells.size)
+        cells.forEachIndexed { i, cell ->
+            val expected = 10 + ((i / 4) * rowPitch).toInt()
+            assertTrue("row ${i / 4} at ${cell.y}, expected $expected", kotlin.math.abs(cell.y - expected) <= 1)
+        }
     }
 
     @Test

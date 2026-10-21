@@ -44,26 +44,28 @@ fun findMedalCells(image: ArgbImage): List<Cell> {
     val rows = rowYs.map { it.median() }
     val pitchY = rows.zipWithNext { a, b -> b - a }.filter { it < h * 3 / 2 }.ifEmpty { listOf(h) }.median().toDouble()
 
+    // Fit the grid to all separated medals: a whole-pixel pitch alone drifts off on a tall screenshot
     val x0 = full.minOf { it.x }
+    val halfSteps = full.map { (it.x - x0) / (pitchX / 2) }.map { kotlin.math.round(it).toInt() }
+    val (left, halfPitchX) = fitLine(halfSteps, full.map { it.x }) ?: (x0.toDouble() to pitchX / 2)
+    val rowSteps = rows.map { kotlin.math.round((it - rows.first()) / pitchY).toInt() }
+    val (top, fittedPitchY) = fitLine(rowSteps, rows) ?: (rows.first().toDouble() to pitchY)
+
     val cells = mutableListOf<Cell>()
-    var y = rows.first().toDouble()
     var oddRow = false
-    while (y <= rows.last() + 2) {
-        val inRow = full.filter { kotlin.math.abs(it.y - y) < rowTolerance }
-        oddRow = if (inRow.isEmpty()) {
-            !oddRow
-        } else {
-            // A row shifted by half a medal
-            val offset = inRow.map { ((it.x - x0) % pitchX) }.sorted()[inRow.size / 2]
-            kotlin.math.abs(offset - pitchX / 2) < pitchX / 4
-        }
-        var x = x0 + if (oddRow) pitchX / 2 else 0.0
-        while (x + w <= image.width) {
-            val cell = Cell(x.toInt(), y.toInt(), w, h)
+    for (row in 0..rowSteps.last()) {
+        val y = top + row * fittedPitchY
+        val inRow = full.indices.filter { kotlin.math.abs(full[it].y - y) < rowTolerance }
+        // A row shifted by half a medal has odd half steps
+        oddRow = if (inRow.isEmpty()) !oddRow else inRow.count { halfSteps[it] % 2 != 0 } * 2 > inRow.size
+        var step = if (oddRow) 1 else 0
+        while (true) {
+            val x = left + step * halfPitchX
+            if (x + w > image.width) break
+            val cell = Cell(kotlin.math.round(x).toInt().coerceAtLeast(0), kotlin.math.round(y).toInt(), w, h)
             if (fill(image, cell) > MIN_FILL) cells.add(cell)
-            x += pitchX
+            step += 2
         }
-        y += pitchY
     }
     return cells
 }
@@ -155,3 +157,18 @@ private fun fill(image: ArgbImage, cell: Cell): Double {
 internal fun isMedalPixel(p: Int): Boolean = maxOf(p.red(), p.green(), p.blue()) > BACKGROUND_MAX
 
 private fun List<Int>.median(): Int = sorted()[size / 2]
+
+/** Least squares fit of `value = offset + slope × step`; null without two different steps. */
+private fun fitLine(steps: List<Int>, values: List<Int>): Pair<Double, Double>? {
+    val meanStep = steps.average()
+    val meanValue = values.average()
+    var covariance = 0.0
+    var variance = 0.0
+    for (i in steps.indices) {
+        covariance += (steps[i] - meanStep) * (values[i] - meanValue)
+        variance += (steps[i] - meanStep) * (steps[i] - meanStep)
+    }
+    if (variance == 0.0) return null
+    val slope = covariance / variance
+    return meanValue - slope * meanStep to slope
+}
