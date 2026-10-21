@@ -3,11 +3,11 @@ name: Android
 on:
     push:
         paths:
-            - 'upload-app/**'
+            - 'app/**'
             - '.github/workflows/android.yml'
     pull_request:
         paths:
-            - 'upload-app/**'
+            - 'app/**'
             - '.github/workflows/android.yml'
     workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: upload-app
+                working-directory: app
         steps:
             # https://github.com/actions/checkout (official)
             - name: Git checkout
@@ -51,13 +51,13 @@ jobs:
               with:
                   name: reports
                   path: |
-                      upload-app/app/build/reports/
-                      upload-app/app/build/test-results/
+                      app/app/build/reports/
+                      app/app/build/test-results/
                   retention-days: 7
 
             - name: Upload debug APK
               uses: actions/upload-artifact@v7
               with:
                   name: app-debug
-                  path: upload-app/app/build/outputs/apk/debug/app-debug.apk
+                  path: app/app/build/outputs/apk/debug/app-debug.apk
                   retention-days: 7

@@ -5,8 +5,8 @@
 > the original plan; see the READMEs for the current state.
 
 Monorepo:
-- `upload-page/` — Symfony 8 web app (existing template, PostgreSQL, Google OAuth already set up)
-- `upload-app/` — new Android app (Kotlin, Jetpack Compose)
+- `web/` — Symfony 8 web app (existing template, PostgreSQL, Google OAuth already set up)
+- `app/` — new Android app (Kotlin, Jetpack Compose)
 
 ## Decisions
 
@@ -16,7 +16,7 @@ Monorepo:
 | Unknown users | Rejected (known users only, nobody is auto-registered from the API)      |
 | Web side      | JSON API + list/detail pages + an HTML form that creates uploads         |
 | Android       | Jetpack Compose, minSdk 26, Credential Manager (Sign in with Google)     |
-| Package name  | `com.elkuku.uploadapp` (placeholder)                                     |
+| Package name  | `com.elkuku.agenttools` (placeholder)                                     |
 
 ## Architecture
 
@@ -31,7 +31,7 @@ Monorepo:
 
 The app passes the **Web** client ID as `serverClientId`. That way the token's `aud` claim is the web client ID, and the server can verify it against `OAUTH_GOOGLE_ID`.
 
-## Part 1: Symfony (`upload-page/`)
+## Part 1: Symfony (`web/`)
 
 ### Payload contract
 
@@ -82,7 +82,7 @@ Responses:
 ### Dev networking
 Run `symfony serve --no-tls --allow-all-ip`. The emulator uses `http://10.0.2.2:8000`, and only the debug build allows cleartext HTTP.
 
-## Part 2: Android (`upload-app/`)
+## Part 2: Android (`app/`)
 
 **Stack**
 - Kotlin 2.4 and Gradle Kotlin DSL with a version catalog

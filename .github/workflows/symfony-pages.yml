@@ -4,7 +4,7 @@ on:
     push:
         branches: [master]
         paths:
-            - 'upload-page/**'
+            - 'web/**'
             - '.github/workflows/symfony-pages.yml'
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: upload-page
+                working-directory: web
         services:
             postgres:
                 image: postgres:15
@@ -45,7 +45,7 @@ jobs:
             - name: Install dependencies
               uses: php-actions/composer@v6
               with:
-                  working_dir: upload-page
+                  working_dir: web
 
             - name: Install assets
               run: bin/console importmap:install
@@ -78,7 +78,7 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v5
               with:
-                  path: upload-page/docs/
+                  path: web/docs/
 
     deploy:
         needs: build

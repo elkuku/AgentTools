@@ -1,6 +1,6 @@
 # Google Sign-In setup (Android OAuth client)
 
-How to set up Google Cloud so that `upload-app` can sign in with Google and `upload-page`
+How to set up Google Cloud so that `app` can sign in with Google and `web`
 accepts its ID tokens.
 
 ## How the client IDs fit together
@@ -9,12 +9,12 @@ You need **two OAuth clients in the same Google Cloud project**:
 
 | Client          | Where it is used                                                         | Purpose                                                                                                   |
 |-----------------|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| **Web**         | `upload-page` `OAUTH_GOOGLE_ID`, and `upload-app` `google.serverClientId` | The ID token's audience (`aud`). The server only accepts tokens issued for this client.                   |
+| **Web**         | `web` `OAUTH_GOOGLE_ID`, and `app` `google.serverClientId` | The ID token's audience (`aud`). The server only accepts tokens issued for this client.                   |
 | **Android**     | Nowhere in code                                                           | Registers the pair *package name + signing certificate SHA-1*, so Google lets this app request tokens.   |
 
 The app asks for a token **on behalf of the Web client** (`serverClientId`). Google checks the
 caller against the Android client (package + SHA-1) and returns a token whose `aud` is the Web
-client ID. `upload-page` verifies that token against `OAUTH_GOOGLE_ID`.
+client ID. `web` verifies that token against `OAUTH_GOOGLE_ID`.
 
 > Do not put the Android client ID into the app. Using it as `serverClientId` is the most common
 > cause of sign-in failures.
@@ -22,7 +22,7 @@ client ID. `upload-page` verifies that token against `OAUTH_GOOGLE_ID`.
 ## 1. Pick the project and configure the consent screen
 
 1. Open the [Google Cloud console](https://console.cloud.google.com/) and select the project that
-   holds the existing **Web** client for `upload-page`. If there is none yet, create a project.
+   holds the existing **Web** client for `web`. If there is none yet, create a project.
 2. Go to **Google Auth Platform** ([console.cloud.google.com/auth](https://console.cloud.google.com/auth/overview)).
    Older consoles have this under *APIs & Services → OAuth consent screen*.
 3. **Branding**: set the app name, the user support email and the developer contact email.
@@ -35,11 +35,11 @@ client ID. `upload-page` verifies that token against `OAUTH_GOOGLE_ID`.
 
 Under **Clients** (older consoles: *APIs & Services → Credentials*):
 
-1. Find the **Web application** client that `upload-page` uses, or create one
+1. Find the **Web application** client that `web` uses, or create one
    (**Create client → Web application**).
 2. Copy its **Client ID**, which looks like `1234567890-abc….apps.googleusercontent.com`.
 
-For the browser login of `upload-page` (not needed for the app), the Web client also needs:
+For the browser login of `web` (not needed for the app), the Web client also needs:
 - **Authorized JavaScript origins**: e.g. `http://localhost:8000`
 - **Authorized redirect URIs**: e.g. `http://localhost:8000/connect/google/check`
 
@@ -48,7 +48,7 @@ For the browser login of `upload-page` (not needed for the app), the Web client 
 Debug builds are signed with `~/.android/debug.keystore`. Get its SHA-1 with Gradle:
 
 ```shell
-cd upload-app
+cd app
 export JAVA_HOME=~/.local/share/JetBrains/Toolbox/apps/android-studio/jbr
 ./gradlew signingReport
 ```
@@ -70,8 +70,8 @@ Android client per SHA-1), or the team shares one debug keystore.
 | Field                        | Value                                 |
 |------------------------------|---------------------------------------|
 | Application type             | **Android**                           |
-| Name                         | e.g. `upload-app debug`               |
-| Package name                 | `com.elkuku.uploadapp`                |
+| Name                         | e.g. `AgentTools debug`        |
+| Package name                 | `com.elkuku.agenttools`                |
 | SHA-1 certificate fingerprint | the debug SHA-1 from step 3          |
 
 Save. You don't need to copy the resulting client ID. Changes can take a few minutes to take
@@ -85,7 +85,7 @@ distributed through Google Play with Play App Signing, use the **app signing key
 
 Use the **Web** client ID from step 2 in both places.
 
-`upload-page/.env.local` (git-ignored):
+`web/.env.local` (git-ignored):
 
 ```dotenv
 OAUTH_GOOGLE_ID=1234567890-abc.apps.googleusercontent.com
@@ -93,7 +93,7 @@ OAUTH_GOOGLE_ID=1234567890-abc.apps.googleusercontent.com
 OAUTH_GOOGLE_SECRET=...
 ```
 
-`upload-app/local.properties` (git-ignored, see `local.properties.example`):
+`app/local.properties` (git-ignored, see `local.properties.example`):
 
 ```properties
 google.serverClientId=1234567890-abc.apps.googleusercontent.com
@@ -104,11 +104,11 @@ Rebuild the app after changing `local.properties`, because the value is compiled
 
 ## 6. Create the user on the server
 
-The API never creates users, so the Google account must already exist in `upload-page`, with
+The API never creates users, so the Google account must already exist in `web`, with
 its email address as the identifier:
 
 ```shell
-cd upload-page
+cd web
 symfony console user-admin
 # → Create User → Identifier: you@gmail.com → Role: ROLE_USER
 ```
@@ -119,7 +119,7 @@ through the web login works as well.
 ## 7. Try it
 
 ```shell
-cd upload-page && symfony serve --no-tls --allow-all-ip --port=8000
+cd web && symfony serve --no-tls --allow-all-ip --port=8000
 ```
 
 Start an emulator with a **Google Play** system image and add your Google account under
