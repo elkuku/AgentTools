@@ -102,11 +102,12 @@ server.baseUrl.debug=http://10.0.2.2:8000
 
 Rebuild the app after changing `local.properties`, because the value is compiled into `BuildConfig`.
 
-## 6. Create the user on the server
+## 6. Make the user an agent
 
-The API never creates users, so the Google account must already exist in `web`, with
-its email address as the identifier and the Agent role, which agent stats and custom medals
-need (users with `ROLE_USER`, e.g. newly registered ones, see neither):
+Signing in with the app (or the web login) registers an unknown Google account as a user, with
+its email address as the identifier and `ROLE_USER`. Agent stats and custom medals need the
+Agent role, so an admin promotes the user (Admin → Users → Edit → Role: Agent), or creates the
+user beforehand:
 
 ```shell
 cd web
@@ -114,8 +115,7 @@ symfony console user-admin
 # → Create User → Identifier: you@gmail.com → Role: ROLE_AGENT
 ```
 
-On the first request the server stores the account's Google ID on that user. Signing in once
-through the web login works as well.
+On the first request the server stores the account's Google ID on that user.
 
 ## 7. Try it
 
@@ -137,6 +137,6 @@ Share your all-time stats from Ingress with the app and save them. They appear a
 | "Access blocked" / app not verified                                     | Consent screen is in Testing and the account is not a test user.                                                            |
 | `google.serverClientId is not set in local.properties.`                 | Fill in `local.properties` and rebuild.                                                                                     |
 | Saving or loading returns `401 Invalid ID token.`                       | `OAUTH_GOOGLE_ID` on the server differs from the app's `google.serverClientId` (audience mismatch), or the server clock is off. |
-| Saving or loading returns `401 Unknown user.`                           | No user with that email as identifier, see step 6.                                                                          |
+| Saving or loading returns `403` "… need the Agent role"                 | The user is not an agent yet, see step 6.                                                                                   |
 | Saving or loading returns `401 Email address is not verified.`          | The Google account's email is not verified.                                                                                 |
 | Network error / connection refused                                      | Server not started with `--allow-all-ip`, wrong port, or TLS enabled (the debug app uses plain HTTP to `10.0.2.2`).          |

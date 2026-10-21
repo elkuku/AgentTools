@@ -69,7 +69,7 @@ Content-Type: application/ld+json
 | Status | Body                                                                              |
 |--------|-----------------------------------------------------------------------------------|
 | `201`  | the `AgentStat` (`@id`, `id`, `createdAt`, the stats), `Location: /api/agent-stats/1` |
-| `401`  | problem, `detail`: missing/invalid token, unverified email, unknown user          |
+| `401`  | problem, `detail`: missing/invalid token, unverified email                        |
 | `403`  | problem, `detail`: the user lacks the Agent role (`ROLE_AGENT`); listing and reading need it too |
 | `409`  | problem, `detail`: `Stat entry already added!` (same user and `datetime` again)   |
 | `422`  | problem with `violations` (`propertyPath`, `message`)                             |

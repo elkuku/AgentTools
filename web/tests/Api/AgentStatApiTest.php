@@ -26,6 +26,9 @@ class AgentStatApiTest extends WebTestCase
 
     private const string ADMIN_GOOGLE_ID = 'gid-stats-admin';
 
+    /** A Google account without a user yet: signs up through the app. */
+    private const string NEW_GOOGLE_ID = 'gid-stats-new';
+
     /**
      * What the app sends for Ingress all-time stats.
      */
@@ -64,6 +67,9 @@ class AgentStatApiTest extends WebTestCase
         $em = $this->entityManager();
         $em->createQuery('DELETE FROM App\Entity\AgentStat')->execute();
         $em->createQuery('UPDATE App\Entity\User u SET u.googleId = NULL')->execute();
+        $em->createQuery('DELETE FROM App\Entity\User u WHERE u.identifier = :email')
+            ->setParameter('email', self::NEW_GOOGLE_ID.'@example.com')
+            ->execute();
 
         parent::tearDown();
     }
@@ -232,6 +238,24 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame('agent', $json['identifier']);
         self::assertSame('ROLE_AGENT', $json['role']);
         self::assertIsInt($json['id']);
+    }
+
+    public function testRegistersUnknownGoogleAccountsAsUsers(): void
+    {
+        $this->get('/api/me', self::NEW_GOOGLE_ID);
+
+        self::assertResponseIsSuccessful();
+        $json = $this->responseJson();
+        self::assertSame(self::NEW_GOOGLE_ID.'@example.com', $json['identifier']);
+        self::assertSame('ROLE_USER', $json['role']);
+
+        $user = $this->userRepository()->findOneBy(['identifier' => self::NEW_GOOGLE_ID.'@example.com']);
+        self::assertNotNull($user);
+        self::assertSame(self::NEW_GOOGLE_ID, $user->getGoogleId());
+
+        // Until an admin makes them an agent
+        $this->get('/api/agent-stats', self::NEW_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testCurrentUserRequiresToken(): void

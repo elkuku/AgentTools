@@ -22,7 +22,8 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 /**
  * Authenticates API requests carrying a Google ID token as a bearer token.
  *
- * Only users that already exist are accepted; nobody is registered here.
+ * Unknown Google accounts are registered, like a Google login on the web: with ROLE_USER, so
+ * they see no agent stats until an admin makes them agents.
  */
 class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
@@ -98,14 +99,13 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
             return $user;
         }
 
-        // Link an existing account with the same email to this Google account
-        $user = $this->userRepository->findOneBy(['identifier' => $email]);
-
-        if (null === $user) {
-            throw new CustomUserMessageAuthenticationException('Unknown user.');
-        }
+        // Link an existing account with the same email to this Google account, or register a new user
+        $user = $this->userRepository->findOneBy(['identifier' => $email])
+            ?? new User()->setIdentifier($email);
 
         $user->setGoogleId($googleId);
+
+        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;

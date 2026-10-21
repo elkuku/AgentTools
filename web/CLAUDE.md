@@ -68,7 +68,7 @@ JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name
 ### Security
 Multi-authenticator: form login (dev only) + OAuth2 via `knpuniversity/oauth2-client-bundle`. Remember-me is enabled.
 
-The stateless `api` firewall (`^/api/`) uses `GoogleApiTokenAuthenticator`: `Authorization: Bearer <Google ID token>`, verified against `OAUTH_GOOGLE_ID` (the Web client ID; the Android app uses it as `serverClientId`). It requires a verified email and never creates users: it matches by `googleId`, then links by `identifier == email`. Token verification is behind `GoogleIdTokenVerifierInterface`; in `test` it is replaced by `FakeGoogleIdTokenVerifier` (`FakeGoogleIdTokenVerifier::token($googleId, $email)`).
+The stateless `api` firewall (`^/api/`) uses `GoogleApiTokenAuthenticator`: `Authorization: Bearer <Google ID token>`, verified against `OAUTH_GOOGLE_ID` (the Web client ID; the Android app uses it as `serverClientId`). It requires a verified email; it matches by `googleId`, then links by `identifier == email`, else registers a new `ROLE_USER` (like the web Google login). Token verification is behind `GoogleIdTokenVerifierInterface`; in `test` it is replaced by `FakeGoogleIdTokenVerifier` (`FakeGoogleIdTokenVerifier::token($googleId, $email)`).
 
 ### Frontend
 Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons.
