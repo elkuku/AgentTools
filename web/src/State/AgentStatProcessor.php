@@ -30,7 +30,7 @@ final readonly class AgentStatProcessor implements ProcessorInterface
     {
         $user = $this->security->getUser();
         if (!$user instanceof User) {
-            throw new \LogicException('The operation requires ROLE_USER.');
+            throw new \LogicException('The operation requires ROLE_AGENT.');
         }
 
         return $this->agentStatService->create($user, $data);

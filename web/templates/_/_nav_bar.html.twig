@@ -14,22 +14,22 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">GuestMenu</a>
                 </li>
-                {% if app.user %}
+                {% if is_granted('ROLE_AGENT') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_agent_stat_index') }}">Agent stats</a>
                     </li>
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <li class="nav-item dropdown">
-                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Admin
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="{{ path('app_user_index') }}">Users</a></li>
-                                <li><a class="dropdown-item" href="{{ path('app_system_about') }}">About</a></li>
-                                <li><a class="dropdown-item" href="{{ path('app_system_logview') }}">Logview</a></li>
-                            </ul>
-                        </li>
-                    {% endif %}
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Admin
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ path('app_user_index') }}">Users</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_system_about') }}">About</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_system_logview') }}">Logview</a></li>
+                        </ul>
+                    </li>
                 {% endif %}
             </ul>
 

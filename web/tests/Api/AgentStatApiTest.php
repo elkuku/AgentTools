@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
+use App\Dto\AgentStatInput;
+use App\Entity\AgentStat;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
@@ -16,7 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AgentStatApiTest extends WebTestCase
 {
-    private const string GOOGLE_ID = 'gid-stats-user';
+    /** An agent: may upload. */
+    private const string GOOGLE_ID = 'gid-stats-agent';
+
+    /** A user without the Agent role (newly registered): no agent stats at all. */
+    private const string USER_GOOGLE_ID = 'gid-stats-user';
 
     private const string ADMIN_GOOGLE_ID = 'gid-stats-admin';
 
@@ -44,7 +50,7 @@ class AgentStatApiTest extends WebTestCase
     {
         $this->client = static::createClient();
 
-        foreach (['user' => self::GOOGLE_ID, 'admin' => self::ADMIN_GOOGLE_ID] as $identifier => $googleId) {
+        foreach (['agent' => self::GOOGLE_ID, 'user' => self::USER_GOOGLE_ID, 'admin' => self::ADMIN_GOOGLE_ID] as $identifier => $googleId) {
             $user = $this->userRepository()->findOneBy(['identifier' => $identifier]);
             self::assertNotNull($user);
             $user->setGoogleId($googleId);
@@ -90,7 +96,7 @@ class AgentStatApiTest extends WebTestCase
 
         $stat = $this->agentStatRepository()->find($json['id']);
         self::assertNotNull($stat);
-        self::assertSame('user', $stat->owner->getIdentifier());
+        self::assertSame('agent', $stat->owner->getIdentifier());
         self::assertSame('2026-10-19 15:35:56', $stat->datetime->format('Y-m-d H:i:s'));
         self::assertSame('TestAgent', $stat->nickname);
         self::assertSame('Enlightened', $stat->faction);
@@ -103,6 +109,37 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame(274, $stat->epoch);
         self::assertSame(4710, $stat->reclaimer);
         self::assertNull($stat->recon);
+    }
+
+    public function testUploadRequiresTheAgentRole(): void
+    {
+        $this->postJson(self::STATS, self::USER_GOOGLE_ID);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertSame(AgentStat::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+        self::assertSame([], $this->agentStatRepository()->findAll());
+    }
+
+    public function testReadingRequiresTheAgentRole(): void
+    {
+        $this->get('/api/agent-stats', self::USER_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertSame(AgentStat::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+
+        // Not even their own stats, e.g. from before they lost the role
+        $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
+        self::assertNotNull($user);
+        $stat = new AgentStat($user, new AgentStatInput(datetime: '2026-10-19 15:35:56', nickname: 'TestAgent', faction: 'Enlightened', ap: 1));
+        $this->entityManager()->persist($stat);
+        $this->entityManager()->flush();
+
+        $this->get('/api/agent-stats/'.$stat->id, self::USER_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+
+        // The account itself stays readable, so the app can show the role
+        $this->get('/api/me', self::USER_GOOGLE_ID);
+        self::assertResponseIsSuccessful();
+        self::assertSame('ROLE_USER', $this->responseJson()['role']);
     }
 
     public function testRejectsSameStatsTwice(): void
@@ -192,8 +229,8 @@ class AgentStatApiTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $json = $this->responseJson();
         self::assertSame('/api/me', $json['@id']);
-        self::assertSame('user', $json['identifier']);
-        self::assertSame('ROLE_USER', $json['role']);
+        self::assertSame('agent', $json['identifier']);
+        self::assertSame('ROLE_AGENT', $json['role']);
         self::assertIsInt($json['id']);
     }
 

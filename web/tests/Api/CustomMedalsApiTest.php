@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
+use App\ApiResource\CustomMedals;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomMedalsApiTest extends WebTestCase
 {
-    private const string GOOGLE_ID = 'gid-medals-user';
+    /** An agent: may save. */
+    private const string GOOGLE_ID = 'gid-medals-agent';
+
+    /** A user without the Agent role (newly registered): no custom medals at all. */
+    private const string USER_GOOGLE_ID = 'gid-medals-user';
 
     /**
      * What the app sends: 4e-website's format.
@@ -32,9 +37,12 @@ class CustomMedalsApiTest extends WebTestCase
     {
         $this->client = static::createClient();
 
-        $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
-        self::assertNotNull($user);
-        $user->setGoogleId(self::GOOGLE_ID);
+        foreach (['agent' => self::GOOGLE_ID, 'user' => self::USER_GOOGLE_ID] as $identifier => $googleId) {
+            $user = $this->userRepository()->findOneBy(['identifier' => $identifier]);
+            self::assertNotNull($user);
+            $user->setGoogleId($googleId);
+        }
+
         $this->entityManager()->flush();
     }
 
@@ -54,6 +62,17 @@ class CustomMedalsApiTest extends WebTestCase
 
         $this->request(Request::METHOD_PUT, null, self::MEDALS);
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testRequiresTheAgentRole(): void
+    {
+        $this->request(Request::METHOD_PUT, self::USER_GOOGLE_ID, self::MEDALS);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertSame(CustomMedals::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+
+        $this->request(Request::METHOD_GET, self::USER_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertSame(CustomMedals::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
     }
 
     public function testNoMedalsYet(): void
@@ -76,7 +95,7 @@ class CustomMedalsApiTest extends WebTestCase
         $this->request(Request::METHOD_PUT, self::GOOGLE_ID, ['anomaly' => ['orion' => 'gold']]);
         self::assertResponseIsSuccessful();
 
-        $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
+        $user = $this->userRepository()->findOneBy(['identifier' => 'agent']);
         self::assertNotNull($user);
         $this->entityManager()->refresh($user);
         self::assertSame(['anomaly' => ['orion' => 'gold']], $user->getCustomMedals());
@@ -91,7 +110,7 @@ class CustomMedalsApiTest extends WebTestCase
     {
         $this->request(Request::METHOD_PUT, self::GOOGLE_ID, self::MEDALS);
 
-        $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
+        $user = $this->userRepository()->findOneBy(['identifier' => 'agent']);
         self::assertNotNull($user);
         $this->entityManager()->refresh($user);
         self::assertSame(self::MEDALS, $user->getCustomMedals());

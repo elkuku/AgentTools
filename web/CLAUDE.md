@@ -40,7 +40,7 @@ symfony console user-admin  # Interactive user management CLI
 
 ### Entities & Enums
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
-- **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
+- **`UserRole`** enum — `ROLE_USER` (default: users registered by a Google/GitHub login get it and wait for an admin), `ROLE_AGENT` (sees and uploads agent stats and custom medals) and `ROLE_ADMIN`. `role_hierarchy`: `ROLE_ADMIN` > `ROLE_AGENT` > `ROLE_USER`.
 - **`User::$customMedals`** — the custom medals (anomaly, annual, event) recognized by the app, as 4e-website's `Agent::$custom_medals` (JSON, `{}` by default).
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Also the API Platform resource (see API below); `#[SerializedName]` gives the stats their column names, `owner` and `getStats()` are `#[Ignore]`d. Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
 
@@ -63,7 +63,7 @@ JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name
 - `ApiResource/CustomMedals` — `GET` / `PUT /api/me/custom-medals` (`State/CustomMedalsProvider`, `State/CustomMedalsProcessor`): the user's custom medals in 4e-website's format (`{"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": {…}}`), stored in `User::$customMedals` (JSON). `PUT` replaces all; only the key/tier format is validated (the medal list lives in the app's `data/CustomMedals.kt`).
 - Errors are `application/problem+json` with `detail`; `GoogleApiTokenAuthenticator`'s `401` uses the same shape.
 - `/profile` shows an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleAuthenticator` with the `openid` scope, `GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
-- Operations check `ROLE_USER` themselves (`security:`); there is no `access_control` rule for `^/api/`, so `/api/docs` is public.
+- Operations check their role themselves (`security:`): agent stats and custom medals need `ROLE_AGENT` (single stats via `AgentStatVoter`: own and agent), only `GET /api/me` `ROLE_USER`. There is no `access_control` rule for `^/api/`, so `/api/docs` is public.
 
 ### Security
 Multi-authenticator: form login (dev only) + OAuth2 via `knpuniversity/oauth2-client-bundle`. Remember-me is enabled.

@@ -19,6 +19,12 @@
                 Please <a href="{{ path('app_profile') }}">update your Profile</a>!
             {% endif %}
         </div>
+        {% if not is_granted('ROLE_AGENT') %}
+            <div class="alert alert-info" id="agent-role-pending">
+                Your account is waiting for an administrator to give it the Agent role.
+                Then you can upload and see your agent stats and custom medals.
+            </div>
+        {% endif %}
     {% else %}
         <h4>
             Use the <code>symfony console user-admin</code> command to create a user so you can

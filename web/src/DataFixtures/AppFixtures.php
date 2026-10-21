@@ -19,6 +19,12 @@ class AppFixtures extends Fixture
 
         $manager->persist(
             new User()
+                ->setIdentifier('agent')
+                ->setRole(UserRole::AGENT)
+        );
+
+        $manager->persist(
+            new User()
                 ->setIdentifier('admin')
                 ->setRole(UserRole::ADMIN)
         );

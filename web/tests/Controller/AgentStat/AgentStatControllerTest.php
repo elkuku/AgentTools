@@ -32,7 +32,7 @@ class AgentStatControllerTest extends WebTestCase
 
     public function testPagesRequireAuthentication(): void
     {
-        $agentStat = $this->createAgentStat($this->getUserByIdentifier('user'), 'Mine');
+        $agentStat = $this->createAgentStat($this->getUserByIdentifier('agent'), 'Mine');
 
         foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
             $this->client->request(Request::METHOD_GET, $path);
@@ -42,10 +42,10 @@ class AgentStatControllerTest extends WebTestCase
 
     public function testIndexListsOnlyOwnStats(): void
     {
-        $this->createAgentStat($this->getUserByIdentifier('user'), 'MyAgent');
+        $this->createAgentStat($this->getUserByIdentifier('agent'), 'MyAgent');
         $this->createAgentStat($this->getUserByIdentifier('admin'), 'OtherAgent');
 
-        $this->client->loginUser($this->getUserByIdentifier('user'));
+        $this->client->loginUser($this->getUserByIdentifier('agent'));
         $this->client->request(Request::METHOD_GET, '/agent-stats');
 
         self::assertResponseIsSuccessful();
@@ -56,9 +56,9 @@ class AgentStatControllerTest extends WebTestCase
 
     public function testShowRendersStats(): void
     {
-        $agentStat = $this->createAgentStat($this->getUserByIdentifier('user'), 'MyAgent');
+        $agentStat = $this->createAgentStat($this->getUserByIdentifier('agent'), 'MyAgent');
 
-        $this->client->loginUser($this->getUserByIdentifier('user'));
+        $this->client->loginUser($this->getUserByIdentifier('agent'));
         $this->client->request(Request::METHOD_GET, '/agent-stats/'.$agentStat->id);
 
         self::assertResponseIsSuccessful();
@@ -71,10 +71,22 @@ class AgentStatControllerTest extends WebTestCase
     {
         $agentStat = $this->createAgentStat($this->getUserByIdentifier('admin'), 'OtherAgent');
 
-        $this->client->loginUser($this->getUserByIdentifier('user'));
+        $this->client->loginUser($this->getUserByIdentifier('agent'));
         $this->client->request(Request::METHOD_GET, '/agent-stats/'.$agentStat->id);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testPagesRequireTheAgentRole(): void
+    {
+        $user = $this->getUserByIdentifier('user');
+        $agentStat = $this->createAgentStat($user, 'Mine');
+
+        $this->client->loginUser($user);
+        foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
+            $this->client->request(Request::METHOD_GET, $path);
+            self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        }
     }
 
     private function createAgentStat(User $owner, string $nickname): AgentStat

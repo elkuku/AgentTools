@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/agent-stats', name: 'app_agent_stat_index', methods: ['GET'])]
-#[IsGranted(UserRole::USER->value)]
+#[IsGranted(UserRole::AGENT->value)]
 final class Index extends BaseController
 {
     public function __invoke(AgentStatRepository $agentStatRepository): Response

@@ -105,12 +105,13 @@ Rebuild the app after changing `local.properties`, because the value is compiled
 ## 6. Create the user on the server
 
 The API never creates users, so the Google account must already exist in `web`, with
-its email address as the identifier:
+its email address as the identifier and the Agent role, which agent stats and custom medals
+need (users with `ROLE_USER`, e.g. newly registered ones, see neither):
 
 ```shell
 cd web
 symfony console user-admin
-# → Create User → Identifier: you@gmail.com → Role: ROLE_USER
+# → Create User → Identifier: you@gmail.com → Role: ROLE_AGENT
 ```
 
 On the first request the server stores the account's Google ID on that user. Signing in once

@@ -3,6 +3,7 @@
 namespace App\Tests\Security;
 
 use App\Entity\User;
+use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use App\Security\ApiTokenStore;
 use App\Security\FakeGoogleIdTokenVerifier;
@@ -174,6 +175,8 @@ class GoogleAuthenticatorTest extends TestCase
 
         self::assertSame('new@example.com', $result->getIdentifier());
         self::assertSame('google-456', $result->getGoogleId());
+        // New users wait for an admin to make them agents
+        self::assertSame(UserRole::USER, $result->getRole());
     }
 
     public function testOnAuthenticationSuccessRedirectsToTargetPath(): void
