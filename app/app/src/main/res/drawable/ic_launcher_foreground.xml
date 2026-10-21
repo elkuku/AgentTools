@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AgentTools icon: a portal split by an S-curve into Enlightened green and Resistance blue, with 4 resonators of each, in a hexagon; inside the 66 dp safe zone -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M54,23L80.8,38.5L80.8,69.5L54,85L27.2,69.5L27.2,38.5Z"
+        android:strokeWidth="2.6"
+        android:strokeColor="#59FBEA"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M54,40.5A13.5,13.5 0,0 0,54 67.5A6.75,6.75 0,0 0,54 54A6.75,6.75 0,0 1,54 40.5Z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#000000">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="47.6"
+                android:centerY="50"
+                android:gradientRadius="18"
+                android:type="radial">
+                <item android:color="#7DFF7D" android:offset="0" />
+                <item android:color="#029A02" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M54,40.5A13.5,13.5 0,0 1,54 67.5A6.75,6.75 0,0 0,54 54A6.75,6.75 0,0 1,54 40.5Z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#000000">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="60.4"
+                android:centerY="58"
+                android:gradientRadius="18"
+                android:type="radial">
+                <item android:color="#7CC4FF" android:offset="0" />
+                <item android:color="#0060C0" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#03DC03"
+        android:pathData="M46.15,72.94m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M35.06,61.85m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M35.06,46.15m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M46.15,35.06m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0" />
+    <path
+        android:fillColor="#0088FF"
+        android:pathData="M72.94,61.85m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M61.85,72.94m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M61.85,35.06m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0M72.94,46.15m-2.6,0a2.6,2.6 0,1 1,5.2 0a2.6,2.6 0,1 1,-5.2 0" />
+</vector>
