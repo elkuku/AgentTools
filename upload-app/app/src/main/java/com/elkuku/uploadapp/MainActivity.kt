@@ -22,7 +22,13 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels {
         val app = application as UploadApplication
-        viewModelFactory { initializer { MainViewModel(app.googleAuth, app.statsApi) } }
+        viewModelFactory {
+            initializer {
+                MainViewModel(app.googleAuth, app.statsApi) { screenshots ->
+                    withContext(Dispatchers.Default) { app.medalScanner.scan(screenshots) }
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +51,8 @@ class MainActivity : ComponentActivity() {
                     onSignOut = { viewModel.signOut(activity) },
                     onRefresh = { viewModel.refresh(activity) },
                     onDismissImportResult = viewModel::dismissImportResult,
+                    onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
+                    onDismissMedalScan = viewModel::dismissMedalScan,
                 )
             }
         }
@@ -56,6 +64,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleShare(intent: Intent) {
+        if (isSharedImages(intent)) {
+            viewModel.onSharedScreenshots { withContext(Dispatchers.IO) { readSharedImages(intent, contentResolver) } }
+            return
+        }
         if (intent.action != Intent.ACTION_SEND) return
 
         lifecycleScope.launch {

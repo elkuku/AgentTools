@@ -71,3 +71,14 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
   Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
   `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.
+- Custom medals (anomaly, annual and event medals; `data/CustomMedals.kt`, from 4e-website's
+  `MedalChecker::$customMedals`): screenshots of the Ingress medal grid shared with the app
+  (`image/*`, one or several) are scanned on the device by `scan/MedalScanner.kt`.
+  `scan/MedalGrid.kt` finds the honeycomb grid and cuts out each medal; each one is compared with
+  4e-website's images in `assets/custom_medals` (150 px **lossless** WebP — lossy compression
+  makes the matching worse) by shape, colors and a color histogram. Matches below a score of 0.5
+  are shown as unsure, below 0.4 or too close to the second best match they are left out. Medals
+  already saved with the same or a higher tier are not shown again (Ingress shows only the highest
+  tier, so a lower one is a wrong match). The user reviews the medals before saving; they are
+  merged with the saved ones and uploaded to `upload-page` (`GET`/`PUT /api/me/custom-medals`) in
+  4e-website's format (`data/CustomMedalsJson.kt`).

@@ -7,8 +7,13 @@ import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
 import com.elkuku.uploadapp.data.AgentStatEntry
 import com.elkuku.uploadapp.data.AgentStatsResult
+import com.elkuku.uploadapp.data.CUSTOM_MEDALS
+import com.elkuku.uploadapp.data.CustomMedalsResult
+import com.elkuku.uploadapp.data.CustomMedalTier
 import com.elkuku.uploadapp.data.SaveResult
 import com.elkuku.uploadapp.data.StatsApi
+import com.elkuku.uploadapp.scan.ArgbImage
+import com.elkuku.uploadapp.scan.RecognizedMedal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -36,6 +41,17 @@ class MainViewModelTest {
 
     private val api = FakeStatsApi()
 
+    private val orion = CUSTOM_MEDALS.single { it.group == "anomaly" && it.key == "orion" }
+
+    private val echo = CUSTOM_MEDALS.single { it.group == "anomaly" && it.key == "echo" }
+
+    /** What the fake scanner recognizes; the screenshots it got. */
+    private var recognized = emptyList<RecognizedMedal>()
+
+    private val scanned = mutableListOf<List<ArgbImage>>()
+
+    private fun viewModel() = MainViewModel(auth, api) { scanned += it; recognized }
+
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
@@ -46,7 +62,7 @@ class MainViewModelTest {
     fun restoresSessionSilentlyOnceAndLoadsStats() {
         auth.silentSessions += session
         api.lists += AgentStatsResult.Success(listOf(entry))
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
 
         viewModel.restoreSession(context)
         viewModel.restoreSession(context)
@@ -59,7 +75,7 @@ class MainViewModelTest {
 
     @Test
     fun withoutAuthorizationNothingIsLoaded() {
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
 
         viewModel.restoreSession(context)
 
@@ -79,7 +95,7 @@ class MainViewModelTest {
     @Test
     fun signInFailureShowsError() {
         auth.signInError = AuthException("No Google account available on this device.")
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
 
         viewModel.signIn(context)
 
@@ -90,7 +106,7 @@ class MainViewModelTest {
     @Test
     fun cancelledSignInShowsNothing() {
         auth.signInError = AuthException("Sign-in cancelled.", cancelled = true)
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
 
         viewModel.signIn(context)
 
@@ -159,7 +175,7 @@ class MainViewModelTest {
 
     @Test
     fun shareHintSurvivesSignIn() {
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
         viewModel.onShared(context, "Buy milk")
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
@@ -171,7 +187,7 @@ class MainViewModelTest {
 
     @Test
     fun statsSharedBeforeSignInAreSavedAfterSignIn() {
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
 
         viewModel.onShared(context, ingressStats())
 
@@ -190,7 +206,7 @@ class MainViewModelTest {
 
     @Test
     fun statsSharedBeforeSessionRestoreAreSavedOnce() {
-        val viewModel = MainViewModel(auth, api)
+        val viewModel = viewModel()
         viewModel.onShared(context, ingressStats())
         auth.silentSessions += session
         api.saves += SaveResult.Success(2, "now")
@@ -260,7 +276,161 @@ class MainViewModelTest {
     private fun signedIn(): MainViewModel {
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
-        return MainViewModel(auth, api).also { it.signIn(context) }
+        return viewModel().also { it.signIn(context) }
+    }
+
+    @Test
+    fun signInLoadsCustomMedals() {
+        api.serverMedals = listOf(CustomMedalTier(echo, ""))
+
+        assertEquals(api.serverMedals, signedIn().state.value.customMedals)
+    }
+
+    @Test
+    fun sharedScreenshotsShowRecognizedMedalsForReview() {
+        val screenshot = ArgbImage(1, 1, IntArray(1))
+        recognized = listOf(RecognizedMedal(CustomMedalTier(orion, "gold"), 0.8, unsure = false))
+        val viewModel = viewModel()
+
+        viewModel.onSharedScreenshots { listOf(screenshot) }
+
+        assertEquals(listOf(listOf(screenshot)), scanned)
+        assertEquals(recognized, viewModel.state.value.medalScan)
+        assertEquals(0, viewModel.state.value.medalScanKnown)
+        assertFalse(viewModel.state.value.busy)
+        assertNull(viewModel.state.value.progress)
+        assertTrue(api.savedMedals.isEmpty())
+    }
+
+    @Test
+    fun alreadySavedMedalsAreNotShownAgain() {
+        api.serverMedals = listOf(CustomMedalTier(orion, "silver"), CustomMedalTier(echo, ""))
+        recognized = listOf(
+            // Same tier as saved: left out
+            RecognizedMedal(CustomMedalTier(echo, ""), 0.8, unsure = false),
+            // A new tier: shown
+            RecognizedMedal(CustomMedalTier(orion, "gold"), 0.8, unsure = false),
+        )
+        val viewModel = signedIn()
+
+        viewModel.onSharedScreenshots { emptyList() }
+
+        assertEquals(recognized.drop(1), viewModel.state.value.medalScan)
+        assertEquals(1, viewModel.state.value.medalScanKnown)
+    }
+
+    @Test
+    fun lowerTiersThanSavedAreNotShown() {
+        val persistence = CUSTOM_MEDALS.single { it.group == "annual" && it.key == "persistence" }
+        api.serverMedals = listOf(CustomMedalTier(persistence, "black"), CustomMedalTier(orion, "silver"))
+        recognized = listOf(
+            RecognizedMedal(CustomMedalTier(persistence, "silver"), 0.45, unsure = true),
+            RecognizedMedal(CustomMedalTier(orion, "bronze"), 0.8, unsure = false),
+        )
+        val viewModel = signedIn()
+
+        viewModel.onSharedScreenshots { emptyList() }
+
+        assertNull(viewModel.state.value.medalScan)
+        assertEquals(Status(MainViewModel.allKnownMessage(2), false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun pendingMedalsAreNotShownAgain() {
+        recognized = listOf(RecognizedMedal(CustomMedalTier(orion, "gold"), 0.8, unsure = false))
+        val viewModel = viewModel()
+        viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
+
+        viewModel.onSharedScreenshots { emptyList() }
+
+        assertNull(viewModel.state.value.medalScan)
+        assertEquals(Status(MainViewModel.allKnownMessage(1), false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun scanningShowsProgress() {
+        val viewModel = viewModel()
+        var progress: String? = null
+        recognized = emptyList()
+
+        viewModel.onSharedScreenshots { progress = viewModel.state.value.progress; emptyList() }
+
+        assertEquals("Looking for custom medals…", progress)
+        assertNull(viewModel.state.value.progress)
+    }
+
+    @Test
+    fun screenshotsWithoutCustomMedalsShowError() {
+        val viewModel = viewModel()
+
+        viewModel.onSharedScreenshots { listOf(ArgbImage(1, 1, IntArray(1))) }
+
+        assertNull(viewModel.state.value.medalScan)
+        assertEquals(Status(MainViewModel.NO_MEDALS_MESSAGE, true), viewModel.state.value.status)
+    }
+
+    @Test
+    fun savingTheReviewMergesWithTheServersMedals() {
+        val viewModel = signedIn()
+        // Saved meanwhile, e.g. from another device: the save must keep it
+        api.serverMedals = listOf(CustomMedalTier(orion, "bronze"), CustomMedalTier(echo, ""))
+
+        viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
+
+        val expected = listOf(CustomMedalTier(orion, "gold"), CustomMedalTier(echo, ""))
+        assertEquals(listOf(expected), api.savedMedals)
+        assertEquals(expected, viewModel.state.value.customMedals)
+        assertNull(viewModel.state.value.medalScan)
+        assertNull(viewModel.state.value.pendingMedals)
+        assertEquals(Status("1 custom medal saved.", false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun reviewBeforeSignInIsSavedAfterSignIn() {
+        val viewModel = viewModel()
+
+        viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
+
+        assertEquals(Status("Sign in to save the custom medals.", false), viewModel.state.value.status)
+        assertTrue(api.savedMedals.isEmpty())
+
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.signIn(context)
+
+        assertEquals(listOf(listOf(CustomMedalTier(orion, "gold"))), api.savedMedals)
+        assertEquals(listOf(CustomMedalTier(orion, "gold")), viewModel.state.value.customMedals)
+        assertNull(viewModel.state.value.pendingMedals)
+    }
+
+    @Test
+    fun failedSaveKeepsTheMedalsForRefresh() {
+        val viewModel = signedIn()
+        api.medalFailure = CustomMedalsResult.Failure("Network error: timeout")
+
+        viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
+
+        assertEquals(Status("Network error: timeout", true), viewModel.state.value.status)
+        assertEquals(listOf(CustomMedalTier(orion, "gold")), viewModel.state.value.pendingMedals)
+
+        api.medalFailure = null
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.refresh(context)
+
+        assertEquals(listOf(listOf(CustomMedalTier(orion, "gold"))), api.savedMedals)
+        assertNull(viewModel.state.value.pendingMedals)
+    }
+
+    @Test
+    fun dismissingTheReviewSavesNothing() {
+        recognized = listOf(RecognizedMedal(CustomMedalTier(orion, "gold"), 0.45, unsure = true))
+        val viewModel = signedIn()
+        viewModel.onSharedScreenshots { emptyList() }
+
+        viewModel.dismissMedalScan()
+
+        assertNull(viewModel.state.value.medalScan)
+        assertTrue(api.savedMedals.isEmpty())
     }
 
     private class FakeGoogleAuth : GoogleAuth {
@@ -299,6 +469,21 @@ class MainViewModelTest {
         override suspend fun list(idToken: String): AgentStatsResult {
             listTokens += idToken
             return lists.removeFirst()
+        }
+
+        /** The custom medals on the "server"; [medalFailure] fails every request instead. */
+        var serverMedals = emptyList<CustomMedalTier>()
+        var medalFailure: CustomMedalsResult? = null
+        val savedMedals = mutableListOf<List<CustomMedalTier>>()
+
+        override suspend fun customMedals(idToken: String): CustomMedalsResult =
+            medalFailure ?: CustomMedalsResult.Success(serverMedals)
+
+        override suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult {
+            medalFailure?.let { return it }
+            savedMedals += medals
+            serverMedals = medals
+            return CustomMedalsResult.Success(medals)
         }
     }
 }

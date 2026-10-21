@@ -9,6 +9,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -58,12 +59,28 @@ sealed interface SaveResult {
     data class Failure(val message: String) : SaveResult
 }
 
+sealed interface CustomMedalsResult {
+    data class Success(val medals: List<CustomMedalTier>) : CustomMedalsResult
+
+    /** The ID token was rejected (expired, invalid, or the user is unknown to the server). */
+    data class Unauthorized(val message: String) : CustomMedalsResult
+
+    /** E.g. a network error, or 422 for medals the server does not accept. */
+    data class Failure(val message: String) : CustomMedalsResult
+}
+
 interface StatsApi {
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
     suspend fun save(idToken: String, stats: JsonObject): SaveResult
 
     /** `GET /api/agent-stats`: the user's agent stats, newest first (all pages). */
     suspend fun list(idToken: String): AgentStatsResult
+
+    /** `GET /api/me/custom-medals`: the user's custom medals. */
+    suspend fun customMedals(idToken: String): CustomMedalsResult
+
+    /** `PUT /api/me/custom-medals`: replaces all of the user's custom medals. */
+    suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult
 }
 
 class KtorStatsApi(
@@ -71,6 +88,8 @@ class KtorStatsApi(
     engine: HttpClientEngine = OkHttp.create(),
 ) : StatsApi {
     private val url = "${baseUrl.trimEnd('/')}/api/agent-stats"
+
+    private val customMedalsUrl = "${baseUrl.trimEnd('/')}/api/me/custom-medals"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -143,6 +162,47 @@ class KtorStatsApi(
         }
 
         return AgentStatsResult.Success(entries)
+    }
+
+    override suspend fun customMedals(idToken: String): CustomMedalsResult = customMedalsResult {
+        client.get(customMedalsUrl) {
+            bearerAuth(idToken)
+            accept(LdJson)
+        }
+    }
+
+    override suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult =
+        customMedalsResult {
+            client.put(customMedalsUrl) {
+                bearerAuth(idToken)
+                contentType(LdJson)
+                accept(LdJson)
+                setBody(customMedalsToJson(medals))
+            }
+        }
+
+    private suspend fun customMedalsResult(request: suspend () -> HttpResponse): CustomMedalsResult {
+        val response = try {
+            request()
+        } catch (e: IOException) {
+            return CustomMedalsResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<JsonObject>()
+                ?.let { CustomMedalsResult.Success(customMedalsFromJson(it)) }
+                ?: CustomMedalsResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> CustomMedalsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            HttpStatusCode.UnprocessableEntity -> CustomMedalsResult.Failure(
+                response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()
+                    ?.let { "${it.propertyPath}: ${it.message}" }
+                    ?: "The server rejected the custom medals.",
+            )
+
+            else -> CustomMedalsResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
     }
 
     fun close() = client.close()

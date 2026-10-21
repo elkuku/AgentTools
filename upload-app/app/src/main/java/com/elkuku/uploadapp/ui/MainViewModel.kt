@@ -8,11 +8,17 @@ import com.elkuku.uploadapp.auth.GoogleAuth
 import com.elkuku.uploadapp.auth.GoogleSession
 import com.elkuku.uploadapp.data.AgentStatEntry
 import com.elkuku.uploadapp.data.AgentStatsResult
+import com.elkuku.uploadapp.data.CustomMedalsResult
+import com.elkuku.uploadapp.data.CustomMedalTier
 import com.elkuku.uploadapp.data.ImportResult
 import com.elkuku.uploadapp.data.SaveResult
+import com.elkuku.uploadapp.data.customMedalCount
 import com.elkuku.uploadapp.data.StatsApi
 import com.elkuku.uploadapp.data.importResultFor
+import com.elkuku.uploadapp.data.mergeCustomMedals
 import com.elkuku.uploadapp.data.parseIngressStats
+import com.elkuku.uploadapp.scan.ArgbImage
+import com.elkuku.uploadapp.scan.RecognizedMedal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,12 +31,22 @@ data class Status(val text: String, val isError: Boolean)
 data class UiState(
     val session: GoogleSession? = null,
     val busy: Boolean = false,
+    /** What takes a while (saving, scanning), shown with a loading animation; null for nothing. */
+    val progress: String? = null,
     /** The user's stats, newest first; null until loaded. */
     val entries: List<AgentStatEntry>? = null,
     /** Stats shared from Ingress before the user signed in; saved after sign-in. */
     val pending: JsonObject? = null,
     /** What changed with the last saved stats, as on 4e-website after an import. */
     val importResult: ImportResult? = null,
+    /** The user's custom medals; null until loaded. */
+    val customMedals: List<CustomMedalTier>? = null,
+    /** Custom medals recognized in shared screenshots, for the user to review before saving. */
+    val medalScan: List<RecognizedMedal>? = null,
+    /** How many recognized custom medals were left out of [medalScan] because they are saved already. */
+    val medalScanKnown: Int = 0,
+    /** Reviewed custom medals not saved yet: before sign-in, or after a failed save. */
+    val pendingMedals: List<CustomMedalTier>? = null,
     val status: Status? = null,
 ) {
     val latest: AgentStatEntry? get() = entries?.firstOrNull()
@@ -41,6 +57,7 @@ data class UiState(
 class MainViewModel(
     private val auth: GoogleAuth,
     private val api: StatsApi,
+    private val scanMedals: suspend (List<ArgbImage>) -> List<RecognizedMedal>,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -72,12 +89,17 @@ class MainViewModel(
 
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
-        _state.update { it.copy(session = null, entries = null, importResult = null, status = Status("Signed out.", false)) }
+        _state.update {
+            it.copy(session = null, entries = null, importResult = null, customMedals = null, status = Status("Signed out.", false))
+        }
     }
 
     fun refresh(context: Context) {
         if (_state.value.session == null) return
-        launchBusy { loadStats(context) }
+        launchBusy {
+            loadStats(context)
+            savePendingMedalsOrLoad(context)
+        }
     }
 
     /**
@@ -101,8 +123,50 @@ class MainViewModel(
 
     fun dismissImportResult() = _state.update { it.copy(importResult = null) }
 
-    /** Saves stats shared before sign-in (which reloads the stats), or just loads the stats. */
+    /**
+     * Screenshots of the Ingress medal grid, from [read]: the recognized custom medals are shown for
+     * review, except those already saved (or waiting to be saved) with the same or a higher tier.
+     * Ingress shows only the highest tier, so a lower one is a wrong match.
+     */
+    fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
+        _state.update { it.copy(medalScan = null, medalScanKnown = 0, status = null) }
+        val recognized = withProgress("Looking for custom medals…") { scanMedals(read()) }
+        val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
+            .groupBy({ it.medal }, { it.tierIndex })
+            .mapValues { (_, tiers) -> tiers.max() }
+        val new = recognized.filter { found -> found.medal.tierIndex > (savedTiers[found.medal.medal] ?: -1) }
+        _state.update {
+            when {
+                recognized.isEmpty() -> it.copy(status = Status(NO_MEDALS_MESSAGE, true))
+                new.isEmpty() -> it.copy(status = Status(allKnownMessage(recognized.size), false))
+                else -> it.copy(medalScan = new, medalScanKnown = recognized.size - new.size)
+            }
+        }
+    }
+
+    /**
+     * Saves the custom medals the user kept from the review, or after sign-in when the user is not
+     * signed in yet. A medal already saved gets the new tier.
+     */
+    fun saveMedalScan(context: Context, medals: List<CustomMedalTier>) {
+        _state.update { it.copy(medalScan = null, medalScanKnown = 0, pendingMedals = mergeCustomMedals(it.pendingMedals.orEmpty(), medals)) }
+        if (_state.value.session == null) {
+            _state.update { it.copy(status = Status("Sign in to save the custom medals.", false)) }
+        } else {
+            launchBusy { savePendingMedalsOrLoad(context) }
+        }
+    }
+
+    fun dismissMedalScan() = _state.update { it.copy(medalScan = null, medalScanKnown = 0) }
+
+    /** Saves stats and custom medals shared before sign-in, or just loads them. */
     private suspend fun savePendingOrLoad(context: Context) {
+        savePendingStatsOrLoad(context)
+        savePendingMedalsOrLoad(context)
+    }
+
+    /** Saves stats shared before sign-in (which reloads the stats), or just loads the stats. */
+    private suspend fun savePendingStatsOrLoad(context: Context) {
         val stats = _state.value.pending
         if (stats == null) {
             loadStats(context)
@@ -111,7 +175,9 @@ class MainViewModel(
 
         // Taken before saving, so a sign-in and a share at the same time save it only once
         _state.update { it.copy(pending = null) }
-        val result = withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, stats) }
+        val result = withProgress("Saving agent stats…") {
+            withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, stats) }
+        }
 
         when (result) {
             is SaveResult.Success -> {
@@ -125,6 +191,37 @@ class MainViewModel(
             is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
             is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is SaveResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
+
+    /**
+     * Loads the custom medals and adds the pending ones: the server keeps all custom medals, so
+     * they are merged with the saved ones first. Failed medals stay pending (Refresh retries).
+     */
+    private suspend fun savePendingMedalsOrLoad(context: Context) {
+        val medals = _state.value.pendingMedals
+        // Taken before saving, so a sign-in and a save at the same time save them only once
+        _state.update { it.copy(pendingMedals = null) }
+
+        var result = withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.customMedals(it) }
+        if (medals != null && result is CustomMedalsResult.Success) {
+            val merged = mergeCustomMedals(result.medals, medals)
+            result = withProgress("Saving ${customMedalCount(medals.size)}…") {
+                withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.saveCustomMedals(it, merged) }
+            }
+            if (result is CustomMedalsResult.Success) {
+                _state.update { it.copy(status = Status("${customMedalCount(medals.size)} saved.", false)) }
+            }
+        }
+
+        if (medals != null && result !is CustomMedalsResult.Success) {
+            _state.update { it.copy(pendingMedals = mergeCustomMedals(medals, it.pendingMedals.orEmpty())) }
+        }
+        when (result) {
+            is CustomMedalsResult.Success -> _state.update { it.copy(customMedals = result.medals) }
+            is CustomMedalsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is CustomMedalsResult.Unauthorized -> signedOutBy(result.message)
             null -> Unit
         }
     }
@@ -157,8 +254,25 @@ class MainViewModel(
         return call(refreshed.idToken)
     }
 
+    private val CustomMedalTier.tierIndex: Int get() = medal.tierOrNone.indexOf(tier)
+
     private fun signedOutBy(message: String) = _state.update {
-        it.copy(session = null, entries = null, status = Status("Not authorized: $message Please sign in again.", true))
+        it.copy(
+            session = null,
+            entries = null,
+            customMedals = null,
+            status = Status("Not authorized: $message Please sign in again.", true),
+        )
+    }
+
+    /** Runs [block] with the loading animation and [progress] shown. */
+    private suspend fun <T> withProgress(progress: String, block: suspend () -> T): T {
+        _state.update { it.copy(progress = progress) }
+        try {
+            return block()
+        } finally {
+            _state.update { it.copy(progress = null) }
+        }
     }
 
     private fun launchBusy(block: suspend () -> Unit) {
@@ -173,7 +287,13 @@ class MainViewModel(
     }
 
     companion object {
+        fun allKnownMessage(count: Int) =
+            if (count == 1) "The custom medal found is already saved." else "All $count custom medals found are already saved."
+
         const val NOT_STATS_MESSAGE =
             "That is not Ingress all-time stats. In Ingress, open your agent profile, select ALL TIME and share the stats."
+
+        const val NO_MEDALS_MESSAGE =
+            "No custom medals found. Share screenshots of the medals in your Ingress agent profile."
     }
 }

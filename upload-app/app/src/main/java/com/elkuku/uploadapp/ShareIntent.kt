@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.IntentCompat
+import com.elkuku.uploadapp.scan.ArgbImage
+import com.elkuku.uploadapp.scan.decodeArgbImage
 
 /** Ingress stats are a few KB; stop reading shared files well above that. */
 private const val MAX_SHARED_BYTES = 256 * 1024
@@ -41,4 +43,30 @@ private fun java.io.InputStream.readNBytesCompat(limit: Int): ByteArray {
         out.write(buffer, 0, read)
     }
     return out.toByteArray()
+}
+
+/** Screenshots are a few MB; skip anything far bigger. */
+private const val MAX_SHARED_IMAGE_BYTES = 30L * 1024 * 1024
+
+/** Images shared with ACTION_SEND or ACTION_SEND_MULTIPLE. */
+fun isSharedImages(intent: Intent): Boolean =
+    (intent.action == Intent.ACTION_SEND || intent.action == Intent.ACTION_SEND_MULTIPLE) &&
+        intent.type?.startsWith("image/") == true
+
+/** Decodes the shared images, skipping those that can't be read. Blocking: call off the main thread. */
+fun readSharedImages(intent: Intent, resolver: ContentResolver): List<ArgbImage> {
+    val uris = if (intent.action == Intent.ACTION_SEND_MULTIPLE) {
+        IntentCompat.getParcelableArrayListExtra(intent, Intent.EXTRA_STREAM, Uri::class.java).orEmpty()
+    } else {
+        listOfNotNull(IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java))
+    }
+    return uris.mapNotNull { uri ->
+        try {
+            val size = resolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1
+            if (size > MAX_SHARED_IMAGE_BYTES) null else resolver.openInputStream(uri)?.use(::decodeArgbImage)
+        } catch (_: Exception) {
+            // SecurityException (no read grant), FileNotFoundException, IOException
+            null
+        }
+    }
 }

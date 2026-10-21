@@ -165,4 +165,71 @@ class KtorStatsApiTest {
 
         assertEquals(AgentStatsResult.Failure("Network error: timeout"), KtorStatsApi("http://server", engine).list("t"))
     }
+
+    private val orion = customMedal("anomaly", "orion")!!
+
+    private val voyager = customMedal("annual", "voyager")!!
+
+    @Test
+    fun customMedalsLoadsTheUsersMedals() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Get, req.method)
+            assertEquals("http://server/api/me/custom-medals", req.url.toString())
+            assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
+            respond(
+                """{"@context": "/api/contexts/CustomMedals", "@id": "/api/me/custom-medals", "@type": "CustomMedals",
+                    "anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": []}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        val result = KtorStatsApi("http://server", engine).customMedals("t")
+
+        assertEquals(
+            CustomMedalsResult.Success(listOf(CustomMedalTier(orion, "platinum"), CustomMedalTier(voyager, "black"))),
+            result,
+        )
+    }
+
+    @Test
+    fun saveCustomMedalsPutsThemAs4eStoresThem() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Put, req.method)
+            assertEquals("http://server/api/me/custom-medals", req.url.toString())
+            assertEquals("application/ld+json", req.body.contentType?.toString())
+            assertEquals(
+                Json.parseToJsonElement("""{"anomaly": {"orion": "gold"}, "annual": {"voyager": 2}, "event": {}}"""),
+                Json.parseToJsonElement(String(req.body.toByteArray())),
+            )
+            respond(String(req.body.toByteArray()), HttpStatusCode.OK, jsonHeaders)
+        }
+        val medals = listOf(CustomMedalTier(orion, "gold"), CustomMedalTier(voyager, "silver"))
+
+        assertEquals(CustomMedalsResult.Success(medals), KtorStatsApi("http://server", engine).saveCustomMedals("t", medals))
+    }
+
+    @Test
+    fun saveCustomMedalsMapsViolations() = runTest {
+        val body = """{"status": 422, "detail": "annual[voyager]: The level must be 1 to 5.",
+            "violations": [{"propertyPath": "annual[voyager]", "message": "The level must be 1 to 5."}]}"""
+        val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, problemHeaders) }
+
+        assertEquals(
+            CustomMedalsResult.Failure("annual[voyager]: The level must be 1 to 5."),
+            KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()),
+        )
+    }
+
+    @Test
+    fun customMedalsMapsUnauthorizedAndNetworkErrors() = runTest {
+        val unauthorized = MockEngine { respond(problem(401, "Invalid ID token."), HttpStatusCode.Unauthorized, problemHeaders) }
+        val offline = MockEngine { throw IOException("timeout") }
+
+        assertEquals(
+            CustomMedalsResult.Unauthorized("Invalid ID token."),
+            KtorStatsApi("http://server", unauthorized).customMedals("t"),
+        )
+        assertEquals(CustomMedalsResult.Failure("Network error: timeout"), KtorStatsApi("http://server", offline).customMedals("t"))
+    }
 }
