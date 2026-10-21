@@ -29,6 +29,9 @@ Symfony web app, which stores them like 4e-website and shows them with medals.
    are never created from the API.
 4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
    see their stats at `/agent-stats`.
+5. Screenshots of the Ingress medal grid shared with the app are scanned on the device for
+   4e-website's custom medals (anomaly, annual and event medals). The agent reviews them; they are
+   saved to `upload-page`.
 
 The app uses the **Web** client ID as `serverClientId`; the Android OAuth client only registers
 the package name and SHA-1. See [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md).

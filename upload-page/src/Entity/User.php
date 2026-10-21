@@ -41,6 +41,15 @@ class User implements UserInterface
     #[Column(type: Types::JSON, nullable: true)]
     private array $params = [];
 
+    /**
+     * Custom medals (anomaly, annual and event medals) as 4e-website stores them:
+     * {"anomaly": {"orion": "platinum", "echo": ""}, "annual": {"voyager": 5}, "event": {…}}.
+     *
+     * @var array<string, array<string, int|string>>
+     */
+    #[Column(type: Types::JSON, options: ['default' => '{}'])]
+    private array $customMedals = [];
+
     #[Column(length: 100, nullable: true)]
     private ?string $googleId = null;
 
@@ -93,6 +102,24 @@ class User implements UserInterface
     public function getParams(): array
     {
         return $this->params;
+    }
+
+    /**
+     * @return array<string, array<string, int|string>>
+     */
+    public function getCustomMedals(): array
+    {
+        return $this->customMedals;
+    }
+
+    /**
+     * @param array<string, array<string, int|string>> $customMedals
+     */
+    public function setCustomMedals(array $customMedals): self
+    {
+        $this->customMedals = $customMedals;
+
+        return $this;
     }
 
     public function getParam(string $name): string

@@ -41,6 +41,7 @@ symfony console user-admin  # Interactive user management CLI
 ### Entities & Enums
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
+- **`User::$customMedals`** — the custom medals (anomaly, annual, event) recognized by the app, as 4e-website's `Agent::$custom_medals` (JSON, `{}` by default).
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Also the API Platform resource (see API below); `#[SerializedName]` gives the stats their column names, `owner` and `getStats()` are `#[Ignore]`d. Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
 
 ### Controllers
@@ -59,6 +60,7 @@ Access control uses `#[IsGranted()]` attributes.
 JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name_generator`). Used by the Android app (`upload-app/` in the monorepo); keep `upload-app/.../data/StatsApi.kt` in sync.
 - `AgentStat` (`#[ApiResource]` on the entity) — `GET /api/agent-stats` (own stats only via `Doctrine/AgentStatOwnerExtension`, newest first, paginated), `GET /api/agent-stats/{id}` (`AgentStatVoter`), `POST /api/agent-stats` with `AgentStatInput` → `State/AgentStatProcessor` → `AgentStatService`. `StatsAlreadyAddedException` → `409`; type errors are collected as `422` violations.
 - `ApiResource/Me` — `GET /api/me` via `State/MeProvider`.
+- `ApiResource/CustomMedals` — `GET` / `PUT /api/me/custom-medals` (`State/CustomMedalsProvider`, `State/CustomMedalsProcessor`): the user's custom medals in 4e-website's format (`{"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": {…}}`), stored in `User::$customMedals` (JSON). `PUT` replaces all; only the key/tier format is validated (the medal list lives in the app's `data/CustomMedals.kt`).
 - Errors are `application/problem+json` with `detail`; `GoogleApiTokenAuthenticator`'s `401` uses the same shape.
 - `/profile` shows an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleAuthenticator` with the `openid` scope, `GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
 - Operations check `ROLE_USER` themselves (`security:`); there is no `access_control` rule for `^/api/`, so `/api/docs` is public.
