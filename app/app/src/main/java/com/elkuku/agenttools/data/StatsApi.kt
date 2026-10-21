@@ -157,7 +157,10 @@ class KtorStatsApi(
                 HttpStatusCode.Unauthorized ->
                     return AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
-                else -> return AgentStatsResult.Failure("Server error: HTTP ${response.status.value}")
+                // e.g. 403 for a user without the Agent role: the server says why
+                else -> return AgentStatsResult.Failure(
+                    response.errorMessage() ?: "Server error: HTTP ${response.status.value}",
+                )
             }
         }
 

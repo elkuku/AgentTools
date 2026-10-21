@@ -160,6 +160,14 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun listShowsWhyItIsForbidden() = runTest {
+        val detail = "Agent stats need the Agent role. Ask an administrator."
+        val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
+
+        assertEquals(AgentStatsResult.Failure(detail), KtorStatsApi("http://server", engine).list("t"))
+    }
+
+    @Test
     fun listMapsNetworkError() = runTest {
         val engine = MockEngine { throw IOException("timeout") }
 

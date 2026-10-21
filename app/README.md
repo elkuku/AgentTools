@@ -17,7 +17,9 @@ Step-by-step guide: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.
 2. `cp local.properties.example local.properties` and fill in `google.serverClientId` (the Web
    client ID) and the server URLs.
 3. The Google account must already exist as a user in `web` (matched by Google ID or by
-   email as `identifier`); unknown accounts get `401 Unknown user.`
+   email as `identifier`); unknown accounts get `401 Unknown user.` Stats and custom medals need
+   the **Agent** role (`ROLE_AGENT`, or `ROLE_ADMIN`); other users get `403` and the app shows
+   the server's reason.
 
 ## Build & test
 
