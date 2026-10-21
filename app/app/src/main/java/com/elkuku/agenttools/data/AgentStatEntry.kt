@@ -39,5 +39,8 @@ sealed interface AgentStatsResult {
 
     data class Unauthorized(val message: String) : AgentStatsResult
 
+    /** 403: the user is not an agent (yet); [message] is the server's reason. */
+    data class Forbidden(val message: String) : AgentStatsResult
+
     data class Failure(val message: String) : AgentStatsResult
 }

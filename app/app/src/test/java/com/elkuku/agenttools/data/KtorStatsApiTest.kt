@@ -56,6 +56,14 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun saveMapsForbidden() = runTest {
+        val detail = "Agent stats need the Agent role. Ask an administrator."
+        val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
+
+        assertEquals(SaveResult.Forbidden(detail), KtorStatsApi("http://server", engine).save("t", stats))
+    }
+
+    @Test
     fun saveMapsValidationViolations() = runTest {
         val body = """
             {"@type": "ConstraintViolation", "status": 422, "detail": "ap: This value should not be null.", "violations": [
@@ -164,7 +172,7 @@ class KtorStatsApiTest {
         val detail = "Agent stats need the Agent role. Ask an administrator."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(AgentStatsResult.Failure(detail), KtorStatsApi("http://server", engine).list("t"))
+        assertEquals(AgentStatsResult.Forbidden(detail), KtorStatsApi("http://server", engine).list("t"))
     }
 
     @Test
@@ -215,6 +223,14 @@ class KtorStatsApiTest {
         val medals = listOf(CustomMedalTier(orion, "gold"), CustomMedalTier(voyager, "silver"))
 
         assertEquals(CustomMedalsResult.Success(medals), KtorStatsApi("http://server", engine).saveCustomMedals("t", medals))
+    }
+
+    @Test
+    fun customMedalsMapsForbidden() = runTest {
+        val detail = "Custom medals need the Agent role. Ask an administrator."
+        val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
+
+        assertEquals(CustomMedalsResult.Forbidden(detail), KtorStatsApi("http://server", engine).customMedals("t"))
     }
 
     @Test

@@ -49,8 +49,11 @@ private data class CollectionPage(val member: List<JsonObject> = emptyList(), va
 sealed interface SaveResult {
     data class Success(val id: Int, val createdAt: String) : SaveResult
 
-    /** The ID token was rejected (expired, invalid, or the user is unknown to the server). */
+    /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : SaveResult
+
+    /** 403: the user is not an agent (yet); [message] is the server's reason. */
+    data class Forbidden(val message: String) : SaveResult
 
     /** The server rejected the stats; one message per violation. */
     data class Invalid(val messages: List<String>) : SaveResult
@@ -62,8 +65,11 @@ sealed interface SaveResult {
 sealed interface CustomMedalsResult {
     data class Success(val medals: List<CustomMedalTier>) : CustomMedalsResult
 
-    /** The ID token was rejected (expired, invalid, or the user is unknown to the server). */
+    /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : CustomMedalsResult
+
+    /** 403: the user is not an agent (yet); [message] is the server's reason. */
+    data class Forbidden(val message: String) : CustomMedalsResult
 
     /** E.g. a network error, or 422 for medals the server does not accept. */
     data class Failure(val message: String) : CustomMedalsResult
@@ -118,6 +124,8 @@ class KtorStatsApi(
 
             HttpStatusCode.Unauthorized -> SaveResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
+            HttpStatusCode.Forbidden -> SaveResult.Forbidden(response.errorMessage() ?: "Forbidden.")
+
             HttpStatusCode.UnprocessableEntity -> SaveResult.Invalid(
                 response.decodeOrNull<ValidationResponse>()?.violations
                     ?.map { if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}" }
@@ -157,7 +165,9 @@ class KtorStatsApi(
                 HttpStatusCode.Unauthorized ->
                     return AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
-                // e.g. 403 for a user without the Agent role: the server says why
+                HttpStatusCode.Forbidden ->
+                    return AgentStatsResult.Forbidden(response.errorMessage() ?: "Forbidden.")
+
                 else -> return AgentStatsResult.Failure(
                     response.errorMessage() ?: "Server error: HTTP ${response.status.value}",
                 )
@@ -197,6 +207,8 @@ class KtorStatsApi(
                 ?: CustomMedalsResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> CustomMedalsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            HttpStatusCode.Forbidden -> CustomMedalsResult.Forbidden(response.errorMessage() ?: "Forbidden.")
 
             HttpStatusCode.UnprocessableEntity -> CustomMedalsResult.Failure(
                 response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()

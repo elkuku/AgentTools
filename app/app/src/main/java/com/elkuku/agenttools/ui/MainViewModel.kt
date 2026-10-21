@@ -96,6 +96,8 @@ class MainViewModel(
 
     fun refresh(context: Context) {
         if (_state.value.session == null) return
+        // An earlier message (e.g. a failed load) is outdated now
+        _state.update { it.copy(status = null) }
         launchBusy {
             loadStats(context)
             savePendingMedalsOrLoad(context)
@@ -191,6 +193,7 @@ class MainViewModel(
             is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
             is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is SaveResult.Unauthorized -> signedOutBy(result.message)
+            is SaveResult.Forbidden -> waitingForAgentRole()
             null -> Unit
         }
     }
@@ -222,6 +225,7 @@ class MainViewModel(
             is CustomMedalsResult.Success -> _state.update { it.copy(customMedals = result.medals) }
             is CustomMedalsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is CustomMedalsResult.Unauthorized -> signedOutBy(result.message)
+            is CustomMedalsResult.Forbidden -> waitingForAgentRole()
             null -> Unit
         }
     }
@@ -231,6 +235,7 @@ class MainViewModel(
             is AgentStatsResult.Success -> _state.update { it.copy(entries = result.entries) }
             is AgentStatsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is AgentStatsResult.Unauthorized -> signedOutBy(result.message)
+            is AgentStatsResult.Forbidden -> waitingForAgentRole()
             null -> Unit
         }
     }
@@ -255,6 +260,14 @@ class MainViewModel(
     }
 
     private val CustomMedalTier.tierIndex: Int get() = medal.tierOrNone.indexOf(tier)
+
+    /**
+     * Signed in, but not an agent yet (e.g. just registered): stats and custom medals both answer
+     * 403, so one message for the account instead of the last request's.
+     */
+    private fun waitingForAgentRole() = _state.update {
+        it.copy(entries = null, customMedals = null, status = Status(AGENT_ROLE_MESSAGE, false))
+    }
 
     private fun signedOutBy(message: String) = _state.update {
         it.copy(
@@ -287,6 +300,9 @@ class MainViewModel(
     }
 
     companion object {
+        const val AGENT_ROLE_MESSAGE =
+            "Your account is waiting for an administrator to give it the Agent role. Then you can see and save your agent stats."
+
         fun allKnownMessage(count: Int) =
             if (count == 1) "The custom medal found is already saved." else "All $count custom medals found are already saved."
 

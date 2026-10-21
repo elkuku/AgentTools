@@ -273,6 +273,39 @@ class MainViewModelTest {
     private fun ingressStats(): String =
         checkNotNull(javaClass.classLoader?.getResource("ingress-stats-all-time.tsv")).readText()
 
+    @Test
+    fun usersWaitingForTheAgentRoleGetOneMessage() {
+        // Just registered: stats and custom medals both answer 403
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
+        api.medalFailure = CustomMedalsResult.Forbidden("Custom medals need the Agent role. Ask an administrator.")
+        val viewModel = viewModel()
+
+        viewModel.signIn(context)
+
+        assertEquals(session, viewModel.state.value.session)
+        assertEquals(Status(MainViewModel.AGENT_ROLE_MESSAGE, false), viewModel.state.value.status)
+        assertNull(viewModel.state.value.entries)
+        assertNull(viewModel.state.value.customMedals)
+    }
+
+    @Test
+    fun refreshClearsAnOutdatedMessage() {
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
+        api.medalFailure = CustomMedalsResult.Forbidden("Custom medals need the Agent role. Ask an administrator.")
+        val viewModel = viewModel().also { it.signIn(context) }
+
+        // An admin made the user an agent
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        api.medalFailure = null
+        viewModel.refresh(context)
+
+        assertNull(viewModel.state.value.status)
+        assertEquals(entry, viewModel.state.value.latest)
+        assertEquals(emptyList<CustomMedalTier>(), viewModel.state.value.customMedals)
+    }
+
     private fun signedIn(): MainViewModel {
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
