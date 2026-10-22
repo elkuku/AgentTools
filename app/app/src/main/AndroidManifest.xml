@@ -14,7 +14,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
+            <!-- singleTask: shares reach the running instance (onNewIntent) and its session,
+                 instead of a new instance that has to sign in again -->
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
