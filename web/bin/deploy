@@ -11,6 +11,9 @@ COMPOSER="/usr/lib/plesk-9.0/composer.phar"
 #PHP=php
 #COMPOSER=composer
 
+# Run from the Symfony root (web/), wherever the script is called from
+cd "$(dirname "$0")/.." || exit 1
+
 echo ">>>============================================================================="
 date
 
