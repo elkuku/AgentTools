@@ -8,6 +8,12 @@ google.serverClientId=1234567890-abc.apps.googleusercontent.com
 server.baseUrl.debug=http://10.0.2.2:8000
 server.baseUrl.release=https://example.com
 
+# Release signing: keystore outside the repo. Leave empty for an unsigned release build.
+release.storeFile=/home/you/agenttools-release.jks
+release.storePassword=
+release.keyAlias=agenttools
+release.keyPassword=
+
 # Debug builds only: skip Google and send fake tokens for this identifier.
 # Needs APP_FAKE_GOOGLE_TOKENS=1 in web/.env.local (dev env). Leave empty for real sign-in.
 debug.fakeSignInEmail=

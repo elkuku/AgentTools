@@ -27,6 +27,18 @@ android {
         buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"${localProperty("google.serverClientId")}\"")
     }
 
+    signingConfigs {
+        // Release key from local.properties; without it assembleRelease builds an unsigned APK
+        if (localProperty("release.storeFile").isNotBlank()) {
+            create("release") {
+                storeFile = file(localProperty("release.storeFile"))
+                storePassword = localProperty("release.storePassword")
+                keyAlias = localProperty("release.keyAlias")
+                keyPassword = localProperty("release.keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField("String", "SERVER_BASE_URL", "\"${localProperty("server.baseUrl.debug", "http://10.0.2.2:8000")}\"")
@@ -38,6 +50,7 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "SERVER_BASE_URL", "\"${localProperty("server.baseUrl.release")}\"")
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

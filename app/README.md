@@ -30,7 +30,12 @@ export JAVA_HOME=~/.local/share/JetBrains/Toolbox/apps/android-studio/jbr
 ./gradlew testDebugUnitTest   # unit tests
 ./gradlew assembleDebug       # app/build/outputs/apk/debug/app-debug.apk
 ./gradlew lintDebug
+./gradlew assembleRelease     # app/build/outputs/apk/release/app-release.apk
 ```
+
+Release builds are signed with the keystore set in `local.properties` (`release.*`, see
+`local.properties.example`); without it the APK is unsigned. The release key's SHA-1 needs its
+own Android OAuth client in Google Cloud (`keytool -list -v -keystore <file> -alias agenttools`).
 
 ## Local end-to-end
 
