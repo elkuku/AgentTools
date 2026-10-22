@@ -4,7 +4,7 @@
 [![Android](https://github.com/elkuku/AgentTools/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/AgentTools/actions/workflows/android.yml)
 
 An Android app that signs in with Google and saves Ingress agent stats, shared from Ingress, to a
-Symfony web app, which stores them like 4e-website and shows them with medals.
+web page, which stores them and shows them with medals.
 
 | Folder                         | What                                                                                   |
 |--------------------------------|----------------------------------------------------------------------------------------|
