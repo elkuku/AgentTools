@@ -6,10 +6,10 @@
 # Author: Nikolai Plath
 #
 
-#PHP="/opt/plesk/php/8.3/bin/php"
-#COMPOSER="/usr/lib/plesk-9.0/composer.phar"
-PHP=php
-COMPOSER=composer
+PHP="/opt/plesk/php/8.5/bin/php"
+COMPOSER="/usr/lib/plesk-9.0/composer.phar"
+#PHP=php
+#COMPOSER=composer
 
 echo ">>>============================================================================="
 date
