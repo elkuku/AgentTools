@@ -1,66 +1,43 @@
 # AgentTools
 
-[![Symfony tests](https://github.com/elkuku/AgentTools/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/AgentTools/actions/workflows/symfony-tests.yml)
-[![Android](https://github.com/elkuku/AgentTools/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/AgentTools/actions/workflows/android.yml)
+Save your Ingress agent stats and medals and see them in one place: share your stats from
+Ingress with the AgentTools Android app, and it stores them on
+[agent-tools.elkuku.dev](https://agent-tools.elkuku.dev) and shows them with your medals.
 
-An Android app that signs in with Google and saves Ingress agent stats, shared from Ingress, to a
-web page, which stores them and shows them with medals.
+## Install
 
-**Download:** the Android app's APK is on the [latest release](https://github.com/elkuku/AgentTools/releases/latest)
-(Android 8.0 or newer; it uses https://agent-tools.elkuku.dev).
+Download the APK from the [latest release](https://github.com/elkuku/AgentTools/releases/latest)
+on your Android phone (Android 8.0 or newer) and open it. Allow installing apps from your browser
+or file manager when Android asks.
 
-| Folder                         | What                                                                                   |
-|--------------------------------|----------------------------------------------------------------------------------------|
-| [`app/`](app)    | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)                   |
-| [`web/`](web)  | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, user admin |
-| [`docs/`](docs)                | [Google Sign-In setup](docs/google-sign-in-setup.md)                                   |
-| [`PLAN.md`](PLAN.md)           | Design decisions and build plan                                                        |
+## Get access
 
-## How it works
+1. Open AgentTools and tap **Sign in with Google**.
+2. Your account is registered and waits for an administrator to give it the **Agent** role. Until
+   then the app tells you that it is waiting.
 
-1. The app signs the user in with **Sign in with Google** and gets a Google **ID token**.
-2. In Ingress the agent shares their **all-time stats** with the app. The app converts them to an
-   `agent_stat` row (the column names of 4e-website) and saves it right away with
-   `POST /api/agent-stats` and `Authorization: Bearer <id token>`:
+## Save your stats
 
-   ```json
-   { "datetime": "2026-10-19 15:35:56", "nickname": "Agent", "faction": "Enlightened", "ap": 243517130, … }
-   ```
+1. In Ingress, open your agent profile, select **ALL TIME** and tap the share button.
+2. Choose **AgentTools**. The stats are saved right away, and the app shows what changed since your
+   last import.
 
-3. `web` verifies the token against its Google **Web** client ID (`OAUTH_GOOGLE_ID`),
-   finds the user (by Google ID, else by email) and stores the stats (once per `datetime`). An
-   unknown account is registered as a user and waits for an admin to give it the **Agent** role;
-   until then stats and custom medals answer `403`.
-4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
-   see their stats at `/agent-stats`.
-5. Screenshots of the Ingress medal grid shared with the app are scanned on the device for
-   4e-website's custom medals (anomaly, annual and event medals). The agent reviews them; they are
-   saved to `web`.
+## Save your custom medals
 
-The app uses the **Web** client ID as `serverClientId`; the Android OAuth client only registers
-the package name and SHA-1. See [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md).
+Anomaly, annual and event medals don't appear in the stats, so the app reads them from
+screenshots:
 
-## Quick start
+1. In Ingress, open your agent profile and take screenshots of the medals: top, middle and bottom,
+   so every row is in at least one of them.
+2. Select all of them in your gallery app and share them with **AgentTools**.
+3. Check the medals the app found: untick wrong ones, tick the faded (unsure) ones that are right,
+   then save.
 
-```shell
-# Web app (Docker, migrations, fixtures)
-cd web && bin/install && bin/start
+## On the web
 
-# Android app (needs a JDK 17–25, e.g. Android Studio's JBR)
-cd app
-cp local.properties.example local.properties   # set google.serverClientId and server URLs
-./gradlew installDebug
-```
+Sign in with Google on [agent-tools.elkuku.dev](https://agent-tools.elkuku.dev) to see your stats
+there too.
 
-To try everything without Google credentials, use fake tokens in dev:
-[app/README.md → Without Google](app/README.md#without-google-fake-tokens).
+---
 
-## Tests
-
-```shell
-cd web && make tests              # PHPUnit, PHPStan, Rector, PHP-CS-Fixer
-cd app && ./gradlew testDebugUnitTest lintDebug
-```
-
-CI runs both on GitHub Actions; the Symfony test coverage is published to
-[GitHub Pages](https://elkuku.github.io/AgentTools/).
+Developers: see [docs/dev.md](docs/dev.md).
