@@ -6,6 +6,9 @@
 An Android app that signs in with Google and saves Ingress agent stats, shared from Ingress, to a
 web page, which stores them and shows them with medals.
 
+**Download:** the Android app's APK is on the [latest release](https://github.com/elkuku/AgentTools/releases/latest)
+(Android 8.0 or newer; it uses https://agent-tools.elkuku.dev).
+
 | Folder                         | What                                                                                   |
 |--------------------------------|----------------------------------------------------------------------------------------|
 | [`app/`](app)    | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)                   |
@@ -25,8 +28,9 @@ web page, which stores them and shows them with medals.
    ```
 
 3. `web` verifies the token against its Google **Web** client ID (`OAUTH_GOOGLE_ID`),
-   finds the user and stores the stats (once per `datetime`). Unknown accounts get `401`; users
-   are never created from the API.
+   finds the user (by Google ID, else by email) and stores the stats (once per `datetime`). An
+   unknown account is registered as a user and waits for an admin to give it the **Agent** role;
+   until then stats and custom medals answer `403`.
 4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
    see their stats at `/agent-stats`.
 5. Screenshots of the Ingress medal grid shared with the app are scanned on the device for

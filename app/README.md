@@ -5,6 +5,8 @@
 Android app (Kotlin, Jetpack Compose) that signs in with Google, saves Ingress agent stats shared
 from Ingress to `web` (`POST /api/agent-stats`) and shows them with medals.
 
+**Download:** the release APK is on the [latest release](https://github.com/elkuku/AgentTools/releases/latest).
+
 ## Setup
 
 Step-by-step guide: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.md).
