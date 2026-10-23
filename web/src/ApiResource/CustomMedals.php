@@ -4,41 +4,17 @@ declare(strict_types=1);
 
 namespace App\ApiResource;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use App\State\CustomMedalsProcessor;
-use App\State\CustomMedalsProvider;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * GET / PUT /api/me/custom-medals: the signed-in user's custom medals, as 4e-website stores them.
- * The app recognizes them in screenshots; PUT replaces all of them.
+ * The signed-in agent's custom medals, as 4e-website stores them: part of Me (GET / PATCH /api/me).
+ * The app recognizes them in screenshots. PATCH is a JSON merge patch: it replaces the groups it
+ * sends (anomaly, annual, event) and keeps the others.
  */
-#[ApiResource(
-    description: 'Your custom medals (anomaly, annual and event medals) as 4e-website stores them: medal keys of its MedalChecker::$customMedals with the tier (anomaly, event; "" for a medal without tiers) or the level 1 (bronze) to 5 (onyx) (annual). PUT replaces all of them.',
-    operations: [
-        new Get(
-            uriTemplate: '/me/custom-medals',
-            security: "is_granted('ROLE_AGENT')",
-            securityMessage: self::AGENT_ROLE_NEEDED,
-            provider: CustomMedalsProvider::class,
-        ),
-        new Put(
-            uriTemplate: '/me/custom-medals',
-            collectDenormalizationErrors: true,
-            security: "is_granted('ROLE_AGENT')",
-            securityMessage: self::AGENT_ROLE_NEEDED,
-            read: false,
-            processor: CustomMedalsProcessor::class,
-        ),
-    ],
-)]
 final class CustomMedals
 {
-    public const string AGENT_ROLE_NEEDED = 'Custom medals need the Agent role. Ask an administrator.';
-
     /** Medal and tier keys of 4e-website, e.g. plus_gamma_onsite, 2026_summer_solstice, platinum. */
     private const string KEY_PATTERN = '/^[a-z0-9_]{1,50}$/';
 
@@ -50,8 +26,11 @@ final class CustomMedals
      * @param array<string, string> $event   medal => tier ("" for a medal without tiers)
      */
     public function __construct(
+        #[Groups([Me::READ, Me::WRITE])]
         public array $anomaly = [],
+        #[Groups([Me::READ, Me::WRITE])]
         public array $annual = [],
+        #[Groups([Me::READ, Me::WRITE])]
         public array $event = [],
     ) {
     }

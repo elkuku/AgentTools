@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\ApiResource\AgentName;
+use App\ApiResource\Me;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
@@ -15,13 +15,16 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AgentNameApiTest extends WebTestCase
+/**
+ * PATCH /api/me: the agent name. GET /api/me is also tested in AgentStatApiTest.
+ */
+class MeApiTest extends WebTestCase
 {
     /** An agent without an agent name yet. */
-    private const string GOOGLE_ID = 'gid-name-agent';
+    private const string GOOGLE_ID = 'gid-me-agent';
 
     /** A user without the Agent role (newly registered). */
-    private const string USER_GOOGLE_ID = 'gid-name-user';
+    private const string USER_GOOGLE_ID = 'gid-me-user';
 
     private KernelBrowser $client;
 
@@ -50,18 +53,29 @@ class AgentNameApiTest extends WebTestCase
 
     public function testRequiresToken(): void
     {
-        $this->request(Request::METHOD_PUT, null, ['agentName' => 'TestAgent']);
+        $this->request(Request::METHOD_PATCH, null, ['agentName' => 'TestAgent']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testRequiresTheAgentRole(): void
     {
-        $this->request(Request::METHOD_PUT, self::USER_GOOGLE_ID, ['agentName' => 'TestAgent']);
+        $this->request(Request::METHOD_PATCH, self::USER_GOOGLE_ID, ['agentName' => 'TestAgent']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(AgentName::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+        self::assertSame(Me::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
         self::assertNull($this->user('user')->getAgentName());
+    }
+
+    public function testOnlyTheAgentNameIsWritable(): void
+    {
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => 'TestAgent', 'role' => 'ROLE_ADMIN', 'identifier' => 'someone']);
+
+        self::assertResponseIsSuccessful();
+        $this->entityManager()->clear();
+        $agent = $this->user('agent');
+        self::assertSame('TestAgent', $agent->getAgentName());
+        self::assertSame('ROLE_AGENT', $agent->getRole()->value);
     }
 
     public function testSetsAndShowsTheAgentName(): void
@@ -70,23 +84,35 @@ class AgentNameApiTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertNull($this->responseJson()['agentName']);
 
-        $this->request(Request::METHOD_PUT, payload: ['agentName' => ' TestAgent ']);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => ' TestAgent ']);
 
         self::assertResponseIsSuccessful();
-        self::assertSame('TestAgent', $this->responseJson()['agentName']);
+        $json = $this->responseJson();
+        self::assertSame('TestAgent', $json['agentName']);
+        self::assertSame('agent', $json['identifier']);
+        self::assertSame('ROLE_AGENT', $json['role']);
         $this->entityManager()->clear();
         self::assertSame('TestAgent', $this->user('agent')->getAgentName());
 
         // Changed again, e.g. a typo
-        $this->request(Request::METHOD_PUT, payload: ['agentName' => 'Test_Agent2']);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => 'Test_Agent2']);
         self::assertResponseIsSuccessful();
         $this->request(Request::METHOD_GET);
         self::assertSame('Test_Agent2', $this->responseJson()['agentName']);
     }
 
+    public function testNullKeepsTheAgentName(): void
+    {
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => 'TestAgent']);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => null]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('TestAgent', $this->responseJson()['agentName']);
+    }
+
     public function testRejectsAnotherAgentsName(): void
     {
-        $this->request(Request::METHOD_PUT, payload: ['agentName' => 'adminagent']);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => 'adminagent']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         /** @var list<array{propertyPath: string, message: string}> $violations */
@@ -105,7 +131,6 @@ class AgentNameApiTest extends WebTestCase
     public static function invalidNameProvider(): iterable
     {
         yield 'blank' => [' '];
-        yield 'missing' => [null];
         yield 'space inside' => ['Test Agent'];
         yield 'too long' => [\str_repeat('a', 51)];
         yield 'not a string' => [42];
@@ -114,7 +139,7 @@ class AgentNameApiTest extends WebTestCase
     #[DataProvider('invalidNameProvider')]
     public function testRejectsInvalidNames(mixed $agentName): void
     {
-        $this->request(Request::METHOD_PUT, payload: ['agentName' => $agentName]);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => $agentName]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         /** @var list<array{propertyPath: string}> $violations */
@@ -133,12 +158,12 @@ class AgentNameApiTest extends WebTestCase
         }
 
         if (null !== $payload) {
-            $server['CONTENT_TYPE'] = 'application/ld+json';
+            $server['CONTENT_TYPE'] = 'application/merge-patch+json';
         }
 
         $this->client->request(
             $method,
-            '/api/me/agent-name',
+            '/api/me',
             server: $server,
             content: null === $payload ? null : (string) \json_encode($payload),
         );

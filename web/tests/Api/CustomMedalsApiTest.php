@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\ApiResource\CustomMedals;
+use App\ApiResource\Me;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,6 +14,9 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * The custom medals in GET / PATCH /api/me.
+ */
 class CustomMedalsApiTest extends WebTestCase
 {
     /** An agent: may save. */
@@ -49,7 +52,7 @@ class CustomMedalsApiTest extends WebTestCase
     protected function tearDown(): void
     {
         $this->entityManager()
-            ->createQuery("UPDATE App\\Entity\\User u SET u.googleId = NULL, u.customMedals = '{}'")
+            ->createQuery("UPDATE App\\Entity\\User u SET u.googleId = NULL, u.agentName = NULL, u.customMedals = '{}'")
             ->execute();
 
         parent::tearDown();
@@ -60,19 +63,20 @@ class CustomMedalsApiTest extends WebTestCase
         $this->request(Request::METHOD_GET, null);
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
 
-        $this->request(Request::METHOD_PUT, null, self::MEDALS);
+        $this->request(Request::METHOD_PATCH, null, self::MEDALS);
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testRequiresTheAgentRole(): void
     {
-        $this->request(Request::METHOD_PUT, self::USER_GOOGLE_ID, self::MEDALS);
+        $this->request(Request::METHOD_PATCH, self::USER_GOOGLE_ID, self::MEDALS);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(CustomMedals::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+        self::assertSame(Me::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
 
+        // The account itself stays readable, without medals
         $this->request(Request::METHOD_GET, self::USER_GOOGLE_ID);
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(CustomMedals::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+        self::assertResponseIsSuccessful();
+        self::assertNull($this->responseJson()['customMedals']);
     }
 
     public function testNoMedalsYet(): void
@@ -80,19 +84,20 @@ class CustomMedalsApiTest extends WebTestCase
         $this->request(Request::METHOD_GET);
 
         self::assertResponseIsSuccessful();
-        $json = $this->responseJson();
+        $json = $this->medalsJson();
         self::assertSame([], $json['anomaly']);
         self::assertSame([], $json['annual']);
         self::assertSame([], $json['event']);
     }
 
-    public function testPutReplacesTheMedals(): void
+    public function testPatchReplacesTheMedals(): void
     {
-        $this->request(Request::METHOD_PUT, self::GOOGLE_ID, self::MEDALS);
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, self::MEDALS);
         self::assertResponseIsSuccessful();
-        self::assertSame(self::MEDALS['anomaly'], $this->responseJson()['anomaly']);
+        self::assertSame(self::MEDALS['anomaly'], $this->medalsJson()['anomaly']);
 
-        $this->request(Request::METHOD_PUT, self::GOOGLE_ID, ['anomaly' => ['orion' => 'gold']]);
+        // A JSON merge patch: the groups sent are replaced, the others stay
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, ['anomaly' => ['orion' => 'gold'], 'annual' => [], 'event' => []]);
         self::assertResponseIsSuccessful();
 
         $user = $this->userRepository()->findOneBy(['identifier' => 'agent']);
@@ -101,14 +106,42 @@ class CustomMedalsApiTest extends WebTestCase
         self::assertSame(['anomaly' => ['orion' => 'gold']], $user->getCustomMedals());
 
         $this->request(Request::METHOD_GET);
-        $json = $this->responseJson();
+        $json = $this->medalsJson();
         self::assertSame(['orion' => 'gold'], $json['anomaly']);
         self::assertSame([], $json['annual']);
     }
 
+    public function testPatchKeepsTheGroupsNotSent(): void
+    {
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, self::MEDALS);
+
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, ['anomaly' => ['orion' => 'gold']]);
+
+        self::assertResponseIsSuccessful();
+        $json = $this->medalsJson();
+        self::assertSame(['orion' => 'gold'], $json['anomaly']);
+        self::assertSame(self::MEDALS['annual'], $json['annual']);
+        self::assertSame(self::MEDALS['event'], $json['event']);
+    }
+
+    public function testPatchWithoutMedalsKeepsThem(): void
+    {
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, self::MEDALS);
+
+        $this->client->request(
+            Request::METHOD_PATCH,
+            '/api/me',
+            server: $this->headers(self::GOOGLE_ID) + ['CONTENT_TYPE' => 'application/merge-patch+json'],
+            content: (string) \json_encode(['agentName' => 'TestAgent']),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(self::MEDALS['annual'], $this->medalsJson()['annual']);
+    }
+
     public function testStoredAs4eWebsite(): void
     {
-        $this->request(Request::METHOD_PUT, self::GOOGLE_ID, self::MEDALS);
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, self::MEDALS);
 
         $user = $this->userRepository()->findOneBy(['identifier' => 'agent']);
         self::assertNotNull($user);
@@ -121,10 +154,10 @@ class CustomMedalsApiTest extends WebTestCase
      */
     public static function invalidPayloadProvider(): iterable
     {
-        yield 'bad medal key' => [['anomaly' => ['Orion!' => 'gold']], 'anomaly'];
-        yield 'bad tier' => [['event' => ['orion' => 'Gold Tier']], 'event[orion]'];
-        yield 'annual level too high' => [['annual' => ['voyager' => 6]], 'annual[voyager]'];
-        yield 'annual level as tier' => [['annual' => ['voyager' => 'black']], 'annual[voyager]'];
+        yield 'bad medal key' => [['anomaly' => ['Orion!' => 'gold']], 'customMedals.anomaly'];
+        yield 'bad tier' => [['event' => ['orion' => 'Gold Tier']], 'customMedals.event[orion]'];
+        yield 'annual level too high' => [['annual' => ['voyager' => 6]], 'customMedals.annual[voyager]'];
+        yield 'annual level as tier' => [['annual' => ['voyager' => 'black']], 'customMedals.annual[voyager]'];
     }
 
     /**
@@ -133,7 +166,7 @@ class CustomMedalsApiTest extends WebTestCase
     #[DataProvider('invalidPayloadProvider')]
     public function testRejectsInvalidPayload(array $payload, string $propertyPath): void
     {
-        $this->request(Request::METHOD_PUT, self::GOOGLE_ID, $payload);
+        $this->request(Request::METHOD_PATCH, self::GOOGLE_ID, $payload);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         /** @var list<array{propertyPath: string}> $violations */
@@ -142,25 +175,45 @@ class CustomMedalsApiTest extends WebTestCase
     }
 
     /**
-     * @param array<mixed>|null $payload
+     * @param array<mixed>|null $medals sent as customMedals of the user
      */
-    private function request(string $method, ?string $googleId = self::GOOGLE_ID, ?array $payload = null): void
+    private function request(string $method, ?string $googleId = self::GOOGLE_ID, ?array $medals = null): void
     {
-        $server = ['HTTP_ACCEPT' => 'application/ld+json'];
-        if (null !== $googleId) {
-            $server['HTTP_AUTHORIZATION'] = 'Bearer '.FakeGoogleIdTokenVerifier::token($googleId, $googleId.'@example.com');
-        }
-
-        if (null !== $payload) {
-            $server['CONTENT_TYPE'] = 'application/ld+json';
+        $server = $this->headers($googleId);
+        if (null !== $medals) {
+            $server['CONTENT_TYPE'] = 'application/merge-patch+json';
         }
 
         $this->client->request(
             $method,
-            '/api/me/custom-medals',
+            '/api/me',
             server: $server,
-            content: null === $payload ? null : (string) \json_encode($payload),
+            content: null === $medals ? null : (string) \json_encode(['customMedals' => $medals]),
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function headers(?string $googleId): array
+    {
+        $headers = ['HTTP_ACCEPT' => 'application/ld+json'];
+        if (null !== $googleId) {
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer '.FakeGoogleIdTokenVerifier::token($googleId, $googleId.'@example.com');
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @return array<mixed> the customMedals of the user in the response
+     */
+    private function medalsJson(): array
+    {
+        $medals = $this->responseJson()['customMedals'];
+        self::assertIsArray($medals);
+
+        return $medals;
     }
 
     /**
