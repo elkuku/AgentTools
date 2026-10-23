@@ -26,6 +26,34 @@ class KtorStatsApiTest {
         """{"type": "/errors/$status", "title": "An error occurred", "status": $status, "detail": "$detail"}"""
 
     @Test
+    fun meLoadsTheRole() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Get, req.method)
+            assertEquals("http://server/api/me", req.url.toString())
+            assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
+            respond(
+                """{"@context": "/api/contexts/Me", "@id": "/api/me", "@type": "Me",
+                    "id": 3, "identifier": "jane@example.com", "role": "ROLE_AGENT"}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(MeResult.Success(UserRole.AGENT), KtorStatsApi("http://server", engine).me("t"))
+    }
+
+    @Test
+    fun meMapsUnknownRolesUnauthorizedAndNetworkErrors() = runTest {
+        val unknown = MockEngine { respond("""{"role": "ROLE_SUPER"}""", HttpStatusCode.OK, jsonHeaders) }
+        val unauthorized = MockEngine { respond(problem(401, "Invalid ID token."), HttpStatusCode.Unauthorized, problemHeaders) }
+        val offline = MockEngine { throw IOException("timeout") }
+
+        assertEquals(MeResult.Success(null), KtorStatsApi("http://server", unknown).me("t"))
+        assertEquals(MeResult.Unauthorized("Invalid ID token."), KtorStatsApi("http://server", unauthorized).me("t"))
+        assertEquals(MeResult.Failure("Network error: timeout"), KtorStatsApi("http://server", offline).me("t"))
+    }
+
+    @Test
     fun savePostsStatsWithBearerToken() = runTest {
         val engine = MockEngine { req ->
             assertEquals(HttpMethod.Post, req.method)

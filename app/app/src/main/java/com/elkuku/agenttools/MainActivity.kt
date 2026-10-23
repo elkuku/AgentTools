@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,8 +41,6 @@ class MainActivity : ComponentActivity() {
             AgentToolsTheme {
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val activity = this@MainActivity
-
-                LaunchedEffect(Unit) { viewModel.restoreSession(activity) }
 
                 MainScreen(
                     state = state,

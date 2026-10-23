@@ -66,17 +66,19 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 
 ## Structure
 
-- `auth/GoogleAuth.kt` — Credential Manager: interactive "Sign in with Google", silent sign-in
-  for returning users and token refresh, sign-out.
+- `auth/GoogleAuth.kt` — Credential Manager: interactive "Sign in with Google" (only from the
+  app bar, never on start), silent token refresh, sign-out.
 - `data/StatsApi.kt` — Ktor client for the API Platform (JSON-LD) `POST` / `GET /api/agent-stats`;
   maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
   and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
+  `GET /api/me` gives the user's role (`MeResult`), shown in the app bar after sign-in and on
+  Refresh.
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right
   away (or after sign-in, if shared before); on `401` fetches a fresh ID token silently and
   retries once.
-- `ui/MainScreen.kt` — the one screen: sign-in, status messages, the stats.
+- `ui/MainScreen.kt` — the one screen: app bar with sign-in / role / sign-out, status messages, the stats.
 - `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
   Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
   `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.

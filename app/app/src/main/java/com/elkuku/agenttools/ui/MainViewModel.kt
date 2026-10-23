@@ -11,9 +11,11 @@ import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.ImportResult
+import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.customMedalCount
 import com.elkuku.agenttools.data.StatsApi
+import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.data.importResultFor
 import com.elkuku.agenttools.data.mergeCustomMedals
 import com.elkuku.agenttools.data.parseIngressStats
@@ -31,6 +33,8 @@ data class Status(val text: String, val isError: Boolean, val untilSignIn: Boole
 
 data class UiState(
     val session: GoogleSession? = null,
+    /** The signed-in user's role on the server; null until loaded or for an unknown role. */
+    val role: UserRole? = null,
     val busy: Boolean = false,
     /** What takes a while (saving, scanning), shown with a loading animation; null for nothing. */
     val progress: String? = null,
@@ -63,20 +67,6 @@ class MainViewModel(
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
-    private var restoreAttempted = false
-
-    /** Signs in without UI if the user already authorized the app, then loads the stats. Runs once. */
-    fun restoreSession(context: Context) {
-        if (restoreAttempted) return
-        restoreAttempted = true
-
-        launchBusy {
-            val session = auth.signInSilently(context) ?: return@launchBusy
-            signedIn(session)
-            savePendingOrLoad(context)
-        }
-    }
-
     fun signIn(context: Context) = launchBusy {
         try {
             val session = auth.signIn(context)
@@ -90,7 +80,14 @@ class MainViewModel(
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
         _state.update {
-            it.copy(session = null, entries = null, importResult = null, customMedals = null, status = Status("Signed out.", false, untilSignIn = true))
+            it.copy(
+                session = null,
+                role = null,
+                entries = null,
+                importResult = null,
+                customMedals = null,
+                status = Status("Signed out.", false, untilSignIn = true),
+            )
         }
     }
 
@@ -99,6 +96,8 @@ class MainViewModel(
         // An earlier message (e.g. a failed load) is outdated now
         _state.update { it.copy(status = null) }
         launchBusy {
+            // E.g. an administrator gave the user the Agent role in the meantime
+            loadRole(context)
             loadStats(context)
             savePendingMedalsOrLoad(context)
         }
@@ -161,8 +160,9 @@ class MainViewModel(
 
     fun dismissMedalScan() = _state.update { it.copy(medalScan = null, medalScanKnown = 0) }
 
-    /** Saves stats and custom medals shared before sign-in, or just loads them. */
+    /** Loads the role, then saves stats and custom medals shared before sign-in, or just loads them. */
     private suspend fun savePendingOrLoad(context: Context) {
+        loadRole(context)
         savePendingStatsOrLoad(context)
         savePendingMedalsOrLoad(context)
     }
@@ -230,6 +230,15 @@ class MainViewModel(
         }
     }
 
+    /** A failure only leaves the role out: loading the stats shows what went wrong. */
+    private suspend fun loadRole(context: Context) {
+        when (val result = withToken(context, { it is MeResult.Unauthorized }) { api.me(it) }) {
+            is MeResult.Success -> _state.update { it.copy(role = result.role) }
+            is MeResult.Unauthorized -> signedOutBy(result.message)
+            is MeResult.Failure, null -> Unit
+        }
+    }
+
     private suspend fun loadStats(context: Context) {
         when (val result = withToken(context, { it is AgentStatsResult.Unauthorized }) { api.list(it) }) {
             is AgentStatsResult.Success -> _state.update { it.copy(entries = result.entries) }
@@ -280,6 +289,7 @@ class MainViewModel(
     private fun signedOutBy(message: String) = _state.update {
         it.copy(
             session = null,
+            role = null,
             entries = null,
             customMedals = null,
             status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),

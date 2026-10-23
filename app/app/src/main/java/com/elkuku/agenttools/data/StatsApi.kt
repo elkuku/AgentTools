@@ -40,6 +40,9 @@ private data class Violation(val propertyPath: String = "", val message: String 
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
 
 @Serializable
+private data class MeResponse(val role: String)
+
+@Serializable
 private data class CollectionView(val next: String? = null)
 
 /** One page of a Hydra collection. */
@@ -75,7 +78,32 @@ sealed interface CustomMedalsResult {
     data class Failure(val message: String) : CustomMedalsResult
 }
 
+/** The user's role on the server, as `UserRole` in web. */
+enum class UserRole(val label: String) {
+    USER("User"),
+    AGENT("Agent"),
+    ADMIN("Administrator");
+
+    companion object {
+        /** `ROLE_AGENT` → [AGENT]; null for a role the app does not know. */
+        fun fromServer(role: String): UserRole? = entries.find { "ROLE_$it" == role }
+    }
+}
+
+sealed interface MeResult {
+    /** [role] is null for a role the app does not know. */
+    data class Success(val role: UserRole?) : MeResult
+
+    /** The ID token was rejected (expired or invalid). */
+    data class Unauthorized(val message: String) : MeResult
+
+    data class Failure(val message: String) : MeResult
+}
+
 interface StatsApi {
+    /** `GET /api/me`: the signed-in user. */
+    suspend fun me(idToken: String): MeResult
+
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
     suspend fun save(idToken: String, stats: JsonObject): SaveResult
 
@@ -95,6 +123,8 @@ class KtorStatsApi(
 ) : StatsApi {
     private val url = "${baseUrl.trimEnd('/')}/api/agent-stats"
 
+    private val meUrl = "${baseUrl.trimEnd('/')}/api/me"
+
     private val customMedalsUrl = "${baseUrl.trimEnd('/')}/api/me/custom-medals"
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -104,6 +134,27 @@ class KtorStatsApi(
         install(ContentNegotiation) {
             json(json, LdJson)
             json(json, ProblemJson)
+        }
+    }
+
+    override suspend fun me(idToken: String): MeResult {
+        val response = try {
+            client.get(meUrl) {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return MeResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
+                ?.let { MeResult.Success(UserRole.fromServer(it.role)) }
+                ?: MeResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            else -> MeResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
         }
     }
 

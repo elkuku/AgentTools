@@ -16,8 +16,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.CustomMedalTier
+import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -48,10 +49,20 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (state.session == null) "AgentTools" else "Agent stats") },
+                title = {
+                    Text(
+                        if (state.session == null) "AgentTools" else "Agent stats",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
                 actions = {
-                    if (state.session != null) {
+                    if (state.session == null) {
+                        TextButton(onClick = onSignIn, enabled = !state.busy) { Text("Sign in") }
+                    } else {
+                        state.role?.let { RoleBadge(it) }
                         TextButton(onClick = onRefresh, enabled = !state.busy) { Text("Refresh") }
+                        TextButton(onClick = onSignOut, enabled = !state.busy) { Text("Sign out") }
                     }
                 },
             )
@@ -82,17 +93,6 @@ fun MainScreen(
             }
 
             val session = state.session
-            if (session != null) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = session.displayName?.let { "$it (${session.email})" } ?: session.email,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    OutlinedButton(onClick = onSignOut, enabled = !state.busy) { Text("Sign out") }
-                }
-            }
 
             state.status?.let { status ->
                 Card(
@@ -116,7 +116,7 @@ fun MainScreen(
             val latest = state.latest
             when {
                 // Below a share hint or a review, so they stay in view
-                session == null -> Landing(onSignIn = onSignIn, enabled = !state.busy)
+                session == null -> Landing()
                 latest != null -> AgentStats(latest, first = state.first ?: latest)
                 state.entries != null -> Text(
                     "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
@@ -130,6 +130,19 @@ fun MainScreen(
                 CustomMedals(customMedals)
             }
         }
+    }
+}
+
+/** The user's role, colored like the badges of web's user list (admins stand out). */
+@Composable
+private fun RoleBadge(role: UserRole) {
+    val (container, content) = when (role) {
+        UserRole.USER -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+        UserRole.AGENT -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        UserRole.ADMIN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+    }
+    Surface(color = container, contentColor = content, shape = MaterialTheme.shapes.small) {
+        Text(role.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
     }
 }
 
@@ -149,6 +162,7 @@ private fun MainScreenPreview() {
         MainScreen(
             state = UiState(
                 session = GoogleSession("token", "jane@example.com", "Jane"),
+                role = UserRole.AGENT,
                 entries = listOf(AgentStatEntry.fromJson(stats)),
                 status = Status("Agent stats saved.", false),
             ),

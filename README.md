@@ -12,7 +12,7 @@ or file manager when Android asks.
 
 ## Get access
 
-1. Open AgentTools and tap **Sign in with Google**.
+1. Open AgentTools and tap **Sign in** at the top.
 2. Your account is registered and waits for an administrator to give it the **Agent** role. Until
    then the app tells you that it is waiting.
 

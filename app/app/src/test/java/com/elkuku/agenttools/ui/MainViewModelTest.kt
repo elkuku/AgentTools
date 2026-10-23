@@ -10,8 +10,10 @@ import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
+import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.StatsApi
+import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
 import kotlinx.coroutines.Dispatchers
@@ -59,32 +61,6 @@ class MainViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun restoresSessionSilentlyOnceAndLoadsStats() {
-        auth.silentSessions += session
-        api.lists += AgentStatsResult.Success(listOf(entry))
-        val viewModel = viewModel()
-
-        viewModel.restoreSession(context)
-        viewModel.restoreSession(context)
-
-        assertEquals(session, viewModel.state.value.session)
-        assertEquals(entry, viewModel.state.value.latest)
-        assertEquals(1, auth.silentCalls)
-        assertEquals(listOf("token-1"), api.listTokens)
-    }
-
-    @Test
-    fun withoutAuthorizationNothingIsLoaded() {
-        val viewModel = viewModel()
-
-        viewModel.restoreSession(context)
-
-        assertNull(viewModel.state.value.session)
-        assertNull(viewModel.state.value.entries)
-        assertTrue(api.listTokens.isEmpty())
-    }
-
-    @Test
     fun signInLoadsStats() {
         val viewModel = signedIn()
 
@@ -122,6 +98,40 @@ class MainViewModelTest {
         assertTrue(auth.signedOut)
         assertNull(viewModel.state.value.session)
         assertNull(viewModel.state.value.entries)
+    }
+
+    @Test
+    fun signInLoadsTheRoleAndSignOutForgetsIt() {
+        val viewModel = signedIn()
+
+        assertEquals(UserRole.AGENT, viewModel.state.value.role)
+
+        viewModel.signOut(context)
+
+        assertNull(viewModel.state.value.role)
+    }
+
+    @Test
+    fun refreshReloadsTheRole() {
+        api.me = MeResult.Success(UserRole.USER)
+        val viewModel = signedIn()
+        assertEquals(UserRole.USER, viewModel.state.value.role)
+
+        api.me = MeResult.Success(UserRole.AGENT)
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.refresh(context)
+
+        assertEquals(UserRole.AGENT, viewModel.state.value.role)
+    }
+
+    @Test
+    fun aFailedRoleLoadShowsNoMessage() {
+        api.me = MeResult.Failure("Network error: timeout")
+        val viewModel = signedIn()
+
+        assertNull(viewModel.state.value.role)
+        assertNull(viewModel.state.value.status)
+        assertEquals(listOf(entry), viewModel.state.value.entries)
     }
 
     @Test
@@ -214,20 +224,6 @@ class MainViewModelTest {
         assertEquals(1, api.saved.size)
         assertNull(viewModel.state.value.pending)
         assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
-    }
-
-    @Test
-    fun statsSharedBeforeSessionRestoreAreSavedOnce() {
-        val viewModel = viewModel()
-        viewModel.onShared(context, ingressStats())
-        auth.silentSessions += session
-        api.saves += SaveResult.Success(2, "now")
-        api.lists += AgentStatsResult.Success(listOf(entry))
-
-        viewModel.restoreSession(context)
-
-        assertEquals(1, api.saved.size)
-        assertEquals(listOf("token-1"), api.listTokens)
     }
 
     @Test
@@ -505,6 +501,11 @@ class MainViewModelTest {
         val lists = ArrayDeque<AgentStatsResult>()
         val saved = mutableListOf<Pair<String, JsonObject>>()
         val listTokens = mutableListOf<String>()
+
+        /** What `GET /api/me` answers. */
+        var me: MeResult = MeResult.Success(UserRole.AGENT)
+
+        override suspend fun me(idToken: String): MeResult = me
 
         override suspend fun save(idToken: String, stats: JsonObject): SaveResult {
             saved += idToken to stats

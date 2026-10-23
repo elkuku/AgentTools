@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -70,9 +69,9 @@ private val HEXAGON_CYAN = Color(0xFF59FBEA)
 
 private val HEXAGON_TEAL = Color(0xFF0E9E8F)
 
-/** What the app does, for users who are not signed in, with the sign-in button. */
+/** What the app does, for users who are not signed in (the sign-in button is in the app bar). */
 @Composable
-fun Landing(onSignIn: () -> Unit, enabled: Boolean, modifier: Modifier = Modifier) {
+fun Landing(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -86,7 +85,6 @@ fun Landing(onSignIn: () -> Unit, enabled: Boolean, modifier: Modifier = Modifie
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Button(onClick = onSignIn, enabled = enabled) { Text("Sign in with Google") }
         Text(
             "New accounts wait for an administrator to give them the Agent role.",
             style = MaterialTheme.typography.bodySmall,
@@ -138,6 +136,6 @@ private fun FeatureCard(feature: Feature) {
 @Composable
 private fun LandingPreview() {
     AgentToolsTheme {
-        Landing(onSignIn = {}, enabled = true, modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp))
+        Landing(modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp))
     }
 }
