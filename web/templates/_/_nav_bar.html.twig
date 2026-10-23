@@ -11,9 +11,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">GuestMenu</a>
-                </li>
                 {% if is_granted('ROLE_AGENT') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_agent_stat_index') }}">Agent stats</a>
@@ -33,11 +30,6 @@
                 {% endif %}
             </ul>
 
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-
             {% if app.user %}
                 <div class="dropdown dropstart">
                     <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1"
@@ -47,7 +39,6 @@
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
                         <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi-person"></i> Profile</a>
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi-star"></i> Another action</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
