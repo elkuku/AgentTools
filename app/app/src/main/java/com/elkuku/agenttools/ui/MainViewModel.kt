@@ -35,6 +35,8 @@ data class UiState(
     val session: GoogleSession? = null,
     /** The signed-in user's role on the server; null until loaded or for an unknown role. */
     val role: UserRole? = null,
+    /** The settings screen is shown instead of the stats. */
+    val settingsOpen: Boolean = false,
     val busy: Boolean = false,
     /** What takes a while (saving, scanning), shown with a loading animation; null for nothing. */
     val progress: String? = null,
@@ -108,6 +110,8 @@ class MainViewModel(
      * when the user is not signed in yet.
      */
     fun onShared(context: Context, text: String) {
+        // The result of a share shows on the stats screen
+        _state.update { it.copy(settingsOpen = false) }
         val stats = parseIngressStats(text)
         if (stats == null) {
             _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
@@ -122,6 +126,17 @@ class MainViewModel(
         }
     }
 
+    fun openSettings() = _state.update { it.copy(settingsOpen = true) }
+
+    fun closeSettings() = _state.update { it.copy(settingsOpen = false) }
+
+    /** The data shown came from the old server: forget it and load it from the new one. */
+    fun serverChanged(context: Context) {
+        if (_state.value.session == null) return
+        _state.update { it.copy(role = null, entries = null, importResult = null, customMedals = null) }
+        refresh(context)
+    }
+
     fun dismissImportResult() = _state.update { it.copy(importResult = null) }
 
     /**
@@ -130,7 +145,7 @@ class MainViewModel(
      * Ingress shows only the highest tier, so a lower one is a wrong match.
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
-        _state.update { it.copy(medalScan = null, medalScanKnown = 0, status = null) }
+        _state.update { it.copy(settingsOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
         val recognized = withProgress("Looking for custom medals…") { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })

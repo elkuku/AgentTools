@@ -78,7 +78,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right
   away (or after sign-in, if shared before); on `401` fetches a fresh ID token silently and
   retries once.
-- `ui/MainScreen.kt` — the one screen: app bar with sign-in / role / sign-out, status messages, the stats.
+- `ui/MainScreen.kt` — the main screen: app bar with sign-in, or role / refresh / sign-out /
+  settings, status messages, the stats.
+- `ui/SettingsScreen.kt` — version and build type; debug builds change the server URL there
+  (`data/ServerSettings.kt`, kept in SharedPreferences), with buttons for the default and the live
+  server (`server.baseUrl.release`).
 - `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
   Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
   `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.

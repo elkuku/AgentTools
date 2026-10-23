@@ -135,6 +135,39 @@ class MainViewModelTest {
     }
 
     @Test
+    fun serverChangeReloadsTheData() {
+        val viewModel = signedIn()
+        api.me = MeResult.Success(UserRole.USER)
+        api.lists += AgentStatsResult.Success(emptyList())
+
+        viewModel.serverChanged(context)
+
+        assertEquals(UserRole.USER, viewModel.state.value.role)
+        assertEquals(emptyList<AgentStatEntry>(), viewModel.state.value.entries)
+        assertEquals(listOf("token-1", "token-1"), api.listTokens)
+    }
+
+    @Test
+    fun serverChangeWhenSignedOutLoadsNothing() {
+        val viewModel = viewModel()
+
+        viewModel.serverChanged(context)
+
+        assertTrue(api.listTokens.isEmpty())
+    }
+
+    @Test
+    fun aShareClosesTheSettings() {
+        val viewModel = viewModel()
+        viewModel.openSettings()
+        assertTrue(viewModel.state.value.settingsOpen)
+
+        viewModel.onShared(context, ingressStats())
+
+        assertFalse(viewModel.state.value.settingsOpen)
+    }
+
+    @Test
     fun signingInAgainHidesTheSignedOutMessage() {
         val viewModel = signedIn()
         viewModel.signOut(context)

@@ -82,7 +82,7 @@ sealed interface CustomMedalsResult {
 enum class UserRole(val label: String) {
     USER("User"),
     AGENT("Agent"),
-    ADMIN("Administrator");
+    ADMIN("Admin");
 
     companion object {
         /** `ROLE_AGENT` → [AGENT]; null for a role the app does not know. */
@@ -117,15 +117,18 @@ interface StatsApi {
     suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult
 }
 
+/** [baseUrl] is read on every request: debug builds can change the server on the settings screen. */
 class KtorStatsApi(
-    baseUrl: String,
+    private val baseUrl: () -> String,
     engine: HttpClientEngine = OkHttp.create(),
 ) : StatsApi {
-    private val url = "${baseUrl.trimEnd('/')}/api/agent-stats"
+    constructor(baseUrl: String, engine: HttpClientEngine = OkHttp.create()) : this({ baseUrl }, engine)
 
-    private val meUrl = "${baseUrl.trimEnd('/')}/api/me"
+    private val url get() = "${baseUrl().trimEnd('/')}/api/agent-stats"
 
-    private val customMedalsUrl = "${baseUrl.trimEnd('/')}/api/me/custom-medals"
+    private val meUrl get() = "${baseUrl().trimEnd('/')}/api/me"
+
+    private val customMedalsUrl get() = "${baseUrl().trimEnd('/')}/api/me/custom-medals"
 
     private val json = Json { ignoreUnknownKeys = true }
 

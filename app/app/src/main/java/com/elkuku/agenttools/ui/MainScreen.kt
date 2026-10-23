@@ -1,5 +1,6 @@
 package com.elkuku.agenttools.ui
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,9 +27,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.elkuku.agenttools.R
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.CustomMedalTier
@@ -39,9 +44,11 @@ import kotlinx.serialization.json.buildJsonObject
 @Composable
 fun MainScreen(
     state: UiState,
+    serverUrl: String,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
     onRefresh: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDismissImportResult: () -> Unit,
     onSaveMedalScan: (List<CustomMedalTier>) -> Unit,
     onDismissMedalScan: () -> Unit,
@@ -62,8 +69,9 @@ fun MainScreen(
                         TextButton(onClick = onSignIn, enabled = !state.busy) { Text("Sign in") }
                     } else {
                         state.role?.let { RoleBadge(it) }
-                        TextButton(onClick = onRefresh, enabled = !state.busy) { Text("Refresh") }
-                        TextButton(onClick = onSignOut, enabled = !state.busy) { Text("Sign out") }
+                        AppBarIcon(R.drawable.ic_bi_arrow_clockwise, "Refresh", onRefresh, enabled = !state.busy)
+                        AppBarIcon(R.drawable.ic_bi_box_arrow_right, "Sign out", onSignOut, enabled = !state.busy)
+                        AppBarIcon(R.drawable.ic_bi_gear, "Settings", onOpenSettings)
                     }
                 },
             )
@@ -117,7 +125,7 @@ fun MainScreen(
             val latest = state.latest
             when {
                 // Below a share hint or a review, so they stay in view
-                session == null -> Landing()
+                session == null -> Landing(serverUrl)
                 latest != null -> AgentStats(latest, first = state.first ?: latest)
                 state.entries != null -> Text(
                     "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
@@ -131,6 +139,13 @@ fun MainScreen(
                 CustomMedals(customMedals)
             }
         }
+    }
+}
+
+@Composable
+private fun AppBarIcon(@DrawableRes icon: Int, description: String, onClick: () -> Unit, enabled: Boolean = true) {
+    IconButton(onClick = onClick, enabled = enabled) {
+        Icon(painterResource(icon), contentDescription = description, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -167,9 +182,11 @@ private fun MainScreenPreview() {
                 entries = listOf(AgentStatEntry.fromJson(stats)),
                 status = Status("Agent stats saved.", false),
             ),
+            serverUrl = "https://agent-tools.example.com",
             onSignIn = {},
             onSignOut = {},
             onRefresh = {},
+            onOpenSettings = {},
             onDismissImportResult = {},
             onSaveMedalScan = {},
             onDismissMedalScan = {},

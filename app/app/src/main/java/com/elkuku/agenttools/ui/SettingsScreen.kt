@@ -1,0 +1,167 @@
+package com.elkuku.agenttools.ui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.ui.theme.AgentToolsTheme
+
+/** The build the app runs: from BuildConfig. */
+data class AppBuild(val versionName: String, val versionCode: Int, val debug: Boolean)
+
+/**
+ * Version and build type, and the server: changeable in debug builds only, with buttons for the
+ * default and the [liveServerUrl] (none when blank). [onSaveServerUrl] returns an error message, or null when saved (a blank URL means the default).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    build: AppBuild,
+    serverUrl: String,
+    defaultServerUrl: String,
+    liveServerUrl: String,
+    onSaveServerUrl: (String) -> String?,
+    onBack: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = "Back", modifier = Modifier.size(20.dp))
+                    }
+                },
+                title = { Text("Settings") },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("App", style = MaterialTheme.typography.titleMedium)
+                    Setting("Version", "${build.versionName} (${build.versionCode})")
+                    Setting("Build", if (build.debug) "Debug" else "Release")
+                }
+            }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Server", style = MaterialTheme.typography.titleMedium)
+                    if (build.debug) {
+                        ServerUrlField(serverUrl, defaultServerUrl, liveServerUrl, onSaveServerUrl)
+                    } else {
+                        Text(serverUrl)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Setting(label: String, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value)
+    }
+}
+
+@Composable
+private fun ServerUrlField(serverUrl: String, defaultServerUrl: String, liveServerUrl: String, onSave: (String) -> String?) {
+    var input by rememberSaveable(serverUrl) { mutableStateOf(serverUrl) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    // The buttons save right away: say so, the field alone does not show it
+    var saved by rememberSaveable { mutableStateOf(false) }
+    val save = { value: String ->
+        error = onSave(value)
+        saved = error == null
+    }
+
+    OutlinedTextField(
+        value = input,
+        onValueChange = {
+            input = it
+            error = null
+            saved = false
+        },
+        label = { Text("Server URL") },
+        singleLine = true,
+        isError = error != null,
+        supportingText = {
+            when {
+                error != null -> Text(error.orEmpty())
+                saved -> Text("Saved.", color = MaterialTheme.colorScheme.primary)
+                else -> Text("Default: $defaultServerUrl")
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
+        modifier = Modifier.fillMaxWidth(),
+    )
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(onClick = { save(input) }, enabled = input.trim().trimEnd('/') != serverUrl.trimEnd('/')) { Text("Save") }
+        TextButton(onClick = { save("") }, enabled = serverUrl != defaultServerUrl) { Text("Use default") }
+        if (liveServerUrl.isNotBlank()) {
+            TextButton(onClick = { save(liveServerUrl) }, enabled = serverUrl.trimEnd('/') != liveServerUrl.trimEnd('/')) {
+                Text("Use live server")
+            }
+        }
+    }
+    Text(
+        "Changing the server reloads your data from it.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() {
+    AgentToolsTheme {
+        SettingsScreen(
+            build = AppBuild("0.1.0", 1, debug = true),
+            serverUrl = "http://localhost:8001",
+            defaultServerUrl = "http://localhost:8001",
+            liveServerUrl = "https://agent-tools.example.com",
+            onSaveServerUrl = { null },
+            onBack = {},
+        )
+    }
+}

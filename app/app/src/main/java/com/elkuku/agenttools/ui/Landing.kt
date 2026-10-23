@@ -72,7 +72,7 @@ private val HEXAGON_TEAL = Color(0xFF0E9E8F)
 
 /** What the app does, for users who are not signed in (the sign-in button is in the app bar). */
 @Composable
-fun Landing(modifier: Modifier = Modifier) {
+fun Landing(serverUrl: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -96,8 +96,8 @@ fun Landing(modifier: Modifier = Modifier) {
         FEATURES.forEach { FeatureCard(it) }
 
         val uriHandler = LocalUriHandler.current
-        TextButton(onClick = { uriHandler.openUri(BuildConfig.SERVER_BASE_URL) }) {
-            Text(BuildConfig.SERVER_BASE_URL.substringAfter("://").trimEnd('/'))
+        TextButton(onClick = { uriHandler.openUri(serverUrl) }) {
+            Text(serverUrl.substringAfter("://").trimEnd('/'))
         }
     }
 }
@@ -137,6 +137,6 @@ private fun FeatureCard(feature: Feature) {
 @Composable
 private fun LandingPreview() {
     AgentToolsTheme {
-        Landing(modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp))
+        Landing(serverUrl = BuildConfig.SERVER_BASE_URL, modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp))
     }
 }

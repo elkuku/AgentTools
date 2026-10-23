@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Debug only: allow plain HTTP to the local Symfony dev server. -->
-<network-security-config>
-    <base-config cleartextTrafficPermitted="false" />
-    <domain-config cleartextTrafficPermitted="true">
-        <!-- The host machine as seen from the Android emulator -->
-        <domain includeSubdomains="false">10.0.2.2</domain>
-        <domain includeSubdomains="false">localhost</domain>
-    </domain-config>
+<!-- Debug only: allow plain HTTP, e.g. to the local Symfony dev server or a server URL set on the
+     settings screen (10.0.2.2 is the host machine as seen from the Android emulator). -->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config cleartextTrafficPermitted="true" tools:ignore="InsecureBaseConfiguration" />
 </network-security-config>

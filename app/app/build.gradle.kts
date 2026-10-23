@@ -24,6 +24,8 @@ android {
         versionCode = 1
         versionName = "0.1.0"
 
+        // Debug builds offer it on the settings screen next to their default server
+        buildConfigField("String", "LIVE_SERVER_BASE_URL", "\"${localProperty("server.baseUrl.release")}\"")
         buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"${localProperty("google.serverClientId")}\"")
     }
 

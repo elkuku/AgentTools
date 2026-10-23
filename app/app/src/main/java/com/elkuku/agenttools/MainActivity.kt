@@ -3,6 +3,7 @@ package com.elkuku.agenttools
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -11,8 +12,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
+import com.elkuku.agenttools.ui.SettingsScreen
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +33,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val serverSettings get() = (application as AgentToolsApplication).serverSettings
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,17 +45,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             AgentToolsTheme {
                 val state by viewModel.state.collectAsStateWithLifecycle()
+                val serverUrl by serverSettings.url.collectAsStateWithLifecycle()
                 val activity = this@MainActivity
 
-                MainScreen(
-                    state = state,
-                    onSignIn = { viewModel.signIn(activity) },
-                    onSignOut = { viewModel.signOut(activity) },
-                    onRefresh = { viewModel.refresh(activity) },
-                    onDismissImportResult = viewModel::dismissImportResult,
-                    onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
-                    onDismissMedalScan = viewModel::dismissMedalScan,
-                )
+                if (state.settingsOpen) {
+                    BackHandler(onBack = viewModel::closeSettings)
+                    SettingsScreen(
+                        build = AppBuild(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.DEBUG),
+                        serverUrl = serverUrl,
+                        defaultServerUrl = serverSettings.defaultUrl,
+                        liveServerUrl = if (BuildConfig.DEBUG) BuildConfig.LIVE_SERVER_BASE_URL else "",
+                        onSaveServerUrl = { url ->
+                            val before = serverSettings.url.value
+                            serverSettings.set(url).also { error ->
+                                if (error == null && serverSettings.url.value != before) viewModel.serverChanged(activity)
+                            }
+                        },
+                        onBack = viewModel::closeSettings,
+                    )
+                } else {
+                    MainScreen(
+                        state = state,
+                        serverUrl = serverUrl,
+                        onSignIn = { viewModel.signIn(activity) },
+                        onSignOut = { viewModel.signOut(activity) },
+                        onRefresh = { viewModel.refresh(activity) },
+                        onOpenSettings = viewModel::openSettings,
+                        onDismissImportResult = viewModel::dismissImportResult,
+                        onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
+                        onDismissMedalScan = viewModel::dismissMedalScan,
+                    )
+                }
             }
         }
     }
