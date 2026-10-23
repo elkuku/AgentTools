@@ -17,37 +17,29 @@
         </p>
     {% endif %}
 
-    {{ form_start(form) }}
-
-    {{ form_widget(form) }}
-
-    <button type="submit" class="btn btn-lg btn-outline-success" title="Save">
-        <span class="bi-check"></span>
-    </button>
-
-    {{ form_end(form) }}
-
-    <h2 class="mt-5">API token</h2>
-    {% if apiToken %}
-        <p>
-            Paste it in the <a href="{{ path('api_doc') }}">API docs</a> under <strong>Authorize</strong>.
-            {% if apiToken.fake %}
-                A fake dev token (<code>APP_FAKE_GOOGLE_TOKENS</code>), it does not expire.
-            {% elseif apiToken.expiresAt %}
-                Valid until {{ apiToken.expiresAt|date('Y-m-d H:i') }}; sign in with Google again for a new one.
-            {% endif %}
-        </p>
-        <div class="input-group" data-controller="clipboard">
-            <input type="text" class="form-control font-monospace" id="api-token" name="api-token" value="{{ apiToken.token }}"
-                   readonly aria-label="API token" data-clipboard-target="source">
-            <button type="button" class="btn btn-outline-secondary" data-action="clipboard#copy"
-                    data-clipboard-target="button">Copy</button>
-        </div>
-    {% else %}
-        <p>
-            Sign out and sign in with Google to get a token for the <a href="{{ path('api_doc') }}">API docs</a>.
-            Only a Google sign-in has one, and it is valid for about an hour.
-        </p>
+    {% if is_granted('ROLE_ADMIN') %}
+        <h2 class="mt-5">API token</h2>
+        {% if apiToken %}
+            <p>
+                Paste it in the <a href="{{ path('api_doc') }}">API docs</a> under <strong>Authorize</strong>.
+                {% if apiToken.fake %}
+                    A fake dev token (<code>APP_FAKE_GOOGLE_TOKENS</code>), it does not expire.
+                {% elseif apiToken.expiresAt %}
+                    Valid until {{ apiToken.expiresAt|date('Y-m-d H:i') }}; sign in with Google again for a new one.
+                {% endif %}
+            </p>
+            <div class="input-group" data-controller="clipboard">
+                <input type="text" class="form-control font-monospace" id="api-token" name="api-token" value="{{ apiToken.token }}"
+                       readonly aria-label="API token" data-clipboard-target="source">
+                <button type="button" class="btn btn-outline-secondary" data-action="clipboard#copy"
+                        data-clipboard-target="button">Copy</button>
+            </div>
+        {% else %}
+            <p>
+                Sign out and sign in with Google to get a token for the <a href="{{ path('api_doc') }}">API docs</a>.
+                Only a Google sign-in has one, and it is valid for about an hour.
+            </p>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

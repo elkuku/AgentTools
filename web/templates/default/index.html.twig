@@ -3,11 +3,9 @@
 {% block body %}
     {% if app.user %}
         <div class="alert alert-success mt-4">
-            <h4>Welcome {{ app.user.param('user_name') ?: app.user.userIdentifier }}!</h4>
+            <h4>Welcome {{ app.user.agentName ?: app.user.userIdentifier }}!</h4>
             {% if is_granted('ROLE_AGENT') %}
                 See <a href="{{ path('app_agent_stat_index') }}">your agent stats</a>.
-            {% elseif not app.user.param('user_name') %}
-                Please <a href="{{ path('app_profile') }}">update your Profile</a>!
             {% endif %}
         </div>
         {% if not is_granted('ROLE_AGENT') %}

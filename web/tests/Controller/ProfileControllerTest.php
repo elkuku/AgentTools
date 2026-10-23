@@ -17,12 +17,11 @@ class ProfileControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
 
-        $user = $userRepository->findOneBy(['identifier' => 'user']);
-        if (null !== $user) {
-            $user->setParams([]);
+        foreach ($userRepository->findBy(['identifier' => ['user', 'admin']]) as $user) {
             $user->setGoogleId(null);
-            $em->flush();
         }
+
+        $em->flush();
 
         parent::tearDown();
     }
@@ -49,42 +48,13 @@ class ProfileControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('User Profile');
-        self::assertSelectorExists('form');
-    }
-
-    public function testProfileFormSavesParams(): void
-    {
-        $client = static::createClient();
-        $client->followRedirects();
-
-        /** @var UserRepository $userRepository */
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $user = $userRepository->findOneBy(['identifier' => 'user']);
-        self::assertNotNull($user);
-
-        $client->loginUser($user);
-        $crawler = $client->request(Request::METHOD_GET, '/profile');
-
-        $csrfToken = $crawler->filter('input[name="user_params[_token]"]')->attr('value');
-
-        $client->request(Request::METHOD_POST, '/profile', [
-            'user_params' => [
-                'user_name' => 'test_username',
-                '_token' => $csrfToken,
-            ],
-        ]);
-
-        self::assertResponseIsSuccessful();
-
-        $user = $userRepository->findOneBy(['identifier' => 'user']);
-        self::assertNotNull($user);
-        self::assertSame('test_username', $user->getParam('user_name'));
+        self::assertSelectorNotExists('form');
     }
 
     public function testProfileShowsTheApiTokenOfAGoogleSignIn(): void
     {
         $client = static::createClient();
-        $idToken = FakeGoogleIdTokenVerifier::token('gid-profile', 'user');
+        $idToken = FakeGoogleIdTokenVerifier::token('gid-profile', 'admin');
 
         $client->request(Request::METHOD_POST, '/connect/google/verify', ['credential' => $idToken]);
         self::assertResponseRedirects();
@@ -96,13 +66,28 @@ class ProfileControllerTest extends WebTestCase
         self::assertSelectorExists('[data-controller="clipboard"] button[data-action="clipboard#copy"]');
     }
 
+    public function testProfileHidesTheApiTokenFromNonAdmins(): void
+    {
+        $client = static::createClient();
+        $idToken = FakeGoogleIdTokenVerifier::token('gid-profile-user', 'user');
+
+        $client->request(Request::METHOD_POST, '/connect/google/verify', ['credential' => $idToken]);
+        self::assertResponseRedirects();
+
+        $client->request(Request::METHOD_GET, '/profile');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('#api-token');
+        self::assertSelectorTextNotContains('body', 'API token');
+    }
+
     public function testProfileExplainsHowToGetAnApiToken(): void
     {
         $client = static::createClient();
 
         /** @var UserRepository $userRepository */
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $user = $userRepository->findOneBy(['identifier' => 'user']);
+        $user = $userRepository->findOneBy(['identifier' => 'admin']);
         self::assertNotNull($user);
 
         $client->loginUser($user);
