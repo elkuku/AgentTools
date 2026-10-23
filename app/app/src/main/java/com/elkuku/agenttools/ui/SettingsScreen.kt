@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,12 +42,28 @@ import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 data class AppBuild(val versionName: String, val versionCode: Int, val debug: Boolean)
 
 /**
- * Version and build type, and the server: changeable in debug builds only, with buttons for the
+ * What [SettingsScreen] shows about the agent name: [show] only for agents. [needed] while it is
+ * missing, [pendingStats] when shared stats wait for it.
+ */
+data class AgentNameSetting(
+    val show: Boolean,
+    val agentName: String?,
+    val status: Status?,
+    val pendingStats: Boolean,
+    val busy: Boolean,
+) {
+    val needed: Boolean get() = show && agentName == null
+}
+
+/**
+ * The agent name, version and build type, and the server: changeable in debug builds only, with buttons for the
  * default and the [liveServerUrl] (none when blank). [onSaveServerUrl] returns an error message, or null when saved (a blank URL means the default).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    agent: AgentNameSetting,
+    onSaveAgentName: (String) -> Unit,
     build: AppBuild,
     serverUrl: String,
     defaultServerUrl: String,
@@ -74,6 +91,8 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (agent.show) AgentNameCard(agent, onSaveAgentName)
+
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("App", style = MaterialTheme.typography.titleMedium)
@@ -92,6 +111,50 @@ fun SettingsScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AgentNameCard(agent: AgentNameSetting, onSave: (String) -> Unit) {
+    var input by rememberSaveable(agent.agentName) { mutableStateOf(agent.agentName.orEmpty()) }
+    val colors = if (agent.needed) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    } else {
+        CardDefaults.cardColors()
+    }
+
+    Card(modifier = Modifier.fillMaxWidth(), colors = colors) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Agent name", style = MaterialTheme.typography.titleMedium)
+            Text(
+                buildString {
+                    append("Your agent name exactly as in Ingress: only stats of this agent can be saved.")
+                    if (agent.needed && agent.pendingStats) append(" The shared stats are saved as soon as it is set.")
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedTextField(
+                value = input,
+                onValueChange = { input = it },
+                label = { Text("Agent name") },
+                singleLine = true,
+                isError = agent.status?.isError == true,
+                supportingText = agent.status?.let { status ->
+                    {
+                        Text(
+                            status.text,
+                            color = if (status.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(
+                onClick = { onSave(input) },
+                enabled = !agent.busy && input.isNotBlank() && input.trim() != agent.agentName,
+            ) { Text("Save") }
         }
     }
 }
@@ -156,6 +219,8 @@ private fun ServerUrlField(serverUrl: String, defaultServerUrl: String, liveServ
 private fun SettingsScreenPreview() {
     AgentToolsTheme {
         SettingsScreen(
+            agent = AgentNameSetting(show = true, agentName = null, status = null, pendingStats = true, busy = false),
+            onSaveAgentName = {},
             build = AppBuild("0.1.0", 1, debug = true),
             serverUrl = "http://localhost:8001",
             defaultServerUrl = "http://localhost:8001",

@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.elkuku.agenttools.ui.AgentNameSetting
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
@@ -51,6 +52,14 @@ class MainActivity : ComponentActivity() {
                 if (state.settingsOpen) {
                     BackHandler(onBack = viewModel::closeSettings)
                     SettingsScreen(
+                        agent = AgentNameSetting(
+                            show = state.role?.isAgent == true,
+                            agentName = state.agentName,
+                            status = state.agentNameStatus,
+                            pendingStats = state.pending != null,
+                            busy = state.busy,
+                        ),
+                        onSaveAgentName = { viewModel.saveAgentName(activity, it) },
                         build = AppBuild(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.DEBUG),
                         serverUrl = serverUrl,
                         defaultServerUrl = serverSettings.defaultUrl,

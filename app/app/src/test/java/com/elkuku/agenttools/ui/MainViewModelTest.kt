@@ -6,6 +6,7 @@ import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
+import com.elkuku.agenttools.data.AgentNameResult
 import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
@@ -26,6 +27,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -117,7 +119,7 @@ class MainViewModelTest {
         val viewModel = signedIn()
         assertEquals(UserRole.USER, viewModel.state.value.role)
 
-        api.me = MeResult.Success(UserRole.AGENT)
+        api.me = MeResult.Success(UserRole.AGENT, "TestAgent")
         api.lists += AgentStatsResult.Success(listOf(entry))
         viewModel.refresh(context)
 
@@ -165,6 +167,105 @@ class MainViewModelTest {
         viewModel.onShared(context, ingressStats())
 
         assertFalse(viewModel.state.value.settingsOpen)
+    }
+
+    @Test
+    fun anAgentWithoutAgentNameIsSentToTheSettings() {
+        api.me = MeResult.Success(UserRole.AGENT, null)
+        val viewModel = signedIn()
+
+        assertTrue(viewModel.state.value.needsAgentName)
+        assertTrue(viewModel.state.value.settingsOpen)
+    }
+
+    @Test
+    fun aUserWithoutTheAgentRoleNeedsNoAgentName() {
+        api.me = MeResult.Success(UserRole.USER, null)
+        val viewModel = signedIn()
+
+        assertFalse(viewModel.state.value.needsAgentName)
+        assertFalse(viewModel.state.value.settingsOpen)
+    }
+
+    @Test
+    fun sharedStatsWaitForTheAgentName() {
+        api.me = MeResult.Success(UserRole.AGENT, null)
+        val viewModel = signedIn()
+        viewModel.closeSettings()
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.onShared(context, ingressStats())
+
+        assertTrue(api.saved.isEmpty())
+        assertNotNull(viewModel.state.value.pending)
+        assertTrue(viewModel.state.value.settingsOpen)
+
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.saveAgentName(context, " TestAgent ")
+
+        assertEquals(listOf("TestAgent"), api.savedAgentNames)
+        assertEquals("TestAgent", viewModel.state.value.agentName)
+        assertEquals(1, api.saved.size)
+        assertNull(viewModel.state.value.pending)
+        assertFalse(viewModel.state.value.settingsOpen)
+        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun statsOfAnotherAgentAreRejected() {
+        api.me = MeResult.Success(UserRole.AGENT, "OtherAgent")
+        val viewModel = signedIn()
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.onShared(context, ingressStats())
+
+        assertTrue(api.saved.isEmpty())
+        assertNull(viewModel.state.value.pending)
+        assertEquals(
+            Status("These stats are for agent TestAgent, your agent name is OtherAgent.", true),
+            viewModel.state.value.status,
+        )
+    }
+
+    @Test
+    fun theAgentNameIsComparedIgnoringCase() {
+        api.me = MeResult.Success(UserRole.AGENT, "testagent")
+        val viewModel = signedIn()
+        api.saves += SaveResult.Success(2, "now")
+        api.lists += AgentStatsResult.Success(listOf(entry))
+
+        viewModel.onShared(context, ingressStats())
+
+        assertEquals(1, api.saved.size)
+    }
+
+    @Test
+    fun aRejectedAgentNameShowsInTheSettings() {
+        api.me = MeResult.Success(UserRole.AGENT, null)
+        val viewModel = signedIn()
+        api.agentNameResult = AgentNameResult.Failure("This agent name is already taken.")
+
+        viewModel.saveAgentName(context, "TestAgent")
+
+        assertNull(viewModel.state.value.agentName)
+        assertTrue(viewModel.state.value.settingsOpen)
+        assertEquals(Status("This agent name is already taken.", true), viewModel.state.value.agentNameStatus)
+    }
+
+    @Test
+    fun changingTheAgentNameStaysInTheSettings() {
+        val viewModel = signedIn()
+        viewModel.openSettings()
+
+        viewModel.saveAgentName(context, "NewName")
+
+        assertEquals("NewName", viewModel.state.value.agentName)
+        assertTrue(viewModel.state.value.settingsOpen)
+        assertEquals(Status("Saved.", false), viewModel.state.value.agentNameStatus)
+
+        viewModel.closeSettings()
+        assertNull(viewModel.state.value.agentNameStatus)
     }
 
     @Test
@@ -536,9 +637,18 @@ class MainViewModelTest {
         val listTokens = mutableListOf<String>()
 
         /** What `GET /api/me` answers. */
-        var me: MeResult = MeResult.Success(UserRole.AGENT)
+        var me: MeResult = MeResult.Success(UserRole.AGENT, "TestAgent")
 
         override suspend fun me(idToken: String): MeResult = me
+
+        /** What `PUT /api/me/agent-name` answers; null for success. */
+        var agentNameResult: AgentNameResult? = null
+        val savedAgentNames = mutableListOf<String>()
+
+        override suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult {
+            savedAgentNames += agentName
+            return agentNameResult ?: AgentNameResult.Success(agentName)
+        }
 
         override suspend fun save(idToken: String, stats: JsonObject): SaveResult {
             saved += idToken to stats

@@ -7,6 +7,7 @@ import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
+import com.elkuku.agenttools.data.AgentNameResult
 import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 /** A message for the user; [untilSignIn] ones are about being signed out and go away on sign-in. */
 data class Status(val text: String, val isError: Boolean, val untilSignIn: Boolean = false)
@@ -35,6 +38,10 @@ data class UiState(
     val session: GoogleSession? = null,
     /** The signed-in user's role on the server; null until loaded or for an unknown role. */
     val role: UserRole? = null,
+    /** The agent name stats must be for; null until loaded or until the agent sets it. */
+    val agentName: String? = null,
+    /** The result of saving the agent name, shown on the settings screen. */
+    val agentNameStatus: Status? = null,
     /** The settings screen is shown instead of the stats. */
     val settingsOpen: Boolean = false,
     val busy: Boolean = false,
@@ -59,6 +66,9 @@ data class UiState(
     val latest: AgentStatEntry? get() = entries?.firstOrNull()
 
     val first: AgentStatEntry? get() = entries?.lastOrNull()
+
+    /** An agent without an agent name: no stats can be saved until it is set. */
+    val needsAgentName: Boolean get() = session != null && role?.isAgent == true && agentName == null
 }
 
 class MainViewModel(
@@ -85,6 +95,8 @@ class MainViewModel(
             it.copy(
                 session = null,
                 role = null,
+                agentName = null,
+                agentNameStatus = null,
                 entries = null,
                 importResult = null,
                 customMedals = null,
@@ -128,12 +140,33 @@ class MainViewModel(
 
     fun openSettings() = _state.update { it.copy(settingsOpen = true) }
 
-    fun closeSettings() = _state.update { it.copy(settingsOpen = false) }
+    fun closeSettings() = _state.update { it.copy(settingsOpen = false, agentNameStatus = null) }
+
+    /**
+     * Saves the agent name. The first one takes the agent back to the stats, and saves stats
+     * shared while it was missing.
+     */
+    fun saveAgentName(context: Context, agentName: String) = launchBusy {
+        val first = _state.value.agentName == null
+        val result = withToken(context, { it is AgentNameResult.Unauthorized }) { api.saveAgentName(it, agentName.trim()) }
+        when (result) {
+            is AgentNameResult.Success -> {
+                _state.update { it.copy(agentName = result.agentName, agentNameStatus = Status("Saved.", false)) }
+                if (first) {
+                    closeSettings()
+                    savePendingStatsOrLoad(context)
+                }
+            }
+            is AgentNameResult.Failure -> _state.update { it.copy(agentNameStatus = Status(result.message, true)) }
+            is AgentNameResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
 
     /** The data shown came from the old server: forget it and load it from the new one. */
     fun serverChanged(context: Context) {
         if (_state.value.session == null) return
-        _state.update { it.copy(role = null, entries = null, importResult = null, customMedals = null) }
+        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null) }
         refresh(context)
     }
 
@@ -186,6 +219,23 @@ class MainViewModel(
     private suspend fun savePendingStatsOrLoad(context: Context) {
         val stats = _state.value.pending
         if (stats == null) {
+            loadStats(context)
+            return
+        }
+
+        val state = _state.value
+        if (state.needsAgentName) {
+            // Kept until the agent name is set
+            _state.update { it.copy(settingsOpen = true) }
+            loadStats(context)
+            return
+        }
+
+        val nickname = stats["nickname"]?.jsonPrimitive?.contentOrNull.orEmpty()
+        if (state.agentName != null && !nickname.equals(state.agentName, ignoreCase = true)) {
+            _state.update {
+                it.copy(pending = null, status = Status("These stats are for agent $nickname, your agent name is ${state.agentName}.", true))
+            }
             loadStats(context)
             return
         }
@@ -248,7 +298,11 @@ class MainViewModel(
     /** A failure only leaves the role out: loading the stats shows what went wrong. */
     private suspend fun loadRole(context: Context) {
         when (val result = withToken(context, { it is MeResult.Unauthorized }) { api.me(it) }) {
-            is MeResult.Success -> _state.update { it.copy(role = result.role) }
+            // An agent without an agent name sets it first, e.g. right after becoming an agent
+            is MeResult.Success -> _state.update {
+                val state = it.copy(role = result.role, agentName = result.agentName)
+                if (state.needsAgentName) state.copy(settingsOpen = true) else state
+            }
             is MeResult.Unauthorized -> signedOutBy(result.message)
             is MeResult.Failure, null -> Unit
         }
@@ -305,6 +359,9 @@ class MainViewModel(
         it.copy(
             session = null,
             role = null,
+            agentName = null,
+            agentNameStatus = null,
+            settingsOpen = false,
             entries = null,
             customMedals = null,
             status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),

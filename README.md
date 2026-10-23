@@ -15,6 +15,8 @@ or file manager when Android asks.
 1. Open AgentTools and tap **Sign in** at the top.
 2. Your account is registered and waits for an administrator to give it the **Agent** role. Until
    then the app tells you that it is waiting.
+3. Once you are an agent, the app opens its settings: enter your agent name exactly as in Ingress.
+   Only stats of this agent can be saved.
 
 ## Save your stats
 

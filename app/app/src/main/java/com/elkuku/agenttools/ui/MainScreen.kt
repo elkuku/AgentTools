@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -115,6 +116,18 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(status.text, modifier = Modifier.padding(12.dp))
+                }
+            }
+
+            if (state.needsAgentName && !state.busy) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Set your agent name to save stats.")
+                        Button(onClick = onOpenSettings) { Text("Set agent name") }
+                    }
                 }
             }
 

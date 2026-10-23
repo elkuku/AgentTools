@@ -40,7 +40,10 @@ private data class Violation(val propertyPath: String = "", val message: String 
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
 
 @Serializable
-private data class MeResponse(val role: String)
+private data class MeResponse(val role: String, val agentName: String? = null)
+
+@Serializable
+private data class AgentNameBody(val agentName: String)
 
 @Serializable
 private data class CollectionView(val next: String? = null)
@@ -88,11 +91,14 @@ enum class UserRole(val label: String) {
         /** `ROLE_AGENT` → [AGENT]; null for a role the app does not know. */
         fun fromServer(role: String): UserRole? = entries.find { "ROLE_$it" == role }
     }
+
+    /** May see and upload agent stats (ROLE_AGENT, and admins through the role hierarchy). */
+    val isAgent: Boolean get() = this != USER
 }
 
 sealed interface MeResult {
-    /** [role] is null for a role the app does not know. */
-    data class Success(val role: UserRole?) : MeResult
+    /** [role] is null for a role the app does not know, [agentName] until the agent sets it. */
+    data class Success(val role: UserRole?, val agentName: String? = null) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : MeResult
@@ -100,9 +106,22 @@ sealed interface MeResult {
     data class Failure(val message: String) : MeResult
 }
 
+sealed interface AgentNameResult {
+    data class Success(val agentName: String) : AgentNameResult
+
+    /** The ID token was rejected (expired or invalid). */
+    data class Unauthorized(val message: String) : AgentNameResult
+
+    /** E.g. the name is taken or not an agent name (422), or a network error. */
+    data class Failure(val message: String) : AgentNameResult
+}
+
 interface StatsApi {
     /** `GET /api/me`: the signed-in user. */
     suspend fun me(idToken: String): MeResult
+
+    /** `PUT /api/me/agent-name`: the agent name; uploaded stats must be for this agent. */
+    suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult
 
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
     suspend fun save(idToken: String, stats: JsonObject): SaveResult
@@ -128,6 +147,8 @@ class KtorStatsApi(
 
     private val meUrl get() = "${baseUrl().trimEnd('/')}/api/me"
 
+    private val agentNameUrl get() = "${baseUrl().trimEnd('/')}/api/me/agent-name"
+
     private val customMedalsUrl get() = "${baseUrl().trimEnd('/')}/api/me/custom-medals"
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -152,12 +173,41 @@ class KtorStatsApi(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
-                ?.let { MeResult.Success(UserRole.fromServer(it.role)) }
+                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName) }
                 ?: MeResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
             else -> MeResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    override suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult {
+        val response = try {
+            client.put(agentNameUrl) {
+                bearerAuth(idToken)
+                contentType(LdJson)
+                accept(LdJson)
+                setBody(AgentNameBody(agentName))
+            }
+        } catch (e: IOException) {
+            return AgentNameResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<AgentNameBody>()
+                ?.let { AgentNameResult.Success(it.agentName) }
+                ?: AgentNameResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> AgentNameResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            // e.g. "This agent name is already taken."
+            HttpStatusCode.UnprocessableEntity -> AgentNameResult.Failure(
+                response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()?.message
+                    ?: "The server rejected the agent name.",
+            )
+
+            else -> AgentNameResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
         }
     }
 
@@ -184,7 +234,8 @@ class KtorStatsApi(
                 response.decodeOrNull<ValidationResponse>()?.violations
                     ?.map { if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}" }
                     ?.ifEmpty { null }
-                    ?: listOf("The server rejected the stats.")
+                    // No violations: e.g. stats of another agent
+                    ?: listOf(response.errorMessage() ?: "The server rejected the stats.")
             )
 
             // e.g. 409 "Stat entry already added!"

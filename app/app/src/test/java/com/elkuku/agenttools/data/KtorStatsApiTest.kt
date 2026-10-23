@@ -39,7 +39,59 @@ class KtorStatsApiTest {
             )
         }
 
-        assertEquals(MeResult.Success(UserRole.AGENT), KtorStatsApi("http://server", engine).me("t"))
+        assertEquals(MeResult.Success(UserRole.AGENT, null), KtorStatsApi("http://server", engine).me("t"))
+    }
+
+    @Test
+    fun meLoadsTheAgentName() = runTest {
+        val engine = MockEngine { respond("""{"role": "ROLE_AGENT", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders) }
+
+        assertEquals(MeResult.Success(UserRole.AGENT, "TestAgent"), KtorStatsApi("http://server", engine).me("t"))
+    }
+
+    @Test
+    fun saveAgentNamePutsTheName() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Put, req.method)
+            assertEquals("http://server/api/me/agent-name", req.url.toString())
+            assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
+            assertEquals("""{"agentName":"TestAgent"}""", String(req.body.toByteArray()))
+            respond("""{"@id": "/api/me/agent-name", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
+        }
+
+        assertEquals(AgentNameResult.Success("TestAgent"), KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"))
+    }
+
+    @Test
+    fun saveAgentNameShowsWhyTheServerRejectedIt() = runTest {
+        val engine = MockEngine {
+            respond(
+                """{"status": 422, "violations": [{"propertyPath": "agentName", "message": "This agent name is already taken."}]}""",
+                HttpStatusCode.UnprocessableEntity,
+                problemHeaders,
+            )
+        }
+
+        assertEquals(
+            AgentNameResult.Failure("This agent name is already taken."),
+            KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"),
+        )
+    }
+
+    @Test
+    fun saveShowsTheProblemDetailWithoutViolations() = runTest {
+        val engine = MockEngine {
+            respond(
+                problem(422, "These stats are for agent SomeoneElse, your agent name is TestAgent."),
+                HttpStatusCode.UnprocessableEntity,
+                problemHeaders,
+            )
+        }
+
+        assertEquals(
+            SaveResult.Invalid(listOf("These stats are for agent SomeoneElse, your agent name is TestAgent.")),
+            KtorStatsApi("http://server", engine).save("t", JsonObject(emptyMap())),
+        )
     }
 
     @Test

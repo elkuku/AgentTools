@@ -71,8 +71,9 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `data/StatsApi.kt` — Ktor client for the API Platform (JSON-LD) `POST` / `GET /api/agent-stats`;
   maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
   and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
-  `GET /api/me` gives the user's role (`MeResult`), shown in the app bar after sign-in and on
-  Refresh.
+  `GET /api/me` gives the user's role and agent name (`MeResult`), loaded after sign-in and on
+  Refresh; `PUT /api/me/agent-name` sets the agent name. Agents without one are sent to the
+  settings, and shared stats wait for it; stats of another agent are rejected (also by `web`).
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right
