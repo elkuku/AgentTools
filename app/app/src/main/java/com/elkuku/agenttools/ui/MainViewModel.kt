@@ -26,7 +26,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 
-data class Status(val text: String, val isError: Boolean)
+/** A message for the user; [untilSignIn] ones are about being signed out and go away on sign-in. */
+data class Status(val text: String, val isError: Boolean, val untilSignIn: Boolean = false)
 
 data class UiState(
     val session: GoogleSession? = null,
@@ -71,7 +72,7 @@ class MainViewModel(
 
         launchBusy {
             val session = auth.signInSilently(context) ?: return@launchBusy
-            _state.update { it.copy(session = session) }
+            signedIn(session)
             savePendingOrLoad(context)
         }
     }
@@ -79,8 +80,7 @@ class MainViewModel(
     fun signIn(context: Context) = launchBusy {
         try {
             val session = auth.signIn(context)
-            // No "signed in" message: the account is shown, and a share hint must stay visible
-            _state.update { it.copy(session = session) }
+            signedIn(session)
             savePendingOrLoad(context)
         } catch (e: AuthException) {
             _state.update { it.copy(status = if (e.cancelled) null else Status(e.message.orEmpty(), true)) }
@@ -90,7 +90,7 @@ class MainViewModel(
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
         _state.update {
-            it.copy(session = null, entries = null, importResult = null, customMedals = null, status = Status("Signed out.", false))
+            it.copy(session = null, entries = null, importResult = null, customMedals = null, status = Status("Signed out.", false, untilSignIn = true))
         }
     }
 
@@ -259,6 +259,14 @@ class MainViewModel(
         return call(refreshed.idToken)
     }
 
+    /**
+     * No "signed in" message: the account is shown. A share hint must stay visible, a message
+     * about being signed out is outdated.
+     */
+    private fun signedIn(session: GoogleSession) = _state.update {
+        it.copy(session = session, status = it.status?.takeUnless(Status::untilSignIn))
+    }
+
     private val CustomMedalTier.tierIndex: Int get() = medal.tierOrNone.indexOf(tier)
 
     /**
@@ -274,7 +282,7 @@ class MainViewModel(
             session = null,
             entries = null,
             customMedals = null,
-            status = Status("Not authorized: $message Please sign in again.", true),
+            status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),
         )
     }
 

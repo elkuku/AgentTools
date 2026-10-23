@@ -125,6 +125,18 @@ class MainViewModelTest {
     }
 
     @Test
+    fun signingInAgainHidesTheSignedOutMessage() {
+        val viewModel = signedIn()
+        viewModel.signOut(context)
+        assertEquals("Signed out.", viewModel.state.value.status?.text)
+
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.signIn(context)
+
+        assertNull(viewModel.state.value.status)
+    }
+
+    @Test
     fun sharedStatsAreSavedRightAwayAndReloaded() {
         val viewModel = signedIn()
         val newest = entry.copy(id = 2, datetime = "2026-10-19 15:35:56")
@@ -254,7 +266,7 @@ class MainViewModelTest {
 
         assertNull(viewModel.state.value.session)
         assertEquals(
-            Status("Not authorized: Unknown user. Please sign in again.", true),
+            Status("Not authorized: Unknown user. Please sign in again.", true, untilSignIn = true),
             viewModel.state.value.status,
         )
     }
