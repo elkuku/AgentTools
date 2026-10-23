@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,7 +48,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Agent stats") },
+                title = { Text(if (state.session == null) "AgentTools" else "Agent stats") },
                 actions = {
                     if (state.session != null) {
                         TextButton(onClick = onRefresh, enabled = !state.busy) { Text("Refresh") }
@@ -83,10 +82,7 @@ fun MainScreen(
             }
 
             val session = state.session
-            if (session == null) {
-                Text("Sign in with your Google account to see and save your agent stats.")
-                Button(onClick = onSignIn, enabled = !state.busy) { Text("Sign in with Google") }
-            } else {
+            if (session != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = session.displayName?.let { "$it (${session.email})" } ?: session.email,
@@ -119,7 +115,8 @@ fun MainScreen(
 
             val latest = state.latest
             when {
-                session == null -> Unit
+                // Below a share hint or a review, so they stay in view
+                session == null -> Landing(onSignIn = onSignIn, enabled = !state.busy)
                 latest != null -> AgentStats(latest, first = state.first ?: latest)
                 state.entries != null -> Text(
                     "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
