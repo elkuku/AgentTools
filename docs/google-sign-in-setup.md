@@ -39,9 +39,9 @@ Under **Clients** (older consoles: *APIs & Services → Credentials*):
    (**Create client → Web application**).
 2. Copy its **Client ID**, which looks like `1234567890-abc….apps.googleusercontent.com`.
 
-For the browser login of `web` (not needed for the app), the Web client also needs:
-- **Authorized JavaScript origins**: e.g. `http://localhost:8000`
-- **Authorized redirect URIs**: e.g. `http://localhost:8000/connect/google/check`
+For the "Sign in with Google" button of `web` (not needed for the app), the Web client also needs
+**Authorized JavaScript origins**: e.g. `http://localhost:8000`, `https://localhost:8000` and the
+production URL.
 
 ## 3. Get the SHA-1 of the signing certificate
 
@@ -89,8 +89,6 @@ Use the **Web** client ID from step 2 in both places.
 
 ```dotenv
 OAUTH_GOOGLE_ID=1234567890-abc.apps.googleusercontent.com
-# Only needed for the browser OAuth login:
-OAUTH_GOOGLE_SECRET=...
 ```
 
 `app/local.properties` (git-ignored, see `local.properties.example`):

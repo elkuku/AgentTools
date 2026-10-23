@@ -12,16 +12,7 @@
     <div class="row">
         <div class="col">
             <h2>Login</h2>
-            <div class="btn-group">
-                <a href="{{ path('connect_google_start') }}" title="Google Login"
-                   class="btn btn-dark">
-                    <i class="bi-google" style="font-size: 2rem;"></i>
-                </a>
-                <a href="{{ path('connect_github_start') }}" title="GitHub Login"
-                   class="btn btn-dark">
-                    <i class="bi-github" style="font-size: 2rem;"></i>
-                </a>
-
+            <div>
                 <div id="g_id_onload"
                      data-client_id="{{ oauthGoogleId }}"
                      data-login_uri="{{ url('connect_google_verify') }}"
@@ -35,12 +26,6 @@
                      data-shape="rectangular"
                      data-logo_alignment="left">
                 </div>
-
-            </div>
-
-            <div class="alert alert-warning">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                Please ensure the proper usage of login provider logos when using this in production!
             </div>
 
         </div>

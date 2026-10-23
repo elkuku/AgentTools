@@ -9,7 +9,6 @@ use App\Security\ApiTokenStore;
 use App\Security\GoogleIdentityAuthenticator;
 use App\Security\GoogleIdTokenVerifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use League\OAuth2\Client\Provider\GoogleUser;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +76,27 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $this->authenticator->authenticate($request);
     }
 
+    public function testAuthenticateThrowsWithoutEmail(): void
+    {
+        $verifier = $this->createStub(GoogleIdTokenVerifierInterface::class);
+        $verifier->method('verify')->willReturn(['sub' => 'gid-123']);
+        $authenticator = new GoogleIdentityAuthenticator(
+            $verifier,
+            $this->userRepository,
+            $this->entityManager,
+            $this->urlGenerator,
+            new ApiTokenStore(false),
+        );
+        $request = new Request([], ['credential' => 'token']);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        $this->entityManager->expects(self::never())->method('persist');
+
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('Invalid ID token');
+        $authenticator->authenticate($request);
+    }
+
     public function testGetUserReturnsExistingUserByGoogleId(): void
     {
         $existingUser = new User()->setIdentifier('test@example.com')->setGoogleId('gid-123');
@@ -88,11 +108,8 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $this->entityManager->expects(self::never())->method('persist');
         $this->entityManager->expects(self::never())->method('flush');
 
-        $googleUser = $this->createStub(GoogleUser::class);
-        $googleUser->method('getId')->willReturn('gid-123');
-
         $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, $googleUser);
+        $result = $method->invoke($this->authenticator, 'gid-123', 'test@example.com');
 
         self::assertSame($existingUser, $result);
     }
@@ -110,12 +127,8 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $this->entityManager->expects(self::once())->method('persist');
         $this->entityManager->expects(self::once())->method('flush');
 
-        $googleUser = $this->createStub(GoogleUser::class);
-        $googleUser->method('getId')->willReturn('gid-999');
-        $googleUser->method('getEmail')->willReturn('shared@example.com');
-
         $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, $googleUser);
+        $result = $method->invoke($this->authenticator, 'gid-999', 'shared@example.com');
 
         self::assertSame($existingUser, $result);
         self::assertSame('gid-999', $result->getGoogleId());
@@ -128,12 +141,8 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $this->entityManager->expects(self::once())->method('persist');
         $this->entityManager->expects(self::once())->method('flush');
 
-        $googleUser = $this->createStub(GoogleUser::class);
-        $googleUser->method('getId')->willReturn('gid-999');
-        $googleUser->method('getEmail')->willReturn('brand@new.com');
-
         $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, $googleUser);
+        $result = $method->invoke($this->authenticator, 'gid-999', 'brand@new.com');
 
         self::assertSame('brand@new.com', $result->getIdentifier());
         self::assertSame('gid-999', $result->getGoogleId());

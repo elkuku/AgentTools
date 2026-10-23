@@ -15,8 +15,6 @@
             <th>Identifier</th>
             <th>Role</th>
             <th>Google</th>
-            <th>GitHub</th>
-            <th>GitLab</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -30,8 +28,6 @@
                             {{ user.role.label }}
                         </span>
                 <td>{{ user.googleId }}</td>
-                <td>{{ user.gitHubId }}</td>
-                <td>{{ user.gitLabId }}</td>
                 <td>
                     <a href="{{ path('app_user_show', {'id': user.id}) }}">show</a>
                     <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
@@ -39,7 +35,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="8">no records found</td>
+                <td colspan="5">no records found</td>
             </tr>
         {% endfor %}
         </tbody>

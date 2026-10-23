@@ -18,18 +18,6 @@ class UserTest extends TestCase
         self::assertNull(new User()->getPassword());
     }
 
-    public function testGitLabId(): void
-    {
-        $user = new User();
-        self::assertNull($user->getGitLabId());
-
-        $user->setGitLabId(42);
-        self::assertSame(42, $user->getGitLabId());
-
-        $user->setGitLabId(null);
-        self::assertNull($user->getGitLabId());
-    }
-
     public function testSerialize(): void
     {
         $user = new User()->setIdentifier('foo@example.com');

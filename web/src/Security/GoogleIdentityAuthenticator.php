@@ -5,7 +5,6 @@ namespace App\Security;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use League\OAuth2\Client\Provider\GoogleUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -53,7 +52,14 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
             throw new AuthenticationException('Invalid ID token :(');
         }
 
-        $user = $this->getUser(new GoogleUser($payload));
+        $googleId = \is_string($payload['sub'] ?? null) ? $payload['sub'] : '';
+        $email = \is_string($payload['email'] ?? null) ? $payload['email'] : '';
+
+        if ('' === $googleId || '' === $email) {
+            throw new AuthenticationException('Invalid ID token :(');
+        }
+
+        $user = $this->getUser($googleId, $email);
         $this->apiTokenStore->store($request->getSession(), $idToken, $payload);
 
         return new SelfValidatingPassport(
@@ -98,21 +104,19 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
 
-    private function getUser(GoogleUser $googleUser): User
+    private function getUser(string $googleId, string $email): User
     {
-        $user = $this->userRepository->findOneBy(
-            ['googleId' => $googleUser->getId()]
-        );
+        $user = $this->userRepository->findOneBy(['googleId' => $googleId]);
 
         if (null !== $user) {
             return $user;
         }
 
         // Link to existing account with same email, or register a new user
-        $user = $this->userRepository->findOneBy(['identifier' => $googleUser->getEmail()])
-            ?? new User()->setIdentifier((string) $googleUser->getEmail());
+        $user = $this->userRepository->findOneBy(['identifier' => $email])
+            ?? new User()->setIdentifier($email);
 
-        $user->setGoogleId((string) $googleUser->getId());
+        $user->setGoogleId($googleId);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

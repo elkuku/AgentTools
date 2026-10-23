@@ -19,9 +19,6 @@ class ControllerAccessTest extends ControllerBaseTest
         = [
             '.gitignore',
             'BaseController.php',
-            'Security/GoogleController.php',
-            'Security/GitHubController.php',
-            'Security/GitLabController.php',
         ];
 
     /**

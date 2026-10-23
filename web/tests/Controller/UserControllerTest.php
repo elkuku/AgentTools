@@ -81,8 +81,6 @@ final class UserControllerTest extends WebTestCase
         $fixture->setRole(UserRole::from('ROLE_USER'));
         $fixture->setParams(['My' => 'Param']);
         $fixture->setGoogleId('MyGoogleId');
-        $fixture->setGitHubId(12345);
-        $fixture->setGitLabId(54321);
 
         $this->manager->persist($fixture);
         $this->manager->flush();
@@ -134,8 +132,6 @@ final class UserControllerTest extends WebTestCase
         $fixture->setRole(UserRole::from('ROLE_USER'));
         $fixture->setParams(['My' => 'Param']);
         $fixture->setGoogleId('MyGoogleId');
-        $fixture->setGitHubId(12345);
-        $fixture->setGitLabId(54321);
 
         $this->manager->persist($fixture);
         $this->manager->flush();

@@ -31,9 +31,7 @@ security:
 
             custom_authenticators:
                 - App\Security\LoginFormAuthenticator
-                - App\Security\GoogleAuthenticator
                 - App\Security\GoogleIdentityAuthenticator
-                - App\Security\GitHubAuthenticator
 
             form_login:
                 login_path: login

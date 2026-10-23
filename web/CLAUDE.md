@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-The Symfony 8.x web app of the `AgentTools` monorepo: it stores Ingress agent stats, sent by the Android app (`../app`) via a Google-authenticated API, and lists them. It includes user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
+The Symfony 8.x web app of the `AgentTools` monorepo: it stores Ingress agent stats, sent by the Android app (`../app`) via a Google-authenticated API, and lists them. It includes user management with the Google Identity Services login ("Sign in with Google" button). In `dev` there is also a form-based login.
 
 ## Commands
 
@@ -39,15 +39,15 @@ symfony console user-admin  # Interactive user management CLI
 ## Architecture
 
 ### Entities & Enums
-- **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
-- **`UserRole`** enum — `ROLE_USER` (default: users registered by a Google/GitHub login get it and wait for an admin), `ROLE_AGENT` (sees and uploads agent stats and custom medals) and `ROLE_ADMIN`. `role_hierarchy`: `ROLE_ADMIN` > `ROLE_AGENT` > `ROLE_USER`.
+- **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. `googleId` is nullable. Role is stored via `UserRole` enum.
+- **`UserRole`** enum — `ROLE_USER` (default: users registered by a Google sign-in get it and wait for an admin), `ROLE_AGENT` (sees and uploads agent stats and custom medals) and `ROLE_ADMIN`. `role_hierarchy`: `ROLE_ADMIN` > `ROLE_AGENT` > `ROLE_USER`.
 - **`User::$customMedals`** — the custom medals (anomaly, annual, event) recognized by the app, as 4e-website's `Agent::$custom_medals` (JSON, `{}` by default).
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Also the API Platform resource (see API below); `#[SerializedName]` gives the stats their column names, `owner` and `getStats()` are `#[Ignore]`d. Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
 
 ### Controllers
 Single-action controller pattern under `src/Controller/`:
 - `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
-- `Security/` — OAuth authenticators (Google, GitHub, GitLab) plus `LoginFormController` and `Logout`
+- `Security/` — `GoogleIdentityController` (the route `GoogleIdentityAuthenticator` handles) plus `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
 - `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`). Stats come in only through the API (the app)
 - `ProfileController`, `DefaultController`
@@ -62,11 +62,11 @@ JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name
 - `ApiResource/Me` — `GET /api/me` via `State/MeProvider`.
 - `ApiResource/CustomMedals` — `GET` / `PUT /api/me/custom-medals` (`State/CustomMedalsProvider`, `State/CustomMedalsProcessor`): the user's custom medals in 4e-website's format (`{"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": {…}}`), stored in `User::$customMedals` (JSON). `PUT` replaces all; only the key/tier format is validated (the medal list lives in the app's `data/CustomMedals.kt`).
 - Errors are `application/problem+json` with `detail`; `GoogleApiTokenAuthenticator`'s `401` uses the same shape.
-- `/profile` shows an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleAuthenticator` with the `openid` scope, `GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
+- `/profile` shows an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
 - Operations check their role themselves (`security:`): agent stats and custom medals need `ROLE_AGENT` (single stats via `AgentStatVoter`: own and agent), only `GET /api/me` `ROLE_USER`. There is no `access_control` rule for `^/api/`, so `/api/docs` is public.
 
 ### Security
-Multi-authenticator: form login (dev only) + OAuth2 via `knpuniversity/oauth2-client-bundle`. Remember-me is enabled.
+Multi-authenticator: form login (dev only) + `GoogleIdentityAuthenticator`, which verifies the ID token the Google Identity Services button posts to `/connect/google/verify`. Remember-me is enabled.
 
 The stateless `api` firewall (`^/api/`) uses `GoogleApiTokenAuthenticator`: `Authorization: Bearer <Google ID token>`, verified against `OAUTH_GOOGLE_ID` (the Web client ID; the Android app uses it as `serverClientId`). It requires a verified email; it matches by `googleId`, then links by `identifier == email`, else registers a new `ROLE_USER` (like the web Google login). Token verification is behind `GoogleIdTokenVerifierInterface`; in `test` it is replaced by `FakeGoogleIdTokenVerifier` (`FakeGoogleIdTokenVerifier::token($googleId, $email)`).
 
@@ -80,7 +80,5 @@ PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/Da
 `KuKuSFSystemToolsBundle` — provides system utility endpoints (about, log viewer).
 
 ## Environment Variables
-OAuth credentials go in `.env.local` (gitignored):
-- `OAUTH_GOOGLE_ID`, `OAUTH_GOOGLE_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_API_KEY`, `GOOGLE_AUTH_CONFIG`
-- `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`
-- `OAUTH_GITLAB_CLIENT_ID`, `OAUTH_GITLAB_CLIENT_SECRET`
+Credentials go in `.env.local` (gitignored):
+- `OAUTH_GOOGLE_ID` — the Google **Web** client ID: the login button's client and the audience of the API's ID tokens
