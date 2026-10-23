@@ -417,10 +417,10 @@ class MainViewModelTest {
 
     @Test
     fun usersWaitingForTheAgentRoleGetOneMessage() {
-        // Just registered: stats and custom medals both answer 403
+        // Just registered: no custom medals, and the stats answer 403
         auth.interactiveSession = session
+        api.me = MeResult.Success(UserRole.USER)
         api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
-        api.medalFailure = CustomMedalsResult.Forbidden("Custom medals need the Agent role. Ask an administrator.")
         val viewModel = viewModel()
 
         viewModel.signIn(context)
@@ -434,13 +434,13 @@ class MainViewModelTest {
     @Test
     fun refreshClearsAnOutdatedMessage() {
         auth.interactiveSession = session
+        api.me = MeResult.Success(UserRole.USER)
         api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
-        api.medalFailure = CustomMedalsResult.Forbidden("Custom medals need the Agent role. Ask an administrator.")
         val viewModel = viewModel().also { it.signIn(context) }
 
         // An admin made the user an agent
         api.lists += AgentStatsResult.Success(listOf(entry))
-        api.medalFailure = null
+        api.me = null
         viewModel.refresh(context)
 
         assertNull(viewModel.state.value.status)
@@ -636,12 +636,12 @@ class MainViewModelTest {
         val saved = mutableListOf<Pair<String, JsonObject>>()
         val listTokens = mutableListOf<String>()
 
-        /** What `GET /api/me` answers. */
-        var me: MeResult = MeResult.Success(UserRole.AGENT, "TestAgent")
+        /** What `GET /api/me` answers; null for an agent "TestAgent" with the [serverMedals]. */
+        var me: MeResult? = null
 
-        override suspend fun me(idToken: String): MeResult = me
+        override suspend fun me(idToken: String): MeResult = me ?: MeResult.Success(UserRole.AGENT, "TestAgent", serverMedals)
 
-        /** What `PUT /api/me/agent-name` answers; null for success. */
+        /** What `PATCH /api/me` answers; null for success. */
         var agentNameResult: AgentNameResult? = null
         val savedAgentNames = mutableListOf<String>()
 
@@ -660,13 +660,10 @@ class MainViewModelTest {
             return lists.removeFirst()
         }
 
-        /** The custom medals on the "server"; [medalFailure] fails every request instead. */
+        /** The custom medals on the "server"; [medalFailure] fails saving them instead. */
         var serverMedals = emptyList<CustomMedalTier>()
         var medalFailure: CustomMedalsResult? = null
         val savedMedals = mutableListOf<List<CustomMedalTier>>()
-
-        override suspend fun customMedals(idToken: String): CustomMedalsResult =
-            medalFailure ?: CustomMedalsResult.Success(serverMedals)
 
         override suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult {
             medalFailure?.let { return it }

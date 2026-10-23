@@ -8,8 +8,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
-import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -21,11 +21,14 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.io.IOException
 
 /** API Platform speaks JSON-LD; its errors are RFC 7807 problems. */
 private val LdJson = ContentType("application", "ld+json")
 private val ProblemJson = ContentType("application", "problem+json")
+private val MergePatchJson = ContentType("application", "merge-patch+json")
 
 @Serializable
 private data class CreatedResponse(val id: Int, val createdAt: String)
@@ -40,7 +43,7 @@ private data class Violation(val propertyPath: String = "", val message: String 
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
 
 @Serializable
-private data class MeResponse(val role: String, val agentName: String? = null)
+private data class MeResponse(val role: String, val agentName: String? = null, val customMedals: JsonObject? = null)
 
 @Serializable
 private data class AgentNameBody(val agentName: String)
@@ -97,8 +100,15 @@ enum class UserRole(val label: String) {
 }
 
 sealed interface MeResult {
-    /** [role] is null for a role the app does not know, [agentName] until the agent sets it. */
-    data class Success(val role: UserRole?, val agentName: String? = null) : MeResult
+    /**
+     * [role] is null for a role the app does not know, [agentName] until the agent sets it,
+     * [customMedals] for users without the Agent role.
+     */
+    data class Success(
+        val role: UserRole?,
+        val agentName: String? = null,
+        val customMedals: List<CustomMedalTier>? = null,
+    ) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : MeResult
@@ -117,10 +127,10 @@ sealed interface AgentNameResult {
 }
 
 interface StatsApi {
-    /** `GET /api/me`: the signed-in user. */
+    /** `GET /api/me`: the signed-in user, with the agent name and custom medals. */
     suspend fun me(idToken: String): MeResult
 
-    /** `PUT /api/me/agent-name`: the agent name; uploaded stats must be for this agent. */
+    /** `PATCH /api/me`: the agent name; uploaded stats must be for this agent. */
     suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult
 
     /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
@@ -129,10 +139,7 @@ interface StatsApi {
     /** `GET /api/agent-stats`: the user's agent stats, newest first (all pages). */
     suspend fun list(idToken: String): AgentStatsResult
 
-    /** `GET /api/me/custom-medals`: the user's custom medals. */
-    suspend fun customMedals(idToken: String): CustomMedalsResult
-
-    /** `PUT /api/me/custom-medals`: replaces all of the user's custom medals. */
+    /** `PATCH /api/me`: replaces all of the user's custom medals. */
     suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult
 }
 
@@ -147,9 +154,6 @@ class KtorStatsApi(
 
     private val meUrl get() = "${baseUrl().trimEnd('/')}/api/me"
 
-    private val agentNameUrl get() = "${baseUrl().trimEnd('/')}/api/me/agent-name"
-
-    private val customMedalsUrl get() = "${baseUrl().trimEnd('/')}/api/me/custom-medals"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -158,6 +162,7 @@ class KtorStatsApi(
         install(ContentNegotiation) {
             json(json, LdJson)
             json(json, ProblemJson)
+            json(json, MergePatchJson)
         }
     }
 
@@ -173,7 +178,7 @@ class KtorStatsApi(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
-                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName) }
+                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson)) }
                 ?: MeResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
@@ -184,9 +189,9 @@ class KtorStatsApi(
 
     override suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult {
         val response = try {
-            client.put(agentNameUrl) {
+            client.patch(meUrl) {
                 bearerAuth(idToken)
-                contentType(LdJson)
+                contentType(MergePatchJson)
                 accept(LdJson)
                 setBody(AgentNameBody(agentName))
             }
@@ -195,8 +200,8 @@ class KtorStatsApi(
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.decodeOrNull<AgentNameBody>()
-                ?.let { AgentNameResult.Success(it.agentName) }
+            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()?.agentName
+                ?.let { AgentNameResult.Success(it) }
                 ?: AgentNameResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> AgentNameResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
@@ -282,32 +287,21 @@ class KtorStatsApi(
         return AgentStatsResult.Success(entries)
     }
 
-    override suspend fun customMedals(idToken: String): CustomMedalsResult = customMedalsResult {
-        client.get(customMedalsUrl) {
-            bearerAuth(idToken)
-            accept(LdJson)
-        }
-    }
-
-    override suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult =
-        customMedalsResult {
-            client.put(customMedalsUrl) {
-                bearerAuth(idToken)
-                contentType(LdJson)
-                accept(LdJson)
-                setBody(customMedalsToJson(medals))
-            }
-        }
-
-    private suspend fun customMedalsResult(request: suspend () -> HttpResponse): CustomMedalsResult {
+    override suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult {
         val response = try {
-            request()
+            client.patch(meUrl) {
+                bearerAuth(idToken)
+                contentType(MergePatchJson)
+                accept(LdJson)
+                // All groups: a merge patch keeps the groups it does not send
+                setBody(buildJsonObject { put("customMedals", customMedalsToJson(medals)) })
+            }
         } catch (e: IOException) {
             return CustomMedalsResult.Failure(networkError(e))
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.decodeOrNull<JsonObject>()
+            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()?.customMedals
                 ?.let { CustomMedalsResult.Success(customMedalsFromJson(it)) }
                 ?: CustomMedalsResult.Failure("Unexpected response from the server.")
 

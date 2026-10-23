@@ -113,7 +113,7 @@ class MainViewModel(
             // E.g. an administrator gave the user the Agent role in the meantime
             loadRole(context)
             loadStats(context)
-            savePendingMedalsOrLoad(context)
+            savePendingMedals(context)
         }
     }
 
@@ -202,17 +202,21 @@ class MainViewModel(
         if (_state.value.session == null) {
             _state.update { it.copy(status = Status("Sign in to save the custom medals.", false)) }
         } else {
-            launchBusy { savePendingMedalsOrLoad(context) }
+            // The saved medals may have changed meanwhile, e.g. from another device
+            launchBusy {
+                loadRole(context, showFailure = true)
+                savePendingMedals(context)
+            }
         }
     }
 
     fun dismissMedalScan() = _state.update { it.copy(medalScan = null, medalScanKnown = 0) }
 
-    /** Loads the role, then saves stats and custom medals shared before sign-in, or just loads them. */
+    /** Loads the account, then saves stats and custom medals shared before sign-in, or just loads the stats. */
     private suspend fun savePendingOrLoad(context: Context) {
         loadRole(context)
         savePendingStatsOrLoad(context)
-        savePendingMedalsOrLoad(context)
+        savePendingMedals(context)
     }
 
     /** Saves stats shared before sign-in (which reloads the stats), or just loads the stats. */
@@ -264,30 +268,32 @@ class MainViewModel(
     }
 
     /**
-     * Loads the custom medals and adds the pending ones: the server keeps all custom medals, so
-     * they are merged with the saved ones first. Failed medals stay pending (Refresh retries).
+     * Saves custom medals reviewed before sign-in (or after a failed save), merged with the saved
+     * ones that [loadRole] loaded with the account: call it after [loadRole].
      */
-    private suspend fun savePendingMedalsOrLoad(context: Context) {
-        val medals = _state.value.pendingMedals
+    private suspend fun savePendingMedals(context: Context) {
+        val state = _state.value
+        val medals = state.pendingMedals ?: return
+        if (state.role?.isAgent == false) {
+            waitingForAgentRole()
+            return
+        }
+        // Not loaded (e.g. offline): kept for the next try
+        val saved = state.customMedals ?: return
+
         // Taken before saving, so a sign-in and a save at the same time save them only once
         _state.update { it.copy(pendingMedals = null) }
-
-        var result = withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.customMedals(it) }
-        if (medals != null && result is CustomMedalsResult.Success) {
-            val merged = mergeCustomMedals(result.medals, medals)
-            result = withProgress("Saving ${customMedalCount(medals.size)}…") {
-                withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.saveCustomMedals(it, merged) }
-            }
-            if (result is CustomMedalsResult.Success) {
-                _state.update { it.copy(status = Status("${customMedalCount(medals.size)} saved.", false)) }
-            }
+        val result = withProgress("Saving ${customMedalCount(medals.size)}…") {
+            withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.saveCustomMedals(it, mergeCustomMedals(saved, medals)) }
         }
 
-        if (medals != null && result !is CustomMedalsResult.Success) {
+        if (result !is CustomMedalsResult.Success) {
             _state.update { it.copy(pendingMedals = mergeCustomMedals(medals, it.pendingMedals.orEmpty())) }
         }
         when (result) {
-            is CustomMedalsResult.Success -> _state.update { it.copy(customMedals = result.medals) }
+            is CustomMedalsResult.Success -> _state.update {
+                it.copy(customMedals = result.medals, status = Status("${customMedalCount(medals.size)} saved.", false))
+            }
             is CustomMedalsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is CustomMedalsResult.Unauthorized -> signedOutBy(result.message)
             is CustomMedalsResult.Forbidden -> waitingForAgentRole()
@@ -295,16 +301,20 @@ class MainViewModel(
         }
     }
 
-    /** A failure only leaves the role out: loading the stats shows what went wrong. */
-    private suspend fun loadRole(context: Context) {
+    /**
+     * Loads the account: role, agent name and custom medals. A failure is only shown with
+     * [showFailure], else loading the stats shows what went wrong.
+     */
+    private suspend fun loadRole(context: Context, showFailure: Boolean = false) {
         when (val result = withToken(context, { it is MeResult.Unauthorized }) { api.me(it) }) {
             // An agent without an agent name sets it first, e.g. right after becoming an agent
             is MeResult.Success -> _state.update {
-                val state = it.copy(role = result.role, agentName = result.agentName)
+                val state = it.copy(role = result.role, agentName = result.agentName, customMedals = result.customMedals)
                 if (state.needsAgentName) state.copy(settingsOpen = true) else state
             }
             is MeResult.Unauthorized -> signedOutBy(result.message)
-            is MeResult.Failure, null -> Unit
+            is MeResult.Failure -> if (showFailure) _state.update { it.copy(status = Status(result.message, true)) }
+            null -> Unit
         }
     }
 

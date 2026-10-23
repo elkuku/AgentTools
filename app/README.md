@@ -72,7 +72,7 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
   and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
   `GET /api/me` gives the user's role and agent name (`MeResult`), loaded after sign-in and on
-  Refresh; `PUT /api/me/agent-name` sets the agent name. Agents without one are sent to the
+  Refresh; `PATCH /api/me` sets the agent name. Agents without one are sent to the
   settings, and shared stats wait for it; stats of another agent are rejected (also by `web`).
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
@@ -96,5 +96,5 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   are shown as unsure, below 0.4 or too close to the second best match they are left out. Medals
   already saved with the same or a higher tier are not shown again (Ingress shows only the highest
   tier, so a lower one is a wrong match). The user reviews the medals before saving; they are
-  merged with the saved ones and uploaded to `web` (`GET`/`PUT /api/me/custom-medals`) in
+  merged with the saved ones and uploaded to `web` (loaded with `GET /api/me`, saved with `PATCH /api/me`) in
   4e-website's format (`data/CustomMedalsJson.kt`).

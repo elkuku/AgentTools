@@ -50,13 +50,14 @@ class KtorStatsApiTest {
     }
 
     @Test
-    fun saveAgentNamePutsTheName() = runTest {
+    fun saveAgentNamePatchesMe() = runTest {
         val engine = MockEngine { req ->
-            assertEquals(HttpMethod.Put, req.method)
-            assertEquals("http://server/api/me/agent-name", req.url.toString())
+            assertEquals(HttpMethod.Patch, req.method)
+            assertEquals("http://server/api/me", req.url.toString())
+            assertEquals("application/merge-patch+json", req.body.contentType.toString())
             assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
             assertEquals("""{"agentName":"TestAgent"}""", String(req.body.toByteArray()))
-            respond("""{"@id": "/api/me/agent-name", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
+            respond("""{"@id": "/api/me", "role": "ROLE_AGENT", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
         }
 
         assertEquals(AgentNameResult.Success("TestAgent"), KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"))
@@ -267,38 +268,38 @@ class KtorStatsApiTest {
     private val voyager = customMedal("annual", "voyager")!!
 
     @Test
-    fun customMedalsLoadsTheUsersMedals() = runTest {
-        val engine = MockEngine { req ->
-            assertEquals(HttpMethod.Get, req.method)
-            assertEquals("http://server/api/me/custom-medals", req.url.toString())
-            assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
+    fun meLoadsTheCustomMedals() = runTest {
+        val engine = MockEngine {
             respond(
-                """{"@context": "/api/contexts/CustomMedals", "@id": "/api/me/custom-medals", "@type": "CustomMedals",
-                    "anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": []}""",
+                """{"@context": "/api/contexts/Me", "@id": "/api/me", "@type": "Me", "role": "ROLE_AGENT", "agentName": "TestAgent",
+                    "customMedals": {"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": []}}""",
                 HttpStatusCode.OK,
                 jsonHeaders,
             )
         }
 
-        val result = KtorStatsApi("http://server", engine).customMedals("t")
-
         assertEquals(
-            CustomMedalsResult.Success(listOf(CustomMedalTier(orion, "platinum"), CustomMedalTier(voyager, "black"))),
-            result,
+            MeResult.Success(UserRole.AGENT, "TestAgent", listOf(CustomMedalTier(orion, "platinum"), CustomMedalTier(voyager, "black"))),
+            KtorStatsApi("http://server", engine).me("t"),
         )
     }
 
     @Test
-    fun saveCustomMedalsPutsThemAs4eStoresThem() = runTest {
+    fun saveCustomMedalsPatchesMeWithAllGroups() = runTest {
         val engine = MockEngine { req ->
-            assertEquals(HttpMethod.Put, req.method)
-            assertEquals("http://server/api/me/custom-medals", req.url.toString())
-            assertEquals("application/ld+json", req.body.contentType?.toString())
+            assertEquals(HttpMethod.Patch, req.method)
+            assertEquals("http://server/api/me", req.url.toString())
+            assertEquals("application/merge-patch+json", req.body.contentType?.toString())
             assertEquals(
-                Json.parseToJsonElement("""{"anomaly": {"orion": "gold"}, "annual": {"voyager": 2}, "event": {}}"""),
+                Json.parseToJsonElement("""{"customMedals": {"anomaly": {"orion": "gold"}, "annual": {"voyager": 2}, "event": {}}}"""),
                 Json.parseToJsonElement(String(req.body.toByteArray())),
             )
-            respond(String(req.body.toByteArray()), HttpStatusCode.OK, jsonHeaders)
+            respond(
+                """{"@id": "/api/me", "role": "ROLE_AGENT", "agentName": null,
+                    "customMedals": {"anomaly": {"orion": "gold"}, "annual": {"voyager": 2}, "event": []}}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
         }
         val medals = listOf(CustomMedalTier(orion, "gold"), CustomMedalTier(voyager, "silver"))
 
@@ -306,34 +307,37 @@ class KtorStatsApiTest {
     }
 
     @Test
-    fun customMedalsMapsForbidden() = runTest {
-        val detail = "Custom medals need the Agent role. Ask an administrator."
+    fun saveCustomMedalsMapsForbidden() = runTest {
+        val detail = "An agent name and custom medals need the Agent role. Ask an administrator."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(CustomMedalsResult.Forbidden(detail), KtorStatsApi("http://server", engine).customMedals("t"))
+        assertEquals(CustomMedalsResult.Forbidden(detail), KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()))
     }
 
     @Test
     fun saveCustomMedalsMapsViolations() = runTest {
-        val body = """{"status": 422, "detail": "annual[voyager]: The level must be 1 to 5.",
-            "violations": [{"propertyPath": "annual[voyager]", "message": "The level must be 1 to 5."}]}"""
+        val body = """{"status": 422, "detail": "customMedals.annual[voyager]: The level must be 1 to 5.",
+            "violations": [{"propertyPath": "customMedals.annual[voyager]", "message": "The level must be 1 to 5."}]}"""
         val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, problemHeaders) }
 
         assertEquals(
-            CustomMedalsResult.Failure("annual[voyager]: The level must be 1 to 5."),
+            CustomMedalsResult.Failure("customMedals.annual[voyager]: The level must be 1 to 5."),
             KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()),
         )
     }
 
     @Test
-    fun customMedalsMapsUnauthorizedAndNetworkErrors() = runTest {
+    fun saveCustomMedalsMapsUnauthorizedAndNetworkErrors() = runTest {
         val unauthorized = MockEngine { respond(problem(401, "Invalid ID token."), HttpStatusCode.Unauthorized, problemHeaders) }
         val offline = MockEngine { throw IOException("timeout") }
 
         assertEquals(
             CustomMedalsResult.Unauthorized("Invalid ID token."),
-            KtorStatsApi("http://server", unauthorized).customMedals("t"),
+            KtorStatsApi("http://server", unauthorized).saveCustomMedals("t", emptyList()),
         )
-        assertEquals(CustomMedalsResult.Failure("Network error: timeout"), KtorStatsApi("http://server", offline).customMedals("t"))
+        assertEquals(
+            CustomMedalsResult.Failure("Network error: timeout"),
+            KtorStatsApi("http://server", offline).saveCustomMedals("t", emptyList()),
+        )
     }
 }
