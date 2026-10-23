@@ -28,6 +28,10 @@
                 <td>{{ user.role.label }}</td>
             </tr>
             <tr>
+                <th>Agent name</th>
+                <td>{{ user.agentName }}</td>
+            </tr>
+            <tr>
                 <th>Params</th>
                 <td>{{ user.params ? user.params|json_encode : '' }}</td>
             </tr>

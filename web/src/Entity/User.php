@@ -18,8 +18,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: UserRepository::class)]
 #[Table(name: 'system_user')]
 #[UniqueEntity(fields: 'identifier', message: 'This identifier is already in use')]
+#[UniqueEntity(fields: 'agentName', message: self::AGENT_NAME_TAKEN)]
 class User implements UserInterface
 {
+    /** Ingress agent names: letters, digits and underscores. */
+    public const string AGENT_NAME_PATTERN = '/^[A-Za-z0-9_]{1,50}$/';
+
+    public const string AGENT_NAME_INVALID = 'An agent name has only letters, digits and underscores.';
+
+    public const string AGENT_NAME_TAKEN = 'This agent name is already taken.';
+
     #[Column, Id, GeneratedValue(strategy: 'SEQUENCE')]
     public ?int $id = 0 {
         get {
@@ -52,6 +60,14 @@ class User implements UserInterface
 
     #[Column(length: 100, nullable: true)]
     private ?string $googleId = null;
+
+    /**
+     * The Ingress agent name, as the agent set it. Uploaded stats must be for this agent; agent
+     * names are compared ignoring case (see UserRepository::findOneByAgentName()).
+     */
+    #[Column(length: 50, unique: true, nullable: true)]
+    #[Assert\Regex(pattern: self::AGENT_NAME_PATTERN, message: self::AGENT_NAME_INVALID)]
+    private ?string $agentName = null;
 
     /**
      * @return array{
@@ -173,6 +189,25 @@ class User implements UserInterface
         $this->googleId = $googleId;
 
         return $this;
+    }
+
+    public function getAgentName(): ?string
+    {
+        return $this->agentName;
+    }
+
+    public function setAgentName(?string $agentName): self
+    {
+        $this->agentName = $agentName;
+
+        return $this;
+    }
+
+    /** Whether [$nickname] (e.g. from uploaded stats) is this user's agent name, ignoring case. */
+    public function isAgentName(string $nickname): bool
+    {
+        return null !== $this->agentName
+            && \mb_strtolower(\trim($nickname)) === \mb_strtolower($this->agentName);
     }
 
     public function setRole(UserRole $role): self

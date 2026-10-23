@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Dto\AgentStatInput;
+use App\Exception\AgentNameException;
 use App\Exception\StatsAlreadyAddedException;
 use App\Repository\AgentStatRepository;
 use App\Security\Voter\AgentStatVoter;
@@ -40,7 +41,7 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
         new GetCollection(security: "is_granted('ROLE_AGENT')", securityMessage: self::AGENT_ROLE_NEEDED),
         new Get(security: "is_granted('".AgentStatVoter::VIEW."', object)"),
         new Post(
-            exceptionToStatus: [StatsAlreadyAddedException::class => 409],
+            exceptionToStatus: [StatsAlreadyAddedException::class => 409, AgentNameException::class => 422],
             collectDenormalizationErrors: true,
             security: "is_granted('ROLE_AGENT')",
             securityMessage: self::AGENT_ROLE_NEEDED,

@@ -4,7 +4,6 @@ namespace App\Tests\Controller;
 
 use App\Entity\User;
 use App\Enum\UserRole;
-use App\Repository\UserRepository;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ObjectManager;
@@ -18,7 +17,7 @@ final class UserControllerTest extends WebTestCase
     private ObjectManager $manager;
 
     /**
-     * @var EntityRepository<UserRepository>
+     * @var EntityRepository<User>
      */
     private EntityRepository $userRepository;
 
@@ -35,7 +34,7 @@ final class UserControllerTest extends WebTestCase
         $this->manager = $doctrine->getManager();
 
         /**
-         * @var EntityRepository<UserRepository> $repository
+         * @var EntityRepository<User> $repository
          */
         $repository = $this->manager->getRepository(User::class);
         $this->userRepository = $repository;
@@ -109,6 +108,7 @@ final class UserControllerTest extends WebTestCase
         $this->client->submitForm('Update', [
             'user[identifier]' => 'Something New',
             'user[role]' => 'ROLE_ADMIN',
+            'user[agentName]' => 'NewAgent',
         ]);
 
         self::assertResponseStatusCodeSame(200);
@@ -121,6 +121,16 @@ final class UserControllerTest extends WebTestCase
 
         self::assertSame('Something New', $fixture->getIdentifier());
         self::assertContains('ROLE_ADMIN', $fixture->getRoles());
+        self::assertSame('NewAgent', $fixture->getAgentName());
+
+        // Cleared again: no agent name
+        $this->client->request('GET', \sprintf('%s%s/edit', $this->path, $id));
+        $this->client->submitForm('Update', ['user[agentName]' => '']);
+
+        $this->manager->clear();
+        $cleared = $this->userRepository->findOneBy(['id' => $id]);
+        self::assertInstanceOf(User::class, $cleared);
+        self::assertNull($cleared->getAgentName());
     }
 
     public function testRemove(): void

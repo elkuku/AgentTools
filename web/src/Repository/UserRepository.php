@@ -26,6 +26,19 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    /** The user with this agent name, ignoring case. */
+    public function findOneByAgentName(string $agentName): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->createQueryBuilder('u')
+            ->where('LOWER(u.agentName) = LOWER(:agentName)')
+            ->setParameter('agentName', $agentName)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $user;
+    }
+
     /**
      * @return User[]
      */

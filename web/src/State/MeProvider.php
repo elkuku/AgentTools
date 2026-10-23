@@ -26,6 +26,6 @@ final readonly class MeProvider implements ProviderInterface
             return null;
         }
 
-        return new Me($user->id, $user->getIdentifier(), $user->getRole()->value);
+        return new Me($user->id, $user->getIdentifier(), $user->getRole()->value, $user->getAgentName());
     }
 }

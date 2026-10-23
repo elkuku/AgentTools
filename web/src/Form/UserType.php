@@ -21,6 +21,10 @@ class UserType extends AbstractType
                 'class' => UserRole::class,
                 'choice_label' => fn (UserRole $role) => $role->label(),
             ])
+            ->add('agentName', null, [
+                'required' => false,
+                'help' => 'Uploaded stats must be for this agent.',
+            ])
         ;
     }
 

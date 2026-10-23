@@ -23,6 +23,8 @@ final readonly class Me
         public int $id,
         public string $identifier,
         public string $role,
+        /** Null until the agent sets it (PUT /api/me/agent-name). */
+        public ?string $agentName,
     ) {
     }
 }

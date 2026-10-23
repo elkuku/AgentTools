@@ -9,6 +9,7 @@ use App\Entity\AgentStat;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
+use App\Service\AgentStatService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -57,6 +58,7 @@ class AgentStatApiTest extends WebTestCase
             $user = $this->userRepository()->findOneBy(['identifier' => $identifier]);
             self::assertNotNull($user);
             $user->setGoogleId($googleId);
+            $user->setAgentName(['agent' => 'TestAgent', 'admin' => 'AdminAgent'][$identifier] ?? null);
         }
 
         $this->entityManager()->flush();
@@ -66,7 +68,7 @@ class AgentStatApiTest extends WebTestCase
     {
         $em = $this->entityManager();
         $em->createQuery('DELETE FROM App\Entity\AgentStat')->execute();
-        $em->createQuery('UPDATE App\Entity\User u SET u.googleId = NULL')->execute();
+        $em->createQuery('UPDATE App\Entity\User u SET u.googleId = NULL, u.agentName = NULL')->execute();
         $em->createQuery('DELETE FROM App\Entity\User u WHERE u.identifier = :email')
             ->setParameter('email', self::NEW_GOOGLE_ID.'@example.com')
             ->execute();
@@ -148,6 +150,36 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame('ROLE_USER', $this->responseJson()['role']);
     }
 
+    public function testUploadRequiresAnAgentName(): void
+    {
+        $agent = $this->userRepository()->findOneBy(['identifier' => 'agent']);
+        self::assertNotNull($agent);
+        $agent->setAgentName(null);
+        $this->entityManager()->flush();
+
+        $this->postJson(self::STATS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSame(AgentStatService::AGENT_NAME_MISSING, $this->responseJson()['detail']);
+        self::assertSame([], $this->agentStatRepository()->findAll());
+    }
+
+    public function testRejectsStatsOfAnotherAgent(): void
+    {
+        $this->postJson(['nickname' => 'SomeoneElse'] + self::STATS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSame('These stats are for agent SomeoneElse, your agent name is TestAgent.', $this->responseJson()['detail']);
+        self::assertSame([], $this->agentStatRepository()->findAll());
+    }
+
+    public function testAgentNameIgnoresCase(): void
+    {
+        $this->postJson(['nickname' => 'testagent'] + self::STATS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+    }
+
     public function testRejectsSameStatsTwice(): void
     {
         $this->postJson(self::STATS);
@@ -164,7 +196,8 @@ class AgentStatApiTest extends WebTestCase
     {
         $this->postJson(['datetime' => '2026-10-01 10:00:00', 'ap' => 1000] + self::STATS);
         $this->postJson(self::STATS);
-        $this->postJson(self::STATS, self::ADMIN_GOOGLE_ID);
+        $this->postJson(['nickname' => 'AdminAgent'] + self::STATS, self::ADMIN_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
 
         $this->get('/api/agent-stats');
 
@@ -237,6 +270,7 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame('/api/me', $json['@id']);
         self::assertSame('agent', $json['identifier']);
         self::assertSame('ROLE_AGENT', $json['role']);
+        self::assertSame('TestAgent', $json['agentName']);
         self::assertIsInt($json['id']);
     }
 
@@ -248,6 +282,7 @@ class AgentStatApiTest extends WebTestCase
         $json = $this->responseJson();
         self::assertSame(self::NEW_GOOGLE_ID.'@example.com', $json['identifier']);
         self::assertSame('ROLE_USER', $json['role']);
+        self::assertNull($json['agentName']);
 
         $user = $this->userRepository()->findOneBy(['identifier' => self::NEW_GOOGLE_ID.'@example.com']);
         self::assertNotNull($user);

@@ -6,6 +6,16 @@
     <h1>User Profile</h1>
 
     <p>Identifier: <code>{{ app.user.userIdentifier }}</code></p>
+    {% if is_granted('ROLE_AGENT') %}
+        <p>
+            Agent name:
+            {% if app.user.agentName %}
+                <code>{{ app.user.agentName }}</code>
+            {% else %}
+                not set yet. Set it in the app's settings: only stats for this agent are accepted.
+            {% endif %}
+        </p>
+    {% endif %}
 
     {{ form_start(form) }}
 

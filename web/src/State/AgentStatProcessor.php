@@ -14,7 +14,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * POST /api/agent-stats: saves the validated input for the current user.
- * A StatsAlreadyAddedException is a 409 (see AgentStat's #[ApiResource]).
+ * A StatsAlreadyAddedException is a 409, an AgentNameException a 422 (see AgentStat's #[ApiResource]).
  *
  * @implements ProcessorInterface<AgentStatInput, AgentStat>
  */
