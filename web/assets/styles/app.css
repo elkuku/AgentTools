@@ -11,7 +11,16 @@ main > .container {
     background-repeat: no-repeat;
 }
 .landing-icon {
-    filter: drop-shadow(0 0 24px rgba(2, 154, 2, .45)) drop-shadow(0 0 24px rgba(0, 113, 227, .35));
+    filter: drop-shadow(0 0 24px rgba(89, 251, 234, .45));
+}
+
+/* The hexagon cyan of the icon; a darker teal on light backgrounds */
+.landing-accent {
+    color: #0e9e8f;
+}
+
+[data-bs-theme="dark"] .landing-accent {
+    color: #59fbea;
 }
 
 .landing-feature {
