@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.BuildConfig
 import com.elkuku.agenttools.R
@@ -103,8 +104,8 @@ fun Landing(modifier: Modifier = Modifier) {
 
 /** The launcher icon's two layers: a painter cannot draw the adaptive icon itself. */
 @Composable
-private fun AppIcon(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.size(112.dp).clip(RoundedCornerShape(28.dp))) {
+fun AppIcon(modifier: Modifier = Modifier, size: Dp = 112.dp) {
+    Box(modifier = modifier.size(size).clip(RoundedCornerShape(percent = 25))) {
         Image(painterResource(R.drawable.ic_launcher_background), contentDescription = null, modifier = Modifier.fillMaxSize())
         Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = "AgentTools icon", modifier = Modifier.fillMaxSize())
     }

@@ -49,9 +49,10 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = { AppIcon(modifier = Modifier.padding(start = 12.dp, end = 4.dp), size = 32.dp) },
                 title = {
                     Text(
-                        if (state.session == null) "AgentTools" else "Agent stats",
+                        if (state.session == null) "AgentTools" else "Stats",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
