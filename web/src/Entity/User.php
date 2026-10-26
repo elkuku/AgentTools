@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\ProfilePart;
 use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
@@ -68,6 +69,18 @@ class User implements UserInterface
     #[Column(length: 50, unique: true, nullable: true)]
     #[Assert\Regex(pattern: self::AGENT_NAME_PATTERN, message: self::AGENT_NAME_INVALID)]
     private ?string $agentName = null;
+
+    /**
+     * The profile parts other users may see (ProfilePart values); private until the user chooses.
+     *
+     * @var list<string>
+     */
+    #[Column(type: Types::JSON, options: ['default' => '[]'])]
+    private array $visibleParts = [];
+
+    /** When the user saved the visibility of the profile parts; null: they are asked to choose. */
+    #[Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $visibilityChosenAt = null;
 
     /**
      * @return array{
@@ -208,6 +221,42 @@ class User implements UserInterface
     {
         return null !== $this->agentName
             && \mb_strtolower(\trim($nickname)) === \mb_strtolower($this->agentName);
+    }
+
+    /**
+     * @return list<ProfilePart>
+     */
+    public function getVisibleParts(): array
+    {
+        return \array_values(\array_filter(\array_map(ProfilePart::tryFrom(...), $this->visibleParts)));
+    }
+
+    /**
+     * Saves the user's choice. Without the agent part nothing is shown, so the others are dropped.
+     *
+     * @param list<ProfilePart> $parts
+     */
+    public function chooseVisibleParts(array $parts, \DateTimeImmutable $chosenAt): self
+    {
+        $this->visibleParts = \in_array(ProfilePart::AGENT, $parts, true)
+            ? \array_map(static fn (ProfilePart $part): string => $part->value, $parts)
+            : [];
+        $this->visibilityChosenAt = $chosenAt;
+
+        return $this;
+    }
+
+    /** Whether other users see [$part]: only with an agent name, and other parts only with the agent part. */
+    public function isVisible(ProfilePart $part): bool
+    {
+        return null !== $this->agentName
+            && \in_array(ProfilePart::AGENT->value, $this->visibleParts, true)
+            && \in_array($part->value, $this->visibleParts, true);
+    }
+
+    public function getVisibilityChosenAt(): ?\DateTimeImmutable
+    {
+        return $this->visibilityChosenAt;
     }
 
     public function setRole(UserRole $role): self

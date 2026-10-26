@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use App\Entity\User;
+use App\Enum\ProfilePart;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,7 +45,7 @@ class MeApiTest extends WebTestCase
     protected function tearDown(): void
     {
         $this->entityManager()
-            ->createQuery('UPDATE App\Entity\User u SET u.googleId = NULL, u.agentName = NULL')
+            ->createQuery("UPDATE App\\Entity\\User u SET u.googleId = NULL, u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL")
             ->execute();
 
         parent::tearDown();
@@ -65,6 +66,57 @@ class MeApiTest extends WebTestCase
         self::assertSame('ROLE_USER', $this->responseJson()['role']);
         $this->entityManager()->clear();
         self::assertSame('TestAgent', $this->user('user')->getAgentName());
+    }
+
+    public function testTellsWhetherTheVisibilityWasChosen(): void
+    {
+        $this->request(Request::METHOD_GET);
+        self::assertResponseIsSuccessful();
+        self::assertFalse($this->responseJson()['visibilityChosen']);
+
+        $this->user('agent')->chooseVisibleParts([], new \DateTimeImmutable());
+        $this->entityManager()->flush();
+
+        $this->request(Request::METHOD_GET);
+        self::assertTrue($this->responseJson()['visibilityChosen']);
+
+        // Read only
+        $this->request(Request::METHOD_PATCH, payload: ['visibilityChosen' => false]);
+        self::assertResponseIsSuccessful();
+        self::assertTrue($this->responseJson()['visibilityChosen']);
+    }
+
+    public function testChoosesTheVisibleParts(): void
+    {
+        $this->request(Request::METHOD_GET);
+        self::assertSame([], $this->responseJson()['visibleParts']);
+
+        $this->request(Request::METHOD_PATCH, payload: ['visibleParts' => ['agent', 'custom_medals']]);
+
+        self::assertResponseIsSuccessful();
+        $json = $this->responseJson();
+        self::assertSame(['agent', 'custom_medals'], $json['visibleParts']);
+        self::assertTrue($json['visibilityChosen']);
+        $this->entityManager()->clear();
+        self::assertSame([ProfilePart::AGENT, ProfilePart::CUSTOM_MEDALS], $this->user('agent')->getVisibleParts());
+
+        // Null keeps them
+        $this->request(Request::METHOD_PATCH, payload: ['visibleParts' => null]);
+        self::assertSame(['agent', 'custom_medals'], $this->responseJson()['visibleParts']);
+
+        // Nothing without the agent part, but chosen
+        $this->request(Request::METHOD_PATCH, payload: ['visibleParts' => ['latest_stats']]);
+        self::assertSame([], $this->responseJson()['visibleParts']);
+        self::assertTrue($this->responseJson()['visibilityChosen']);
+    }
+
+    public function testRejectsUnknownParts(): void
+    {
+        $this->request(Request::METHOD_PATCH, payload: ['visibleParts' => ['agent', 'password']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->entityManager()->clear();
+        self::assertNull($this->user('agent')->getVisibilityChosenAt());
     }
 
     public function testOnlyTheAgentNameIsWritable(): void

@@ -15,6 +15,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_agent_stat_index') }}">Agent stats</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_agent_index') }}">Agents</a>
+                    </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item dropdown">

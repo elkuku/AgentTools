@@ -17,8 +17,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * PATCH /api/me: sets the current user's agent name (422 if another user has it) and the groups
- * of custom medals sent; null keeps them.
+ * PATCH /api/me: sets the current user's agent name (422 if another user has it), the groups
+ * of custom medals sent and the visible profile parts; null keeps them.
  *
  * @implements ProcessorInterface<Me, Me>
  */
@@ -54,11 +54,17 @@ final readonly class MeProcessor implements ProcessorInterface
             $user->setCustomMedals($data->customMedals->toArray());
         }
 
+        if (null !== $data->visibleParts) {
+            $user->chooseVisibleParts($data->visibleParts, new \DateTimeImmutable());
+        }
+
         $this->entityManager->flush();
 
         // What is stored, also for fields sent as null
         $data->agentName = $user->getAgentName();
         $data->customMedals = CustomMedals::fromArray($user->getCustomMedals());
+        $data->visibleParts = $user->getVisibleParts();
+        $data->visibilityChosen = $user->getVisibilityChosenAt() instanceof \DateTimeImmutable;
 
         return $data;
     }

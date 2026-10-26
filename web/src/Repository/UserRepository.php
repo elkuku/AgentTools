@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Enum\ProfilePart;
 use App\Enum\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -48,5 +49,23 @@ class UserRepository extends ServiceEntityRepository
             ['role' => UserRole::USER],
             ['id' => 'ASC']
         );
+    }
+
+    /**
+     * The users who show their agent part to other users, by agent name.
+     *
+     * @return User[]
+     */
+    public function findVisibleAgents(): array
+    {
+        /** @var User[] $users */
+        $users = $this->createQueryBuilder('u')
+            ->where('u.agentName IS NOT NULL')
+            ->orderBy('LOWER(u.agentName)')
+            ->getQuery()
+            ->getResult();
+
+        // The parts are JSON: few users, filtered here
+        return \array_values(\array_filter($users, static fn (User $user): bool => $user->isVisible(ProfilePart::AGENT)));
     }
 }

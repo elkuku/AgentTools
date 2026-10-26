@@ -22,7 +22,7 @@ class ControllerAccessTest extends ControllerBaseTest
         ];
 
     /**
-     * @var array<string, array<string, array<string, int>>>
+     * @var array<string, array<string, array<string, int|string>>>
      */
     #[\Override]
     protected array $exceptions
@@ -32,6 +32,9 @@ class ControllerAccessTest extends ControllerBaseTest
             ],
             'app_login' => [
                 'statusCodes' => ['GET' => 200],
+            ],
+            'app_agent_show' => [
+                'params' => ['{agentName}' => 'TestAgent'],
             ],
         ];
 

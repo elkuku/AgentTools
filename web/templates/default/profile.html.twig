@@ -16,6 +16,32 @@
         {% endif %}
     </p>
 
+    <h2 class="mt-5">Visibility</h2>
+    {% if not app.user.visibilityChosenAt %}
+        <div class="alert alert-info" id="visibility-not-chosen">
+            Choose what other users may see of your profile. Until you save, everything is private.
+        </div>
+    {% endif %}
+    {{ form_start(visibilityForm) }}
+        <fieldset class="mb-3">
+            <legend class="col-form-label">{{ visibilityForm.visibleParts.vars.label }}</legend>
+            {% for part in visibilityForm.visibleParts %}
+                <div class="mb-2">
+                    {{ form_widget(part) }}
+                    <div class="form-text ms-4 mt-0">{{ partHelp[part.vars.value] }}</div>
+                </div>
+            {% endfor %}
+            <div class="form-text">{{ visibilityForm.visibleParts.vars.help }}</div>
+            {{ form_errors(visibilityForm.visibleParts) }}
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Save</button>
+        {% if agentPageVisible %}
+            <a class="btn btn-outline-secondary" href="{{ path('app_agent_show', {'agentName': app.user.agentName}) }}">
+                See your agent page
+            </a>
+        {% endif %}
+    {{ form_end(visibilityForm) }}
+
     {% if is_granted('ROLE_ADMIN') %}
         <h2 class="mt-5">API token</h2>
         {% if apiToken %}

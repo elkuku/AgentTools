@@ -15,8 +15,16 @@ or file manager when Android asks.
 1. Open AgentTools and tap **Sign in** at the top.
 2. Your account is registered right away.
 3. The first stats you share set your agent name; from then on only stats of this agent can be
-   saved. You can also enter it in the app's settings first, exactly as in Ingress. An agent name
-   another account has is refused.
+   saved. An agent name another account has is refused.
+4. Choose what other users see of your profile: your agent name with faction and level, your
+   latest stats, your stats history and your custom medals. Everything is private until you
+   choose. After signing in, the app asks you to choose in its settings, and the website takes you
+   to your profile. You can change it in either place any time.
+
+## See other agents
+
+Signed in on the website, **Agents** lists the agents who show their profile, and each has a page
+with the parts they chose to show.
 
 ## Save your stats
 

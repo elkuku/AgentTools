@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ agent.agentName }}{% endblock %}
+
+{% block body %}
+    <h1 id="agent-name">{{ agent.agentName }}</h1>
+    {% if latest %}
+        <p class="lead">{{ latest.faction }} &middot; level {{ latest.level }}</p>
+    {% endif %}
+
+    {% if isOwn %}
+        <div class="alert alert-info">
+            This is how other users see your profile. Change it on your <a href="{{ path('app_profile') }}">profile</a>.
+        </div>
+    {% endif %}
+
+    {% if showLatestStats and latest %}
+        <h2 class="mt-4">Latest stats</h2>
+        <p class="text-body-secondary">{{ latest.datetime|date('Y-m-d H:i:s') }}</p>
+        <table class="table" id="latest-stats">
+            <tbody>
+            {% for column, value in latest.stats %}
+                <tr>
+                    <th>{{ column }}</th>
+                    <td>{{ value is null ? '–' : value|number_format }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if history is not null %}
+        <h2 class="mt-4">Stats history</h2>
+        <table class="table" id="stats-history">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Level</th>
+                <th class="text-end">AP</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for stat in history %}
+                <tr>
+                    <td>{{ stat.datetime|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ stat.level }}</td>
+                    <td class="text-end">{{ stat.ap|number_format }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">No stats yet.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if customMedals is not null %}
+        <h2 class="mt-4">Custom medals</h2>
+        {% set annualLevels = {1: 'bronze', 2: 'silver', 3: 'gold', 4: 'platinum', 5: 'onyx'} %}
+        <div id="custom-medals">
+            {% for group, medals in customMedals|filter(medals => medals is not empty) %}
+                <h3 class="h5 mt-3">{{ group|capitalize }}</h3>
+                <ul>
+                    {% for medal, tier in medals %}
+                        <li>
+                            {{ medal|replace({'_': ' '})|title }}
+                            {% if group == 'annual' %}
+                                <span class="text-body-secondary">({{ annualLevels[tier] ?? tier }})</span>
+                            {% elseif tier is not same as('') %}
+                                <span class="text-body-secondary">({{ tier }})</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No custom medals yet.</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

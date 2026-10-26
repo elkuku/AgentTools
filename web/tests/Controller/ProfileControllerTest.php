@@ -48,7 +48,7 @@ class ProfileControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('User Profile');
-        self::assertSelectorNotExists('form');
+        self::assertSelectorExists('form[name="profile_visibility"]');
     }
 
     public function testProfileShowsTheApiTokenOfAGoogleSignIn(): void
