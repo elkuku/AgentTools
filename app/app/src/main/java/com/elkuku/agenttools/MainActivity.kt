@@ -18,6 +18,7 @@ import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
 import com.elkuku.agenttools.ui.ProfileSetting
 import com.elkuku.agenttools.ui.SettingsScreen
+import com.elkuku.agenttools.ui.StatsScreen
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,8 +74,18 @@ class MainActivity : ComponentActivity() {
                         },
                         onBack = viewModel::closeSettings,
                     )
+                } else if (state.statsOpen && state.session != null) {
+                    BackHandler(onBack = viewModel::closeStats)
+                    StatsScreen(
+                        state = state,
+                        onRefresh = { viewModel.refresh(activity) },
+                        onDismissImportResult = viewModel::dismissImportResult,
+                        onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
+                        onDismissMedalScan = viewModel::dismissMedalScan,
+                        onBack = viewModel::closeStats,
+                    )
                 } else if (state.agentsOpen) {
-                    // Back from an agent to the list, from the list to the stats
+                    // Back from an agent to the list, from the list to the home page
                     BackHandler(onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() })
                     AgentsScreen(
                         agents = state.agents,
@@ -94,9 +105,9 @@ class MainActivity : ComponentActivity() {
                         onSignOut = { viewModel.signOut(activity) },
                         onRefresh = { viewModel.refresh(activity) },
                         onOpenSettings = viewModel::openSettings,
+                        onOpenStats = viewModel::openStats,
                         onOpenAgents = { viewModel.openAgents(activity) },
                         onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },
-                        onDismissImportResult = viewModel::dismissImportResult,
                         onChooseVisibility = viewModel::chooseVisibility,
                         onDismissVisibility = viewModel::dismissVisibility,
                         onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },

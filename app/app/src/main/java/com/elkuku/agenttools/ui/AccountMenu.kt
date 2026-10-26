@@ -38,13 +38,14 @@ import com.elkuku.agenttools.data.UserRole
 
 /**
  * The signed-in user's menu, like web's: the profile picture (or a person icon) opens the account
- * with its role, the settings and signing out.
+ * with its role, the user's stats, the settings and signing out.
  */
 @Composable
 fun AccountMenu(
     email: String,
     role: UserRole?,
     avatar: String?,
+    onOpenStats: () -> Unit,
     onOpenSettings: () -> Unit,
     onSignOut: () -> Unit,
     enabled: Boolean,
@@ -69,6 +70,10 @@ fun AccountMenu(
                 }
             }
             HorizontalDivider()
+            MenuItem(R.drawable.ic_bi_bar_chart, "My stats") {
+                expanded = false
+                onOpenStats()
+            }
             MenuItem(R.drawable.ic_bi_gear, "Settings") {
                 expanded = false
                 onOpenSettings()

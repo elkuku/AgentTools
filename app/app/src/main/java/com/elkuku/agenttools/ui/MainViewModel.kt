@@ -53,9 +53,11 @@ data class UiState(
     val visibleParts: Set<ProfilePart> = emptySet(),
     /** The result of saving the visible parts, shown on the settings screen. */
     val visibilityStatus: Status? = null,
-    /** The settings screen is shown instead of the stats. */
+    /** The settings screen is shown instead of the home page. */
     val settingsOpen: Boolean = false,
-    /** The list of agents (or [agent]) is shown instead of the stats. */
+    /** The user's stats ("My stats") are shown instead of the home page. */
+    val statsOpen: Boolean = false,
+    /** The list of agents (or [agent]) is shown instead of the home page. */
     val agentsOpen: Boolean = false,
     /** The agents who show their profile; null until loaded, and for admins. */
     val agents: List<AgentSummary>? = null,
@@ -130,6 +132,7 @@ class MainViewModel(
                 importResult = null,
                 customMedals = null,
                 visibilityChosen = true,
+                statsOpen = false,
                 agentsOpen = false,
                 adminAgents = false,
                 agents = null,
@@ -159,7 +162,7 @@ class MainViewModel(
      */
     fun onShared(context: Context, text: String) {
         // The result of a share shows on the stats screen
-        _state.update { it.copy(settingsOpen = false) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true) }
         val stats = parseIngressStats(text)
         if (stats == null) {
             _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
@@ -175,6 +178,10 @@ class MainViewModel(
     }
 
     fun openSettings() = _state.update { it.copy(settingsOpen = true) }
+
+    fun openStats() = _state.update { it.copy(statsOpen = true) }
+
+    fun closeStats() = _state.update { it.copy(statsOpen = false) }
 
     /** The agents who show their profile, or with [admin] every user (admins only), loaded each time. */
     fun openAgents(context: Context, admin: Boolean = false) {
@@ -261,7 +268,7 @@ class MainViewModel(
      * Ingress shows only the highest tier, so a lower one is a wrong match.
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
-        _state.update { it.copy(settingsOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, medalScan = null, medalScanKnown = 0, status = null) }
         val recognized = withProgress("Looking for custom medals…") { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })
@@ -446,6 +453,7 @@ class MainViewModel(
             entries = null,
             customMedals = null,
             visibilityChosen = true,
+            statsOpen = false,
             agentsOpen = false,
             adminAgents = false,
             agents = null,

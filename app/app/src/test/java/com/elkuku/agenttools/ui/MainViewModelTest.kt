@@ -177,6 +177,48 @@ class MainViewModelTest {
     }
 
     @Test
+    fun signInShowsTheHomePageAndTheStatsOpenFromIt() {
+        val viewModel = signedIn()
+        assertFalse(viewModel.state.value.statsOpen)
+
+        viewModel.openStats()
+        assertTrue(viewModel.state.value.statsOpen)
+
+        viewModel.closeStats()
+        assertFalse(viewModel.state.value.statsOpen)
+    }
+
+    @Test
+    fun aShareOpensTheStatsInsteadOfTheAgents() {
+        val viewModel = signedIn()
+        viewModel.openAgents(context)
+
+        viewModel.onShared(context, "not stats")
+
+        assertTrue(viewModel.state.value.statsOpen)
+        assertFalse(viewModel.state.value.agentsOpen)
+    }
+
+    @Test
+    fun sharedScreenshotsOpenTheStats() {
+        val viewModel = signedIn()
+
+        viewModel.onSharedScreenshots { emptyList() }
+
+        assertTrue(viewModel.state.value.statsOpen)
+    }
+
+    @Test
+    fun signOutClosesTheStats() {
+        val viewModel = signedIn()
+        viewModel.openStats()
+
+        viewModel.signOut(context)
+
+        assertFalse(viewModel.state.value.statsOpen)
+    }
+
+    @Test
     fun aUserWithoutAgentNameStaysOnTheStats() {
         api.me = MeResult.Success(UserRole.USER, null)
         val viewModel = signedIn()
