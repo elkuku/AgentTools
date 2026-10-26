@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,19 +40,12 @@ import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 /** The build the app runs: from BuildConfig. */
 data class AppBuild(val versionName: String, val versionCode: Int, val debug: Boolean)
 
-/**
- * What [SettingsScreen] shows about the agent name: [show] only for agents. [needed] while it is
- * missing, [pendingStats] when shared stats wait for it.
- */
+/** What [SettingsScreen] shows about the agent name; [agentName] is null until it is set. */
 data class AgentNameSetting(
-    val show: Boolean,
     val agentName: String?,
     val status: Status?,
-    val pendingStats: Boolean,
     val busy: Boolean,
-) {
-    val needed: Boolean get() = show && agentName == null
-}
+)
 
 /**
  * The agent name, version and build type, and the server: changeable in debug builds only, with buttons for the
@@ -91,7 +83,7 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (agent.show) AgentNameCard(agent, onSaveAgentName)
+            AgentNameCard(agent, onSaveAgentName)
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -118,19 +110,13 @@ fun SettingsScreen(
 @Composable
 private fun AgentNameCard(agent: AgentNameSetting, onSave: (String) -> Unit) {
     var input by rememberSaveable(agent.agentName) { mutableStateOf(agent.agentName.orEmpty()) }
-    val colors = if (agent.needed) {
-        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    } else {
-        CardDefaults.cardColors()
-    }
-
-    Card(modifier = Modifier.fillMaxWidth(), colors = colors) {
+    Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Agent name", style = MaterialTheme.typography.titleMedium)
             Text(
                 buildString {
                     append("Your agent name exactly as in Ingress: only stats of this agent can be saved.")
-                    if (agent.needed && agent.pendingStats) append(" The shared stats are saved as soon as it is set.")
+                    if (agent.agentName == null) append(" The first stats you share set it.")
                 },
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -219,7 +205,7 @@ private fun ServerUrlField(serverUrl: String, defaultServerUrl: String, liveServ
 private fun SettingsScreenPreview() {
     AgentToolsTheme {
         SettingsScreen(
-            agent = AgentNameSetting(show = true, agentName = null, status = null, pendingStats = true, busy = false),
+            agent = AgentNameSetting(agentName = null, status = null, busy = false),
             onSaveAgentName = {},
             build = AppBuild("0.1.0", 1, debug = true),
             serverUrl = "http://localhost:8001",

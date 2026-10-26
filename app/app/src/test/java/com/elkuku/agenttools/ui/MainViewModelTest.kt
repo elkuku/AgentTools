@@ -106,7 +106,7 @@ class MainViewModelTest {
     fun signInLoadsTheRoleAndSignOutForgetsIt() {
         val viewModel = signedIn()
 
-        assertEquals(UserRole.AGENT, viewModel.state.value.role)
+        assertEquals(UserRole.USER, viewModel.state.value.role)
 
         viewModel.signOut(context)
 
@@ -119,11 +119,11 @@ class MainViewModelTest {
         val viewModel = signedIn()
         assertEquals(UserRole.USER, viewModel.state.value.role)
 
-        api.me = MeResult.Success(UserRole.AGENT, "TestAgent")
+        api.me = MeResult.Success(UserRole.ADMIN, "TestAgent")
         api.lists += AgentStatsResult.Success(listOf(entry))
         viewModel.refresh(context)
 
-        assertEquals(UserRole.AGENT, viewModel.state.value.role)
+        assertEquals(UserRole.ADMIN, viewModel.state.value.role)
     }
 
     @Test
@@ -170,51 +170,45 @@ class MainViewModelTest {
     }
 
     @Test
-    fun anAgentWithoutAgentNameIsSentToTheSettings() {
-        api.me = MeResult.Success(UserRole.AGENT, null)
-        val viewModel = signedIn()
-
-        assertTrue(viewModel.state.value.needsAgentName)
-        assertTrue(viewModel.state.value.settingsOpen)
-    }
-
-    @Test
-    fun aUserWithoutTheAgentRoleNeedsNoAgentName() {
+    fun aUserWithoutAgentNameStaysOnTheStats() {
         api.me = MeResult.Success(UserRole.USER, null)
         val viewModel = signedIn()
 
-        assertFalse(viewModel.state.value.needsAgentName)
         assertFalse(viewModel.state.value.settingsOpen)
     }
 
     @Test
-    fun sharedStatsWaitForTheAgentName() {
-        api.me = MeResult.Success(UserRole.AGENT, null)
+    fun theFirstSharedStatsSetTheAgentName() {
+        api.me = MeResult.Success(UserRole.USER, null)
         val viewModel = signedIn()
-        viewModel.closeSettings()
+        api.saves += SaveResult.Success(2, "now")
         api.lists += AgentStatsResult.Success(listOf(entry))
 
         viewModel.onShared(context, ingressStats())
 
-        assertTrue(api.saved.isEmpty())
-        assertNotNull(viewModel.state.value.pending)
-        assertTrue(viewModel.state.value.settingsOpen)
-
-        api.saves += SaveResult.Success(2, "now")
-        api.lists += AgentStatsResult.Success(listOf(entry))
-        viewModel.saveAgentName(context, " TestAgent ")
-
-        assertEquals(listOf("TestAgent"), api.savedAgentNames)
-        assertEquals("TestAgent", viewModel.state.value.agentName)
         assertEquals(1, api.saved.size)
+        assertTrue(api.savedAgentNames.isEmpty())
+        assertEquals("TestAgent", viewModel.state.value.agentName)
         assertNull(viewModel.state.value.pending)
         assertFalse(viewModel.state.value.settingsOpen)
         assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
     }
 
     @Test
+    fun aTakenAgentNameRejectsTheFirstStats() {
+        api.me = MeResult.Success(UserRole.USER, null)
+        val viewModel = signedIn()
+        api.saves += SaveResult.Invalid(listOf("This agent name is already taken."))
+
+        viewModel.onShared(context, ingressStats())
+
+        assertNull(viewModel.state.value.agentName)
+        assertEquals(Status("This agent name is already taken.", true), viewModel.state.value.status)
+    }
+
+    @Test
     fun statsOfAnotherAgentAreRejected() {
-        api.me = MeResult.Success(UserRole.AGENT, "OtherAgent")
+        api.me = MeResult.Success(UserRole.USER, "OtherAgent")
         val viewModel = signedIn()
         api.lists += AgentStatsResult.Success(listOf(entry))
 
@@ -230,7 +224,7 @@ class MainViewModelTest {
 
     @Test
     fun theAgentNameIsComparedIgnoringCase() {
-        api.me = MeResult.Success(UserRole.AGENT, "testagent")
+        api.me = MeResult.Success(UserRole.USER, "testagent")
         val viewModel = signedIn()
         api.saves += SaveResult.Success(2, "now")
         api.lists += AgentStatsResult.Success(listOf(entry))
@@ -242,8 +236,9 @@ class MainViewModelTest {
 
     @Test
     fun aRejectedAgentNameShowsInTheSettings() {
-        api.me = MeResult.Success(UserRole.AGENT, null)
+        api.me = MeResult.Success(UserRole.USER, null)
         val viewModel = signedIn()
+        viewModel.openSettings()
         api.agentNameResult = AgentNameResult.Failure("This agent name is already taken.")
 
         viewModel.saveAgentName(context, "TestAgent")
@@ -416,29 +411,13 @@ class MainViewModelTest {
         checkNotNull(javaClass.classLoader?.getResource("ingress-stats-all-time.tsv")).readText()
 
     @Test
-    fun usersWaitingForTheAgentRoleGetOneMessage() {
-        // Just registered: no custom medals, and the stats answer 403
-        auth.interactiveSession = session
-        api.me = MeResult.Success(UserRole.USER)
-        api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
-        val viewModel = viewModel()
-
-        viewModel.signIn(context)
-
-        assertEquals(session, viewModel.state.value.session)
-        assertEquals(Status(MainViewModel.AGENT_ROLE_MESSAGE, false), viewModel.state.value.status)
-        assertNull(viewModel.state.value.entries)
-        assertNull(viewModel.state.value.customMedals)
-    }
-
-    @Test
     fun refreshClearsAnOutdatedMessage() {
         auth.interactiveSession = session
         api.me = MeResult.Success(UserRole.USER)
-        api.lists += AgentStatsResult.Forbidden("Agent stats need the Agent role. Ask an administrator.")
+        api.lists += AgentStatsResult.Failure("Network error: timeout")
         val viewModel = viewModel().also { it.signIn(context) }
 
-        // An admin made the user an agent
+        // Back online
         api.lists += AgentStatsResult.Success(listOf(entry))
         api.me = null
         viewModel.refresh(context)
@@ -639,7 +618,7 @@ class MainViewModelTest {
         /** What `GET /api/me` answers; null for an agent "TestAgent" with the [serverMedals]. */
         var me: MeResult? = null
 
-        override suspend fun me(idToken: String): MeResult = me ?: MeResult.Success(UserRole.AGENT, "TestAgent", serverMedals)
+        override suspend fun me(idToken: String): MeResult = me ?: MeResult.Success(UserRole.USER, "TestAgent", serverMedals)
 
         /** What `PATCH /api/me` answers; null for success. */
         var agentNameResult: AgentNameResult? = null

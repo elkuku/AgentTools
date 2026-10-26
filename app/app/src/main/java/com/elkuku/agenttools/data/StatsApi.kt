@@ -61,9 +61,6 @@ sealed interface SaveResult {
     /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : SaveResult
 
-    /** 403: the user is not an agent (yet); [message] is the server's reason. */
-    data class Forbidden(val message: String) : SaveResult
-
     /** The server rejected the stats; one message per violation. */
     data class Invalid(val messages: List<String>) : SaveResult
 
@@ -77,9 +74,6 @@ sealed interface CustomMedalsResult {
     /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: String) : CustomMedalsResult
 
-    /** 403: the user is not an agent (yet); [message] is the server's reason. */
-    data class Forbidden(val message: String) : CustomMedalsResult
-
     /** E.g. a network error, or 422 for medals the server does not accept. */
     data class Failure(val message: String) : CustomMedalsResult
 }
@@ -87,22 +81,18 @@ sealed interface CustomMedalsResult {
 /** The user's role on the server, as `UserRole` in web. */
 enum class UserRole(val label: String) {
     USER("User"),
-    AGENT("Agent"),
     ADMIN("Admin");
 
     companion object {
-        /** `ROLE_AGENT` → [AGENT]; null for a role the app does not know. */
+        /** `ROLE_ADMIN` → [ADMIN]; null for a role the app does not know. */
         fun fromServer(role: String): UserRole? = entries.find { "ROLE_$it" == role }
     }
-
-    /** May see and upload agent stats (ROLE_AGENT, and admins through the role hierarchy). */
-    val isAgent: Boolean get() = this != USER
 }
 
 sealed interface MeResult {
     /**
-     * [role] is null for a role the app does not know, [agentName] until the agent sets it,
-     * [customMedals] for users without the Agent role.
+     * [role] is null for a role the app does not know, [agentName] until the user or the first
+     * stats upload sets it, [customMedals] when the server sends none.
      */
     data class Success(
         val role: UserRole?,
@@ -133,7 +123,10 @@ interface StatsApi {
     /** `PATCH /api/me`: the agent name; uploaded stats must be for this agent. */
     suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult
 
-    /** `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]). */
+    /**
+     * `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]).
+     * Without an agent name, the stats' nickname becomes it (unless another user has it).
+     */
     suspend fun save(idToken: String, stats: JsonObject): SaveResult
 
     /** `GET /api/agent-stats`: the user's agent stats, newest first (all pages). */
@@ -233,8 +226,6 @@ class KtorStatsApi(
 
             HttpStatusCode.Unauthorized -> SaveResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
-            HttpStatusCode.Forbidden -> SaveResult.Forbidden(response.errorMessage() ?: "Forbidden.")
-
             HttpStatusCode.UnprocessableEntity -> SaveResult.Invalid(
                 response.decodeOrNull<ValidationResponse>()?.violations
                     ?.map { if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}" }
@@ -275,9 +266,6 @@ class KtorStatsApi(
                 HttpStatusCode.Unauthorized ->
                     return AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
-                HttpStatusCode.Forbidden ->
-                    return AgentStatsResult.Forbidden(response.errorMessage() ?: "Forbidden.")
-
                 else -> return AgentStatsResult.Failure(
                     response.errorMessage() ?: "Server error: HTTP ${response.status.value}",
                 )
@@ -306,8 +294,6 @@ class KtorStatsApi(
                 ?: CustomMedalsResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> CustomMedalsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
-
-            HttpStatusCode.Forbidden -> CustomMedalsResult.Forbidden(response.errorMessage() ?: "Forbidden.")
 
             HttpStatusCode.UnprocessableEntity -> CustomMedalsResult.Failure(
                 response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()

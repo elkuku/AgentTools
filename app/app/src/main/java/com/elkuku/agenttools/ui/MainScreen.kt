@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -119,18 +118,6 @@ fun MainScreen(
                 }
             }
 
-            if (state.needsAgentName && !state.busy) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Set your agent name to save stats.")
-                        Button(onClick = onOpenSettings) { Text("Set agent name") }
-                    }
-                }
-            }
-
             state.importResult?.let { ImportResultView(it, onDismiss = onDismissImportResult) }
 
             state.medalScan?.let { MedalScanReview(it, known = state.medalScanKnown, onSave = onSaveMedalScan, onDismiss = onDismissMedalScan) }
@@ -167,7 +154,6 @@ private fun AppBarIcon(@DrawableRes icon: Int, description: String, onClick: () 
 private fun RoleBadge(role: UserRole) {
     val (container, content) = when (role) {
         UserRole.USER -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
-        UserRole.AGENT -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
         UserRole.ADMIN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
     }
     Surface(color = container, contentColor = content, shape = MaterialTheme.shapes.small) {
@@ -191,7 +177,7 @@ private fun MainScreenPreview() {
         MainScreen(
             state = UiState(
                 session = GoogleSession("token", "jane@example.com", "Jane"),
-                role = UserRole.AGENT,
+                role = UserRole.USER,
                 entries = listOf(AgentStatEntry.fromJson(stats)),
                 status = Status("Agent stats saved.", false),
             ),

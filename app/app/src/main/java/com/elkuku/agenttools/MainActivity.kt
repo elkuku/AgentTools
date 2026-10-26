@@ -53,10 +53,8 @@ class MainActivity : ComponentActivity() {
                     BackHandler(onBack = viewModel::closeSettings)
                     SettingsScreen(
                         agent = AgentNameSetting(
-                            show = state.role?.isAgent == true,
                             agentName = state.agentName,
                             status = state.agentNameStatus,
-                            pendingStats = state.pending != null,
                             busy = state.busy,
                         ),
                         onSaveAgentName = { viewModel.saveAgentName(activity, it) },

@@ -87,7 +87,7 @@ fun Landing(serverUrl: String, modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            "New accounts wait for an administrator to give them the Agent role.",
+            "Sign in with Google and share your stats: the first ones set your agent name.",
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -19,9 +19,7 @@ Step-by-step guide: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.
 2. `cp local.properties.example local.properties` and fill in `google.serverClientId` (the Web
    client ID) and the server URLs.
 3. Signing in registers an unknown Google account as a user in `web` (matched by Google ID or
-   by email as `identifier`). Stats and custom medals need the **Agent** role (`ROLE_AGENT`, or
-   `ROLE_ADMIN`), which an admin gives; until then the server answers `403` and the app shows
-   its reason.
+   by email as `identifier`), who saves stats and custom medals right away.
 
 ## Build & test
 
@@ -72,8 +70,9 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
   and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
   `GET /api/me` gives the user's role and agent name (`MeResult`), loaded after sign-in and on
-  Refresh; `PATCH /api/me` sets the agent name. Agents without one are sent to the
-  settings, and shared stats wait for it; stats of another agent are rejected (also by `web`).
+  Refresh; `PATCH /api/me` sets the agent name. Without one, the first saved stats set it (`web`
+  takes their nickname, `422` if another user has it); stats of another agent are rejected (also
+  by `web`).
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right

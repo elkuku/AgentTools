@@ -33,20 +33,20 @@ class KtorStatsApiTest {
             assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
             respond(
                 """{"@context": "/api/contexts/Me", "@id": "/api/me", "@type": "Me",
-                    "id": 3, "identifier": "jane@example.com", "role": "ROLE_AGENT"}""",
+                    "id": 3, "identifier": "jane@example.com", "role": "ROLE_USER"}""",
                 HttpStatusCode.OK,
                 jsonHeaders,
             )
         }
 
-        assertEquals(MeResult.Success(UserRole.AGENT, null), KtorStatsApi("http://server", engine).me("t"))
+        assertEquals(MeResult.Success(UserRole.USER, null), KtorStatsApi("http://server", engine).me("t"))
     }
 
     @Test
     fun meLoadsTheAgentName() = runTest {
-        val engine = MockEngine { respond("""{"role": "ROLE_AGENT", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders) }
+        val engine = MockEngine { respond("""{"role": "ROLE_USER", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders) }
 
-        assertEquals(MeResult.Success(UserRole.AGENT, "TestAgent"), KtorStatsApi("http://server", engine).me("t"))
+        assertEquals(MeResult.Success(UserRole.USER, "TestAgent"), KtorStatsApi("http://server", engine).me("t"))
     }
 
     @Test
@@ -57,7 +57,7 @@ class KtorStatsApiTest {
             assertEquals("application/merge-patch+json", req.body.contentType.toString())
             assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
             assertEquals("""{"agentName":"TestAgent"}""", String(req.body.toByteArray()))
-            respond("""{"@id": "/api/me", "role": "ROLE_AGENT", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
+            respond("""{"@id": "/api/me", "role": "ROLE_USER", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
         }
 
         assertEquals(AgentNameResult.Success("TestAgent"), KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"))
@@ -137,11 +137,11 @@ class KtorStatsApiTest {
     }
 
     @Test
-    fun saveMapsForbidden() = runTest {
-        val detail = "Agent stats need the Agent role. Ask an administrator."
+    fun saveShowsWhyItIsForbidden() = runTest {
+        val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(SaveResult.Forbidden(detail), KtorStatsApi("http://server", engine).save("t", stats))
+        assertEquals(SaveResult.Failure(detail), KtorStatsApi("http://server", engine).save("t", stats))
     }
 
     @Test
@@ -250,10 +250,10 @@ class KtorStatsApiTest {
 
     @Test
     fun listShowsWhyItIsForbidden() = runTest {
-        val detail = "Agent stats need the Agent role. Ask an administrator."
+        val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(AgentStatsResult.Forbidden(detail), KtorStatsApi("http://server", engine).list("t"))
+        assertEquals(AgentStatsResult.Failure(detail), KtorStatsApi("http://server", engine).list("t"))
     }
 
     @Test
@@ -271,7 +271,7 @@ class KtorStatsApiTest {
     fun meLoadsTheCustomMedals() = runTest {
         val engine = MockEngine {
             respond(
-                """{"@context": "/api/contexts/Me", "@id": "/api/me", "@type": "Me", "role": "ROLE_AGENT", "agentName": "TestAgent",
+                """{"@context": "/api/contexts/Me", "@id": "/api/me", "@type": "Me", "role": "ROLE_USER", "agentName": "TestAgent",
                     "customMedals": {"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": []}}""",
                 HttpStatusCode.OK,
                 jsonHeaders,
@@ -279,7 +279,7 @@ class KtorStatsApiTest {
         }
 
         assertEquals(
-            MeResult.Success(UserRole.AGENT, "TestAgent", listOf(CustomMedalTier(orion, "platinum"), CustomMedalTier(voyager, "black"))),
+            MeResult.Success(UserRole.USER, "TestAgent", listOf(CustomMedalTier(orion, "platinum"), CustomMedalTier(voyager, "black"))),
             KtorStatsApi("http://server", engine).me("t"),
         )
     }
@@ -295,7 +295,7 @@ class KtorStatsApiTest {
                 Json.parseToJsonElement(String(req.body.toByteArray())),
             )
             respond(
-                """{"@id": "/api/me", "role": "ROLE_AGENT", "agentName": null,
+                """{"@id": "/api/me", "role": "ROLE_USER", "agentName": null,
                     "customMedals": {"anomaly": {"orion": "gold"}, "annual": {"voyager": 2}, "event": []}}""",
                 HttpStatusCode.OK,
                 jsonHeaders,
@@ -307,11 +307,11 @@ class KtorStatsApiTest {
     }
 
     @Test
-    fun saveCustomMedalsMapsForbidden() = runTest {
-        val detail = "An agent name and custom medals need the Agent role. Ask an administrator."
+    fun saveCustomMedalsShowsWhyItIsForbidden() = runTest {
+        val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(CustomMedalsResult.Forbidden(detail), KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()))
+        assertEquals(CustomMedalsResult.Failure(detail), KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()))
     }
 
     @Test
