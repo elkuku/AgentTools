@@ -12,10 +12,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.elkuku.agenttools.ui.AgentNameSetting
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
+import com.elkuku.agenttools.ui.ProfileSetting
 import com.elkuku.agenttools.ui.SettingsScreen
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import kotlinx.coroutines.Dispatchers
@@ -52,12 +52,14 @@ class MainActivity : ComponentActivity() {
                 if (state.settingsOpen) {
                     BackHandler(onBack = viewModel::closeSettings)
                     SettingsScreen(
-                        agent = AgentNameSetting(
+                        profile = ProfileSetting(
                             agentName = state.agentName,
-                            status = state.agentNameStatus,
+                            visibleParts = state.visibleParts,
+                            chosen = state.visibilityChosen,
+                            status = state.visibilityStatus,
                             busy = state.busy,
                         ),
-                        onSaveAgentName = { viewModel.saveAgentName(activity, it) },
+                        onSaveVisibleParts = { viewModel.saveVisibleParts(activity, it) },
                         build = AppBuild(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.DEBUG),
                         serverUrl = serverUrl,
                         defaultServerUrl = serverSettings.defaultUrl,
@@ -79,6 +81,8 @@ class MainActivity : ComponentActivity() {
                         onRefresh = { viewModel.refresh(activity) },
                         onOpenSettings = viewModel::openSettings,
                         onDismissImportResult = viewModel::dismissImportResult,
+                        onChooseVisibility = viewModel::chooseVisibility,
+                        onDismissVisibility = viewModel::dismissVisibility,
                         onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
                         onDismissMedalScan = viewModel::dismissMedalScan,
                     )

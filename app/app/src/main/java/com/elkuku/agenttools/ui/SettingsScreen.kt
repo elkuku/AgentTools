@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,33 +30,41 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
+import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 
 /** The build the app runs: from BuildConfig. */
 data class AppBuild(val versionName: String, val versionCode: Int, val debug: Boolean)
 
-/** What [SettingsScreen] shows about the agent name; [agentName] is null until it is set. */
-data class AgentNameSetting(
+/**
+ * What [SettingsScreen] shows about the profile: the agent name (null until the first shared stats
+ * set it) and the parts other users see ([chosen]: the user saved them once).
+ */
+data class ProfileSetting(
     val agentName: String?,
+    val visibleParts: Set<ProfilePart>,
+    val chosen: Boolean,
     val status: Status?,
     val busy: Boolean,
 )
 
 /**
- * The agent name, version and build type, and the server: changeable in debug builds only, with buttons for the
- * default and the [liveServerUrl] (none when blank). [onSaveServerUrl] returns an error message, or null when saved (a blank URL means the default).
+ * The agent name and the parts of the profile other users see, version and build type, and the server: changeable
+ * in debug builds only, with buttons for the default and the [liveServerUrl] (none when blank). [onSaveServerUrl]
+ * returns an error message, or null when saved (a blank URL means the default).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    agent: AgentNameSetting,
-    onSaveAgentName: (String) -> Unit,
+    profile: ProfileSetting,
+    onSaveVisibleParts: (Set<ProfilePart>) -> Unit,
     build: AppBuild,
     serverUrl: String,
     defaultServerUrl: String,
@@ -83,7 +92,7 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            AgentNameCard(agent, onSaveAgentName)
+            ProfileCard(profile, onSaveVisibleParts)
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -108,38 +117,52 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun AgentNameCard(agent: AgentNameSetting, onSave: (String) -> Unit) {
-    var input by rememberSaveable(agent.agentName) { mutableStateOf(agent.agentName.orEmpty()) }
+private fun ProfileCard(profile: ProfileSetting, onSave: (Set<ProfilePart>) -> Unit) {
+    var parts by rememberSaveable(profile.visibleParts) { mutableStateOf(profile.visibleParts) }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Agent name", style = MaterialTheme.typography.titleMedium)
+            Text("Profile", style = MaterialTheme.typography.titleMedium)
+            Setting("Agent name", profile.agentName ?: "–")
+            if (profile.agentName == null) {
+                Text(
+                    "The first stats you share set it; only stats of this agent can be saved.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Text("Visible to other users", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
             Text(
-                buildString {
-                    append("Your agent name exactly as in Ingress: only stats of this agent can be saved.")
-                    if (agent.agentName == null) append(" The first stats you share set it.")
+                if (profile.chosen) {
+                    "Signed-in users see these parts on your agent page on the website. Unchecked parts stay private."
+                } else {
+                    "Choose what other users see. Until you save, everything is private."
                 },
                 style = MaterialTheme.typography.bodyMedium,
             )
-            OutlinedTextField(
-                value = input,
-                onValueChange = { input = it },
-                label = { Text("Agent name") },
-                singleLine = true,
-                isError = agent.status?.isError == true,
-                supportingText = agent.status?.let { status ->
-                    {
-                        Text(
-                            status.text,
-                            color = if (status.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                        )
+            ProfilePart.entries.forEach { part ->
+                // The agent page is found by the agent name: the other parts need it
+                val enabled = part == ProfilePart.AGENT || ProfilePart.AGENT in parts
+                Row(verticalAlignment = Alignment.Top) {
+                    Checkbox(
+                        checked = part in parts && enabled,
+                        onCheckedChange = { checked -> parts = if (checked) parts + part else parts - part },
+                        enabled = enabled && !profile.busy,
+                    )
+                    Column(modifier = Modifier.padding(top = 12.dp)) {
+                        Text(part.label, color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(part.help, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth(),
-            )
+                }
+            }
+            profile.status?.let { status ->
+                Text(status.text, color = if (status.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+            }
+            // Without the agent part nothing is shown
+            val toSave = if (ProfilePart.AGENT in parts) parts else emptySet()
             Button(
-                onClick = { onSave(input) },
-                enabled = !agent.busy && input.isNotBlank() && input.trim() != agent.agentName,
+                onClick = { onSave(toSave) },
+                enabled = !profile.busy && (!profile.chosen || toSave != profile.visibleParts),
             ) { Text("Save") }
         }
     }
@@ -205,8 +228,14 @@ private fun ServerUrlField(serverUrl: String, defaultServerUrl: String, liveServ
 private fun SettingsScreenPreview() {
     AgentToolsTheme {
         SettingsScreen(
-            agent = AgentNameSetting(agentName = null, status = null, busy = false),
-            onSaveAgentName = {},
+            profile = ProfileSetting(
+                agentName = "TestAgent",
+                visibleParts = setOf(ProfilePart.AGENT, ProfilePart.LATEST_STATS),
+                chosen = true,
+                status = null,
+                busy = false,
+            ),
+            onSaveVisibleParts = {},
             build = AppBuild("0.1.0", 1, debug = true),
             serverUrl = "http://localhost:8001",
             defaultServerUrl = "http://localhost:8001",

@@ -7,16 +7,17 @@ import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
-import com.elkuku.agenttools.data.AgentNameResult
 import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.ImportResult
 import com.elkuku.agenttools.data.MeResult
+import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.customMedalCount
 import com.elkuku.agenttools.data.StatsApi
 import com.elkuku.agenttools.data.UserRole
+import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.data.importResultFor
 import com.elkuku.agenttools.data.mergeCustomMedals
 import com.elkuku.agenttools.data.parseIngressStats
@@ -40,8 +41,10 @@ data class UiState(
     val role: UserRole? = null,
     /** The agent name stats must be for; null until loaded, or until the user or the first saved stats set it. */
     val agentName: String? = null,
-    /** The result of saving the agent name, shown on the settings screen. */
-    val agentNameStatus: Status? = null,
+    /** The parts of the profile other users see; empty until loaded or chosen. */
+    val visibleParts: Set<ProfilePart> = emptySet(),
+    /** The result of saving the visible parts, shown on the settings screen. */
+    val visibilityStatus: Status? = null,
     /** The settings screen is shown instead of the stats. */
     val settingsOpen: Boolean = false,
     val busy: Boolean = false,
@@ -62,7 +65,14 @@ data class UiState(
     /** Reviewed custom medals not saved yet: before sign-in, or after a failed save. */
     val pendingMedals: List<CustomMedalTier>? = null,
     val status: Status? = null,
+    /** False until the user chose what other users see (in the settings or on web's profile page); true until loaded. */
+    val visibilityChosen: Boolean = true,
+    /** The user opened the settings from the prompt or chose "Later": not asked again until the next sign-in. */
+    val visibilityDismissed: Boolean = false,
 ) {
+    /** Ask the user to choose what other users see of the profile. */
+    val askVisibility: Boolean get() = session != null && !visibilityChosen && !visibilityDismissed
+
     val latest: AgentStatEntry? get() = entries?.firstOrNull()
 
     val first: AgentStatEntry? get() = entries?.lastOrNull()
@@ -93,10 +103,12 @@ class MainViewModel(
                 session = null,
                 role = null,
                 agentName = null,
-                agentNameStatus = null,
+                visibleParts = emptySet(),
+                visibilityStatus = null,
                 entries = null,
                 importResult = null,
                 customMedals = null,
+                visibilityChosen = true,
                 status = Status("Signed out.", false, untilSignIn = true),
             )
         }
@@ -137,14 +149,17 @@ class MainViewModel(
 
     fun openSettings() = _state.update { it.copy(settingsOpen = true) }
 
-    fun closeSettings() = _state.update { it.copy(settingsOpen = false, agentNameStatus = null) }
+    fun closeSettings() = _state.update { it.copy(settingsOpen = false, visibilityStatus = null) }
 
-    fun saveAgentName(context: Context, agentName: String) = launchBusy {
-        val result = withToken(context, { it is AgentNameResult.Unauthorized }) { api.saveAgentName(it, agentName.trim()) }
+    /** Saves the parts of the profile other users see; without [ProfilePart.AGENT] the server keeps none. */
+    fun saveVisibleParts(context: Context, parts: Set<ProfilePart>) = launchBusy {
+        val result = withToken(context, { it is VisibilityResult.Unauthorized }) { api.saveVisibleParts(it, parts) }
         when (result) {
-            is AgentNameResult.Success -> _state.update { it.copy(agentName = result.agentName, agentNameStatus = Status("Saved.", false)) }
-            is AgentNameResult.Failure -> _state.update { it.copy(agentNameStatus = Status(result.message, true)) }
-            is AgentNameResult.Unauthorized -> signedOutBy(result.message)
+            is VisibilityResult.Success -> _state.update {
+                it.copy(visibleParts = result.visibleParts, visibilityChosen = true, visibilityStatus = Status("Saved.", false))
+            }
+            is VisibilityResult.Failure -> _state.update { it.copy(visibilityStatus = Status(result.message, true)) }
+            is VisibilityResult.Unauthorized -> signedOutBy(result.message)
             null -> Unit
         }
     }
@@ -152,11 +167,16 @@ class MainViewModel(
     /** The data shown came from the old server: forget it and load it from the new one. */
     fun serverChanged(context: Context) {
         if (_state.value.session == null) return
-        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null) }
+        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null, visibleParts = emptySet(), visibilityChosen = true) }
         refresh(context)
     }
 
     fun dismissImportResult() = _state.update { it.copy(importResult = null) }
+
+    fun dismissVisibility() = _state.update { it.copy(visibilityDismissed = true) }
+
+    /** From the prompt: the visibility is chosen in the settings. */
+    fun chooseVisibility() = _state.update { it.copy(visibilityDismissed = true, settingsOpen = true) }
 
     /**
      * Screenshots of the Ingress medal grid, from [read]: the recognized custom medals are shown for
@@ -284,7 +304,13 @@ class MainViewModel(
     private suspend fun loadRole(context: Context, showFailure: Boolean = false) {
         when (val result = withToken(context, { it is MeResult.Unauthorized }) { api.me(it) }) {
             is MeResult.Success -> _state.update {
-                it.copy(role = result.role, agentName = result.agentName, customMedals = result.customMedals)
+                it.copy(
+                    role = result.role,
+                    agentName = result.agentName,
+                    customMedals = result.customMedals,
+                    visibleParts = result.visibleParts,
+                    visibilityChosen = result.visibilityChosen,
+                )
             }
             is MeResult.Unauthorized -> signedOutBy(result.message)
             is MeResult.Failure -> if (showFailure) _state.update { it.copy(status = Status(result.message, true)) }
@@ -325,7 +351,7 @@ class MainViewModel(
      * about being signed out is outdated.
      */
     private fun signedIn(session: GoogleSession) = _state.update {
-        it.copy(session = session, status = it.status?.takeUnless(Status::untilSignIn))
+        it.copy(session = session, status = it.status?.takeUnless(Status::untilSignIn), visibilityDismissed = false)
     }
 
     private val CustomMedalTier.tierIndex: Int get() = medal.tierOrNone.indexOf(tier)
@@ -335,10 +361,12 @@ class MainViewModel(
             session = null,
             role = null,
             agentName = null,
-            agentNameStatus = null,
+            visibleParts = emptySet(),
+            visibilityStatus = null,
             settingsOpen = false,
             entries = null,
             customMedals = null,
+            visibilityChosen = true,
             status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),
         )
     }

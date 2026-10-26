@@ -43,10 +43,19 @@ private data class Violation(val propertyPath: String = "", val message: String 
 private data class ValidationResponse(val violations: List<Violation> = emptyList())
 
 @Serializable
-private data class MeResponse(val role: String, val agentName: String? = null, val customMedals: JsonObject? = null)
+private data class MeResponse(
+    val role: String,
+    val agentName: String? = null,
+    val customMedals: JsonObject? = null,
+    val visibleParts: List<String>? = null,
+    // A server without it does not ask
+    val visibilityChosen: Boolean = true,
+) {
+    val parts: Set<ProfilePart> get() = visibleParts.orEmpty().mapNotNull(ProfilePart::fromServer).toSet()
+}
 
 @Serializable
-private data class AgentNameBody(val agentName: String)
+private data class VisiblePartsBody(val visibleParts: List<String>)
 
 @Serializable
 private data class CollectionView(val next: String? = null)
@@ -92,12 +101,15 @@ enum class UserRole(val label: String) {
 sealed interface MeResult {
     /**
      * [role] is null for a role the app does not know, [agentName] until the user or the first
-     * stats upload sets it, [customMedals] when the server sends none.
+     * stats upload sets it, [customMedals] when the server sends none. [visibleParts] are the parts
+     * of the profile other users see; [visibilityChosen] is false until the user chose them.
      */
     data class Success(
         val role: UserRole?,
         val agentName: String? = null,
         val customMedals: List<CustomMedalTier>? = null,
+        val visibleParts: Set<ProfilePart> = emptySet(),
+        val visibilityChosen: Boolean = true,
     ) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
@@ -106,22 +118,23 @@ sealed interface MeResult {
     data class Failure(val message: String) : MeResult
 }
 
-sealed interface AgentNameResult {
-    data class Success(val agentName: String) : AgentNameResult
+sealed interface VisibilityResult {
+    /** The parts stored: none without [ProfilePart.AGENT]. */
+    data class Success(val visibleParts: Set<ProfilePart>) : VisibilityResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : AgentNameResult
+    data class Unauthorized(val message: String) : VisibilityResult
 
-    /** E.g. the name is taken or not an agent name (422), or a network error. */
-    data class Failure(val message: String) : AgentNameResult
+    /** E.g. a part the server does not know (422), or a network error. */
+    data class Failure(val message: String) : VisibilityResult
 }
 
 interface StatsApi {
     /** `GET /api/me`: the signed-in user, with the agent name and custom medals. */
     suspend fun me(idToken: String): MeResult
 
-    /** `PATCH /api/me`: the agent name; uploaded stats must be for this agent. */
-    suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult
+    /** `PATCH /api/me`: the parts of the profile other users see; all private until chosen. */
+    suspend fun saveVisibleParts(idToken: String, parts: Set<ProfilePart>): VisibilityResult
 
     /**
      * `POST /api/agent-stats`: Ingress all-time stats as an agent_stat row (see [parseIngressStats]).
@@ -171,7 +184,7 @@ class KtorStatsApi(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
-                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson)) }
+                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen) }
                 ?: MeResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
@@ -180,32 +193,31 @@ class KtorStatsApi(
         }
     }
 
-    override suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult {
+    override suspend fun saveVisibleParts(idToken: String, parts: Set<ProfilePart>): VisibilityResult {
         val response = try {
             client.patch(meUrl) {
                 bearerAuth(idToken)
                 contentType(MergePatchJson)
                 accept(LdJson)
-                setBody(AgentNameBody(agentName))
+                setBody(VisiblePartsBody(parts.map { it.serverValue }))
             }
         } catch (e: IOException) {
-            return AgentNameResult.Failure(networkError(e))
+            return VisibilityResult.Failure(networkError(e))
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()?.agentName
-                ?.let { AgentNameResult.Success(it) }
-                ?: AgentNameResult.Failure("Unexpected response from the server.")
+            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
+                ?.let { VisibilityResult.Success(it.parts) }
+                ?: VisibilityResult.Failure("Unexpected response from the server.")
 
-            HttpStatusCode.Unauthorized -> AgentNameResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> VisibilityResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
 
-            // e.g. "This agent name is already taken."
-            HttpStatusCode.UnprocessableEntity -> AgentNameResult.Failure(
+            HttpStatusCode.UnprocessableEntity -> VisibilityResult.Failure(
                 response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()?.message
-                    ?: "The server rejected the agent name.",
+                    ?: "The server rejected the visible parts.",
             )
 
-            else -> AgentNameResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> VisibilityResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
         }
     }
 

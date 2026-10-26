@@ -70,9 +70,12 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   maps `201` / `401` / `409` / `422` / other to `SaveResult` (messages from the problem's `detail`
   and `violations`), and loads all pages of the collection (`view.next`) into `AgentStatsResult`.
   `GET /api/me` gives the user's role and agent name (`MeResult`), loaded after sign-in and on
-  Refresh; `PATCH /api/me` sets the agent name. Without one, the first saved stats set it (`web`
-  takes their nickname, `422` if another user has it); stats of another agent are rejected (also
-  by `web`).
+  Refresh. The app does not set the agent name: the first saved stats set it (`web` takes their
+  nickname, `422` if another user has it); stats of another agent are rejected (also by `web`).
+  The settings show it and the profile parts other users see (`data/ProfilePart.kt`, as web's
+  `ProfilePart`), saved with `PATCH /api/me` `visibleParts`. While `GET /api/me` says
+  `visibilityChosen: false`, the main screen asks the user to choose ("Choose" opens the
+  settings; "Later" hides it until the next sign-in).
 - Share target (`ShareIntent.kt`) — text shared from Ingress. `data/IngressStats.kt` converts
   all-time stats to an `agent_stat` row (column names of 4e-website); other text shows a hint.
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right

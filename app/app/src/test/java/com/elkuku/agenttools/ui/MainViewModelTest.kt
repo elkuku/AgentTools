@@ -6,15 +6,16 @@ import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
-import com.elkuku.agenttools.data.AgentNameResult
 import com.elkuku.agenttools.data.AgentStatsResult
 import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.MeResult
+import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.StatsApi
 import com.elkuku.agenttools.data.UserRole
+import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
 import kotlinx.coroutines.Dispatchers
@@ -187,7 +188,6 @@ class MainViewModelTest {
         viewModel.onShared(context, ingressStats())
 
         assertEquals(1, api.saved.size)
-        assertTrue(api.savedAgentNames.isEmpty())
         assertEquals("TestAgent", viewModel.state.value.agentName)
         assertNull(viewModel.state.value.pending)
         assertFalse(viewModel.state.value.settingsOpen)
@@ -235,32 +235,44 @@ class MainViewModelTest {
     }
 
     @Test
-    fun aRejectedAgentNameShowsInTheSettings() {
-        api.me = MeResult.Success(UserRole.USER, null)
-        val viewModel = signedIn()
-        viewModel.openSettings()
-        api.agentNameResult = AgentNameResult.Failure("This agent name is already taken.")
+    fun signInLoadsTheVisibleParts() {
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", visibleParts = setOf(ProfilePart.AGENT))
 
-        viewModel.saveAgentName(context, "TestAgent")
-
-        assertNull(viewModel.state.value.agentName)
-        assertTrue(viewModel.state.value.settingsOpen)
-        assertEquals(Status("This agent name is already taken.", true), viewModel.state.value.agentNameStatus)
+        assertEquals(setOf(ProfilePart.AGENT), signedIn().state.value.visibleParts)
     }
 
     @Test
-    fun changingTheAgentNameStaysInTheSettings() {
+    fun savingTheVisiblePartsStaysInTheSettings() {
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", visibilityChosen = false)
         val viewModel = signedIn()
-        viewModel.openSettings()
-
-        viewModel.saveAgentName(context, "NewName")
-
-        assertEquals("NewName", viewModel.state.value.agentName)
+        viewModel.chooseVisibility()
         assertTrue(viewModel.state.value.settingsOpen)
-        assertEquals(Status("Saved.", false), viewModel.state.value.agentNameStatus)
+        assertFalse(viewModel.state.value.askVisibility)
+
+        viewModel.saveVisibleParts(context, setOf(ProfilePart.AGENT, ProfilePart.STATS_HISTORY))
+
+        assertEquals(listOf(setOf(ProfilePart.AGENT, ProfilePart.STATS_HISTORY)), api.savedVisibleParts)
+        assertEquals(setOf(ProfilePart.AGENT, ProfilePart.STATS_HISTORY), viewModel.state.value.visibleParts)
+        assertTrue(viewModel.state.value.visibilityChosen)
+        assertTrue(viewModel.state.value.settingsOpen)
+        assertEquals(Status("Saved.", false), viewModel.state.value.visibilityStatus)
 
         viewModel.closeSettings()
-        assertNull(viewModel.state.value.agentNameStatus)
+        assertNull(viewModel.state.value.visibilityStatus)
+    }
+
+    @Test
+    fun aRejectedVisibilityShowsInTheSettings() {
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", visibilityChosen = false)
+        val viewModel = signedIn()
+        viewModel.openSettings()
+        api.visibilityResult = VisibilityResult.Failure("Network error: timeout")
+
+        viewModel.saveVisibleParts(context, setOf(ProfilePart.AGENT))
+
+        assertFalse(viewModel.state.value.visibilityChosen)
+        assertEquals(emptySet<ProfilePart>(), viewModel.state.value.visibleParts)
+        assertEquals(Status("Network error: timeout", true), viewModel.state.value.visibilityStatus)
     }
 
     @Test
@@ -431,6 +443,33 @@ class MainViewModelTest {
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
         return viewModel().also { it.signIn(context) }
+    }
+
+    @Test
+    fun usersAreAskedToChooseTheVisibilityUntilTheyDismiss() {
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", visibilityChosen = false)
+        val viewModel = signedIn()
+        assertTrue(viewModel.state.value.askVisibility)
+
+        viewModel.dismissVisibility()
+        assertFalse(viewModel.state.value.askVisibility)
+
+        // Asked again on the next sign-in, unless chosen meanwhile
+        viewModel.signOut(context)
+        assertFalse(viewModel.state.value.askVisibility)
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.signIn(context)
+        assertTrue(viewModel.state.value.askVisibility)
+
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", visibilityChosen = true)
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        viewModel.refresh(context)
+        assertFalse(viewModel.state.value.askVisibility)
+    }
+
+    @Test
+    fun usersWhoChoseAreNotAsked() {
+        assertFalse(signedIn().state.value.askVisibility)
     }
 
     @Test
@@ -620,13 +659,13 @@ class MainViewModelTest {
 
         override suspend fun me(idToken: String): MeResult = me ?: MeResult.Success(UserRole.USER, "TestAgent", serverMedals)
 
-        /** What `PATCH /api/me` answers; null for success. */
-        var agentNameResult: AgentNameResult? = null
-        val savedAgentNames = mutableListOf<String>()
+        /** What `PATCH /api/me` with the visible parts answers; null for success. */
+        var visibilityResult: VisibilityResult? = null
+        val savedVisibleParts = mutableListOf<Set<ProfilePart>>()
 
-        override suspend fun saveAgentName(idToken: String, agentName: String): AgentNameResult {
-            savedAgentNames += agentName
-            return agentNameResult ?: AgentNameResult.Success(agentName)
+        override suspend fun saveVisibleParts(idToken: String, parts: Set<ProfilePart>): VisibilityResult {
+            savedVisibleParts += parts
+            return visibilityResult ?: VisibilityResult.Success(parts)
         }
 
         override suspend fun save(idToken: String, stats: JsonObject): SaveResult {

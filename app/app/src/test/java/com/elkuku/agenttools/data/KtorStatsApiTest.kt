@@ -43,6 +43,13 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun meLoadsWhetherTheVisibilityWasChosen() = runTest {
+        val engine = MockEngine { respond("""{"role": "ROLE_USER", "visibilityChosen": false}""", HttpStatusCode.OK, jsonHeaders) }
+
+        assertEquals(MeResult.Success(UserRole.USER, visibilityChosen = false), KtorStatsApi("http://server", engine).me("t"))
+    }
+
+    @Test
     fun meLoadsTheAgentName() = runTest {
         val engine = MockEngine { respond("""{"role": "ROLE_USER", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders) }
 
@@ -50,32 +57,51 @@ class KtorStatsApiTest {
     }
 
     @Test
-    fun saveAgentNamePatchesMe() = runTest {
+    fun meLoadsTheVisibleParts() = runTest {
+        val engine = MockEngine {
+            respond("""{"role": "ROLE_USER", "visibleParts": ["agent", "custom_medals", "future_part"]}""", HttpStatusCode.OK, jsonHeaders)
+        }
+
+        assertEquals(
+            MeResult.Success(UserRole.USER, visibleParts = setOf(ProfilePart.AGENT, ProfilePart.CUSTOM_MEDALS)),
+            KtorStatsApi("http://server", engine).me("t"),
+        )
+    }
+
+    @Test
+    fun saveVisiblePartsPatchesMe() = runTest {
         val engine = MockEngine { req ->
             assertEquals(HttpMethod.Patch, req.method)
             assertEquals("http://server/api/me", req.url.toString())
             assertEquals("application/merge-patch+json", req.body.contentType.toString())
             assertEquals("Bearer t", req.headers[HttpHeaders.Authorization])
-            assertEquals("""{"agentName":"TestAgent"}""", String(req.body.toByteArray()))
-            respond("""{"@id": "/api/me", "role": "ROLE_USER", "agentName": "TestAgent"}""", HttpStatusCode.OK, jsonHeaders)
+            assertEquals("""{"visibleParts":["agent","latest_stats"]}""", String(req.body.toByteArray()))
+            respond(
+                """{"@id": "/api/me", "role": "ROLE_USER", "visibleParts": ["agent", "latest_stats"], "visibilityChosen": true}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
         }
 
-        assertEquals(AgentNameResult.Success("TestAgent"), KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"))
+        assertEquals(
+            VisibilityResult.Success(setOf(ProfilePart.AGENT, ProfilePart.LATEST_STATS)),
+            KtorStatsApi("http://server", engine).saveVisibleParts("t", linkedSetOf(ProfilePart.AGENT, ProfilePart.LATEST_STATS)),
+        )
     }
 
     @Test
-    fun saveAgentNameShowsWhyTheServerRejectedIt() = runTest {
+    fun saveVisiblePartsShowsWhyTheServerRejectedThem() = runTest {
         val engine = MockEngine {
             respond(
-                """{"status": 422, "violations": [{"propertyPath": "agentName", "message": "This agent name is already taken."}]}""",
+                """{"status": 422, "violations": [{"propertyPath": "visibleParts", "message": "The value is not a valid choice."}]}""",
                 HttpStatusCode.UnprocessableEntity,
                 problemHeaders,
             )
         }
 
         assertEquals(
-            AgentNameResult.Failure("This agent name is already taken."),
-            KtorStatsApi("http://server", engine).saveAgentName("t", "TestAgent"),
+            VisibilityResult.Failure("The value is not a valid choice."),
+            KtorStatsApi("http://server", engine).saveVisibleParts("t", setOf(ProfilePart.AGENT)),
         )
     }
 

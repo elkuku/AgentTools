@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,6 +51,8 @@ fun MainScreen(
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
     onDismissImportResult: () -> Unit,
+    onChooseVisibility: () -> Unit,
+    onDismissVisibility: () -> Unit,
     onSaveMedalScan: (List<CustomMedalTier>) -> Unit,
     onDismissMedalScan: () -> Unit,
 ) {
@@ -115,6 +118,21 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(status.text, modifier = Modifier.padding(12.dp))
+                }
+            }
+
+            if (state.askVisibility) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Choose what other users see of your profile. Until you do, everything is private.")
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = onChooseVisibility) { Text("Choose") }
+                            TextButton(onClick = onDismissVisibility) { Text("Later") }
+                        }
+                    }
                 }
             }
 
@@ -187,6 +205,8 @@ private fun MainScreenPreview() {
             onRefresh = {},
             onOpenSettings = {},
             onDismissImportResult = {},
+            onChooseVisibility = {},
+            onDismissVisibility = {},
             onSaveMedalScan = {},
             onDismissMedalScan = {},
         )
