@@ -81,8 +81,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `ui/MainViewModel.kt` — UI state: session and the user's stats. Shared stats are saved right
   away (or after sign-in, if shared before); on `401` fetches a fresh ID token silently and
   retries once.
-- `ui/MainScreen.kt` — the main screen: app bar with sign-in, or role / refresh / sign-out /
-  settings, status messages, the stats.
+- `ui/MainScreen.kt` — the main screen: app bar with sign-in, or the account menu
+  (`ui/AccountMenu.kt`, like web's: the Google profile picture from `GET /api/me` `avatar`, a
+  `data:` URI, opens the email and role, Settings and Sign out), status messages, the stats;
+  pull down to reload. The stats header has the faction logo and the level in the faction color
+  (`res/drawable-nodpi/logo_enl|res.webp`, rendered from 4e-website's SVGs, as in web).
 - `ui/SettingsScreen.kt` — version and build type; debug builds change the server URL there
   (`data/ServerSettings.kt`, kept in SharedPreferences), with buttons for the default and the live
   server (`server.baseUrl.release`).

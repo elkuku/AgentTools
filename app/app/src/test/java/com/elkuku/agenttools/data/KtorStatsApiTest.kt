@@ -57,6 +57,16 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun meLoadsTheAvatar() = runTest {
+        val engine = MockEngine { respond("""{"role": "ROLE_USER", "avatar": "data:image/jpeg;base64,abc"}""", HttpStatusCode.OK, jsonHeaders) }
+
+        assertEquals(
+            MeResult.Success(UserRole.USER, avatar = "data:image/jpeg;base64,abc"),
+            KtorStatsApi("http://server", engine).me("t"),
+        )
+    }
+
+    @Test
     fun meLoadsTheVisibleParts() = runTest {
         val engine = MockEngine {
             respond("""{"role": "ROLE_USER", "visibleParts": ["agent", "custom_medals", "future_part"]}""", HttpStatusCode.OK, jsonHeaders)

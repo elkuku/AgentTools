@@ -6,6 +6,7 @@ package com.elkuku.agenttools.data
  */
 enum class ProfilePart(val serverValue: String, val label: String, val help: String) {
     AGENT("agent", "Agent name, faction and level", "Your agent page and your entry in the list of agents. The other parts are only shown with it."),
+    AVATAR("avatar", "Profile picture", "Your Google profile picture next to your agent name."),
     LATEST_STATS("latest_stats", "Latest stats", "The all-time stats of your newest upload."),
     STATS_HISTORY("stats_history", "Stats history", "Every upload with its date and AP."),
     CUSTOM_MEDALS("custom_medals", "Custom medals", "Your anomaly, annual and event medals.");

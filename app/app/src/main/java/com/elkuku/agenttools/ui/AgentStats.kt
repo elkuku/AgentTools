@@ -3,6 +3,7 @@ package com.elkuku.agenttools.ui
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,14 +52,16 @@ internal fun Long?.formatted(): String = numberFormat.format(this ?: 0)
 fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
     var selected by remember { mutableStateOf<MedalLevel?>(null) }
 
+    val faction = Faction.of(latest.faction)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        faction?.let { Image(painterResource(it.logo), contentDescription = latest.faction, modifier = Modifier.height(32.dp)) }
         Text(latest.nickname, style = MaterialTheme.typography.headlineSmall, fontFamily = FontFamily.Monospace)
         latest["level"]?.let { level ->
             Text(
                 "L$level",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = faction?.color() ?: MaterialTheme.colorScheme.primary,
             )
         }
         val recursions = latest["recursions"] ?: 0
@@ -66,7 +69,8 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
             Badge(R.drawable.unique_badge_simulacrum, "Simulacrum", count = recursions.takeIf { it > 1 })
         }
     }
-    Text(latest.faction, color = MaterialTheme.colorScheme.secondary)
+    // No logo for it
+    if (faction == null) Text(latest.faction, color = MaterialTheme.colorScheme.secondary)
 
     val months = latest["months_subscribed"] ?: 0
     if (months > 0) {
@@ -197,4 +201,23 @@ private fun MedalDialog(medal: MedalLevel, onDismiss: () -> Unit) {
             }
         },
     )
+}
+
+/** The factions with a logo and color, as web and 4e-website show them. */
+private enum class Faction(@DrawableRes val logo: Int, private val light: Color, private val dark: Color) {
+    ENL(R.drawable.logo_enl, Color(0xFF1AB60D), Color(0xFF1AB60D)),
+    // 4e's RES blue is too dark on a dark background: its lighter link color there
+    RES(R.drawable.logo_res, Color(0xFF0000CC), Color(0xFF7474FF));
+
+    @Composable
+    fun color(): Color = if (isSystemInDarkTheme()) dark else light
+
+    companion object {
+        /** Null for a faction without a logo. */
+        fun of(faction: String): Faction? = when (faction.trim().lowercase()) {
+            "enlightened" -> ENL
+            "resistance" -> RES
+            else -> null
+        }
+    }
 }

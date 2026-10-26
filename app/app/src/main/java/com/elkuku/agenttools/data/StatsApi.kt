@@ -50,6 +50,7 @@ private data class MeResponse(
     val visibleParts: List<String>? = null,
     // A server without it does not ask
     val visibilityChosen: Boolean = true,
+    val avatar: String? = null,
 ) {
     val parts: Set<ProfilePart> get() = visibleParts.orEmpty().mapNotNull(ProfilePart::fromServer).toSet()
 }
@@ -103,6 +104,7 @@ sealed interface MeResult {
      * [role] is null for a role the app does not know, [agentName] until the user or the first
      * stats upload sets it, [customMedals] when the server sends none. [visibleParts] are the parts
      * of the profile other users see; [visibilityChosen] is false until the user chose them.
+     * [avatar] is the Google profile picture as web stores it: a JPEG `data:` URI.
      */
     data class Success(
         val role: UserRole?,
@@ -110,6 +112,7 @@ sealed interface MeResult {
         val customMedals: List<CustomMedalTier>? = null,
         val visibleParts: Set<ProfilePart> = emptySet(),
         val visibilityChosen: Boolean = true,
+        val avatar: String? = null,
     ) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
@@ -184,7 +187,7 @@ class KtorStatsApi(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
-                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen) }
+                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen, it.avatar) }
                 ?: MeResult.Failure("Unexpected response from the server.")
 
             HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")

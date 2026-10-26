@@ -41,6 +41,8 @@ data class UiState(
     val role: UserRole? = null,
     /** The agent name stats must be for; null until loaded, or until the user or the first saved stats set it. */
     val agentName: String? = null,
+    /** The Google profile picture as a `data:` URI (from web); null until loaded or without one. */
+    val avatar: String? = null,
     /** The parts of the profile other users see; empty until loaded or chosen. */
     val visibleParts: Set<ProfilePart> = emptySet(),
     /** The result of saving the visible parts, shown on the settings screen. */
@@ -104,6 +106,7 @@ class MainViewModel(
                 role = null,
                 agentName = null,
                 visibleParts = emptySet(),
+                avatar = null,
                 visibilityStatus = null,
                 entries = null,
                 importResult = null,
@@ -167,7 +170,7 @@ class MainViewModel(
     /** The data shown came from the old server: forget it and load it from the new one. */
     fun serverChanged(context: Context) {
         if (_state.value.session == null) return
-        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null, visibleParts = emptySet(), visibilityChosen = true) }
+        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null, visibleParts = emptySet(), avatar = null, visibilityChosen = true) }
         refresh(context)
     }
 
@@ -310,6 +313,7 @@ class MainViewModel(
                     customMedals = result.customMedals,
                     visibleParts = result.visibleParts,
                     visibilityChosen = result.visibilityChosen,
+                    avatar = result.avatar,
                 )
             }
             is MeResult.Unauthorized -> signedOutBy(result.message)
@@ -362,6 +366,7 @@ class MainViewModel(
             role = null,
             agentName = null,
             visibleParts = emptySet(),
+            avatar = null,
             visibilityStatus = null,
             settingsOpen = false,
             entries = null,

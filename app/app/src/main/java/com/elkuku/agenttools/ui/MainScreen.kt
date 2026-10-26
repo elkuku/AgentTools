@@ -1,6 +1,5 @@
 package com.elkuku.agenttools.ui
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,10 +23,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,105 +74,115 @@ fun MainScreen(
                     if (state.session == null) {
                         TextButton(onClick = onSignIn, enabled = !state.busy) { Text("Sign in") }
                     } else {
-                        state.role?.let { RoleBadge(it) }
-                        AppBarIcon(R.drawable.ic_bi_arrow_clockwise, "Refresh", onRefresh, enabled = !state.busy)
-                        AppBarIcon(R.drawable.ic_bi_box_arrow_right, "Sign out", onSignOut, enabled = !state.busy)
-                        AppBarIcon(R.drawable.ic_bi_gear, "Settings", onOpenSettings)
+                        AccountMenu(
+                            email = state.session.email,
+                            role = state.role,
+                            avatar = state.avatar,
+                            onOpenSettings = onOpenSettings,
+                            onSignOut = onSignOut,
+                            enabled = !state.busy,
+                        )
                     }
                 },
             )
         },
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        // Pull down to reload; the indicator only for a reload the user pulled
+        var pulled by remember { mutableStateOf(false) }
+        LaunchedEffect(state.busy) { if (!state.busy) pulled = false }
+        PullToRefreshBox(
+            isRefreshing = pulled && state.busy,
+            onRefresh = {
+                if (state.session != null) {
+                    pulled = true
+                    onRefresh()
+                }
+            },
+            modifier = Modifier.fillMaxSize().padding(padding),
         ) {
-            val progress = state.progress
-            if (progress != null) {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                val progress = state.progress
+                if (progress != null) {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                            Text(progress, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                } else if (state.busy && !pulled) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+
+                val session = state.session
+
+                state.status?.let { status ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (status.isError) {
+                                MaterialTheme.colorScheme.errorContainer
+                            } else {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            },
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Text(progress, style = MaterialTheme.typography.bodyLarge)
+                        Text(status.text, modifier = Modifier.padding(12.dp))
                     }
                 }
-            } else if (state.busy) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
 
-            val session = state.session
-
-            state.status?.let { status ->
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (status.isError) {
-                            MaterialTheme.colorScheme.errorContainer
-                        } else {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        },
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(status.text, modifier = Modifier.padding(12.dp))
-                }
-            }
-
-            if (state.askVisibility) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Choose what other users see of your profile. Until you do, everything is private.")
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = onChooseVisibility) { Text("Choose") }
-                            TextButton(onClick = onDismissVisibility) { Text("Later") }
+                if (state.askVisibility) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Choose what other users see of your profile. Until you do, everything is private.")
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Button(onClick = onChooseVisibility) { Text("Choose") }
+                                TextButton(onClick = onDismissVisibility) { Text("Later") }
+                            }
                         }
                     }
                 }
-            }
 
-            state.importResult?.let { ImportResultView(it, onDismiss = onDismissImportResult) }
+                state.importResult?.let { ImportResultView(it, onDismiss = onDismissImportResult) }
 
-            state.medalScan?.let { MedalScanReview(it, known = state.medalScanKnown, onSave = onSaveMedalScan, onDismiss = onDismissMedalScan) }
+                state.medalScan?.let { MedalScanReview(it, known = state.medalScanKnown, onSave = onSaveMedalScan, onDismiss = onDismissMedalScan) }
 
-            val latest = state.latest
-            when {
-                // Below a share hint or a review, so they stay in view
-                session == null -> Landing(serverUrl)
-                latest != null -> AgentStats(latest, first = state.first ?: latest)
-                state.entries != null -> Text(
-                    "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
-                        "with this app.",
-                )
-            }
+                val latest = state.latest
+                when {
+                    // Below a share hint or a review, so they stay in view
+                    session == null -> Landing(serverUrl)
+                    latest != null -> AgentStats(latest, first = state.first ?: latest)
+                    state.entries != null -> Text(
+                        "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
+                            "with this app.",
+                    )
+                }
 
-            val customMedals = state.customMedals
-            if (session != null && customMedals != null) {
-                HorizontalDivider()
-                CustomMedals(customMedals)
+                val customMedals = state.customMedals
+                if (session != null && customMedals != null) {
+                    HorizontalDivider()
+                    CustomMedals(customMedals)
+                }
             }
         }
     }
 }
 
-@Composable
-private fun AppBarIcon(@DrawableRes icon: Int, description: String, onClick: () -> Unit, enabled: Boolean = true) {
-    IconButton(onClick = onClick, enabled = enabled) {
-        Icon(painterResource(icon), contentDescription = description, modifier = Modifier.size(20.dp))
-    }
-}
-
 /** The user's role, colored like the badges of web's user list (admins stand out). */
 @Composable
-private fun RoleBadge(role: UserRole) {
+internal fun RoleBadge(role: UserRole) {
     val (container, content) = when (role) {
         UserRole.USER -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
         UserRole.ADMIN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer

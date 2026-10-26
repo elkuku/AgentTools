@@ -235,6 +235,17 @@ class MainViewModelTest {
     }
 
     @Test
+    fun signInLoadsTheAvatarAndSignOutForgetsIt() {
+        api.me = MeResult.Success(UserRole.USER, "TestAgent", avatar = "data:image/jpeg;base64,abc")
+        val viewModel = signedIn()
+        assertEquals("data:image/jpeg;base64,abc", viewModel.state.value.avatar)
+
+        viewModel.signOut(context)
+
+        assertNull(viewModel.state.value.avatar)
+    }
+
+    @Test
     fun signInLoadsTheVisibleParts() {
         api.me = MeResult.Success(UserRole.USER, "TestAgent", visibleParts = setOf(ProfilePart.AGENT))
 
