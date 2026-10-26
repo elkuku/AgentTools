@@ -22,6 +22,9 @@
             {% set faction = stat ? stat.factionCode %}
             <tr>
                 <td>
+                    {% if agent.visibleAvatar %}
+                        <img class="avatar me-1" src="{{ agent.visibleAvatar }}" alt="" width="24" height="24">
+                    {% endif %}
                     {% if faction %}
                         <img class="faction-logo-small me-1" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
                     {% endif %}

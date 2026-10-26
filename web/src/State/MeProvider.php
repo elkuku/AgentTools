@@ -35,6 +35,7 @@ final readonly class MeProvider implements ProviderInterface
             CustomMedals::fromArray($user->getCustomMedals()),
             $user->getVisibleParts(),
             $user->getVisibilityChosenAt() instanceof \DateTimeImmutable,
+            $user->getAvatar(),
         );
     }
 }

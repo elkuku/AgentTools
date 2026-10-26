@@ -8,10 +8,13 @@ use App\Repository\UserRepository;
 use App\Security\ApiTokenStore;
 use App\Security\GoogleIdentityAuthenticator;
 use App\Security\GoogleIdTokenVerifierInterface;
+use App\Service\AvatarUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -42,6 +45,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
             $this->entityManager,
             $this->urlGenerator,
             new ApiTokenStore(false),
+            new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
         );
     }
 
@@ -86,6 +90,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
             $this->entityManager,
             $this->urlGenerator,
             new ApiTokenStore(false),
+            new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
         );
         $request = new Request([], ['credential' => 'token']);
         $request->setSession(new Session(new MockArraySessionStorage()));

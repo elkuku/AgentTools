@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\AvatarUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,7 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         private readonly EntityManagerInterface $entityManager,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ApiTokenStore $apiTokenStore,
+        private readonly AvatarUpdater $avatarUpdater,
     ) {
     }
 
@@ -60,6 +62,7 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         }
 
         $user = $this->getUser($googleId, $email);
+        $this->avatarUpdater->update($user, $payload['picture'] ?? null);
         $this->apiTokenStore->store($request->getSession(), $idToken, $payload);
 
         return new SelfValidatingPassport(

@@ -82,3 +82,9 @@ main > .container {
 .faction-logo-small {
     height: 20px;
 }
+
+/* The Google profile picture */
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}

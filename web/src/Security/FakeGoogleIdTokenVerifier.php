@@ -11,9 +11,9 @@ namespace App\Security;
  */
 final class FakeGoogleIdTokenVerifier implements GoogleIdTokenVerifierInterface
 {
-    public static function token(string $googleId, string $email, bool $emailVerified = true): string
+    public static function token(string $googleId, string $email, bool $emailVerified = true, ?string $picture = null): string
     {
-        return \implode('|', ['fake', $googleId, $email, $emailVerified ? 'verified' : 'unverified']);
+        return \implode('|', ['fake', $googleId, $email, $emailVerified ? 'verified' : 'unverified', ...(null === $picture ? [] : [$picture])]);
     }
 
     #[\Override]
@@ -21,7 +21,7 @@ final class FakeGoogleIdTokenVerifier implements GoogleIdTokenVerifierInterface
     {
         $parts = \explode('|', $idToken);
 
-        if (4 !== \count($parts) || 'fake' !== $parts[0]) {
+        if (!\in_array(\count($parts), [4, 5], true) || 'fake' !== $parts[0]) {
             return null;
         }
 
@@ -29,6 +29,7 @@ final class FakeGoogleIdTokenVerifier implements GoogleIdTokenVerifierInterface
             'sub' => $parts[1],
             'email' => $parts[2],
             'email_verified' => 'verified' === $parts[3],
+            ...(isset($parts[4]) ? ['picture' => $parts[4]] : []),
         ];
     }
 }

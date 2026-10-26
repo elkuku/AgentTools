@@ -26,3 +26,5 @@ when@test:
     services:
         App\Security\GoogleIdTokenVerifierInterface:
             class: App\Security\FakeGoogleIdTokenVerifier
+
+        App\Tests\Fake\GooglePictureResponses: ~

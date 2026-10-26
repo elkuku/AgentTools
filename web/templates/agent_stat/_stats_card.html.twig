@@ -1,11 +1,15 @@
 {#
     Agent stats with medals, laid out like the app (and 4e-website's agent stats page).
-    stat: AgentStat, medals: list<MedalLevel>, coreBadges: list<string>, first: AgentStat|null (the first import)
+    stat: AgentStat, medals: list<MedalLevel>, coreBadges: list<string>, first: AgentStat|null (the first import),
+    avatar: string|null (a data: URI)
 #}
 {% set stats = stat.stats %}
 <div class="agent-stats" id="agent-stats">
     {% set faction = stat.factionCode %}
     <div class="d-flex align-items-center gap-2">
+        {% if avatar ?? null %}
+            <img class="avatar" src="{{ avatar }}" alt="Profile picture" width="48" height="48">
+        {% endif %}
         {% if faction %}
             <img class="faction-logo" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
         {% endif %}

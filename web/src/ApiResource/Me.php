@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * custom medals or chooses the visible profile parts, the only writable fields.
  */
 #[ApiResource(
-    description: 'The signed-in user. customMedals are the custom medals (anomaly, annual and event medals) as 4e-website stores them: medal keys of its MedalChecker::$customMedals with the tier (anomaly, event; "" for a medal without tiers) or the level 1 (bronze) to 5 (onyx) (annual). visibleParts are the parts of the profile other signed-in users see (agent, latest_stats, stats_history, custom_medals; the others only with agent); visibilityChosen is false until the user chose them (on /profile or with PATCH), until then everything is private. With PATCH users set their Ingress agent name (the first agent stats uploaded set it when it is not set yet; agent stats are only accepted for this agent, ignoring case; no other user may have it), replace groups of custom medals (a JSON merge patch: groups not sent stay) or choose visibleParts (all of them; without agent none is stored).',
+    description: 'The signed-in user. customMedals are the custom medals (anomaly, annual and event medals) as 4e-website stores them: medal keys of its MedalChecker::$customMedals with the tier (anomaly, event; "" for a medal without tiers) or the level 1 (bronze) to 5 (onyx) (annual). visibleParts are the parts of the profile other signed-in users see (agent, avatar, latest_stats, stats_history, custom_medals; the others only with agent); visibilityChosen is false until the user chose them; avatar is the Google profile picture as a 100 px JPEG data: URI (null without one) (on /profile or with PATCH), until then everything is private. With PATCH users set their Ingress agent name (the first agent stats uploaded set it when it is not set yet; agent stats are only accepted for this agent, ignoring case; no other user may have it), replace groups of custom medals (a JSON merge patch: groups not sent stay) or choose visibleParts (all of them; without agent none is stored).',
     operations: [
         new Get(uriTemplate: '/me', security: "is_granted('ROLE_USER')", provider: MeProvider::class),
         new Patch(
@@ -68,6 +68,9 @@ final class Me
         /** False until the user chose which profile parts other users see (the app asks). */
         #[Groups([self::READ])]
         public bool $visibilityChosen = false,
+        /** The Google profile picture (100 px JPEG data: URI), null without one. */
+        #[Groups([self::READ])]
+        public ?string $avatar = null,
     ) {
     }
 }

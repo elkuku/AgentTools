@@ -11,11 +11,14 @@
 
     {% if showLatestStats %}
         <div class="mt-3">
-            {{ include('agent_stat/_stats_card.html.twig', {stat: latest}) }}
+            {{ include('agent_stat/_stats_card.html.twig', {stat: latest, avatar: agent.visibleAvatar}) }}
         </div>
     {% else %}
         {% set faction = latest ? latest.factionCode %}
         <h1 class="d-flex align-items-center gap-2">
+            {% if agent.visibleAvatar %}
+                <img class="avatar" src="{{ agent.visibleAvatar }}" alt="Profile picture" width="48" height="48">
+            {% endif %}
             {% if faction %}
                 <img class="faction-logo" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ latest.faction }}">
             {% endif %}

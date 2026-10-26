@@ -78,6 +78,14 @@ class User implements UserInterface
     #[Column(type: Types::JSON, options: ['default' => '[]'])]
     private array $visibleParts = [];
 
+    /** The Google profile picture, 100 px, as a data: URI (AvatarUpdater); null without one. */
+    #[Column(type: Types::TEXT, nullable: true)]
+    private ?string $avatar = null;
+
+    /** The Google picture URL [$avatar] was made from: it is fetched again only when this changes. */
+    #[Column(length: 1000, nullable: true)]
+    private ?string $avatarSource = null;
+
     /** When the user saved the visibility of the profile parts; null: they are asked to choose. */
     #[Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $visibilityChosenAt = null;
@@ -252,6 +260,30 @@ class User implements UserInterface
         return null !== $this->agentName
             && \in_array(ProfilePart::AGENT->value, $this->visibleParts, true)
             && \in_array($part->value, $this->visibleParts, true);
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    /** The picture other users see: only with the avatar part visible. */
+    public function getVisibleAvatar(): ?string
+    {
+        return $this->isVisible(ProfilePart::AVATAR) ? $this->avatar : null;
+    }
+
+    public function getAvatarSource(): ?string
+    {
+        return $this->avatarSource;
+    }
+
+    public function setAvatar(?string $avatar, ?string $source): self
+    {
+        $this->avatar = $avatar;
+        $this->avatarSource = $source;
+
+        return $this;
     }
 
     public function getVisibilityChosenAt(): ?\DateTimeImmutable

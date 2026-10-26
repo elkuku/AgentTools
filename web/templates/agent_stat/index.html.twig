@@ -7,7 +7,7 @@
 
     {% if latest %}
         <div class="mt-3">
-            {{ include('agent_stat/_stats_card.html.twig', {stat: latest}) }}
+            {{ include('agent_stat/_stats_card.html.twig', {stat: latest, avatar: app.user.avatar}) }}
         </div>
     {% endif %}
 

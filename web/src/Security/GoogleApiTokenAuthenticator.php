@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\AvatarUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +34,7 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
         private readonly GoogleIdTokenVerifierInterface $idTokenVerifier,
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly AvatarUpdater $avatarUpdater,
     ) {
     }
 
@@ -69,7 +71,13 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($googleId, fn (): User => $this->findUser($googleId, $email))
+            new UserBadge($googleId, function () use ($googleId, $email, $payload): User {
+                $user = $this->findUser($googleId, $email);
+                // The app signs in with Google only: its users get their picture here
+                $this->avatarUpdater->update($user, $payload['picture'] ?? null);
+
+                return $user;
+            })
         );
     }
 

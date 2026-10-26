@@ -11,5 +11,8 @@ framework:
 when@test:
     framework:
         test: true
+        # No requests leave the machine, e.g. for Google profile pictures
+        http_client:
+            mock_response_factory: App\Tests\Fake\GooglePictureResponses
         session:
             storage_factory_id: session.storage.factory.mock_file
