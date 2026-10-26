@@ -4,16 +4,8 @@
     {% if app.user %}
         <div class="alert alert-success mt-4">
             <h4>Welcome {{ app.user.agentName ?: app.user.userIdentifier }}!</h4>
-            {% if is_granted('ROLE_AGENT') %}
-                See <a href="{{ path('app_agent_stat_index') }}">your agent stats</a>.
-            {% endif %}
+            See <a href="{{ path('app_agent_stat_index') }}">your agent stats</a>.
         </div>
-        {% if not is_granted('ROLE_AGENT') %}
-            <div class="alert alert-info" id="agent-role-pending">
-                Your account is waiting for an administrator to give it the Agent role.
-                Then you can upload and see your agent stats and custom medals.
-            </div>
-        {% endif %}
     {% endif %}
 
     <section class="landing-hero text-center py-5">
@@ -28,11 +20,11 @@
             <a class="btn btn-success btn-lg" href="https://github.com/elkuku/AgentTools/releases/latest">
                 <i class="bi-android2"></i> Download the app
             </a>
-            {% if is_granted('ROLE_AGENT') %}
+            {% if app.user %}
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_agent_stat_index') }}">
                     <i class="bi-bar-chart-line"></i> My agent stats
                 </a>
-            {% elseif not app.user %}
+            {% else %}
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_login') }}">
                     <i class="bi-box-arrow-in-right"></i> Sign in
                 </a>
@@ -114,10 +106,10 @@
                 <div class="card h-100 landing-feature">
                     <div class="card-body">
                         <i class="bi-shield-check fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Only for agents</h5>
+                        <h5 class="card-title mt-2">Only for you</h5>
                         <p class="card-text">
-                            New accounts wait for an administrator to give them the Agent role. Your stats and
-                            medals are only visible to you.
+                            Your first stats set your agent name; no one else can save stats for it. Your stats
+                            and medals are only visible to you.
                         </p>
                     </div>
                 </div>
@@ -147,8 +139,7 @@
                 and open it.
             </li>
             <li class="list-group-item">
-                <strong>Sign in with Google</strong> in the app. Your account is registered and waits for the
-                Agent role.
+                <strong>Sign in with Google</strong> in the app. Your account is registered right away.
             </li>
             <li class="list-group-item">
                 <strong>Share your all-time stats</strong> from Ingress with AgentTools &mdash; and screenshots of

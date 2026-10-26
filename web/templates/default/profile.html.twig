@@ -6,16 +6,15 @@
     <h1>User Profile</h1>
 
     <p>Identifier: <code>{{ app.user.userIdentifier }}</code></p>
-    {% if is_granted('ROLE_AGENT') %}
-        <p>
-            Agent name:
-            {% if app.user.agentName %}
-                <code>{{ app.user.agentName }}</code>
-            {% else %}
-                not set yet. Set it in the app's settings: only stats for this agent are accepted.
-            {% endif %}
-        </p>
-    {% endif %}
+    <p>
+        Agent name:
+        {% if app.user.agentName %}
+            <code>{{ app.user.agentName }}</code>
+        {% else %}
+            not set yet. Your first stats upload sets it, or set it in the app's settings: only stats for
+            this agent are accepted.
+        {% endif %}
+    </p>
 
     {% if is_granted('ROLE_ADMIN') %}
         <h2 class="mt-5">API token</h2>

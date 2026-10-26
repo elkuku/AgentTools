@@ -3,10 +3,9 @@ security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
-    # Admins can do what agents can, agents what users can
+    # Admins can do what users can
     role_hierarchy:
-        ROLE_ADMIN: ROLE_AGENT
-        ROLE_AGENT: ROLE_USER
+        ROLE_ADMIN: ROLE_USER
 
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
@@ -56,7 +55,7 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         # API operations check their role themselves (#[ApiResource] security), so /api/docs stays public
-        - { path: ^/agent-stats, roles: ROLE_AGENT }
+        - { path: ^/agent-stats, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

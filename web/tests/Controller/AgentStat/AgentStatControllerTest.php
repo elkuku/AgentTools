@@ -77,7 +77,7 @@ class AgentStatControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testPagesRequireTheAgentRole(): void
+    public function testRegisteredUsersSeeTheirStats(): void
     {
         $user = $this->getUserByIdentifier('user');
         $agentStat = $this->createAgentStat($user, 'Mine');
@@ -85,7 +85,7 @@ class AgentStatControllerTest extends WebTestCase
         $this->client->loginUser($user);
         foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
             $this->client->request(Request::METHOD_GET, $path);
-            self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+            self::assertResponseIsSuccessful();
         }
     }
 

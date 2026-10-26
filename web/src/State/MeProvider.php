@@ -9,7 +9,6 @@ use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\CustomMedals;
 use App\ApiResource\Me;
 use App\Entity\User;
-use App\Enum\UserRole;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
@@ -33,7 +32,7 @@ final readonly class MeProvider implements ProviderInterface
             $user->getIdentifier(),
             $user->getRole()->value,
             $user->getAgentName(),
-            $this->security->isGranted(UserRole::AGENT->value) ? CustomMedals::fromArray($user->getCustomMedals()) : null,
+            CustomMedals::fromArray($user->getCustomMedals()),
         );
     }
 }

@@ -23,8 +23,8 @@
 
 3. `web` verifies the token against its Google **Web** client ID (`OAUTH_GOOGLE_ID`),
    finds the user (by Google ID, else by email) and stores the stats (once per `datetime`). An
-   unknown account is registered as a user and waits for an admin to give it the **Agent** role;
-   until then stats and custom medals answer `403`.
+   unknown account is registered as a user and saves stats right away. Without an agent name,
+   the first stats set it (unless another user has it).
 4. The app shows the latest stats with medals (`GET /api/agent-stats`). On the web, logged-in users
    see their stats at `/agent-stats`.
 5. Screenshots of the Ingress medal grid shared with the app are scanned on the device for

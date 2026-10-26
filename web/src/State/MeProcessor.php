@@ -35,7 +35,7 @@ final readonly class MeProcessor implements ProcessorInterface
     {
         $user = $this->security->getUser();
         if (!$user instanceof User) {
-            throw new \LogicException('The operation requires ROLE_AGENT.');
+            throw new \LogicException('The operation requires ROLE_USER.');
         }
 
         if (null !== $data->agentName) {

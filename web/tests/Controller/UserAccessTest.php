@@ -33,23 +33,7 @@ class UserAccessTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h4', 'Welcome user');
-        self::assertSelectorTextContains('#agent-role-pending', 'waiting for an administrator');
-    }
-
-    public function testAgentsDoNotWaitForTheRole(): void
-    {
-        $client = static::createClient();
-
-        /** @var UserRepository $userRepository */
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $agent = $userRepository->findOneBy(['identifier' => 'agent']);
-        self::assertNotNull($agent);
-
-        $client->loginUser($agent);
-        $client->request(Request::METHOD_GET, '/');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('#agent-role-pending');
+        // No waiting for an administrator
         self::assertSelectorTextContains('nav', 'Agent stats');
     }
 }

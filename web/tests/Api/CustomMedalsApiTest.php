@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\ApiResource\Me;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,10 +18,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomMedalsApiTest extends WebTestCase
 {
-    /** An agent: may save. */
+    /** A user with medals in the tests. */
     private const string GOOGLE_ID = 'gid-medals-agent';
 
-    /** A user without the Agent role (newly registered): no custom medals at all. */
+    /** Another user (newly registered). */
     private const string USER_GOOGLE_ID = 'gid-medals-user';
 
     /**
@@ -67,16 +66,14 @@ class CustomMedalsApiTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testRequiresTheAgentRole(): void
+    public function testRegisteredUsersSaveMedals(): void
     {
         $this->request(Request::METHOD_PATCH, self::USER_GOOGLE_ID, self::MEDALS);
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(Me::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
+        self::assertResponseIsSuccessful();
 
-        // The account itself stays readable, without medals
         $this->request(Request::METHOD_GET, self::USER_GOOGLE_ID);
         self::assertResponseIsSuccessful();
-        self::assertNull($this->responseJson()['customMedals']);
+        self::assertSame(self::MEDALS, \array_intersect_key($this->medalsJson(), self::MEDALS));
     }
 
     public function testNoMedalsYet(): void

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\Dto\AgentStatInput;
-use App\Entity\AgentStat;
+use App\Entity\User;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
-use App\Service\AgentStatService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -19,10 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AgentStatApiTest extends WebTestCase
 {
-    /** An agent: may upload. */
+    /** A user with the agent name TestAgent. */
     private const string GOOGLE_ID = 'gid-stats-agent';
 
-    /** A user without the Agent role (newly registered): no agent stats at all. */
+    /** A user without an agent name: the first stats upload sets it. */
     private const string USER_GOOGLE_ID = 'gid-stats-user';
 
     private const string ADMIN_GOOGLE_ID = 'gid-stats-admin';
@@ -119,48 +117,45 @@ class AgentStatApiTest extends WebTestCase
         self::assertNull($stat->recon);
     }
 
-    public function testUploadRequiresTheAgentRole(): void
+    public function testFirstUploadSetsTheAgentName(): void
     {
-        $this->postJson(self::STATS, self::USER_GOOGLE_ID);
+        $this->postJson(['nickname' => ' NewAgent '] + self::STATS, self::USER_GOOGLE_ID);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(AgentStat::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
-        self::assertSame([], $this->agentStatRepository()->findAll());
-    }
-
-    public function testReadingRequiresTheAgentRole(): void
-    {
-        $this->get('/api/agent-stats', self::USER_GOOGLE_ID);
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(AgentStat::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
-
-        // Not even their own stats, e.g. from before they lost the role
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $user = $this->userRepository()->findOneBy(['identifier' => 'user']);
         self::assertNotNull($user);
-        $stat = new AgentStat($user, new AgentStatInput(datetime: '2026-10-19 15:35:56', nickname: 'TestAgent', faction: 'Enlightened', ap: 1));
-        $this->entityManager()->persist($stat);
-        $this->entityManager()->flush();
+        self::assertSame('NewAgent', $user->getAgentName());
+        self::assertCount(1, $this->agentStatRepository()->findByOwner($user));
 
-        $this->get('/api/agent-stats/'.$stat->id, self::USER_GOOGLE_ID);
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-
-        // The account itself stays readable, so the app can show the role
-        $this->get('/api/me', self::USER_GOOGLE_ID);
+        $this->get('/api/agent-stats', self::USER_GOOGLE_ID);
         self::assertResponseIsSuccessful();
-        self::assertSame('ROLE_USER', $this->responseJson()['role']);
+        self::assertSame(1, $this->responseJson()['totalItems']);
+
+        // From now on only stats for this agent
+        $this->postJson(['nickname' => 'OtherAgent', 'datetime' => '2026-10-20 15:35:56'] + self::STATS, self::USER_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSame('These stats are for agent OtherAgent, your agent name is NewAgent.', $this->responseJson()['detail']);
     }
 
-    public function testUploadRequiresAnAgentName(): void
+    public function testFirstUploadRejectsAnAgentNameOfAnotherUser(): void
     {
-        $agent = $this->userRepository()->findOneBy(['identifier' => 'agent']);
-        self::assertNotNull($agent);
-        $agent->setAgentName(null);
-        $this->entityManager()->flush();
-
-        $this->postJson(self::STATS);
+        // TestAgent is the agent's, ignoring case
+        $this->postJson(['nickname' => 'testagent'] + self::STATS, self::USER_GOOGLE_ID);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-        self::assertSame(AgentStatService::AGENT_NAME_MISSING, $this->responseJson()['detail']);
+        self::assertSame(User::AGENT_NAME_TAKEN, $this->responseJson()['detail']);
+        self::assertSame([], $this->agentStatRepository()->findAll());
+
+        $this->entityManager()->clear();
+        self::assertNull($this->userRepository()->findOneBy(['identifier' => 'user'])?->getAgentName());
+    }
+
+    public function testFirstUploadRejectsANicknameThatIsNoAgentName(): void
+    {
+        $this->postJson(['nickname' => 'Not an agent'] + self::STATS, self::USER_GOOGLE_ID);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSame(User::AGENT_NAME_INVALID, $this->responseJson()['detail']);
         self::assertSame([], $this->agentStatRepository()->findAll());
     }
 
@@ -269,7 +264,7 @@ class AgentStatApiTest extends WebTestCase
         $json = $this->responseJson();
         self::assertSame('/api/me', $json['@id']);
         self::assertSame('agent', $json['identifier']);
-        self::assertSame('ROLE_AGENT', $json['role']);
+        self::assertSame('ROLE_USER', $json['role']);
         self::assertSame('TestAgent', $json['agentName']);
         self::assertIsInt($json['id']);
     }
@@ -288,9 +283,11 @@ class AgentStatApiTest extends WebTestCase
         self::assertNotNull($user);
         self::assertSame(self::NEW_GOOGLE_ID, $user->getGoogleId());
 
-        // Until an admin makes them an agent
-        $this->get('/api/agent-stats', self::NEW_GOOGLE_ID);
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        // They upload stats right away
+        $this->postJson(['nickname' => 'NewAgent'] + self::STATS, self::NEW_GOOGLE_ID);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        $this->entityManager()->clear();
+        self::assertSame('NewAgent', $this->userRepository()->findOneBy(['identifier' => self::NEW_GOOGLE_ID.'@example.com'])?->getAgentName());
     }
 
     public function testCurrentUserRequiresToken(): void

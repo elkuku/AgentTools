@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\ApiResource\Me;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
@@ -20,10 +19,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class MeApiTest extends WebTestCase
 {
-    /** An agent without an agent name yet. */
+    /** A user without an agent name yet. */
     private const string GOOGLE_ID = 'gid-me-agent';
 
-    /** A user without the Agent role (newly registered). */
+    /** Another user without an agent name (newly registered). */
     private const string USER_GOOGLE_ID = 'gid-me-user';
 
     private KernelBrowser $client;
@@ -36,7 +35,7 @@ class MeApiTest extends WebTestCase
             $this->user($identifier)->setGoogleId($googleId);
         }
 
-        // Another agent's name
+        // Another user's agent name
         $this->user('admin')->setAgentName('AdminAgent');
 
         $this->entityManager()->flush();
@@ -58,13 +57,14 @@ class MeApiTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testRequiresTheAgentRole(): void
+    public function testRegisteredUsersSetTheirAgentName(): void
     {
         $this->request(Request::METHOD_PATCH, self::USER_GOOGLE_ID, ['agentName' => 'TestAgent']);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        self::assertSame(Me::AGENT_ROLE_NEEDED, $this->responseJson()['detail']);
-        self::assertNull($this->user('user')->getAgentName());
+        self::assertResponseIsSuccessful();
+        self::assertSame('ROLE_USER', $this->responseJson()['role']);
+        $this->entityManager()->clear();
+        self::assertSame('TestAgent', $this->user('user')->getAgentName());
     }
 
     public function testOnlyTheAgentNameIsWritable(): void
@@ -75,7 +75,7 @@ class MeApiTest extends WebTestCase
         $this->entityManager()->clear();
         $agent = $this->user('agent');
         self::assertSame('TestAgent', $agent->getAgentName());
-        self::assertSame('ROLE_AGENT', $agent->getRole()->value);
+        self::assertSame('ROLE_USER', $agent->getRole()->value);
     }
 
     public function testSetsAndShowsTheAgentName(): void
@@ -90,7 +90,7 @@ class MeApiTest extends WebTestCase
         $json = $this->responseJson();
         self::assertSame('TestAgent', $json['agentName']);
         self::assertSame('agent', $json['identifier']);
-        self::assertSame('ROLE_AGENT', $json['role']);
+        self::assertSame('ROLE_USER', $json['role']);
         $this->entityManager()->clear();
         self::assertSame('TestAgent', $this->user('agent')->getAgentName());
 

@@ -38,13 +38,12 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 #[ApiResource(
     description: "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, newest first.",
     operations: [
-        new GetCollection(security: "is_granted('ROLE_AGENT')", securityMessage: self::AGENT_ROLE_NEEDED),
+        new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('".AgentStatVoter::VIEW."', object)"),
         new Post(
             exceptionToStatus: [StatsAlreadyAddedException::class => 409, AgentNameException::class => 422],
             collectDenormalizationErrors: true,
-            security: "is_granted('ROLE_AGENT')",
-            securityMessage: self::AGENT_ROLE_NEEDED,
+            security: "is_granted('ROLE_USER')",
             input: AgentStatInput::class,
             processor: AgentStatProcessor::class,
         ),
@@ -53,8 +52,6 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 )]
 class AgentStat
 {
-    public const string AGENT_ROLE_NEEDED = 'Agent stats need the Agent role. Ask an administrator.';
-
     #[Column, Id, GeneratedValue]
     public ?int $id = null {
         get {
