@@ -61,10 +61,10 @@ class MainActivity : ComponentActivity() {
                             busy = state.busy,
                         ),
                         onSaveVisibleParts = { viewModel.saveVisibleParts(activity, it) },
-                        build = AppBuild(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.DEBUG),
+                        build = AppBuild(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.BUILD_TYPE, BuildConfig.SERVER_SWITCH),
                         serverUrl = serverUrl,
                         defaultServerUrl = serverSettings.defaultUrl,
-                        liveServerUrl = if (BuildConfig.DEBUG) BuildConfig.LIVE_SERVER_BASE_URL else "",
+                        liveServerUrl = if (BuildConfig.SERVER_SWITCH) BuildConfig.LIVE_SERVER_BASE_URL else "",
                         onSaveServerUrl = { url ->
                             val before = serverSettings.url.value
                             serverSettings.set(url).also { error ->

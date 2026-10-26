@@ -14,6 +14,14 @@ release.storePassword=
 release.keyAlias=agenttools
 release.keyPassword=
 
+# Dev build type (assembleDev, built by the GitHub Pages workflow): dev key, and an optional
+# build label for the version name (<versionName>-dev+<label>).
+dev.storeFile=
+dev.storePassword=
+dev.keyAlias=agenttools-dev
+dev.keyPassword=
+dev.build=
+
 # Debug builds only: skip Google and send fake tokens for this identifier.
 # Needs APP_FAKE_GOOGLE_TOKENS=1 in web/.env.local (dev env). Leave empty for real sign-in.
 debug.fakeSignInEmail=

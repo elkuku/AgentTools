@@ -23,7 +23,7 @@ class SharedPreferencesStore(private val prefs: SharedPreferences) : SettingsSto
 }
 
 /**
- * The server the app talks to: the build's [defaultUrl], or in debug builds ([editable]) a URL
+ * The server the app talks to: the build's [defaultUrl], or in debug and dev builds ([editable]) a URL
  * set on the settings screen.
  */
 class ServerSettings(
@@ -36,7 +36,7 @@ class ServerSettings(
 
     /** Sets the URL, or the [defaultUrl] for a blank one. Returns an error message for an invalid URL. */
     fun set(url: String): String? {
-        check(editable) { "The server URL can only be changed in debug builds." }
+        check(editable) { "The server URL can only be changed in debug and dev builds." }
 
         val value = url.trim().trimEnd('/')
         if (value.isNotEmpty() && !HTTP_URL.matches(value)) return "Enter a URL starting with http:// or https://."

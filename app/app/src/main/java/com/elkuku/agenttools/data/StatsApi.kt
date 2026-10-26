@@ -162,7 +162,7 @@ interface StatsApi {
     suspend fun users(idToken: String): UsersResult
 }
 
-/** [baseUrl] is read on every request: debug builds can change the server on the settings screen. */
+/** [baseUrl] is read on every request: debug and dev builds can change the server on the settings screen. */
 class KtorStatsApi(
     private val baseUrl: () -> String,
     engine: HttpClientEngine = OkHttp.create(),

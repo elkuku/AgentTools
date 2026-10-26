@@ -16,7 +16,7 @@ class AgentToolsApplication : Application() {
     val serverSettings: ServerSettings by lazy {
         ServerSettings(
             BuildConfig.SERVER_BASE_URL,
-            editable = BuildConfig.DEBUG,
+            editable = BuildConfig.SERVER_SWITCH,
             SharedPreferencesStore(getSharedPreferences("settings", MODE_PRIVATE)),
         )
     }

@@ -40,8 +40,8 @@ import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 
-/** The build the app runs: from BuildConfig. */
-data class AppBuild(val versionName: String, val versionCode: Int, val debug: Boolean)
+/** The build the app runs: from BuildConfig ([type] debug, release or dev; [serverSwitch]: the server can be changed). */
+data class AppBuild(val versionName: String, val versionCode: Int, val type: String, val serverSwitch: Boolean)
 
 /**
  * What [SettingsScreen] shows about the profile: the agent name (null until the first shared stats
@@ -57,7 +57,7 @@ data class ProfileSetting(
 
 /**
  * The agent name and the parts of the profile other users see, version and build type, and the server: changeable
- * in debug builds only, with buttons for the default and the [liveServerUrl] (none when blank). [onSaveServerUrl]
+ * in debug and dev builds only, with buttons for the default and the [liveServerUrl] (none when blank). [onSaveServerUrl]
  * returns an error message, or null when saved (a blank URL means the default).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,14 +98,14 @@ fun SettingsScreen(
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("App", style = MaterialTheme.typography.titleMedium)
                     Setting("Version", "${build.versionName} (${build.versionCode})")
-                    Setting("Build", if (build.debug) "Debug" else "Release")
+                    Setting("Build", build.type.replaceFirstChar { it.uppercase() })
                 }
             }
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Server", style = MaterialTheme.typography.titleMedium)
-                    if (build.debug) {
+                    if (build.serverSwitch) {
                         ServerUrlField(serverUrl, defaultServerUrl, liveServerUrl, onSaveServerUrl)
                     } else {
                         Text(serverUrl)
@@ -236,7 +236,7 @@ private fun SettingsScreenPreview() {
                 busy = false,
             ),
             onSaveVisibleParts = {},
-            build = AppBuild("0.1.0", 1, debug = true),
+            build = AppBuild("0.1.0", 1, type = "debug", serverSwitch = true),
             serverUrl = "http://localhost:8001",
             defaultServerUrl = "http://localhost:8001",
             liveServerUrl = "https://agent-tools.example.com",

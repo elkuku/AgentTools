@@ -39,11 +39,22 @@ android {
                 keyPassword = localProperty("release.keyPassword")
             }
         }
+        // Dev key (dev.* properties, set by the GitHub Pages workflow); without it assembleDev is unsigned
+        if (localProperty("dev.storeFile").isNotBlank()) {
+            create("dev") {
+                storeFile = file(localProperty("dev.storeFile"))
+                storePassword = localProperty("dev.storePassword")
+                keyAlias = localProperty("dev.keyAlias")
+                keyPassword = localProperty("dev.keyPassword")
+            }
+        }
     }
 
     buildTypes {
         debug {
             buildConfigField("String", "SERVER_BASE_URL", "\"${localProperty("server.baseUrl.debug", "http://10.0.2.2:8000")}\"")
+            // The server can be changed on the settings screen
+            buildConfigField("boolean", "SERVER_SWITCH", "true")
             // Fake sign-in without Google (needs APP_FAKE_GOOGLE_TOKENS=1 on the dev server)
             buildConfigField("String", "FAKE_SIGN_IN_EMAIL", "\"${localProperty("debug.fakeSignInEmail")}\"")
         }
@@ -52,9 +63,22 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "SERVER_BASE_URL", "\"${localProperty("server.baseUrl.release")}\"")
+            buildConfigField("boolean", "SERVER_SWITCH", "false")
             signingConfig = signingConfigs.findByName("release")
         }
+        // Release build installed next to the release app ("AgentTools Dev"), with the server switch
+        create("dev") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev" + localProperty("dev.build").let { if (it.isBlank()) "" else "+$it" }
+            buildConfigField("boolean", "SERVER_SWITCH", "true")
+            signingConfig = signingConfigs.findByName("dev")
+            matchingFallbacks += "release"
+        }
     }
+
+    // Signs in like release
+    sourceSets["dev"].kotlin.directories += "src/release/java"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
