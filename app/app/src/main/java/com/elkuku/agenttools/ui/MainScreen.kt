@@ -53,6 +53,8 @@ fun MainScreen(
     onSignOut: () -> Unit,
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenAgents: () -> Unit,
+    onOpenAdminAgents: () -> Unit,
     onDismissImportResult: () -> Unit,
     onChooseVisibility: () -> Unit,
     onDismissVisibility: () -> Unit,
@@ -74,6 +76,7 @@ fun MainScreen(
                     if (state.session == null) {
                         TextButton(onClick = onSignIn, enabled = !state.busy) { Text("Sign in") }
                     } else {
+                        FeatureMenu(onOpenAgents = onOpenAgents, onOpenAdminAgents = onOpenAdminAgents.takeIf { state.role == UserRole.ADMIN })
                         AccountMenu(
                             email = state.session.email,
                             role = state.role,
@@ -163,7 +166,7 @@ fun MainScreen(
                 when {
                     // Below a share hint or a review, so they stay in view
                     session == null -> Landing(serverUrl)
-                    latest != null -> AgentStats(latest, first = state.first ?: latest)
+                    latest != null -> AgentStats(latest, first = state.first ?: latest, avatar = state.avatar)
                     state.entries != null -> Text(
                         "No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats " +
                             "with this app.",
@@ -217,6 +220,8 @@ private fun MainScreenPreview() {
             onSignOut = {},
             onRefresh = {},
             onOpenSettings = {},
+            onOpenAgents = {},
+            onOpenAdminAgents = {},
             onDismissImportResult = {},
             onChooseVisibility = {},
             onDismissVisibility = {},

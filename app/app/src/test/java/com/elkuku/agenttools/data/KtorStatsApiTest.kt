@@ -57,6 +57,81 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun agentsAreListed() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals("http://server/api/agents", req.url.toString())
+            respond(
+                """{"@id": "/api/agents", "member": [{"@id": "/api/agents/TestAgent", "agentName": "TestAgent",
+                    "faction": "Enlightened", "level": 16, "avatar": "data:image/jpeg;base64,abc"}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            AgentsResult.Success(listOf(AgentSummary("TestAgent", "Enlightened", 16, "data:image/jpeg;base64,abc"))),
+            KtorStatsApi("http://server", engine).agents("t"),
+        )
+    }
+
+    @Test
+    fun anAgentHasTheVisibleParts() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals("http://server/api/agents/TestAgent", req.url.toString())
+            respond(
+                """{"agentName": "TestAgent", "faction": "Enlightened", "level": 16,
+                    "latestStats": {"datetime": "2026-10-20 15:35:56", "nickname": "TestAgent", "faction": "Enlightened", "ap": 5, "level": 16},
+                    "customMedals": {"anomaly": {"orion": "platinum"}, "annual": [], "event": []}}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        val result = KtorStatsApi("http://server", engine).agent("t", "TestAgent")
+
+        val profile = (result as AgentProfileResult.Success).profile
+        assertEquals(5L, profile.latest?.get("ap"))
+        assertEquals(null, profile.history)
+        assertEquals(listOf("orion"), profile.customMedals?.map { it.medal.key })
+    }
+
+    @Test
+    fun usersHaveThePrivacySettings() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals("http://server/api/users", req.url.toString())
+            respond(
+                """{"member": [{"@id": "/api/users/6", "id": 6, "identifier": "jane@example.com", "role": "ROLE_USER",
+                    "agentName": "TestAgent", "faction": "Resistance", "level": 9, "avatar": null,
+                    "visibleParts": ["agent", "custom_medals"], "visibilityChosen": true},
+                    {"id": 7, "identifier": "new@example.com", "role": "ROLE_USER", "agentName": null,
+                    "visibleParts": [], "visibilityChosen": false}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            UsersResult.Success(
+                listOf(
+                    UserPrivacy("jane@example.com", UserRole.USER, "TestAgent", "Resistance", 9, null, setOf(ProfilePart.AGENT, ProfilePart.CUSTOM_MEDALS), true),
+                    UserPrivacy("new@example.com", UserRole.USER, null),
+                ),
+            ),
+            KtorStatsApi("http://server", engine).users("t"),
+        )
+    }
+
+    @Test
+    fun aPrivateAgentIsNotFound() = runTest {
+        val engine = MockEngine { respond(problem(404, "Not Found"), HttpStatusCode.NotFound, problemHeaders) }
+
+        assertEquals(
+            AgentProfileResult.Failure("PrivateAgent no longer shows the profile."),
+            KtorStatsApi("http://server", engine).agent("t", "PrivateAgent"),
+        )
+    }
+
+    @Test
     fun meLoadsTheAvatar() = runTest {
         val engine = MockEngine { respond("""{"role": "ROLE_USER", "avatar": "data:image/jpeg;base64,abc"}""", HttpStatusCode.OK, jsonHeaders) }
 

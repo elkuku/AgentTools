@@ -6,8 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
+import com.elkuku.agenttools.data.AgentProfile
+import com.elkuku.agenttools.data.AgentProfileResult
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.AgentStatsResult
+import com.elkuku.agenttools.data.AgentSummary
+import com.elkuku.agenttools.data.AgentsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.ImportResult
@@ -16,7 +20,9 @@ import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.customMedalCount
 import com.elkuku.agenttools.data.StatsApi
+import com.elkuku.agenttools.data.UserPrivacy
 import com.elkuku.agenttools.data.UserRole
+import com.elkuku.agenttools.data.UsersResult
 import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.data.importResultFor
 import com.elkuku.agenttools.data.mergeCustomMedals
@@ -49,6 +55,18 @@ data class UiState(
     val visibilityStatus: Status? = null,
     /** The settings screen is shown instead of the stats. */
     val settingsOpen: Boolean = false,
+    /** The list of agents (or [agent]) is shown instead of the stats. */
+    val agentsOpen: Boolean = false,
+    /** The agents who show their profile; null until loaded, and for admins. */
+    val agents: List<AgentSummary>? = null,
+    /** Admin agents ([users]) are shown instead of the agents. */
+    val adminAgents: Boolean = false,
+    /** Admin agents: every user with the privacy settings; null until loaded. */
+    val users: List<UserPrivacy>? = null,
+    /** The agent profile shown over the list; null for the list. */
+    val agent: AgentProfile? = null,
+    /** Why the agents or an agent could not be loaded. */
+    val agentsStatus: Status? = null,
     val busy: Boolean = false,
     /** What takes a while (saving, scanning), shown with a loading animation; null for nothing. */
     val progress: String? = null,
@@ -112,6 +130,12 @@ class MainViewModel(
                 importResult = null,
                 customMedals = null,
                 visibilityChosen = true,
+                agentsOpen = false,
+                adminAgents = false,
+                agents = null,
+                users = null,
+                agent = null,
+                agentsStatus = null,
                 status = Status("Signed out.", false, untilSignIn = true),
             )
         }
@@ -151,6 +175,56 @@ class MainViewModel(
     }
 
     fun openSettings() = _state.update { it.copy(settingsOpen = true) }
+
+    /** The agents who show their profile, or with [admin] every user (admins only), loaded each time. */
+    fun openAgents(context: Context, admin: Boolean = false) {
+        _state.update { it.copy(agentsOpen = true, adminAgents = admin, agents = null, users = null, agent = null, agentsStatus = null) }
+        launchBusy { loadAgents(context) }
+    }
+
+    fun closeAgents() = _state.update { it.copy(agentsOpen = false, adminAgents = false, agents = null, users = null, agent = null, agentsStatus = null) }
+
+    fun openAgent(context: Context, agentName: String) = launchBusy {
+        _state.update { it.copy(agentsStatus = null) }
+        when (val result = withToken(context, { it is AgentProfileResult.Unauthorized }) { api.agent(it, agentName) }) {
+            is AgentProfileResult.Success -> _state.update { it.copy(agent = result.profile) }
+            is AgentProfileResult.Failure -> _state.update { it.copy(agentsStatus = Status(result.message, true)) }
+            is AgentProfileResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
+
+    /** Back from an agent to the list. */
+    fun closeAgent() = _state.update { it.copy(agent = null, agentsStatus = null) }
+
+    /** Reloads the agent shown, or the list. */
+    fun refreshAgents(context: Context) {
+        val agent = _state.value.agent
+        if (agent != null) openAgent(context, agent.summary.agentName) else launchBusy { loadAgents(context) }
+    }
+
+    private suspend fun loadUsers(context: Context) {
+        when (val result = withToken(context, { it is UsersResult.Unauthorized }) { api.users(it) }) {
+            is UsersResult.Success -> _state.update { it.copy(users = result.users, agentsStatus = null) }
+            is UsersResult.Failure -> _state.update { it.copy(agentsStatus = Status(result.message, true)) }
+            is UsersResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
+
+    private suspend fun loadAgents(context: Context) {
+        if (_state.value.adminAgents) {
+            loadUsers(context)
+            return
+        }
+
+        when (val result = withToken(context, { it is AgentsResult.Unauthorized }) { api.agents(it) }) {
+            is AgentsResult.Success -> _state.update { it.copy(agents = result.agents, agentsStatus = null) }
+            is AgentsResult.Failure -> _state.update { it.copy(agentsStatus = Status(result.message, true)) }
+            is AgentsResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
 
     fun closeSettings() = _state.update { it.copy(settingsOpen = false, visibilityStatus = null) }
 
@@ -372,6 +446,12 @@ class MainViewModel(
             entries = null,
             customMedals = null,
             visibilityChosen = true,
+            agentsOpen = false,
+            adminAgents = false,
+            agents = null,
+            users = null,
+            agent = null,
+            agentsStatus = null,
             status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),
         )
     }

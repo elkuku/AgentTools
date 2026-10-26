@@ -83,7 +83,7 @@ fun AccountMenu(
 }
 
 @Composable
-private fun MenuItem(@DrawableRes icon: Int, text: String, enabled: Boolean = true, onClick: () -> Unit) {
+internal fun MenuItem(@DrawableRes icon: Int, text: String, enabled: Boolean = true, onClick: () -> Unit) {
     DropdownMenuItem(
         text = { Text(text) },
         onClick = onClick,
@@ -94,7 +94,7 @@ private fun MenuItem(@DrawableRes icon: Int, text: String, enabled: Boolean = tr
 
 /** The picture in a circle, or the person icon without one. */
 @Composable
-private fun Avatar(picture: ImageBitmap?, size: Dp, description: String?) {
+internal fun Avatar(picture: ImageBitmap?, size: Dp, description: String?) {
     if (picture != null) {
         Image(
             picture,
@@ -109,11 +109,38 @@ private fun Avatar(picture: ImageBitmap?, size: Dp, description: String?) {
 
 /** Decodes web's `data:image/jpeg;base64,…` picture; null without one or when it is not an image. */
 @Composable
-private fun rememberAvatar(avatar: String?): ImageBitmap? = remember(avatar) {
+internal fun rememberAvatar(avatar: String?): ImageBitmap? = remember(avatar) {
     avatar?.substringAfter("base64,", "")?.takeIf { it.isNotEmpty() }?.let { base64 ->
         runCatching {
             val bytes = Base64.decode(base64, Base64.DEFAULT)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }.getOrNull()
+    }
+}
+
+/**
+ * The app's features, next to the account menu: the agents, for admins ([onOpenAdminAgents]) every
+ * user with the privacy settings, and what comes next.
+ */
+@Composable
+fun FeatureMenu(onOpenAgents: () -> Unit, onOpenAdminAgents: (() -> Unit)? = null) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(painterResource(R.drawable.ic_bi_list), contentDescription = "Menu", modifier = Modifier.size(24.dp))
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            MenuItem(R.drawable.ic_bi_people, "Agents") {
+                expanded = false
+                onOpenAgents()
+            }
+            onOpenAdminAgents?.let { open ->
+                MenuItem(R.drawable.ic_bi_person_gear, "Admin agents") {
+                    expanded = false
+                    open()
+                }
+            }
+        }
     }
 }

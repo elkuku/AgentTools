@@ -83,8 +83,13 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   retries once.
 - `ui/MainScreen.kt` — the main screen: app bar with sign-in, or the account menu
   (`ui/AccountMenu.kt`, like web's: the Google profile picture from `GET /api/me` `avatar`, a
-  `data:` URI, opens the email and role, Settings and Sign out), status messages, the stats;
-  pull down to reload. The stats header has the faction logo and the level in the faction color
+  `data:` URI, opens the email and role, Settings and Sign out) next to the feature menu (☰,
+  `FeatureMenu` in `ui/AccountMenu.kt`: Agents; new features go there), status messages, the
+  stats; pull down to reload. `ui/AgentsScreen.kt` (☰ → Agents): the agents who show their
+  profile (`GET /api/agents`), tap one for the parts it shows (`GET /api/agents/{agentName}`,
+  `data/Agents.kt`), as web's `/agents` pages; admins also have ☰ → Admin agents: every
+  user with what they show (`GET /api/users`), one row each with an icon per part, as web's
+  `/admin/agents`. The stats header has the faction logo and the level in the faction color
   (`res/drawable-nodpi/logo_enl|res.webp`, rendered from 4e-website's SVGs, as in web).
 - `ui/SettingsScreen.kt` — version and build type; debug builds change the server URL there
   (`data/ServerSettings.kt`, kept in SharedPreferences), with buttons for the default and the live

@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.AgentStatEntry
@@ -46,15 +47,20 @@ private val numberFormat: NumberFormat = NumberFormat.getIntegerInstance()
 
 internal fun Long?.formatted(): String = numberFormat.format(this ?: 0)
 
-/** The latest agent stats with medals, laid out like 4e-website's agent stats page. */
+/**
+ * The latest agent stats with medals, laid out like 4e-website's agent stats page. [first] (the
+ * first import) is null when it is not known, e.g. for an agent who keeps the history private;
+ * [avatar] is the Google profile picture (a `data:` URI).
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
+fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry?, avatar: String? = null) {
     var selected by remember { mutableStateOf<MedalLevel?>(null) }
 
     val faction = Faction.of(latest.faction)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        faction?.let { Image(painterResource(it.logo), contentDescription = latest.faction, modifier = Modifier.height(32.dp)) }
+        rememberAvatar(avatar)?.let { Avatar(it, size = 48.dp, description = "Profile picture") }
+        faction?.let { FactionLogo(it, latest.faction) }
         Text(latest.nickname, style = MaterialTheme.typography.headlineSmall, fontFamily = FontFamily.Monospace)
         latest["level"]?.let { level ->
             Text(
@@ -130,7 +136,7 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry) {
     HorizontalDivider()
 
     Text(
-        "First import: ${first.datetime.take(10)} - Latest update: ${latest.datetime.take(10)}",
+        (first?.let { "First import: ${it.datetime.take(10)} - " } ?: "") + "Latest update: ${latest.datetime.take(10)}",
         style = MaterialTheme.typography.bodySmall,
     )
 
@@ -203,8 +209,14 @@ private fun MedalDialog(medal: MedalLevel, onDismiss: () -> Unit) {
     )
 }
 
+/** The faction's logo, [height] high. */
+@Composable
+internal fun FactionLogo(faction: Faction, description: String?, height: Dp = 32.dp) {
+    Image(painterResource(faction.logo), contentDescription = description, modifier = Modifier.height(height))
+}
+
 /** The factions with a logo and color, as web and 4e-website show them. */
-private enum class Faction(@DrawableRes val logo: Int, private val light: Color, private val dark: Color) {
+internal enum class Faction(@DrawableRes val logo: Int, private val light: Color, private val dark: Color) {
     ENL(R.drawable.logo_enl, Color(0xFF1AB60D), Color(0xFF1AB60D)),
     // 4e's RES blue is too dark on a dark background: its lighter link color there
     RES(R.drawable.logo_res, Color(0xFF0000CC), Color(0xFF7474FF));
@@ -214,7 +226,7 @@ private enum class Faction(@DrawableRes val logo: Int, private val light: Color,
 
     companion object {
         /** Null for a faction without a logo. */
-        fun of(faction: String): Faction? = when (faction.trim().lowercase()) {
+        fun of(faction: String?): Faction? = when (faction?.trim()?.lowercase()) {
             "enlightened" -> ENL
             "resistance" -> RES
             else -> null

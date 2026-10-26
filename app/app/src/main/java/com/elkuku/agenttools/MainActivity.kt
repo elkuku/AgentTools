@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.elkuku.agenttools.ui.AgentsScreen
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
@@ -72,6 +73,19 @@ class MainActivity : ComponentActivity() {
                         },
                         onBack = viewModel::closeSettings,
                     )
+                } else if (state.agentsOpen) {
+                    // Back from an agent to the list, from the list to the stats
+                    BackHandler(onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() })
+                    AgentsScreen(
+                        agents = state.agents,
+                        users = state.users,
+                        agent = state.agent,
+                        status = state.agentsStatus,
+                        busy = state.busy,
+                        onOpenAgent = { viewModel.openAgent(activity, it) },
+                        onRefresh = { viewModel.refreshAgents(activity) },
+                        onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() },
+                    )
                 } else {
                     MainScreen(
                         state = state,
@@ -80,6 +94,8 @@ class MainActivity : ComponentActivity() {
                         onSignOut = { viewModel.signOut(activity) },
                         onRefresh = { viewModel.refresh(activity) },
                         onOpenSettings = viewModel::openSettings,
+                        onOpenAgents = { viewModel.openAgents(activity) },
+                        onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },
                         onDismissImportResult = viewModel::dismissImportResult,
                         onChooseVisibility = viewModel::chooseVisibility,
                         onDismissVisibility = viewModel::dismissVisibility,

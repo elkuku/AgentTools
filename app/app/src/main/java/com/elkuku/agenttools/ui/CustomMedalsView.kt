@@ -45,12 +45,15 @@ import com.elkuku.agenttools.scan.RecognizedMedal
 /** The agent's custom medals by group, as on 4e-website's agent stats page. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CustomMedals(medals: List<CustomMedalTier>) {
+fun CustomMedals(
+    medals: List<CustomMedalTier>,
+    emptyText: String = "In Ingress, take screenshots of the medals in your agent profile and share them with this app.",
+) {
     var selected by remember { mutableStateOf<CustomMedalTier?>(null) }
 
     Text("Custom medals", style = MaterialTheme.typography.titleMedium)
     if (medals.isEmpty()) {
-        Text("In Ingress, take screenshots of the medals in your agent profile and share them with this app.")
+        Text(emptyText)
         return
     }
 

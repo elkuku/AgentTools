@@ -5,8 +5,12 @@ import android.content.ContextWrapper
 import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
+import com.elkuku.agenttools.data.AgentProfile
+import com.elkuku.agenttools.data.AgentProfileResult
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.AgentStatsResult
+import com.elkuku.agenttools.data.AgentSummary
+import com.elkuku.agenttools.data.AgentsResult
 import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
@@ -14,7 +18,9 @@ import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.StatsApi
+import com.elkuku.agenttools.data.UserPrivacy
 import com.elkuku.agenttools.data.UserRole
+import com.elkuku.agenttools.data.UsersResult
 import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
@@ -232,6 +238,81 @@ class MainViewModelTest {
         viewModel.onShared(context, ingressStats())
 
         assertEquals(1, api.saved.size)
+    }
+
+    @Test
+    fun agentsAreListedAndOpened() {
+        val viewModel = signedIn()
+        val other = AgentSummary("OtherAgent", "Resistance", 12)
+        api.agents = AgentsResult.Success(listOf(other))
+        api.agentProfiles["OtherAgent"] = AgentProfileResult.Success(AgentProfile(other, latest = entry))
+
+        viewModel.openAgents(context)
+        assertTrue(viewModel.state.value.agentsOpen)
+        assertEquals(listOf(other), viewModel.state.value.agents)
+
+        viewModel.openAgent(context, "OtherAgent")
+        assertEquals(entry, viewModel.state.value.agent?.latest)
+
+        // Back to the list, then to the own stats
+        viewModel.closeAgent()
+        assertNull(viewModel.state.value.agent)
+        assertTrue(viewModel.state.value.agentsOpen)
+        viewModel.closeAgents()
+        assertFalse(viewModel.state.value.agentsOpen)
+    }
+
+    @Test
+    fun adminsSeeEveryUser() {
+        api.me = MeResult.Success(UserRole.ADMIN, "AdminAgent")
+        val viewModel = signedIn()
+        val private = UserPrivacy("someone@example.com", UserRole.USER, "PrivateAgent", visibilityChosen = true)
+        api.users = UsersResult.Success(listOf(private))
+
+        viewModel.openAgents(context, admin = true)
+
+        assertEquals(listOf(private), viewModel.state.value.users)
+        assertNull(viewModel.state.value.agents)
+        assertFalse(private.showsAgent)
+
+        // The agents list is the same for admins
+        viewModel.closeAgents()
+        viewModel.openAgents(context)
+        assertNull(viewModel.state.value.users)
+        assertEquals(emptyList<AgentSummary>(), viewModel.state.value.agents)
+    }
+
+    @Test
+    fun usersSeeOnlyTheAgents() {
+        val viewModel = signedIn()
+
+        viewModel.openAgents(context)
+
+        assertEquals(0, api.usersRequests)
+        assertNull(viewModel.state.value.users)
+        assertEquals(emptyList<AgentSummary>(), viewModel.state.value.agents)
+    }
+
+    @Test
+    fun anAgentWhoNoLongerShowsTheProfileShowsWhy() {
+        val viewModel = signedIn()
+        viewModel.openAgents(context)
+
+        viewModel.openAgent(context, "GoneAgent")
+
+        assertNull(viewModel.state.value.agent)
+        assertEquals(Status("GoneAgent no longer shows the profile.", true), viewModel.state.value.agentsStatus)
+    }
+
+    @Test
+    fun signOutClosesTheAgents() {
+        val viewModel = signedIn()
+        viewModel.openAgents(context)
+
+        viewModel.signOut(context)
+
+        assertFalse(viewModel.state.value.agentsOpen)
+        assertNull(viewModel.state.value.agents)
     }
 
     @Test
@@ -699,6 +780,26 @@ class MainViewModelTest {
             savedMedals += medals
             serverMedals = medals
             return CustomMedalsResult.Success(medals)
+        }
+
+        /** What `GET /api/agents` answers. */
+        var agents: AgentsResult = AgentsResult.Success(emptyList())
+
+        /** What `GET /api/agents/{agentName}` answers, by agent name. */
+        val agentProfiles = mutableMapOf<String, AgentProfileResult>()
+
+        override suspend fun agents(idToken: String): AgentsResult = agents
+
+        override suspend fun agent(idToken: String, agentName: String): AgentProfileResult =
+            agentProfiles[agentName] ?: AgentProfileResult.Failure("$agentName no longer shows the profile.")
+
+        /** What `GET /api/users` answers (admins). */
+        var users: UsersResult = UsersResult.Success(emptyList())
+        var usersRequests = 0
+
+        override suspend fun users(idToken: String): UsersResult {
+            usersRequests++
+            return users
         }
     }
 }

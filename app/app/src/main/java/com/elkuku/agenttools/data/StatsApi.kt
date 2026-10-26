@@ -17,6 +17,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
 import io.ktor.http.takeFrom
 import io.ktor.http.contentType
+import io.ktor.http.encodeURLPathPart
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -150,6 +151,15 @@ interface StatsApi {
 
     /** `PATCH /api/me`: replaces all of the user's custom medals. */
     suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult
+
+    /** `GET /api/agents`: the agents who show their profile to other users. */
+    suspend fun agents(idToken: String): AgentsResult
+
+    /** `GET /api/agents/{agentName}`: an agent's profile, with the parts the agent shows. */
+    suspend fun agent(idToken: String, agentName: String): AgentProfileResult
+
+    /** `GET /api/users`: every user with the privacy settings, for admins. */
+    suspend fun users(idToken: String): UsersResult
 }
 
 /** [baseUrl] is read on every request: debug builds can change the server on the settings screen. */
@@ -162,6 +172,10 @@ class KtorStatsApi(
     private val url get() = "${baseUrl().trimEnd('/')}/api/agent-stats"
 
     private val meUrl get() = "${baseUrl().trimEnd('/')}/api/me"
+
+    private val agentsUrl get() = "${baseUrl().trimEnd('/')}/api/agents"
+
+    private val usersUrl get() = "${baseUrl().trimEnd('/')}/api/users"
 
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -317,6 +331,71 @@ class KtorStatsApi(
             )
 
             else -> CustomMedalsResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    override suspend fun agents(idToken: String): AgentsResult {
+        val response = try {
+            client.get(agentsUrl) {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return AgentsResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<AgentsPage>()
+                ?.let { page -> AgentsResult.Success(page.member.map { it.summary }) }
+                ?: AgentsResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> AgentsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            else -> AgentsResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    override suspend fun agent(idToken: String, agentName: String): AgentProfileResult {
+        val response = try {
+            client.get("$agentsUrl/${agentName.encodeURLPathPart()}") {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return AgentProfileResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<AgentResponse>()
+                ?.let { AgentProfileResult.Success(it.profile) }
+                ?: AgentProfileResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> AgentProfileResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            HttpStatusCode.NotFound -> AgentProfileResult.Failure("$agentName no longer shows the profile.")
+
+            else -> AgentProfileResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+        }
+    }
+
+    override suspend fun users(idToken: String): UsersResult {
+        val response = try {
+            client.get(usersUrl) {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return UsersResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<UsersPage>()
+                ?.let { page -> UsersResult.Success(page.member.map { it.user }) }
+                ?: UsersResult.Failure("Unexpected response from the server.")
+
+            HttpStatusCode.Unauthorized -> UsersResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+
+            else -> UsersResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
         }
     }
 
