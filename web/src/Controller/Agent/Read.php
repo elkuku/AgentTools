@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Controller\Agent;
 
 use App\Controller\BaseController;
+use App\Entity\AgentStat;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Enum\UserRole;
+use App\Medal\MedalChecker;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(UserRole::USER->value)]
 final class Read extends BaseController
 {
-    public function __invoke(string $agentName, UserRepository $userRepository, AgentStatRepository $agentStatRepository): Response
+    public function __invoke(string $agentName, UserRepository $userRepository, AgentStatRepository $agentStatRepository, MedalChecker $medalChecker): Response
     {
         $agent = $userRepository->findOneByAgentName($agentName);
         if (!$agent instanceof User || !$agent->isVisible(ProfilePart::AGENT)) {
@@ -30,13 +32,20 @@ final class Read extends BaseController
         }
 
         $stats = $agentStatRepository->findByOwner($agent);
+        $latest = $stats[0] ?? null;
+        $showHistory = $agent->isVisible(ProfilePart::STATS_HISTORY);
+        $showLatestStats = $latest instanceof AgentStat && $agent->isVisible(ProfilePart::LATEST_STATS);
 
         return $this->render('agent/show.html.twig', [
             'agent' => $agent,
-            'latest' => $stats[0] ?? null,
-            'history' => $agent->isVisible(ProfilePart::STATS_HISTORY) ? $stats : null,
-            'showLatestStats' => $agent->isVisible(ProfilePart::LATEST_STATS),
-            'customMedals' => $agent->isVisible(ProfilePart::CUSTOM_MEDALS) ? $agent->getCustomMedals() : null,
+            'latest' => $latest,
+            // The first import tells about the history
+            'first' => $showHistory ? \array_last($stats) : null,
+            'history' => $showHistory ? $stats : null,
+            'showLatestStats' => $showLatestStats,
+            'medals' => $showLatestStats ? $medalChecker->medalLevels($latest) : [],
+            'coreBadges' => $showLatestStats ? $medalChecker->coreBadges($latest->getStats()['months_subscribed'] ?? 0) : [],
+            'customMedals' => $agent->isVisible(ProfilePart::CUSTOM_MEDALS) ? $medalChecker->customMedalTiers($agent->getCustomMedals()) : null,
             'isOwn' => $agent->id === $this->getUser()->id,
         ]);
     }

@@ -1,0 +1,103 @@
+{#
+    Agent stats with medals, laid out like the app (and 4e-website's agent stats page).
+    stat: AgentStat, medals: list<MedalLevel>, coreBadges: list<string>, first: AgentStat|null (the first import)
+#}
+{% set stats = stat.stats %}
+<div class="agent-stats" id="agent-stats">
+    {% set faction = stat.factionCode %}
+    <div class="d-flex align-items-center gap-2">
+        {% if faction %}
+            <img class="faction-logo" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
+        {% endif %}
+        <h2 class="h3 mb-0 agent-nickname">{{ stat.nickname }}</h2>
+        {% if stats.level %}
+            <span class="fw-bold fs-5 {{ faction ? 'faction-' ~ faction : 'text-primary' }}" id="agent-level">L{{ stats.level }}</span>
+        {% endif %}
+        {% set recursions = stats.recursions ?? 0 %}
+        {% if recursions > 0 %}
+            <img class="medal-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum" title="Simulacrum">
+            {% if recursions > 1 %}<span class="medal-count">X {{ recursions }}</span>{% endif %}
+        {% endif %}
+    </div>
+    {% if not faction %}
+        {# No logo for it #}
+        <div class="text-secondary">{{ stat.faction }}</div>
+    {% endif %}
+
+    {% set months = stats.months_subscribed ?? 0 %}
+    {% if months > 0 %}
+        <div class="d-flex flex-wrap align-items-center gap-1 mt-2" id="core-badges">
+            {% for badge in coreBadges %}
+                <img class="medal-badge" src="{{ asset(badge) }}" alt="C.O.R.E subscriptions" title="C.O.R.E subscriptions">
+                {% if loop.first %}<span class="fw-bold me-1">C.O.R.E {{ months }} months</span>{% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="fs-4 mt-2">AP: {{ (stats.ap ?? 0)|number_format }}</div>
+
+    <hr>
+
+    <div class="d-flex flex-wrap gap-2" id="medals">
+        {% for medal in medals %}
+            <button type="button" class="medal-button d-flex align-items-center" data-bs-toggle="modal"
+                    data-bs-target="#medal-{{ medal.medal.column }}" title="{{ medal.medal.name }}: {{ medal.levelName }}">
+                {% if medal.badge %}
+                    <img class="medal-badge" src="{{ asset(medal.badge) }}" alt="{{ medal.medal.name }}: {{ medal.levelName }}">
+                    {% if medal.onyxCount > 1 %}<span class="medal-count">X {{ medal.onyxCount }}</span>{% endif %}
+                {% else %}
+                    <img class="medal-badge medal-locked" src="{{ asset('badges/ico_padlock.webp') }}" alt="{{ medal.medal.name }}: locked">
+                {% endif %}
+            </button>
+        {% endfor %}
+    </div>
+
+    {% for medal in medals %}
+        <div class="modal fade" id="medal-{{ medal.medal.column }}" tabindex="-1" aria-labelledby="medal-{{ medal.medal.column }}-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title fs-5" id="medal-{{ medal.medal.column }}-title">{{ medal.medal.name }}</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="mb-1">{{ medal.medal.description }}</p>
+                        <p class="fs-4">{{ (medal.value ?? 0)|number_format }}</p>
+                        <div class="d-flex justify-content-evenly">
+                            {% for needed in medal.medal.levels %}
+                                <div class="{{ loop.index > medal.level ? 'opacity-50' }}">
+                                    <img src="{{ asset(medal.medal.badge(loop.index)) }}" alt="" width="40" height="40">
+                                    <div class="small">{{ needed|number_format }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <hr>
+
+    <h3 class="h6 d-flex align-items-center gap-2">
+        <img src="{{ asset('badges/ico_drone.webp') }}" alt="" height="32"> Dronenet
+    </h3>
+    <p id="dronenet">
+        Portals: {{ (stats.drone_portals_visited ?? 0)|number_format }}&nbsp;
+        Hacks (Maverick): {{ (stats.maverick ?? 0)|number_format }}&nbsp;
+        Forced recalls: {{ (stats.drone_forced_recalls ?? 0)|number_format }}&nbsp;
+        Flight: {{ (stats.drone_flight_distance ?? 0)|number_format }} km
+    </p>
+
+    <h3 class="h6 d-flex align-items-center gap-2">
+        <img src="{{ asset('badges/ico_kinetic_capsule.webp') }}" alt="" height="32"> Kinetics
+    </h3>
+    {% set capsules = stats.kinetic_capsules_completed ?? 0 %}
+    <p>{{ capsules > 0 ? 'Kinetic capsules completed: ' ~ capsules : 'No kinetic capsules completed yet' }}</p>
+
+    <hr>
+
+    <p class="small">
+        {% if first %}First import: {{ first.datetime|date('Y-m-d') }} - {% endif %}Latest update: {{ stat.datetime|date('Y-m-d') }}
+    </p>
+</div>

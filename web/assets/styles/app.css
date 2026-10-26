@@ -31,3 +31,54 @@ main > .container {
     transform: translateY(-3px);
     box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
 }
+
+/* Agent stats and medals, as in the app */
+.medal-badge {
+    width: 50px;
+    height: 50px;
+}
+
+.medal-count {
+    font-weight: bold;
+    font-size: .875rem;
+}
+
+.medal-locked {
+    opacity: .6;
+}
+
+/* The padlock is black: light in dark mode */
+[data-bs-theme="dark"] .medal-locked {
+    filter: invert(1);
+}
+
+.medal-button {
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.agent-nickname {
+    font-family: var(--bs-font-monospace);
+}
+
+/* Faction colors, as 4e-website's; its RES blue is too dark on a dark background */
+.faction-ENL {
+    color: #1ab60d;
+}
+
+.faction-RES {
+    color: #0000cc;
+}
+
+[data-bs-theme="dark"] .faction-RES {
+    color: #7474ff;
+}
+
+.faction-logo {
+    height: 32px;
+}
+
+.faction-logo-small {
+    height: 20px;
+}

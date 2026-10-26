@@ -51,7 +51,8 @@ class AgentControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#agents', 'TestAgent');
-        self::assertSelectorTextContains('#agents', 'Enlightened');
+        self::assertSelectorExists('#agents img.faction-logo-small[alt="ENL"]');
+        self::assertSelectorTextNotContains('#agents', 'Enlightened');
         self::assertSelectorTextNotContains('#agents', 'PrivateAgent');
     }
 
@@ -76,9 +77,20 @@ class AgentControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/agents/testagent');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('#agent-name', 'TestAgent');
-        self::assertSelectorTextContains('.lead', 'Enlightened · level 16');
-        self::assertSelectorTextContains('#latest-stats', '243,517,130');
+        // As in the app: name, level, AP and the medals (all locked without stats for them)
+        self::assertSelectorTextContains('#agent-stats', 'TestAgent');
+        self::assertSelectorTextContains('#agent-stats', 'L16');
+        // The faction's logo and color, as on 4e-website
+        self::assertSelectorExists('#agent-stats img.faction-logo[alt="ENL"][src*="images/logos/ENL"]');
+        self::assertSelectorExists('#agent-level.faction-ENL');
+        self::assertSelectorTextNotContains('#agent-stats', 'Enlightened');
+        self::assertSelectorTextContains('#agent-stats', 'AP: 243,517,130');
+        self::assertSelectorExists('#medals img[alt="Explorer: locked"]');
+        // Discontinued and not earned
+        self::assertSelectorNotExists('#medals img[alt^="Seer"]');
+        self::assertSelectorTextContains('#agent-stats', 'Latest update: 2026-10-19');
+        // The first import tells about the history
+        self::assertSelectorTextNotContains('#agent-stats', 'First import');
         self::assertSelectorNotExists('#stats-history');
         self::assertSelectorNotExists('#custom-medals');
     }
@@ -95,11 +107,17 @@ class AgentControllerTest extends WebTestCase
         $crawler = $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('#latest-stats');
+        self::assertSelectorNotExists('#agent-stats');
+        self::assertSelectorTextContains('#agent-name', 'TestAgent');
+        self::assertSelectorTextSame('.lead', 'level 16');
+        self::assertSelectorExists('#agent-level.faction-ENL');
+        self::assertSelectorExists('h1 img.faction-logo[alt="ENL"]');
         self::assertCount(2, $crawler->filter('#stats-history tbody tr'));
         self::assertSelectorTextContains('#stats-history tbody tr', '2026-10-20 15:35:56');
-        self::assertSelectorTextContains('#custom-medals', 'Orion (platinum)');
-        self::assertSelectorTextContains('#custom-medals', 'Voyager (onyx)');
+        self::assertSelectorExists('#custom-medals img[alt="Orion (Platinum)"][src*="anomaly_orion_platinum"]');
+        self::assertSelectorExists('#custom-medals img[alt="Echo"][src*="anomaly_echo"]');
+        // Annual medals are stored as levels
+        self::assertSelectorExists('#custom-medals img[alt="Voyager (Onyx)"][src*="badge_voyager_black"]');
         self::assertSelectorTextNotContains('#custom-medals', 'Event');
     }
 

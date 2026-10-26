@@ -3,34 +3,37 @@
 {% block title %}{{ agent.agentName }}{% endblock %}
 
 {% block body %}
-    <h1 id="agent-name">{{ agent.agentName }}</h1>
-    {% if latest %}
-        <p class="lead">{{ latest.faction }} &middot; level {{ latest.level }}</p>
-    {% endif %}
-
     {% if isOwn %}
-        <div class="alert alert-info">
+        <div class="alert alert-info mt-3">
             This is how other users see your profile. Change it on your <a href="{{ path('app_profile') }}">profile</a>.
         </div>
     {% endif %}
 
-    {% if showLatestStats and latest %}
-        <h2 class="mt-4">Latest stats</h2>
-        <p class="text-body-secondary">{{ latest.datetime|date('Y-m-d H:i:s') }}</p>
-        <table class="table" id="latest-stats">
-            <tbody>
-            {% for column, value in latest.stats %}
-                <tr>
-                    <th>{{ column }}</th>
-                    <td>{{ value is null ? '–' : value|number_format }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    {% if showLatestStats %}
+        <div class="mt-3">
+            {{ include('agent_stat/_stats_card.html.twig', {stat: latest}) }}
+        </div>
+    {% else %}
+        {% set faction = latest ? latest.factionCode %}
+        <h1 class="d-flex align-items-center gap-2">
+            {% if faction %}
+                <img class="faction-logo" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ latest.faction }}">
+            {% endif %}
+            <span id="agent-name" class="agent-nickname">{{ agent.agentName }}</span>
+        </h1>
+        {% if latest %}
+            <p class="lead">{% if not faction %}{{ latest.faction }} &middot; {% endif %}<span class="fw-bold {{ faction ? 'faction-' ~ faction }}" id="agent-level">level {{ latest.level }}</span></p>
+        {% endif %}
+    {% endif %}
+
+    {% if customMedals is not null %}
+        <div class="mt-4">
+            {{ include('agent_stat/_custom_medals.html.twig') }}
+        </div>
     {% endif %}
 
     {% if history is not null %}
-        <h2 class="mt-4">Stats history</h2>
+        <h2 class="h5 mt-4">Stats history</h2>
         <table class="table" id="stats-history">
             <thead>
             <tr>
@@ -53,29 +56,5 @@
             {% endfor %}
             </tbody>
         </table>
-    {% endif %}
-
-    {% if customMedals is not null %}
-        <h2 class="mt-4">Custom medals</h2>
-        {% set annualLevels = {1: 'bronze', 2: 'silver', 3: 'gold', 4: 'platinum', 5: 'onyx'} %}
-        <div id="custom-medals">
-            {% for group, medals in customMedals|filter(medals => medals is not empty) %}
-                <h3 class="h5 mt-3">{{ group|capitalize }}</h3>
-                <ul>
-                    {% for medal, tier in medals %}
-                        <li>
-                            {{ medal|replace({'_': ' '})|title }}
-                            {% if group == 'annual' %}
-                                <span class="text-body-secondary">({{ annualLevels[tier] ?? tier }})</span>
-                            {% elseif tier is not same as('') %}
-                                <span class="text-body-secondary">({{ tier }})</span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No custom medals yet.</p>
-            {% endfor %}
-        </div>
     {% endif %}
 {% endblock %}

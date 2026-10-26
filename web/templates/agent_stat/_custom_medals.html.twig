@@ -1,0 +1,32 @@
+{#
+    Custom medals by group, like the app. customMedals: array<string, list<CustomMedalTier>> (MedalChecker::customMedalTiers())
+#}
+<div id="custom-medals">
+    <h2 class="h5">Custom medals</h2>
+    {% for group, medals in customMedals %}
+        <h3 class="h6 mt-2">{{ group|capitalize }}</h3>
+        <div class="d-flex flex-wrap gap-2">
+            {% for medal in medals %}
+                {% set id = 'custom-medal-' ~ group ~ '-' ~ medal.medal.key %}
+                <button type="button" class="medal-button" data-bs-toggle="modal" data-bs-target="#{{ id }}" title="{{ medal.label }}">
+                    <img class="medal-badge" src="{{ asset(medal.image) }}" alt="{{ medal.label }}">
+                </button>
+                <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title fs-5" id="{{ id }}-title">{{ medal.label }}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img src="{{ asset(medal.image) }}" alt="{{ medal.label }}" width="120" height="120">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No custom medals yet.</p>
+    {% endfor %}
+</div>

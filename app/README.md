@@ -88,7 +88,9 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   server (`server.baseUrl.release`).
 - `ui/AgentStats.kt` — the latest stats with medals, laid out like 4e-website's agent stats page.
   Medal levels in `data/Medals.kt` (from 4e-website's `MedalChecker`); the badge images in
-  `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP.
+  `res/drawable-nodpi` are 4e-website's, scaled to 150 px WebP. `web` shows them too (and those
+  in `assets/custom_medals`), with the lists ported to `web/src/Medal/MedalChecker.php`: keep both
+  in sync, and don't move or rename the image folders without changing web's `asset_mapper.yaml`.
 - Custom medals (anomaly, annual and event medals; `data/CustomMedals.kt`, from 4e-website's
   `MedalChecker::$customMedals`): screenshots of the Ingress medal grid shared with the app
   (`image/*`, one or several) are scanned on the device by `scan/MedalScanner.kt`.

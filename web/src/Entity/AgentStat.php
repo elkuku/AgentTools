@@ -260,6 +260,19 @@ class AgentStat
     }
 
     /**
+     * ENL or RES (as 4e-website's faction names and logos), null for another faction.
+     */
+    #[Ignore]
+    public function getFactionCode(): ?string
+    {
+        return match (\strtolower(\trim($this->faction))) {
+            'enlightened' => 'ENL',
+            'resistance' => 'RES',
+            default => null,
+        };
+    }
+
+    /**
      * The stats by agent_stat column name, for display.
      *
      * @return array<string, int|null>

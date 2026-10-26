@@ -6,6 +6,7 @@ namespace App\Controller\AgentStat;
 
 use App\Controller\BaseController;
 use App\Entity\AgentStat;
+use App\Medal\MedalChecker;
 use App\Security\Voter\AgentStatVoter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,10 +16,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(AgentStatVoter::VIEW, subject: 'agentStat')]
 final class Read extends BaseController
 {
-    public function __invoke(AgentStat $agentStat): Response
+    public function __invoke(AgentStat $agentStat, MedalChecker $medalChecker): Response
     {
         return $this->render('agent_stat/show.html.twig', [
             'agent_stat' => $agentStat,
+            'medals' => $medalChecker->medalLevels($agentStat),
+            'coreBadges' => $medalChecker->coreBadges($agentStat->getStats()['months_subscribed'] ?? 0),
         ]);
     }
 }

@@ -2,7 +2,10 @@ framework:
     asset_mapper:
         # The paths to make available to the asset mapper.
         paths:
-            - assets/
+            assets/: ''
+            # The app's medal images, served as badges/… and custom_medals/… (MedalChecker)
+            ../app/app/src/main/res/drawable-nodpi: badges
+            ../app/app/src/main/assets/custom_medals: custom_medals
         importmap_polyfill: false
         missing_import_mode: strict
 

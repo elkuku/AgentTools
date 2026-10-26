@@ -13,21 +13,30 @@
         <thead>
         <tr>
             <th>Agent</th>
-            <th>Faction</th>
             <th>Level</th>
         </tr>
         </thead>
         <tbody>
         {% for agent in agents %}
             {% set stat = latest[agent.id] ?? null %}
+            {% set faction = stat ? stat.factionCode %}
             <tr>
-                <td><a href="{{ path('app_agent_show', {'agentName': agent.agentName}) }}">{{ agent.agentName }}</a></td>
-                <td>{{ stat ? stat.faction : '–' }}</td>
-                <td>{{ stat ? stat.level : '–' }}</td>
+                <td>
+                    {% if faction %}
+                        <img class="faction-logo-small me-1" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
+                    {% endif %}
+                    <a href="{{ path('app_agent_show', {'agentName': agent.agentName}) }}">{{ agent.agentName }}</a>
+                    {% if stat and not faction %}
+                        {# No logo for it #}
+                        <span class="text-secondary">({{ stat.faction }})</span>
+                    {% endif %}
+                </td>
+                {# On a span: Bootstrap's table cells set their own color #}
+                <td><span class="fw-bold {{ faction ? 'faction-' ~ faction }}">{{ stat ? stat.level : '–' }}</span></td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="3">No agent shows a profile yet.</td>
+                <td colspan="2">No agent shows a profile yet.</td>
             </tr>
         {% endfor %}
         </tbody>
