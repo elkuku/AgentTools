@@ -1,0 +1,33 @@
+{#
+    An agent in a list: picture and faction logo slots (so the names line up), the agent name
+    (linked when [link] and the agent page is shown) and [identifier] below it.
+    agent: User, stat: AgentStat|null, faction: ENL|RES|null, pictures: bool, picture: string|null, link: bool, identifier: string|null
+#}
+<div class="d-flex align-items-center">
+    {% if pictures %}
+        <span class="agent-slot-avatar">
+            {%- if picture -%}
+                <img class="avatar" src="{{ picture }}" alt="" width="24" height="24">
+            {%- endif -%}
+        </span>
+    {% endif %}
+    <span class="agent-slot-logo">
+        {%- if faction -%}
+            <img class="faction-logo-small" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
+        {%- endif -%}
+    </span>
+    <div class="lh-sm">
+        {% if link and agent.isVisible(constant('App\\Enum\\ProfilePart::AGENT')) %}
+            <a href="{{ path('app_agent_show', {'agentName': agent.agentName}) }}">{{ agent.agentName }}</a>
+        {% else %}
+            {{ agent.agentName ?: '–' }}
+        {% endif %}
+        {% if stat and not faction %}
+            {# No logo for it #}
+            <span class="text-secondary">({{ stat.faction }})</span>
+        {% endif %}
+        {% if identifier ?? null %}
+            <div class="small text-body-secondary">{{ identifier }}</div>
+        {% endif %}
+    </div>
+</div>

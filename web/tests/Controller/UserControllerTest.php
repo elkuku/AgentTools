@@ -21,7 +21,7 @@ final class UserControllerTest extends WebTestCase
      */
     private EntityRepository $userRepository;
 
-    private string $path = '/user/';
+    private string $path = '/admin/agents/';
 
     protected function setUp(): void
     {
@@ -52,7 +52,7 @@ final class UserControllerTest extends WebTestCase
         $this->client->request('GET', $this->path);
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('User index');
+        self::assertPageTitleContains('Admin agents');
     }
 
     public function testNew(): void
@@ -68,7 +68,7 @@ final class UserControllerTest extends WebTestCase
         ]);
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('User index');
+        self::assertPageTitleContains('Admin agents');
 
         self::assertSame($initialCount + 1, $this->userRepository->count([]));
     }
@@ -87,7 +87,7 @@ final class UserControllerTest extends WebTestCase
         $this->client->request('GET', \sprintf('%s%s', $this->path, $fixture->id));
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('User');
+        self::assertPageTitleContains('Agent');
 
         // Use assertions to check that the properties are properly displayed.
     }
@@ -104,7 +104,7 @@ final class UserControllerTest extends WebTestCase
         $id = $fixture->id;
 
         $this->client->request('GET', \sprintf('%s%s/edit', $this->path, $fixture->id));
-        self::assertPageTitleContains('Edit User');
+        self::assertPageTitleContains('Edit agent');
         $this->client->submitForm('Update', [
             'user[identifier]' => 'Something New',
             'user[role]' => 'ROLE_ADMIN',
@@ -112,7 +112,7 @@ final class UserControllerTest extends WebTestCase
         ]);
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('User');
+        self::assertPageTitleContains('Admin agents');
 
         /**
          * @var User $fixture
@@ -152,7 +152,7 @@ final class UserControllerTest extends WebTestCase
         $this->client->submitForm('Delete');
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('User');
+        self::assertPageTitleContains('Admin agents');
 
         self::assertSame($initialCount, $this->userRepository->count([]));
     }

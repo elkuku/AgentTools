@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/user/{id}', name: 'app_user_delete', methods: ['POST'])]
+#[Route('/admin/agents/{id}', name: 'app_user_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
 #[IsGranted(UserRole::ADMIN->value)]
 final class Delete extends BaseController
 {

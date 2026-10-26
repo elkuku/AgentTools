@@ -88,3 +88,24 @@ main > .container {
     border-radius: 50%;
     object-fit: cover;
 }
+
+/* Fixed slots in the list of agents, so the names line up */
+.agent-slot-avatar,
+.agent-slot-logo {
+    display: inline-block;
+    margin-right: .25rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.agent-slot-avatar {
+    width: 24px;
+}
+
+.agent-slot-logo {
+    width: 16px;
+}
+
+.privacy-icons i {
+    margin-right: .15rem;
+}

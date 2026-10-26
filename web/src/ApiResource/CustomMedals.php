@@ -9,7 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * The signed-in agent's custom medals, as 4e-website stores them: part of Me (GET / PATCH /api/me).
+ * The signed-in agent's custom medals, as 4e-website stores them: part of Me (GET / PATCH /api/me),
+ * and of Agent for the agents who show them.
  * The app recognizes them in screenshots. PATCH is a JSON merge patch: it replaces the groups it
  * sends (anomaly, annual, event) and keeps the others.
  */
@@ -26,11 +27,11 @@ final class CustomMedals
      * @param array<string, string> $event   medal => tier ("" for a medal without tiers)
      */
     public function __construct(
-        #[Groups([Me::READ, Me::WRITE])]
+        #[Groups([Me::READ, Me::WRITE, Agent::ITEM])]
         public array $anomaly = [],
-        #[Groups([Me::READ, Me::WRITE])]
+        #[Groups([Me::READ, Me::WRITE, Agent::ITEM])]
         public array $annual = [],
-        #[Groups([Me::READ, Me::WRITE])]
+        #[Groups([Me::READ, Me::WRITE, Agent::ITEM])]
         public array $event = [],
     ) {
     }

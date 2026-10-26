@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/user/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
+#[Route('/admin/agents/{id}/edit', name: 'app_user_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
 #[IsGranted(UserRole::ADMIN->value)]
 final class Update extends BaseController
 {

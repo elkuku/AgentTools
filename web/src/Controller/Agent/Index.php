@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The agents who show their profile to other users.
+ * The agents who show their profile to other users (admins too; every user is on User\\Index).
  */
 #[Route('/agents', name: 'app_agent_index', methods: ['GET'])]
 #[IsGranted(UserRole::USER->value)]

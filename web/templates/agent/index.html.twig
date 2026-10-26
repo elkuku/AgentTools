@@ -9,33 +9,25 @@
         <a href="{{ path('app_profile') }}">profile</a>.
     </p>
 
-    <table class="table" id="agents">
+    <table class="table table-sm align-middle" id="agents">
         <thead>
         <tr>
             <th>Agent</th>
-            <th>Level</th>
+            <th class="text-end">Level</th>
         </tr>
         </thead>
         <tbody>
+        {# Space for a picture on every row when any agent shows one: the names line up #}
+        {% set pictures = agents|filter(agent => agent.visibleAvatar)|length > 0 %}
         {% for agent in agents %}
             {% set stat = latest[agent.id] ?? null %}
             {% set faction = stat ? stat.factionCode %}
             <tr>
                 <td>
-                    {% if agent.visibleAvatar %}
-                        <img class="avatar me-1" src="{{ agent.visibleAvatar }}" alt="" width="24" height="24">
-                    {% endif %}
-                    {% if faction %}
-                        <img class="faction-logo-small me-1" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
-                    {% endif %}
-                    <a href="{{ path('app_agent_show', {'agentName': agent.agentName}) }}">{{ agent.agentName }}</a>
-                    {% if stat and not faction %}
-                        {# No logo for it #}
-                        <span class="text-secondary">({{ stat.faction }})</span>
-                    {% endif %}
+                    {{ include('agent/_agent.html.twig', {picture: agent.visibleAvatar, link: true}) }}
                 </td>
                 {# On a span: Bootstrap's table cells set their own color #}
-                <td><span class="fw-bold {{ faction ? 'faction-' ~ faction }}">{{ stat ? stat.level : '–' }}</span></td>
+                <td class="text-end"><span class="fw-bold {{ faction ? 'faction-' ~ faction }}">{{ stat ? stat.level : '–' }}</span></td>
             </tr>
         {% else %}
             <tr>

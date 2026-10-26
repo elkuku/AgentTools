@@ -38,4 +38,16 @@ enum ProfilePart: string
             self::CUSTOM_MEDALS => 'Your anomaly, annual and event medals.',
         };
     }
+
+    /** The Bootstrap icon in the admins' list of users (the app uses the same). */
+    public function icon(): string
+    {
+        return match ($this) {
+            self::AGENT => 'bi-person',
+            self::AVATAR => 'bi-image',
+            self::LATEST_STATS => 'bi-bar-chart',
+            self::STATS_HISTORY => 'bi-clock-history',
+            self::CUSTOM_MEDALS => 'bi-award',
+        };
+    }
 }

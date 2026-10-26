@@ -56,6 +56,29 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('#agents', 'PrivateAgent');
     }
 
+    public function testTheUsersPageHasEveryUserWithThePrivacySettings(): void
+    {
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::CUSTOM_MEDALS]);
+        $this->show('user', []);
+
+        $this->client->loginUser($this->user('admin'));
+        $crawler = $this->client->request(Request::METHOD_GET, '/admin/agents');
+
+        self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Admin agents');
+        // Every user, the private ones too, with their identifier
+        self::assertSelectorTextContains('#users', 'PrivateAgent');
+        self::assertSelectorTextContains('#users', 'admin');
+        self::assertCount(1, $crawler->filter('#users a[href="/agents/TestAgent"]'));
+        // Only the visible agent opens
+        self::assertCount(0, $crawler->filter('#users a[href="/agents/PrivateAgent"]'));
+        self::assertSelectorExists('#users .privacy-icons i.bi-person[title="Agent name, faction and level"]');
+        self::assertSelectorExists('#users .privacy-icons i.bi-award');
+        self::assertSelectorExists('#users .privacy-icons i.bi-lock[title="All private"]');
+        // The admin has not chosen
+        self::assertSelectorExists('#users .privacy-icons i.bi-question-circle');
+    }
+
     public function testPrivateAgentsHaveNoPage(): void
     {
         $this->show('user', [ProfilePart::LATEST_STATS, ProfilePart::STATS_HISTORY]);

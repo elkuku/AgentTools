@@ -68,4 +68,23 @@ class UserRepository extends ServiceEntityRepository
         // The parts are JSON: few users, filtered here
         return \array_values(\array_filter($users, static fn (User $user): bool => $user->isVisible(ProfilePart::AGENT)));
     }
+
+    /**
+     * All users by agent name, those without one last (by identifier).
+     *
+     * @return User[]
+     */
+    public function findAllByAgentName(): array
+    {
+        /** @var User[] $users */
+        $users = $this->createQueryBuilder('u')
+            ->addSelect('CASE WHEN u.agentName IS NULL THEN 1 ELSE 0 END AS HIDDEN noAgentName')
+            ->addOrderBy('noAgentName')
+            ->addOrderBy('LOWER(u.agentName)')
+            ->addOrderBy('u.identifier')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
 }

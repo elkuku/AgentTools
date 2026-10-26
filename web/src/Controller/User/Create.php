@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/user/new', name: 'app_user_new', methods: ['GET', 'POST'])]
+#[Route('/admin/agents/new', name: 'app_user_new', methods: ['GET', 'POST'])]
 #[IsGranted(UserRole::ADMIN->value)]
 final class Create extends BaseController
 {

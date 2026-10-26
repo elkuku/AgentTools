@@ -34,6 +34,7 @@ vendor/bin/php-cs-fixer fix             # Auto-fix code style
 composer check       # Check outdated assets, PHP deps, and recipes
 composer db-diagram  # Regenerate assets/docs/database.svg
 symfony console user-admin  # Interactive user management CLI
+symfony console app:demo-agents  # Dev: add (or replace) 8 demo agents with stats, medals, pictures and every visibility; --remove removes them
 ```
 
 ## Architecture
@@ -49,11 +50,11 @@ symfony console user-admin  # Interactive user management CLI
 
 ### Controllers
 Single-action controller pattern under `src/Controller/`:
-- `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
+- `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class. Index (`/admin/agents`, Admin → Agents, "Admin agents"; the CRUD is under `/admin/agents` too) is also the admins' agent list: every user with picture (also a private one), agent, role, the privacy settings as `ProfilePart::icon()` icons and level (as the app's Admin agents)
 - `Security/` — `GoogleIdentityController` (the route `GoogleIdentityAuthenticator` handles) plus `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
 - `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`). Stats come in only through the API (the app)
-- `Agent/` — other agents' profiles (`ROLE_USER`): Index `/agents` (`UserRepository::findVisibleAgents()`, filtered in PHP because the parts are JSON), Read `/agents/{agentName}` (ignoring case; `404` without the agent part) shows only the visible parts
+- `Agent/` — other agents' profiles (`ROLE_USER`): Index `/agents` (`UserRepository::findVisibleAgents()`, filtered in PHP because the parts are JSON, for everyone; rows from `agent/_agent.html.twig`), Read `/agents/{agentName}` (ignoring case; `404` without the agent part) shows only the visible parts
 - `ProfileController` (the visibility form `Form/ProfileVisibilityType`), `DefaultController`
 
 Keep controllers at most one directory below `src/Controller/`: `ControllerAccessTest` (from `elkuku/symfony-utils`) cannot resolve deeper namespaces.
@@ -65,6 +66,8 @@ JSON-LD under `/api`, docs at `/api/docs`, paths with dashes (`path_segment_name
 - `AgentStat` (`#[ApiResource]` on the entity) — `GET /api/agent-stats` (own stats only via `Doctrine/AgentStatOwnerExtension`, newest first, paginated), `GET /api/agent-stats/{id}` (`AgentStatVoter`), `POST /api/agent-stats` with `AgentStatInput` → `State/AgentStatProcessor` → `AgentStatService`. `StatsAlreadyAddedException` → `409`; type errors are collected as `422` violations.
 - `ApiResource/Me` — `GET /api/me` via `State/MeProvider` (id, identifier, role, agent name, custom medals, `visibleParts`, `visibilityChosen`); `PATCH /api/me` (`ROLE_USER`, `application/merge-patch+json`, `State/MeProcessor`) sets the agent name, the custom medals and the visible parts (counts as chosen), the only writable fields (serialization groups `me:read` / `me:write`; `read: true` because `/me` has no URI variables). The agent name is `User::$agentName`, unique ignoring case (`UserRepository::findOneByAgentName()`; taken → `422` violation). `POST /api/agent-stats` answers `422` (`AgentNameException`) for stats of another agent (`AgentStatInput::$nickname`, compared ignoring case); without an agent name it sets it to the nickname, `422` if that is no agent name or another user has it (also when another upload takes it at the same moment: a unique violation other than `agent_stat_owner_datetime`).
 - `ApiResource/CustomMedals` — not a resource of its own: `Me::$customMedals` (`GET /api/me`; `PATCH /api/me`), the user's custom medals in 4e-website's format (`{"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": {…}}`), stored in `User::$customMedals` (JSON). A `PATCH` is a JSON merge patch: it replaces the groups it sends and keeps the others (the app sends all three); null keeps the agent name or the medals. Only the key/tier format is validated (the medal list lives in the app's `data/CustomMedals.kt` and in `Medal/MedalChecker`).
+- `ApiResource/Agent` — `GET /api/agents` and `GET /api/agents/{agentName}` (`ROLE_USER`, `State/AgentProvider`), the app's version of web's `/agents` pages: only agents with the agent part, and only the parts they show (null otherwise). The list has agentName, faction, level, avatar; an agent also latestStats and history (stats rows as `/api/agent-stats` has them, without the id) and customMedals (`CustomMedals`, group `agent:item`). `404` for a private agent.
+- `ApiResource/UserPrivacy` (short name User) — `GET /api/users` (`ROLE_ADMIN`, `State/UserPrivacyProvider`): every user with identifier, role, agent name, faction, level, avatar (also a private one) and `visibleParts` / `visibilityChosen`; the app's Users list for admins.
 - Errors are `application/problem+json` with `detail`; `GoogleApiTokenAuthenticator`'s `401` uses the same shape.
 - `/profile` (no form) shows admins an API token for the docs' Authorize button: `ApiTokenStore` keeps the Google ID token of a web sign-in (`GoogleIdentityAuthenticator`) in the session; in dev with `APP_FAKE_GOOGLE_TOKENS` a fake token for users with a `googleId`.
 - Operations check their role themselves (`security:`): all need `ROLE_USER` (single stats via `AgentStatVoter`: own only). There is no `access_control` rule for `^/api/`, so `/api/docs` is public.

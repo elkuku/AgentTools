@@ -105,7 +105,7 @@ Rebuild the app after changing `local.properties`, because the value is compiled
 Signing in with the app (or the web login) registers an unknown Google account as a user, with
 its email address as the identifier and `ROLE_USER`. It saves agent stats and custom medals right
 away; the first stats set its agent name. To make yourself an admin, change the role in the
-user CRUD (Admin → Users → Edit → Role), or create the user beforehand:
+user CRUD (Admin → Agents → edit → Role), or create the user beforehand:
 
 ```shell
 cd web

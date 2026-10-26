@@ -236,7 +236,8 @@ class User implements UserInterface
      */
     public function getVisibleParts(): array
     {
-        return \array_values(\array_filter(\array_map(ProfilePart::tryFrom(...), $this->visibleParts)));
+        // In the parts' order, not the order they were chosen in
+        return \array_values(\array_filter(ProfilePart::cases(), fn (ProfilePart $part): bool => \in_array($part->value, $this->visibleParts, true)));
     }
 
     /**
