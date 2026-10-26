@@ -5,6 +5,7 @@ on:
         branches: [master]
         paths:
             - 'web/**'
+            - 'app/**'
             - '.github/workflows/symfony-pages.yml'
 
 permissions:
@@ -68,6 +69,34 @@ jobs:
             - name: Apply dark theme to coverage report
               run: |
                   find docs/coverage -name "*.html" -exec sed -i 's/<html lang="en">/<html lang="en" data-bs-theme="dark">/' {} \;
+
+            # The dev app (com.elkuku.agenttools.dev, next to the release app) for the project page:
+            # production server with the server switch, signed with the dev key from the secrets
+            - name: Setup JDK
+              uses: actions/setup-java@v6
+              with:
+                  distribution: temurin
+                  java-version: '21'
+
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v6
+
+            - name: Build the dev APK
+              working-directory: app
+              env:
+                  DEV_KEYSTORE_BASE64: ${{ secrets.DEV_KEYSTORE_BASE64 }}
+                  DEV_KEYSTORE_PASSWORD: ${{ secrets.DEV_KEYSTORE_PASSWORD }}
+              run: |
+                  echo "$DEV_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/dev.jks"
+                  ./gradlew --console=plain assembleDev \
+                      -Pgoogle.serverClientId=398877672532-cilhjpvtudu0sn62qrra786ecqu159ff.apps.googleusercontent.com \
+                      -Pserver.baseUrl.release=https://agent-tools.elkuku.dev \
+                      -Pdev.storeFile="$RUNNER_TEMP/dev.jks" -Pdev.storePassword="$DEV_KEYSTORE_PASSWORD" \
+                      -Pdev.keyAlias=agenttools-dev -Pdev.keyPassword="$DEV_KEYSTORE_PASSWORD" \
+                      -Pdev.build="${{ github.run_number }}.${GITHUB_SHA::7}"
+                  cp app/build/outputs/apk/dev/app-dev.apk ../web/docs/agenttools-dev.apk
+                  rm "$RUNNER_TEMP/dev.jks"
+                  echo "DEV_APK_VERSION=$(jq -r '.elements[0].versionName' app/build/outputs/apk/dev/output-metadata.json)" >> "$GITHUB_ENV"
 
             - name: Generate project page
               run: php .github/scripts/generate-page.php

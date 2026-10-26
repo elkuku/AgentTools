@@ -44,6 +44,11 @@ $doctrineVersion = $composer['require']['doctrine/orm'] ?? 'N/A';
 $srcFiles  = count(glob($root.'/src/**/*.php') ?: []);
 $testFiles = count(glob($root.'/tests/**/*.php') ?: []);
 
+// --- Dev APK, built by the workflow next to this page ---
+$devApk        = file_exists($docsDir.'/agenttools-dev.apk');
+$devApkVersion = getenv('DEV_APK_VERSION') ?: null;
+$devApkSize    = $devApk ? round(filesize($docsDir.'/agenttools-dev.apk') / 1024 / 1024, 1).' MB' : null;
+
 // --- Build date ---
 $buildDate = date('Y-m-d H:i').' UTC';
 

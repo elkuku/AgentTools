@@ -61,6 +61,20 @@ cd app && ./gradlew testDebugUnitTest lintDebug
 CI runs both on GitHub Actions; the Symfony test coverage is published to
 [GitHub Pages](https://elkuku.github.io/AgentTools/).
 
+## Dev app
+
+The GitHub Pages workflow also builds the `dev` build type of the latest master and puts it on the
+project page as `agenttools-dev.apk`. It is a release build with its own package
+(`com.elkuku.agenttools.dev`, "AgentTools Dev", installs next to the release app), talks to the
+live server and, like debug builds, has the server switch in its settings (HTTPS only). Its version
+name is `<versionName>-dev+<run number>.<commit>`.
+
+It is signed with the dev key (`~/agenttools-dev.jks`, alias `agenttools-dev`), stored in the
+repository secrets `DEV_KEYSTORE_BASE64` (`base64 -w0 ~/agenttools-dev.jks`) and
+`DEV_KEYSTORE_PASSWORD` (store and key password). Its SHA-1 has its own Android OAuth client for
+the `.dev` package. Build it locally with the `dev.*` properties (see `local.properties.example`):
+`cd app && ./gradlew assembleDev`.
+
 ## Releasing the app
 
 1. Raise `versionCode` and `versionName` in `app/app/build.gradle.kts` (an APK with the same or a

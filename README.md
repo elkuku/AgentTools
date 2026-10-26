@@ -10,6 +10,9 @@ Download the APK from the [latest release](https://github.com/elkuku/AgentTools/
 on your Android phone (Android 8.0 or newer) and open it. Allow installing apps from your browser
 or file manager when Android asks.
 
+The [project page](https://elkuku.github.io/AgentTools/) has a dev build of the latest changes,
+"AgentTools Dev", which installs next to the release app.
+
 ## Get access
 
 1. Open AgentTools and tap **Sign in** at the top.

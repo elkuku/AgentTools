@@ -21,6 +21,19 @@
             <p class="text-secondary lead">Symfony app that receives JSON uploads from the Android app (Google Sign-In) and lists them on the web.</p>
         </div>
 
+        <?php if ($devApk): ?>
+        <div class="card p-3 mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <div class="card-title text-secondary mb-1">Dev app</div>
+                    <div><code><?= htmlspecialchars((string) $devApkVersion) ?></code> · <?= $devApkSize ?></div>
+                    <div class="text-secondary small">Latest master, installs next to the release app as "AgentTools Dev". Talks to the live server; the server can be changed in its settings.</div>
+                </div>
+                <a href="agenttools-dev.apk" class="btn btn-outline-secondary">Download APK →</a>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="row g-4 mb-4">
             <div class="col-sm-6 col-lg-3">
                 <div class="card h-100 text-center p-3">
@@ -77,6 +90,11 @@
                         <li class="py-2 border-bottom border-secondary">
                             <a href="coverage/index.html">Coverage Report</a>
                         </li>
+                        <?php if ($devApk): ?>
+                        <li class="py-2 border-bottom border-secondary">
+                            <a href="agenttools-dev.apk">Dev APK</a>
+                        </li>
+                        <?php endif; ?>
                         <li class="py-2">
                             <a href="https://github.com/elkuku/AgentTools/actions">CI Runs</a>
                         </li>
