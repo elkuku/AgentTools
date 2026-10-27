@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\ApiResource\Bannergress;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
@@ -43,7 +45,7 @@ final readonly class DemoAgentsCommand
     private const string NOT_CHOSEN = 'DemoNew';
 
     /** Every visible part. */
-    private const array ALL_PARTS = [ProfilePart::AGENT, ProfilePart::AVATAR, ProfilePart::LATEST_STATS, ProfilePart::STATS_HISTORY, ProfilePart::CUSTOM_MEDALS];
+    private const array ALL_PARTS = [ProfilePart::AGENT, ProfilePart::AVATAR, ProfilePart::LATEST_STATS, ProfilePart::STATS_HISTORY, ProfilePart::CUSTOM_MEDALS, ProfilePart::BANNERGRESS];
 
     /**
      * Agent name => faction, level, share of VETERAN, imports and the days between them, visible
@@ -81,6 +83,23 @@ final readonly class DemoAgentsCommand
         self::NOT_CHOSEN => ['Resistance', 3, 0.005, [1, 14], [], false, [], []],
     ];
 
+    /**
+     * Bannergress syncs: agent name => published, to-do, done, and the days ago the banners on the
+     * done list were done (null: no day set). The banners are made up from BANNERS.
+     */
+    private const array BANNERGRESS = [
+        'DemoFrog' => [4, 9, 412, [12, 95, null, 410, 760, null, 1150]],
+        'DemoKey' => [0, 3, 57, [40, null, 300]],
+    ];
+
+    /** Made-up banners: title, missions, where they start (latitude, longitude). */
+    private const array BANNERS = [
+        ['Quito Old Town', 18, -0.2202, -78.5123], ['Volcán Cotopaxi', 6, -0.6838, -78.4378], ['Galápagos Wildlife', 24, -0.7436, -90.3135],
+        ['Cuenca Rivers', 12, -2.8974, -79.0045], ['Mitad del Mundo', 6, -0.0022, -78.4558], ['Baños Waterfalls', 18, -1.3964, -78.4247],
+        ['Guayaquil Malecón', 12, -2.1962, -79.8862], ['Otavalo Market', 6, 0.2343, -78.2611], ['Bogotá Street Art', 36, 4.5981, -74.0758],
+        ['Lima Coast', 12, -12.1219, -77.0300], ['Andes Railway', 30, -13.5170, -71.9785], ['Medellín Flowers', 18, 6.2442, -75.5812],
+    ];
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRepository $userRepository,
@@ -112,6 +131,7 @@ final readonly class DemoAgentsCommand
                 $user->setAvatar($this->avatar($agentName, $faction), null);
             }
 
+            $user->setBannergress($this->bannergress($agentName));
             if (self::NOT_CHOSEN !== $agentName) {
                 $user->chooseVisibleParts($parts, new \DateTimeImmutable());
             }
@@ -119,6 +139,7 @@ final readonly class DemoAgentsCommand
             $this->entityManager->persist($user);
             $this->addStats($user, $agentName, $faction, $level, $share, $imports, $every);
             $this->addEvents($user, $events);
+            $this->addDoneBanners($user, $agentName);
         }
 
         $this->entityManager->flush();
@@ -140,7 +161,7 @@ final readonly class DemoAgentsCommand
             return 0;
         }
 
-        foreach ([AgentStat::class, TimelineEvent::class] as $class) {
+        foreach ([AgentStat::class, TimelineEvent::class, DoneBanner::class] as $class) {
             $this->entityManager->createQuery('DELETE FROM '.$class.' s WHERE s.owner IN (:users)')
                 ->setParameter('users', $users)
                 ->execute();
@@ -151,6 +172,60 @@ final readonly class DemoAgentsCommand
             ->execute();
 
         return \count($users);
+    }
+
+    /**
+     * @return array<string, mixed>|null as Bannergress::toArray(), null for an agent without a sync
+     */
+    private function bannergress(string $agentName): ?array
+    {
+        if (!isset(self::BANNERGRESS[$agentName])) {
+            return null;
+        }
+
+        [$published, $todo, $done] = self::BANNERGRESS[$agentName];
+
+        return new Bannergress(
+            $published,
+            $todo,
+            $done,
+            \array_slice($this->banners(), 0, \min($todo, 5)),
+            publishedBanners: \array_slice($this->banners(), 12 - $published, $published),
+            syncedAt: new \DateTimeImmutable('-2 days')->format(\DATE_ATOM),
+        )->toArray();
+    }
+
+    /** The done list: the banners after the to-do ones, some with the day they were done. */
+    private function addDoneBanners(User $user, string $agentName): void
+    {
+        foreach (self::BANNERGRESS[$agentName][3] ?? [] as $position => $daysAgo) {
+            $synced = $this->banners()[5 + $position];
+            $banner = new DoneBanner();
+            $banner->owner = $user;
+            $banner->bannerId = $synced['id'];
+            $banner->title = $synced['title'];
+            $banner->missions = $synced['missions'];
+            $banner->startLatitude = $synced['startLatitude'];
+            $banner->startLongitude = $synced['startLongitude'];
+            $banner->position = $position;
+            $banner->doneAt = null === $daysAgo ? null : new \DateTimeImmutable('today')->modify(\sprintf('-%d days', $daysAgo));
+            $this->entityManager->persist($banner);
+        }
+    }
+
+    /**
+     * @return list<array{id: string, title: string, missions: int, picture: null, startLatitude: float, startLongitude: float}>
+     */
+    private function banners(): array
+    {
+        return \array_values(\array_map(static fn (array $banner): array => [
+            'id' => \strtolower((string) \preg_replace('/[^A-Za-z]+/', '-', $banner[0])).'-demo',
+            'title' => $banner[0],
+            'missions' => $banner[1],
+            'picture' => null,
+            'startLatitude' => $banner[2],
+            'startLongitude' => $banner[3],
+        ], self::BANNERS));
     }
 
     /**

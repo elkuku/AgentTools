@@ -16,10 +16,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * GET /api/me: the signed-in user. PATCH /api/me: the user sets the agent name, replaces the
- * custom medals or chooses the visible profile parts, the only writable fields.
+ * custom medals, chooses the visible profile parts or saves the Bannergress sync, the only
+ * writable fields.
  */
 #[ApiResource(
-    description: 'The signed-in user. customMedals are the custom medals (anomaly, annual and event medals) as 4e-website stores them: medal keys of its MedalChecker::$customMedals with the tier (anomaly, event; "" for a medal without tiers) or the level 1 (bronze) to 5 (onyx) (annual). visibleParts are the parts of the profile other signed-in users see (agent, avatar, latest_stats, stats_history, custom_medals; the others only with agent); visibilityChosen is false until the user chose them; avatar is the Google profile picture as a 100 px JPEG data: URI (null without one) (on /profile or with PATCH), until then everything is private. With PATCH users set their Ingress agent name (the first agent stats uploaded set it when it is not set yet; agent stats are only accepted for this agent, ignoring case; no other user may have it), replace groups of custom medals (a JSON merge patch: groups not sent stay) or choose visibleParts (all of them; without agent none is stored).',
+    description: 'The signed-in user. customMedals are the custom medals (anomaly, annual and event medals) as 4e-website stores them: medal keys of its MedalChecker::$customMedals with the tier (anomaly, event; "" for a medal without tiers) or the level 1 (bronze) to 5 (onyx) (annual). visibleParts are the parts of the profile other signed-in users see (agent, avatar, latest_stats, stats_history, custom_medals, bannergress; the others only with agent); visibilityChosen is false until the user chose them; avatar is the Google profile picture as a 100 px JPEG data: URI (null without one) (on /profile or with PATCH), until then everything is private. With PATCH users set their Ingress agent name (the first agent stats uploaded set it when it is not set yet; agent stats are only accepted for this agent, ignoring case; no other user may have it), replace groups of custom medals (a JSON merge patch: groups not sent stay) or choose visibleParts (all of them; without agent none is stored). bannergress is what the app synced from Bannergress (it needs a Bannergress sign-in): the number of banners published (with a mission the agent created), on the to-do and done lists, publishedBanners (all of them), todoBanners (the newest 20) and, written only, doneBanners (the whole done list, read with /api/done-banners); a banner has id, title, missions and picture (relative to https://api.bannergress.com). PATCH replaces it and the server sets syncedAt.',
     operations: [
         new Get(uriTemplate: '/me', security: "is_granted('ROLE_USER')", provider: MeProvider::class),
         new Patch(
@@ -71,6 +72,10 @@ final class Me
         /** The Google profile picture (100 px JPEG data: URI), null without one. */
         #[Groups([self::READ])]
         public ?string $avatar = null,
+        /** What the app synced from Bannergress, null until it did; PATCH replaces it, without it (or null) keeps it. */
+        #[Groups([self::READ, self::WRITE])]
+        #[Assert\Valid]
+        public ?Bannergress $bannergress = null,
     ) {
     }
 }

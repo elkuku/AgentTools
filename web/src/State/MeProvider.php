@@ -6,6 +6,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Bannergress;
 use App\ApiResource\CustomMedals;
 use App\ApiResource\Me;
 use App\Entity\User;
@@ -36,6 +37,7 @@ final readonly class MeProvider implements ProviderInterface
             $user->getVisibleParts(),
             $user->getVisibilityChosenAt() instanceof \DateTimeImmutable,
             $user->getAvatar(),
+            Bannergress::fromStored($user->getBannergress()),
         );
     }
 }

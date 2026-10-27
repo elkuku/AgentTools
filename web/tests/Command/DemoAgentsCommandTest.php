@@ -6,6 +6,7 @@ namespace App\Tests\Command;
 
 use App\Enum\ProfilePart;
 use App\Repository\AgentStatRepository;
+use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -39,6 +40,12 @@ class DemoAgentsCommandTest extends KernelTestCase
         $frog = $this->users()->findOneByAgentName('DemoFrog');
         self::assertNotNull($frog);
         self::assertTrue($frog->isVisible(ProfilePart::CUSTOM_MEDALS));
+        self::assertTrue($frog->isVisible(ProfilePart::BANNERGRESS));
+        self::assertSame(412, $frog->getBannergress()['done'] ?? null);
+        $doneBanners = static::getContainer()->get(DoneBannerRepository::class);
+        self::assertInstanceOf(DoneBannerRepository::class, $doneBanners);
+        self::assertCount(7, $doneBanners->findByOwner($frog));
+        self::assertCount(5, $doneBanners->findDatedByOwner($frog));
         self::assertStringStartsWith('data:image/jpeg;base64,', (string) $frog->getVisibleAvatar());
         $stats = $this->stats()->findByOwner($frog);
         self::assertCount(40, $stats);

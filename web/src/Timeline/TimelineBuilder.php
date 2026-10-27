@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Timeline;
 
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Medal\MedalChecker;
 use App\Medal\MedalLevel;
 
 /**
- * The timeline of stats uploads and custom events, newest first. An upload shows what changed
+ * The timeline of stats uploads, custom events and the Bannergress banners done (with a day),
+ * newest first. An upload shows what changed
  * since the one before it, as the app's import result (data/ImportResult.kt): AP, level, medal
  * upgrades and recursions. Events come before the uploads of the same day.
  */
@@ -21,12 +23,13 @@ final readonly class TimelineBuilder
     }
 
     /**
-     * @param list<AgentStat>     $stats  newest first
+     * @param list<AgentStat>     $stats   newest first
      * @param list<TimelineEvent> $events
+     * @param list<DoneBanner>    $banners those with the day they were done
      *
      * @return list<TimelineEntry>
      */
-    public function build(array $stats, array $events): array
+    public function build(array $stats, array $events, array $banners = []): array
     {
         $entries = [];
         foreach ($stats as $index => $stat) {
@@ -36,6 +39,13 @@ final readonly class TimelineBuilder
         foreach ($events as $event) {
             // At the end of its day: before that day's uploads, newest first
             $entries[] = new TimelineEntry(($event->date ?? $event->createdAt)->setTime(23, 59, 59), event: $event);
+        }
+
+        foreach ($banners as $banner) {
+            if ($banner->doneAt instanceof \DateTimeImmutable) {
+                // As events: before that day's uploads
+                $entries[] = new TimelineEntry($banner->doneAt->setTime(23, 59, 59), banner: $banner);
+            }
         }
 
         // usort is stable: uploads and events keep their order on the same date

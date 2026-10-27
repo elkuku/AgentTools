@@ -59,6 +59,15 @@ class User implements UserInterface
     #[Column(type: Types::JSON, options: ['default' => '{}'])]
     private array $customMedals = [];
 
+    /**
+     * What the app synced from Bannergress (see App\ApiResource\Bannergress::toArray()); null
+     * until it did.
+     *
+     * @var array<string, mixed>|null
+     */
+    #[Column(type: Types::JSON, nullable: true)]
+    private ?array $bannergress = null;
+
     #[Column(length: 100, nullable: true)]
     private ?string $googleId = null;
 
@@ -149,6 +158,24 @@ class User implements UserInterface
     public function setCustomMedals(array $customMedals): self
     {
         $this->customMedals = $customMedals;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getBannergress(): ?array
+    {
+        return $this->bannergress;
+    }
+
+    /**
+     * @param array<string, mixed>|null $bannergress
+     */
+    public function setBannergress(?array $bannergress): self
+    {
+        $this->bannergress = $bannergress;
 
         return $this;
     }

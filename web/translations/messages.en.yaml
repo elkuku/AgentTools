@@ -85,6 +85,7 @@ medals:
         event: Event
 
 nav:
+    banners: My banners
     import_stats: Import stats
     about: About
     admin: Admin
@@ -133,6 +134,9 @@ profile_part:
     custom_medals:
         label: Custom medals
         help: Your anomaly, annual and event medals.
+    bannergress:
+        label: Banners
+        help: The number of banners you published, have to do and have done, with the newest of your lists, as the app synced them.
 
 role:
     admin: Administrator
@@ -184,6 +188,7 @@ timeline:
         medals: Medal upgrades
         upload: Uploads
         event: Events
+        banner: Banners
         travel: Travels
         year: Year
         all_years: All years
@@ -225,3 +230,25 @@ user:
     shows: Shows
     updated: User has been updated.
     visibility_not_chosen: 'Not chosen yet: all private'
+bannergress:
+    title: Banners
+    mine: My banners
+    published: Published
+    todo: To-do
+    done: Done
+    todo_newest: 'The newest %count% of your to-do list:'
+    missions: '{1} %count% mission|]1,Inf[ %count% missions'
+    synced: 'Synced from the app on %date%'
+    timeline_done: 'Banner done:'
+    published_none: No banners published.
+    todo_none: No banners on the to-do list.
+    done_none: No banners on the done list.
+    done_at: The day you did it
+    done_on: 'Done on %date%'
+    date_help: Add the day you did a banner and it shows on your timeline.
+    date_saved: The day is saved; the banner is on your timeline.
+    date_removed: The day is removed.
+    date_invalid: That is no date.
+    map: Where your banners start
+    map_partial: 'Banners synced before the map have no start point yet: sync again in the app.'
+    none: 'Not synced yet: in the app, open Banners in your stats, sign in to Bannergress and sync.'

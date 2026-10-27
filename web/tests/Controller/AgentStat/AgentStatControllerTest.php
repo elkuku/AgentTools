@@ -55,6 +55,8 @@ class AgentStatControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-entries .timeline-upload', '243,517,130 AP');
         self::assertSelectorExists('#timeline-entries .timeline-upload a[href^="/agent-stats/"]');
         self::assertSelectorTextNotContains('body', 'OtherAgent');
+        // Not synced from the app yet
+        self::assertSelectorExists('#bannergress #bannergress-none');
     }
 
     public function testShowRendersStats(): void

@@ -8,12 +8,14 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * GET /api/agent-stats and /api/timeline-events list only the current user's stats and events.
+ * GET /api/agent-stats, /api/timeline-events and /api/done-banners list only the current user's
+ * stats, events and done banners.
  */
 final readonly class AgentStatOwnerExtension implements QueryCollectionExtensionInterface
 {
@@ -23,7 +25,7 @@ final readonly class AgentStatOwnerExtension implements QueryCollectionExtension
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        if (!\in_array($resourceClass, [AgentStat::class, TimelineEvent::class], true)) {
+        if (!\in_array($resourceClass, [AgentStat::class, TimelineEvent::class, DoneBanner::class], true)) {
             return;
         }
 

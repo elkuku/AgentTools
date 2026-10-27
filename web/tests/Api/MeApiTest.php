@@ -44,8 +44,9 @@ class MeApiTest extends WebTestCase
 
     protected function tearDown(): void
     {
+        $this->entityManager()->createQuery('DELETE FROM App\Entity\DoneBanner')->execute();
         $this->entityManager()
-            ->createQuery("UPDATE App\\Entity\\User u SET u.googleId = NULL, u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL")
+            ->createQuery("UPDATE App\\Entity\\User u SET u.googleId = NULL, u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL, u.bannergress = NULL")
             ->execute();
 
         parent::tearDown();
@@ -108,6 +109,72 @@ class MeApiTest extends WebTestCase
         $this->request(Request::METHOD_PATCH, payload: ['visibleParts' => ['latest_stats']]);
         self::assertSame([], $this->responseJson()['visibleParts']);
         self::assertTrue($this->responseJson()['visibilityChosen']);
+    }
+
+    public function testSavesTheBannergressSync(): void
+    {
+        $this->request(Request::METHOD_GET);
+        self::assertNull($this->responseJson()['bannergress']);
+
+        $banner = ['id' => 'quito-old-town-1a2b', 'title' => 'Quito old town', 'missions' => 18, 'picture' => '/bnrs/pictures/a4201b1d'];
+        $this->request(Request::METHOD_PATCH, payload: ['bannergress' => [
+            'published' => 3, 'todo' => 12, 'done' => 250, 'todoBanners' => [$banner], 'doneBanners' => [$banner], 'publishedBanners' => [$banner], 'syncedAt' => '2000-01-01',
+        ]]);
+
+        self::assertResponseIsSuccessful();
+        $json = $this->responseJson();
+        self::assertIsArray($json['bannergress']);
+        self::assertSame(250, $json['bannergress']['done']);
+        // Without a start point (synced before the map)
+        $stored = $banner + ['startLatitude' => null, 'startLongitude' => null];
+        self::assertSame([$stored], $json['bannergress']['todoBanners']);
+        self::assertSame([$stored], $json['bannergress']['publishedBanners']);
+        // The done list is a resource of its own (DoneBannerApiTest)
+        self::assertArrayNotHasKey('doneBanners', $json['bannergress']);
+        // The server sets the time
+        self::assertIsString($json['bannergress']['syncedAt']);
+        self::assertStringStartsWith(new \DateTimeImmutable()->format('Y-m-d'), $json['bannergress']['syncedAt']);
+        $this->entityManager()->clear();
+        self::assertSame(3, $this->user('agent')->getBannergress()['published'] ?? null);
+
+        // Null keeps it
+        $this->request(Request::METHOD_PATCH, payload: ['bannergress' => null]);
+        self::assertIsArray($this->responseJson()['bannergress']);
+        self::assertSame(12, $this->responseJson()['bannergress']['todo']);
+    }
+
+    public function testOtherChangesKeepTheVisibilityAndTheSync(): void
+    {
+        $this->request(Request::METHOD_PATCH, payload: ['bannergress' => ['published' => 3]]);
+        $syncedAt = $this->responseJson()['bannergress']['syncedAt'] ?? null;
+        self::assertFalse($this->responseJson()['visibilityChosen']);
+
+        \sleep(1);
+        $this->request(Request::METHOD_PATCH, payload: ['agentName' => 'TestAgent', 'customMedals' => ['annual' => ['voyager' => 5]]]);
+
+        self::assertResponseIsSuccessful();
+        // Not chosen by saving something else, and the sync keeps its time
+        self::assertFalse($this->responseJson()['visibilityChosen']);
+        self::assertSame($syncedAt, $this->responseJson()['bannergress']['syncedAt'] ?? null);
+        $this->entityManager()->clear();
+        self::assertNull($this->user('agent')->getVisibilityChosenAt());
+    }
+
+    public function testRejectsInvalidBannergressSyncs(): void
+    {
+        $this->request(Request::METHOD_PATCH, payload: ['bannergress' => [
+            'published' => -1,
+            'todoBanners' => [['id' => 'x', 'title' => 'X', 'missions' => 6, 'picture' => 'https://evil.example.com/x.png']],
+            'doneBanners' => [['title' => 'No id', 'missions' => 6]],
+        ]]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $paths = \array_column($this->responseJson()['violations'], 'propertyPath');
+        self::assertContains('bannergress.published', $paths);
+        self::assertContains('bannergress.todoBanners[0][picture]', $paths);
+        self::assertContains('bannergress.doneBanners[0][id]', $paths);
+        $this->entityManager()->clear();
+        self::assertNull($this->user('agent')->getBannergress());
     }
 
     public function testRejectsUnknownParts(): void

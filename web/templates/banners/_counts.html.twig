@@ -1,0 +1,11 @@
+{# The three counts. bannergress: App\ApiResource\Bannergress #}
+<div class="row g-2 text-center mb-2">
+    {% for key in ['published', 'done', 'todo'] %}
+        <div class="col-4">
+            <div class="border rounded py-2">
+                <div class="fs-4 fw-bold" id="bannergress-{{ key }}">{{ attribute(bannergress, key)|number_format }}</div>
+                <div class="small text-body-secondary">{{ ('bannergress.' ~ key)|trans }}</div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

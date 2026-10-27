@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{#
+    The banners page: the user's own (agent null, the days can be set) or an agent's (read-only).
+    Sections in an accordion: published, done and to-do.
+    bannergress: App\ApiResource\Bannergress|null, doneBanners: list<App\Entity\DoneBanner>, agent: User|null,
+    mapPoints: the world map's dots (App\Bannergress\BannerMap)
+#}
+{% set own = agent is null %}
+
+{% block title %}{{ own ? 'bannergress.mine'|trans : agent.agentName ~ ' - ' ~ 'bannergress.title'|trans }}{% endblock %}
+
+{% macro section(id, title, count, open) %}
+    <h2 class="accordion-header">
+        <button class="accordion-button{{ open ? '' : ' collapsed' }}" type="button" data-bs-toggle="collapse"
+                data-bs-target="#banners-{{ id }}" aria-expanded="{{ open ? 'true' : 'false' }}" aria-controls="banners-{{ id }}">
+            {{ title }} <span class="badge text-bg-secondary ms-2" id="bannergress-{{ id }}">{{ count|number_format }}</span>
+        </button>
+    </h2>
+{% endmacro %}
+
+{% block body %}
+    <h1>
+        {% if own %}
+            {{ 'bannergress.mine'|trans }}
+        {% else %}
+            <a href="{{ path('app_agent_show', {agentName: agent.agentName}) }}">{{ agent.agentName }}</a> &middot; {{ 'bannergress.title'|trans }}
+        {% endif %}
+    </h1>
+
+    {% if bannergress %}
+        {% if bannergress.syncedAt %}
+            <p class="small text-body-secondary">{{ 'bannergress.synced'|trans({'%date%': bannergress.syncedAt|date('Y-m-d H:i')}) }}</p>
+        {% endif %}
+
+        {# Where the banners start, colored by list #}
+        <div data-controller="banner-map" data-banner-map-banners-value="{{ mapPoints|json_encode }}">
+            <div class="banner-map rounded border mb-2" id="banner-map" data-banner-map-target="map"
+                 role="region" aria-label="{{ 'bannergress.map'|trans }}"></div>
+            {# The legend filters: a toggle per list #}
+            <div class="d-flex flex-wrap align-items-center gap-2 small mb-3" id="banner-map-legend">
+                {% for list in ['published', 'done', 'todo'] %}
+                    <input type="checkbox" class="btn-check" id="banner-map-filter-{{ list }}" value="{{ list }}" checked autocomplete="off"
+                           data-banner-map-target="list" data-action="banner-map#filter">
+                    <label class="btn btn-sm btn-outline-secondary" for="banner-map-filter-{{ list }}">
+                        <span class="banner-map-key banner-map-key-{{ list }}"></span> {{ ('bannergress.' ~ list)|trans }}
+                        <span class="text-body-secondary">{{ mapPoints|filter(p => p.list == list)|length }}</span>
+                    </label>
+                {% endfor %}
+                {% if mapPoints|length < bannergress.publishedBanners|length + doneBanners|length + bannergress.todoBanners|length %}
+                    <span class="text-body-secondary">{{ 'bannergress.map_partial'|trans }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Sections open independently; a link to a banner opens its section #}
+        <div class="accordion" id="banners" data-controller="accordion-hash">
+            <div class="accordion-item">
+                {{ _self.section('published', 'bannergress.published'|trans, bannergress.published, true) }}
+                <div id="banners-published" class="accordion-collapse collapse show">
+                    <ul class="list-unstyled mb-0 accordion-body" id="bannergress-published-list">
+                        {% for banner in bannergress.publishedBanners %}
+                            <li class="mb-3">{{ include('banners/_synced_banner.html.twig') }}</li>
+                        {% else %}
+                            <li class="text-body-secondary">{{ 'bannergress.published_none'|trans }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                {{ _self.section('done', 'bannergress.done'|trans, bannergress.done, false) }}
+                <div id="banners-done" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        {% if own and doneBanners is not empty %}
+                            <p class="text-body-secondary">{{ 'bannergress.date_help'|trans }}</p>
+                        {% endif %}
+                        <ul class="list-unstyled mb-0" id="bannergress-done-list">
+                            {% for banner in doneBanners %}
+                                <li class="mb-3" id="done-banner-{{ banner.id }}">
+                                    {{ include('banners/_banner.html.twig', {url: banner.url, pictureUrl: banner.pictureUrl, title: banner.title, missions: banner.missions}) }}
+                                    {% if own %}
+                                        <form class="d-flex gap-2 mt-1" method="post" action="{{ path('app_banners_done_at', {id: banner.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Controller\\Banners\\DoneAt::CSRF_TOKEN')) }}">
+                                            <input type="date" class="form-control form-control-sm w-auto" name="doneAt"
+                                                   value="{{ banner.doneAt ? banner.doneAt|date('Y-m-d') }}" aria-label="{{ 'bannergress.done_at'|trans }}">
+                                            <button class="btn btn-sm btn-outline-primary">{{ 'action.save'|trans }}</button>
+                                        </form>
+                                    {% elseif banner.doneAt %}
+                                        <div class="small text-body-secondary">{{ 'bannergress.done_on'|trans({'%date%': banner.doneAt|date('Y-m-d')}) }}</div>
+                                    {% endif %}
+                                </li>
+                            {% else %}
+                                <li class="text-body-secondary">{{ 'bannergress.done_none'|trans }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                {{ _self.section('todo', 'bannergress.todo'|trans, bannergress.todo, false) }}
+                <div id="banners-todo" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        {% if bannergress.todo > bannergress.todoBanners|length %}
+                            <p class="text-body-secondary">{{ 'bannergress.todo_newest'|trans({'%count%': bannergress.todoBanners|length}) }}</p>
+                        {% endif %}
+                        <ul class="list-unstyled mb-0" id="bannergress-todo-list">
+                            {% for banner in bannergress.todoBanners %}
+                                <li class="mb-3">{{ include('banners/_synced_banner.html.twig') }}</li>
+                            {% else %}
+                                <li class="text-body-secondary">{{ 'bannergress.todo_none'|trans }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p id="bannergress-none">{{ 'bannergress.none'|trans }}</p>
+    {% endif %}
+{% endblock %}

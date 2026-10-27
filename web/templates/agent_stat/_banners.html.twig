@@ -1,0 +1,11 @@
+{#
+    The Bannergress counts, linking to the Bannergress page. bannergress: App\ApiResource\Bannergress|null (null: not synced yet), url
+#}
+<div id="bannergress">
+    <h2 class="h5"><a href="{{ url }}">{{ 'bannergress.title'|trans }} <i class="bi-chevron-right small"></i></a></h2>
+    {% if bannergress %}
+        {{ include('banners/_counts.html.twig') }}
+    {% else %}
+        <p id="bannergress-none">{{ 'bannergress.none'|trans }}</p>
+    {% endif %}
+</div>

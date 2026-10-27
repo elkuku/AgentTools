@@ -1,0 +1,8 @@
+{# A banner: picture, title (to bannergress.com) and missions. url, pictureUrl: string|null, title, missions #}
+<a href="{{ url }}" target="_blank" rel="noopener">
+    {% if pictureUrl %}
+        <img class="d-block rounded mb-1 banner-picture" src="{{ pictureUrl }}" alt="" loading="lazy">
+    {% endif %}
+    {{ title }}
+</a>
+<span class="small text-body-secondary">&middot; {{ 'bannergress.missions'|trans({'%count%': missions}) }}</span>

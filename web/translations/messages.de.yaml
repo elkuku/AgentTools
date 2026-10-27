@@ -84,6 +84,7 @@ medals:
         event: Event
 
 nav:
+    banners: Meine Banner
     import_stats: Statistiken importieren
     about: Über
     admin: Admin
@@ -132,6 +133,9 @@ profile_part:
     custom_medals:
         label: Sondermedaillen
         help: Deine Anomalie-, Jahres- und Event-Medaillen.
+    bannergress:
+        label: Banner
+        help: Wie viele Banner du veröffentlicht hast, noch machen willst und gemacht hast, mit den neuesten deiner Listen, wie die App sie synchronisiert hat.
 
 role:
     admin: Administrator
@@ -183,6 +187,7 @@ timeline:
         medals: Medaillen-Upgrades
         upload: Uploads
         event: Ereignisse
+        banner: Banner
         travel: Reisen
         year: Jahr
         all_years: Alle Jahre
@@ -224,3 +229,25 @@ user:
     shows: Zeigt
     updated: Der Benutzer wurde aktualisiert.
     visibility_not_chosen: 'Noch nicht gewählt: alles privat'
+bannergress:
+    title: Banner
+    mine: Meine Banner
+    published: Veröffentlicht
+    todo: Zu erledigen
+    done: Erledigt
+    todo_newest: 'Die neuesten %count% deiner Zu-erledigen-Liste:'
+    missions: '{1} %count% Mission|]1,Inf[ %count% Missionen'
+    synced: 'Aus der App synchronisiert am %date%'
+    timeline_done: 'Banner erledigt:'
+    published_none: Keine veröffentlichten Banner.
+    todo_none: Keine Banner auf der Zu-erledigen-Liste.
+    done_none: Keine Banner auf der Erledigt-Liste.
+    done_at: Der Tag, an dem du es gemacht hast
+    done_on: 'Erledigt am %date%'
+    date_help: Trage den Tag ein, an dem du ein Banner gemacht hast, dann steht es in deiner Zeitleiste.
+    date_saved: Der Tag ist gespeichert; das Banner steht in deiner Zeitleiste.
+    date_removed: Der Tag ist entfernt.
+    date_invalid: Das ist kein Datum.
+    map: Wo deine Banner beginnen
+    map_partial: 'Vor der Karte synchronisierte Banner haben noch keinen Startpunkt: Synchronisiere in der App erneut.'
+    none: 'Noch nicht synchronisiert: Öffne in der App Banner in deinen Stats, melde dich bei Bannergress an und synchronisiere.'

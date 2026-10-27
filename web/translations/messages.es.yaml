@@ -84,6 +84,7 @@ medals:
         event: Eventos
 
 nav:
+    banners: Mis banners
     import_stats: Importar estadísticas
     about: Acerca de
     admin: Admin
@@ -132,6 +133,9 @@ profile_part:
     custom_medals:
         label: Medallas especiales
         help: Tus medallas de anomalías, anuales y de eventos.
+    bannergress:
+        label: Banners
+        help: Cuántos banners publicaste, tienes pendientes y completaste, con los más recientes de tus listas, como la app los sincronizó.
 
 role:
     admin: Administrador
@@ -183,6 +187,7 @@ timeline:
         medals: Medallas mejoradas
         upload: Subidas
         event: Eventos
+        banner: Banners
         travel: Viajes
         year: Año
         all_years: Todos los años
@@ -224,3 +229,25 @@ user:
     shows: Muestra
     updated: Se actualizó el usuario.
     visibility_not_chosen: 'Aún no elegido: todo privado'
+bannergress:
+    title: Banners
+    mine: Mis banners
+    published: Publicados
+    todo: Pendientes
+    done: Completados
+    todo_newest: 'Los %count% más recientes de tu lista de pendientes:'
+    missions: '{1} %count% misión|]1,Inf[ %count% misiones'
+    synced: 'Sincronizado desde la app el %date%'
+    timeline_done: 'Banner completado:'
+    published_none: No hay banners publicados.
+    todo_none: No hay banners en la lista de pendientes.
+    done_none: No hay banners en la lista de completados.
+    done_at: El día en que lo hiciste
+    done_on: 'Completado el %date%'
+    date_help: Añade el día en que hiciste un banner y aparecerá en tu línea de tiempo.
+    date_saved: El día está guardado; el banner está en tu línea de tiempo.
+    date_removed: El día se ha quitado.
+    date_invalid: Eso no es una fecha.
+    map: Dónde empiezan tus banners
+    map_partial: 'Los banners sincronizados antes del mapa aún no tienen punto de inicio: sincroniza de nuevo en la app.'
+    none: 'Aún no sincronizado: en la app, abre Banners en tus estadísticas, inicia sesión en Bannergress y sincroniza.'

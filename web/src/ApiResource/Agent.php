@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * show the agent part, and only the parts they show (null for the others).
  */
 #[ApiResource(
-    description: 'Agents who show their profile to other users (the agent part, see Me::visibleParts), and the parts they show; private parts are null. The list has the agent name, faction, level and avatar; an agent also has latestStats (a stats row with the column names of /api/agent-stats), history (all stats rows, newest first) with events (the custom timeline events: date, endDate (null for one day) and text, newest first) and customMedals.',
+    description: 'Agents who show their profile to other users (the agent part, see Me::visibleParts), and the parts they show; private parts are null. The list has the agent name, faction, level and avatar; an agent also has latestStats (a stats row with the column names of /api/agent-stats), history (all stats rows, newest first) with events (the custom timeline events: date, endDate (null for one day) and text, newest first), customMedals, bannergress (as Me has it) and doneBanners (as /api/done-banners has them, without the id).',
     operations: [
         new GetCollection(
             uriTemplate: '/agents',
@@ -41,9 +41,10 @@ final readonly class Agent
     public const string ITEM = 'agent:item';
 
     /**
-     * @param array<string, int|string|null>|null                                $latestStats with the latest stats part
-     * @param list<array<string, int|string|null>>|null                          $history     with the stats history part, newest first
-     * @param list<array{date: string, endDate: string|null, text: string}>|null $events      the custom timeline events, with the stats history part, newest first
+     * @param array<string, int|string|null>|null                                                                                                                                $latestStats with the latest stats part
+     * @param list<array<string, int|string|null>>|null                                                                                                                          $history     with the stats history part, newest first
+     * @param list<array{date: string, endDate: string|null, text: string}>|null                                                                                                 $events      the custom timeline events, with the stats history part, newest first
+     * @param list<array{bannerId: string, title: string, missions: int, picture: string|null, startLatitude: float|null, startLongitude: float|null, doneAt: string|null}>|null $doneBanners newest on the list first
      */
     public function __construct(
         #[ApiProperty(identifier: true)]
@@ -66,6 +67,12 @@ final readonly class Agent
         /** With the custom medals part. */
         #[Groups([self::ITEM])]
         public ?CustomMedals $customMedals = null,
+        /** With the Bannergress part, once the agent synced it. */
+        #[Groups([self::ITEM])]
+        public ?Bannergress $bannergress = null,
+        /** The done list with the days, with the Bannergress part. */
+        #[Groups([self::ITEM])]
+        public ?array $doneBanners = null,
     ) {
     }
 }

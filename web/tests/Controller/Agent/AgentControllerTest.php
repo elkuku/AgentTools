@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller\Agent;
 
+use App\ApiResource\Bannergress;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
@@ -35,7 +37,8 @@ class AgentControllerTest extends WebTestCase
         $em = $this->entityManager();
         $em->createQuery('DELETE FROM App\Entity\AgentStat')->execute();
         $em->createQuery('DELETE FROM App\Entity\TimelineEvent')->execute();
-        $em->createQuery("UPDATE App\\Entity\\User u SET u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL, u.customMedals = '{}'")
+        $em->createQuery('DELETE FROM App\Entity\DoneBanner')->execute();
+        $em->createQuery("UPDATE App\\Entity\\User u SET u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL, u.customMedals = '{}', u.bannergress = NULL")
             ->execute();
 
         parent::tearDown();
@@ -163,6 +166,50 @@ class AgentControllerTest extends WebTestCase
         // Annual medals are stored as levels
         self::assertSelectorExists('#custom-medals img[alt="Voyager (Onyx)"][src*="badge_voyager_black"]');
         self::assertSelectorTextNotContains('#custom-medals', 'Event');
+    }
+
+    public function testShowsBannergressOnlyWithItsPart(): void
+    {
+        $agent = $this->user('agent');
+        $agent->setBannergress(new Bannergress(2, 5, 1234)->toArray());
+        $this->createAgentStat($agent, '2026-10-19 15:35:56', 16);
+        $banner = new DoneBanner();
+        $banner->owner = $agent;
+        $banner->bannerId = 'quito-1a2b';
+        $banner->title = 'Quito old town';
+        $banner->missions = 18;
+        $banner->doneAt = new \DateTimeImmutable('2026-10-18');
+        $this->entityManager()->persist($banner);
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY]);
+
+        $this->client->loginUser($this->user('admin'));
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('#bannergress');
+        // Banners are on the timeline only with the Bannergress part
+        self::assertSelectorNotExists('#timeline-entries .timeline-banner');
+        self::assertSelectorNotExists('#timeline-filter-banner');
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent/banners');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY, ProfilePart::BANNERGRESS]);
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
+
+        // The counts, linking to the agent's Bannergress page
+        self::assertSelectorTextSame('#bannergress-published', '2');
+        self::assertSelectorTextSame('#bannergress-done', '1,234');
+        self::assertSelectorExists('#bannergress h2 a[href="/agents/TestAgent/banners"]');
+        self::assertSelectorTextContains('#timeline-entries li.timeline-banner[data-kind="banner"]', 'Quito old town');
+        self::assertSelectorTextContains('#timeline-entries li.timeline-banner', '2026-10-18');
+        self::assertSelectorExists('#timeline-filter-banner');
+        self::assertSelectorNotExists('#timeline-entries .timeline-banner a[href^="/banners"]');
+
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent/banners');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#bannergress-done-list a[href="https://bannergress.com/banner/quito-1a2b"]');
+        self::assertSelectorTextContains('#bannergress-done-list', 'Done on 2026-10-18');
+        // Read-only
+        self::assertSelectorNotExists('#bannergress-done-list form');
     }
 
     public function testUploadsWithMedalUpgradesAreMarkedForTheFilter(): void

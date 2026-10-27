@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Controller\Agent;
 
+use App\ApiResource\Bannergress;
 use App\Controller\BaseController;
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Enum\UserRole;
 use App\Medal\MedalChecker;
 use App\Repository\AgentStatRepository;
+use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
 use App\Timeline\TimelineBuilder;
@@ -39,6 +42,7 @@ final class Read extends BaseController
         TimelineEventRepository $timelineEventRepository,
         MedalChecker $medalChecker,
         TimelineBuilder $timelineBuilder,
+        DoneBannerRepository $doneBannerRepository,
     ): Response {
         $agent = $userRepository->findOneByAgentName($agentName);
         if (!$agent instanceof User || !$agent->isVisible(ProfilePart::AGENT)) {
@@ -53,12 +57,13 @@ final class Read extends BaseController
             'agent' => $agent,
             'latest' => $latest,
             ...$agent->isVisible(ProfilePart::STATS_HISTORY)
-                ? $this->history($stats, $timelineEventRepository->findByOwner($agent), $timelineBuilder, $request->getLocale())
+                ? $this->history($stats, $timelineEventRepository->findByOwner($agent), $this->datedBanners($agent, $doneBannerRepository), $timelineBuilder, $request->getLocale())
                 : ['first' => null, 'timeline' => null, 'chart' => null],
             'showLatestStats' => $showLatestStats,
             'medals' => $showLatestStats ? $medalChecker->medalLevels($latest) : [],
             'coreBadges' => $showLatestStats ? $medalChecker->coreBadges($latest->getStats()['months_subscribed'] ?? 0) : [],
             'customMedals' => $agent->isVisible(ProfilePart::CUSTOM_MEDALS) ? $medalChecker->customMedalTiers($agent->getCustomMedals()) : null,
+            'bannergress' => $agent->isVisible(ProfilePart::BANNERGRESS) ? Bannergress::fromStored($agent->getBannergress()) : null,
             'isOwn' => $agent->id === $this->getUser()->id,
         ]);
     }
@@ -66,17 +71,28 @@ final class Read extends BaseController
     /**
      * The stats history part: the first import, and the timeline and its chart with the custom events.
      *
-     * @param list<AgentStat>     $stats  newest first
+     * @param list<AgentStat>     $stats   newest first
      * @param list<TimelineEvent> $events
+     * @param list<DoneBanner>    $banners done, with a day
      *
      * @return array{first: AgentStat|null, timeline: list<TimelineEntry>, chart: TimelineChart|null}
      */
-    private function history(array $stats, array $events, TimelineBuilder $timelineBuilder, string $locale): array
+    private function history(array $stats, array $events, array $banners, TimelineBuilder $timelineBuilder, string $locale): array
     {
         return [
             'first' => \array_last($stats),
-            'timeline' => $timelineBuilder->build($stats, $events),
+            'timeline' => $timelineBuilder->build($stats, $events, $banners),
             'chart' => TimelineChart::build($stats, $events, $locale),
         ];
+    }
+
+    /**
+     * The banners done with a day, on the timeline only with the Bannergress part.
+     *
+     * @return list<DoneBanner>
+     */
+    private function datedBanners(User $agent, DoneBannerRepository $doneBannerRepository): array
+    {
+        return $agent->isVisible(ProfilePart::BANNERGRESS) ? $doneBannerRepository->findDatedByOwner($agent) : [];
     }
 }

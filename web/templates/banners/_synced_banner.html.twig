@@ -1,0 +1,7 @@
+{# A banner as the sync stores it on the user. banner: array{id, title, missions, picture} #}
+{{ include('banners/_banner.html.twig', {
+    url: constant('App\\ApiResource\\Bannergress::BANNER_BASE') ~ banner.id|url_encode,
+    pictureUrl: banner.picture ? constant('App\\ApiResource\\Bannergress::PICTURE_BASE') ~ banner.picture,
+    title: banner.title,
+    missions: banner.missions,
+}) }}

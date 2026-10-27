@@ -169,6 +169,52 @@ main > .container {
     white-space: pre-line;
 }
 
+/* Bannergress banners done: neutral, the pictures carry the color */
+.timeline-banner::before {
+    background: var(--bs-secondary-color);
+}
+
+.timeline-banner-icon {
+    color: var(--bs-secondary-color);
+}
+
+/* The banners' world map: a dot per list, in the timeline's validated colors */
+:root {
+    --banner-published: var(--timeline-ap);
+    --banner-done: var(--timeline-event);
+    --banner-todo: var(--timeline-travel);
+}
+
+.banner-map {
+    height: 360px;
+}
+
+.banner-map-key {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    vertical-align: -1px;
+}
+
+.banner-map-key-published {
+    background: var(--banner-published);
+}
+
+.banner-map-key-done {
+    background: var(--banner-done);
+}
+
+.banner-map-key-todo {
+    background: var(--banner-todo);
+}
+
+/* Banner pictures: six missions wide, so keep them low */
+.banner-picture {
+    max-width: 100%;
+    max-height: 96px;
+}
+
 .timeline-badge {
     width: 32px;
     height: 32px;

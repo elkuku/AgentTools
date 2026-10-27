@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Timeline;
 
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Medal\MedalLevel;
 
 /**
- * One entry of the timeline: a stats upload with what changed since the one before it, or a
- * custom event.
+ * One entry of the timeline: a stats upload with what changed since the one before it, a
+ * custom event or a Bannergress banner done.
  */
 final readonly class TimelineEntry
 {
@@ -20,6 +21,8 @@ final readonly class TimelineEntry
 
     public const string TRAVEL = 'travel';
 
+    public const string BANNER = 'banner';
+
     /**
      * @param list<MedalLevel> $medalUps medals with a higher level than in the previous upload, at their new level
      */
@@ -27,6 +30,8 @@ final readonly class TimelineEntry
         public \DateTimeImmutable $date,
         public ?AgentStat $stat = null,
         public ?TimelineEvent $event = null,
+        /** A Bannergress banner done that day. */
+        public ?DoneBanner $banner = null,
         /** The first upload: nothing to compare with. */
         public bool $first = false,
         public int $apGain = 0,
@@ -38,10 +43,11 @@ final readonly class TimelineEntry
     ) {
     }
 
-    /** UPLOAD, EVENT or TRAVEL (an event with an end date): the timeline's filter. */
+    /** UPLOAD, EVENT, TRAVEL (an event with an end date) or BANNER: the timeline's filter. */
     public function kind(): string
     {
         return match (true) {
+            $this->banner instanceof DoneBanner => self::BANNER,
             !$this->event instanceof TimelineEvent => self::UPLOAD,
             $this->event->endDate instanceof \DateTimeImmutable => self::TRAVEL,
             default => self::EVENT,

@@ -8,13 +8,16 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Agent;
+use App\ApiResource\Bannergress;
 use App\ApiResource\CustomMedals;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
+use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Repository\AgentStatRepository;
+use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
 
@@ -30,6 +33,7 @@ final readonly class AgentProvider implements ProviderInterface
         private UserRepository $userRepository,
         private AgentStatRepository $agentStatRepository,
         private TimelineEventRepository $timelineEventRepository,
+        private DoneBannerRepository $doneBannerRepository,
     ) {
     }
 
@@ -50,6 +54,12 @@ final readonly class AgentProvider implements ProviderInterface
             return null;
         }
 
+        return $this->item($user);
+    }
+
+    /** An agent with the parts they show. */
+    private function item(User $user): Agent
+    {
         $stats = $this->agentStatRepository->findByOwner($user);
         $showHistory = $user->isVisible(ProfilePart::STATS_HISTORY);
 
@@ -67,15 +77,37 @@ final readonly class AgentProvider implements ProviderInterface
                 $this->timelineEventRepository->findByOwner($user),
             ) : null,
             $user->isVisible(ProfilePart::CUSTOM_MEDALS) ? CustomMedals::fromArray($user->getCustomMedals()) : null,
+            $user->isVisible(ProfilePart::BANNERGRESS) ? Bannergress::fromStored($user->getBannergress()) : null,
+            $user->isVisible(ProfilePart::BANNERGRESS) ? $this->doneBanners($user) : null,
         );
     }
 
     /**
-     * @param array<string, int|string|null>|null                                $latestStats
-     * @param list<array<string, int|string|null>>|null                          $history
-     * @param list<array{date: string, endDate: string|null, text: string}>|null $events
+     * @return list<array{bannerId: string, title: string, missions: int, picture: string|null, startLatitude: float|null, startLongitude: float|null, doneAt: string|null}>
      */
-    private function agent(User $user, ?AgentStat $latest, ?array $latestStats = null, ?array $history = null, ?array $events = null, ?CustomMedals $customMedals = null): Agent
+    private function doneBanners(User $user): array
+    {
+        return \array_map(
+            static fn (DoneBanner $banner): array => [
+                'bannerId' => $banner->bannerId,
+                'title' => $banner->title,
+                'missions' => $banner->missions,
+                'picture' => $banner->picture,
+                'startLatitude' => $banner->startLatitude,
+                'startLongitude' => $banner->startLongitude,
+                'doneAt' => $banner->doneAt?->format(TimelineEvent::DATE_FORMAT),
+            ],
+            $this->doneBannerRepository->findByOwner($user),
+        );
+    }
+
+    /**
+     * @param array<string, int|string|null>|null                                                                                                                                $latestStats
+     * @param list<array<string, int|string|null>>|null                                                                                                                          $history
+     * @param list<array{date: string, endDate: string|null, text: string}>|null                                                                                                 $events
+     * @param list<array{bannerId: string, title: string, missions: int, picture: string|null, startLatitude: float|null, startLongitude: float|null, doneAt: string|null}>|null $doneBanners
+     */
+    private function agent(User $user, ?AgentStat $latest, ?array $latestStats = null, ?array $history = null, ?array $events = null, ?CustomMedals $customMedals = null, ?Bannergress $bannergress = null, ?array $doneBanners = null): Agent
     {
         return new Agent(
             (string) $user->getAgentName(),
@@ -86,6 +118,8 @@ final readonly class AgentProvider implements ProviderInterface
             $history,
             $events,
             $customMedals,
+            $bannergress,
+            $doneBanners,
         );
     }
 

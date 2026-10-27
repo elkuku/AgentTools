@@ -16,6 +16,8 @@ enum ProfilePart: string
     case LATEST_STATS = 'latest_stats';
     case STATS_HISTORY = 'stats_history';
     case CUSTOM_MEDALS = 'custom_medals';
+    /** The Bannergress counts and lists the app synced. */
+    case BANNERGRESS = 'bannergress';
 
     /** A translation key (messages). */
     public function label(): string
@@ -38,6 +40,7 @@ enum ProfilePart: string
             self::LATEST_STATS => 'bi-bar-chart',
             self::STATS_HISTORY => 'bi-clock-history',
             self::CUSTOM_MEDALS => 'bi-award',
+            self::BANNERGRESS => 'bi-grid-3x3-gap',
         };
     }
 }

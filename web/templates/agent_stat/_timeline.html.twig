@@ -6,7 +6,7 @@
 {% if timeline is not empty %}
     {# Filters in one row: what and when #}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="timeline-filters">
-        {% for kind, icon in {upload: 'bi-bar-chart-line', event: 'bi-flag-fill', travel: 'bi-airplane-fill'} %}
+        {% for kind, icon in {upload: 'bi-bar-chart-line', event: 'bi-flag-fill', travel: 'bi-airplane-fill', banner: 'bi-grid-3x3-gap'}|filter((icon, kind) => kind != 'banner' or timeline|filter(e => e.banner)|length > 0) %}
             <input type="checkbox" class="btn-check" id="timeline-filter-{{ kind }}" value="{{ kind }}" checked autocomplete="off"
                    data-timeline-filter-target="kind" data-action="timeline-filter#apply">
             <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-{{ kind }}">
@@ -30,7 +30,28 @@
 {% endif %}
 <ol class="timeline list-unstyled" id="timeline-entries">
     {% for entry in timeline %}
-        {% if entry.event %}
+        {% if entry.banner %}
+            {% set banner = entry.banner %}
+            <li class="timeline-entry timeline-banner" id="timeline-banner-{{ banner.id }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}">
+                <div class="timeline-date small text-body-secondary">{{ banner.doneAt|date('Y-m-d') }}</div>
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi-grid-3x3-gap timeline-banner-icon"></i>
+                    <div class="flex-grow-1">
+                        {{ 'bannergress.timeline_done'|trans }}
+                        <a href="{{ banner.url }}" target="_blank" rel="noopener">{{ banner.title }}</a>
+                        <span class="small text-body-secondary">&middot; {{ 'bannergress.missions'|trans({'%count%': banner.missions}) }}</span>
+                        {% if banner.pictureUrl %}
+                            <img class="d-block rounded mt-1 banner-picture" src="{{ banner.pictureUrl }}" alt="" loading="lazy">
+                        {% endif %}
+                    </div>
+                    {% if editable %}
+                        <a class="btn btn-sm btn-link py-0" href="{{ path('app_banners') }}#done-banner-{{ banner.id }}"
+                           title="{{ 'action.edit'|trans }}" aria-label="{{ 'action.edit'|trans }}"><i class="bi-pencil"></i></a>
+                    {% endif %}
+                </div>
+            </li>
+        {% elseif entry.event %}
             {% set event = entry.event %}
             <li class="timeline-entry timeline-event" id="timeline-event-{{ event.id }}"
                 data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}">
