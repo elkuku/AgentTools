@@ -38,6 +38,7 @@ fun ColumnScope.Home(
     state: UiState,
     serverUrl: String,
     onOpenStats: () -> Unit,
+    onOpenBanners: () -> Unit,
     onOpenAgents: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -92,6 +93,17 @@ fun ColumnScope.Home(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+
+    HomeCard(R.drawable.ic_bi_grid_3x3_gap, stringResource(R.string.my_banners), action = stringResource(R.string.open) to onOpenBanners) {
+        val sync = state.bannergress
+        Text(
+            if (sync == null) {
+                stringResource(R.string.my_banners_card)
+            } else {
+                stringResource(R.string.my_banners_counts, sync.published, sync.done, sync.todo)
+            },
+        )
     }
 
     HomeCard(R.drawable.ic_bi_lock, stringResource(R.string.your_profile), action = stringResource(R.string.change) to onOpenSettings) {

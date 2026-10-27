@@ -57,6 +57,7 @@ private data class MeResponse(
     // A server without it does not ask
     val visibilityChosen: Boolean = true,
     val avatar: String? = null,
+    val bannergress: BannergressSync? = null,
 ) {
     val parts: Set<ProfilePart> get() = visibleParts.orEmpty().mapNotNull(ProfilePart::fromServer).toSet()
 }
@@ -65,10 +66,16 @@ private data class MeResponse(
 private data class VisiblePartsBody(val visibleParts: List<String>)
 
 @Serializable
+private data class BannergressBody(val bannergress: BannergressSync)
+
+@Serializable
 private data class TimelineEventBody(val date: String, val endDate: String?, val text: String)
 
 @Serializable
 private data class TimelineEventsPage(val member: List<TimelineEvent> = emptyList())
+
+@Serializable
+private data class DoneBannersPage(val member: List<DoneBanner> = emptyList())
 
 @Serializable
 private data class CollectionView(val next: String? = null)
@@ -125,12 +132,24 @@ sealed interface MeResult {
         val visibleParts: Set<ProfilePart> = emptySet(),
         val visibilityChosen: Boolean = true,
         val avatar: String? = null,
+        /** What the app synced from Bannergress; null until it did. */
+        val bannergress: BannergressSync? = null,
     ) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
     data class Unauthorized(val message: UiText) : MeResult
 
     data class Failure(val message: UiText) : MeResult
+}
+
+sealed interface BannergressSaveResult {
+    /** As stored, with the time the server set. */
+    data class Success(val sync: BannergressSync) : BannergressSaveResult
+
+    /** The ID token was rejected (expired or invalid). */
+    data class Unauthorized(val message: UiText) : BannergressSaveResult
+
+    data class Failure(val message: UiText) : BannergressSaveResult
 }
 
 sealed interface VisibilityResult {
@@ -162,6 +181,15 @@ interface StatsApi {
 
     /** `PATCH /api/me`: replaces all of the user's custom medals. */
     suspend fun saveCustomMedals(idToken: String, medals: List<CustomMedalTier>): CustomMedalsResult
+
+    /** `PATCH /api/me`: what the app synced from Bannergress, replacing the last sync. */
+    suspend fun saveBannergress(idToken: String, sync: BannergressSync): BannergressSaveResult
+
+    /** `GET /api/done-banners`: the user's done list, newest first, with the days. */
+    suspend fun doneBanners(idToken: String): DoneBannersResult
+
+    /** `PATCH /api/done-banners/{id}`: the day the banner was done, null to remove it. */
+    suspend fun saveDoneAt(idToken: String, id: Int, doneAt: String?): DoneBannerResult
 
     /** `GET /api/agents`: the agents who show their profile to other users. */
     suspend fun agents(idToken: String): AgentsResult
@@ -199,6 +227,8 @@ class KtorStatsApi(
 
     private val timelineEventsUrl get() = "${baseUrl().trimEnd('/')}/api/timeline-events"
 
+    private val doneBannersUrl get() = "${baseUrl().trimEnd('/')}/api/done-banners"
+
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -223,7 +253,7 @@ class KtorStatsApi(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
-                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen, it.avatar) }
+                ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen, it.avatar, it.bannergress) }
                 ?: MeResult.Failure(uiText(R.string.error_unexpected_response))
 
             HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
@@ -354,6 +384,80 @@ class KtorStatsApi(
             )
 
             else -> CustomMedalsResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun saveBannergress(idToken: String, sync: BannergressSync): BannergressSaveResult {
+        val response = try {
+            client.patch(meUrl) {
+                bearerAuth(idToken)
+                contentType(MergePatchJson)
+                accept(LdJson)
+                setBody(BannergressBody(sync))
+            }
+        } catch (e: IOException) {
+            return BannergressSaveResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()?.bannergress
+                ?.let { BannergressSaveResult.Success(it) }
+                ?: BannergressSaveResult.Failure(uiText(R.string.error_unexpected_response))
+
+            HttpStatusCode.Unauthorized -> BannergressSaveResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
+
+            HttpStatusCode.UnprocessableEntity -> BannergressSaveResult.Failure(
+                response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()
+                    ?.let { UiText.Plain("${it.propertyPath}: ${it.message}") }
+                    ?: uiText(R.string.error_server, response.status.value),
+            )
+
+            else -> BannergressSaveResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun doneBanners(idToken: String): DoneBannersResult {
+        val response = try {
+            client.get(doneBannersUrl) {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return DoneBannersResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<DoneBannersPage>()
+                ?.let { DoneBannersResult.Success(it.member) }
+                ?: DoneBannersResult.Failure(uiText(R.string.error_unexpected_response))
+
+            HttpStatusCode.Unauthorized -> DoneBannersResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
+
+            else -> DoneBannersResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun saveDoneAt(idToken: String, id: Int, doneAt: String?): DoneBannerResult {
+        val response = try {
+            client.patch("$doneBannersUrl/$id") {
+                bearerAuth(idToken)
+                contentType(MergePatchJson)
+                accept(LdJson)
+                // Explicitly null to remove the day
+                setBody(buildJsonObject { put("doneAt", doneAt) })
+            }
+        } catch (e: IOException) {
+            return DoneBannerResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<DoneBanner>()
+                ?.let { DoneBannerResult.Success(it) }
+                ?: DoneBannerResult.Failure(uiText(R.string.error_unexpected_response))
+
+            HttpStatusCode.Unauthorized -> DoneBannerResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
+
+            else -> DoneBannerResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 

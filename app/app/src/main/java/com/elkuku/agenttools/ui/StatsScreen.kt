@@ -31,8 +31,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 
 /**
- * "My stats": the user's latest stats with medals and the custom medals, below what the last share
- * changed and the review of shared medal screenshots.
+ * "My stats": the user's latest stats with medals, the custom medals, Bannergress and the
+ * timeline, below what the last share changed and the review of shared medal screenshots.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +44,7 @@ fun StatsScreen(
     onDismissMedalScan: () -> Unit,
     onSaveTimelineEvent: (TimelineEvent) -> Unit,
     onDeleteTimelineEvent: (TimelineEvent) -> Unit,
+    onOpenBannergress: () -> Unit,
     onBack: () -> Unit,
 ) {
     var editing by remember { mutableStateOf<TimelineEvent?>(null) }
@@ -77,13 +78,20 @@ fun StatsScreen(
                 CustomMedals(customMedals)
             }
 
+            if (state.entries != null) {
+                HorizontalDivider()
+                BannergressSummary(state.bannergress, onOpen = onOpenBannergress)
+            }
+
             state.entries?.let { entries ->
                 HorizontalDivider()
                 Timeline(
                     entries,
                     state.timelineEvents.orEmpty(),
                     onEditEvent = { event -> editing = event },
+                    banners = state.doneBanners.orEmpty(),
                     onAddEvent = { editing = TimelineEvent(date = "", text = "") },
+                    onOpenBanners = onOpenBannergress,
                 )
             }
         }
@@ -133,6 +141,7 @@ private fun StatsScreenPreview() {
             onDismissMedalScan = {},
             onSaveTimelineEvent = {},
             onDeleteTimelineEvent = {},
+            onOpenBannergress = {},
             onBack = {},
         )
     }

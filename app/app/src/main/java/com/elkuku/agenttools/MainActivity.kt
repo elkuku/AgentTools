@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.ui.res.stringResource
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
@@ -17,6 +18,9 @@ import com.elkuku.agenttools.ui.AgentsScreen
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
+import com.elkuku.agenttools.ui.BannergressActions
+import com.elkuku.agenttools.ui.BannergressScreen
+import com.elkuku.agenttools.ui.ProgressAndStatus
 import com.elkuku.agenttools.ui.ProfileSetting
 import com.elkuku.agenttools.ui.SettingsScreen
 import com.elkuku.agenttools.ui.StatsScreen
@@ -30,9 +34,12 @@ class MainActivity : ComponentActivity() {
         val app = application as AgentToolsApplication
         viewModelFactory {
             initializer {
-                MainViewModel(app.googleAuth, app.statsApi) { screenshots ->
-                    withContext(Dispatchers.Default) { app.medalScanner.scan(screenshots) }
-                }
+                MainViewModel(
+                    app.googleAuth,
+                    app.statsApi,
+                    scanMedals = { screenshots -> withContext(Dispatchers.Default) { app.medalScanner.scan(screenshots) } },
+                    bannergress = app.bannergress,
+                )
             }
         }
     }
@@ -78,6 +85,25 @@ class MainActivity : ComponentActivity() {
                         },
                         onBack = viewModel::closeSettings,
                     )
+                } else if (state.bannergressOpen && state.session != null) {
+                    BackHandler(onBack = viewModel::closeBannergress)
+                    BannergressScreen(
+                        title = stringResource(R.string.my_banners),
+                        sync = state.bannergress,
+                        doneBanners = state.doneBanners,
+                        onBack = viewModel::closeBannergress,
+                        actions = BannergressActions(
+                            signIn = viewModel::startBannergressLogin,
+                            code = { viewModel.finishBannergressLogin(activity, it) },
+                            cancel = viewModel::cancelBannergressLogin,
+                            sync = { viewModel.syncBannergress(activity) },
+                            signOut = viewModel::signOutBannergress,
+                        ),
+                        signedIn = state.bannergressSignedIn,
+                        login = state.bannergressLogin,
+                        onSetDoneAt = { banner, doneAt -> viewModel.saveDoneAt(activity, banner, doneAt) },
+                        header = { ProgressAndStatus(state) },
+                    )
                 } else if (state.statsOpen && state.session != null) {
                     BackHandler(onBack = viewModel::closeStats)
                     StatsScreen(
@@ -88,7 +114,17 @@ class MainActivity : ComponentActivity() {
                         onDismissMedalScan = viewModel::dismissMedalScan,
                         onSaveTimelineEvent = { viewModel.saveTimelineEvent(activity, it) },
                         onDeleteTimelineEvent = { viewModel.deleteTimelineEvent(activity, it) },
+                        onOpenBannergress = viewModel::openBannergress,
                         onBack = viewModel::closeStats,
+                    )
+                } else if (state.agentsOpen && state.agentBannergressOpen && state.agent != null) {
+                    val agent = state.agent!!
+                    BackHandler(onBack = viewModel::closeAgentBannergress)
+                    BannergressScreen(
+                        title = "${agent.summary.agentName} · ${stringResource(R.string.banners)}",
+                        sync = agent.bannergress,
+                        doneBanners = agent.doneBanners,
+                        onBack = viewModel::closeAgentBannergress,
                     )
                 } else if (state.agentsOpen) {
                     // Back from an agent to the list, from the list to the home page
@@ -100,6 +136,7 @@ class MainActivity : ComponentActivity() {
                         status = state.agentsStatus,
                         busy = state.busy,
                         onOpenAgent = { viewModel.openAgent(activity, it) },
+                        onOpenBannergress = viewModel::openAgentBannergress,
                         onRefresh = { viewModel.refreshAgents(activity) },
                         onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() },
                     )
@@ -113,6 +150,7 @@ class MainActivity : ComponentActivity() {
                         onOpenSettings = viewModel::openSettings,
                         onOpenStats = viewModel::openStats,
                         onOpenAgents = { viewModel.openAgents(activity) },
+                        onOpenBanners = viewModel::openBannergress,
                         onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },
                         onChooseVisibility = viewModel::chooseVisibility,
                         onDismissVisibility = viewModel::dismissVisibility,

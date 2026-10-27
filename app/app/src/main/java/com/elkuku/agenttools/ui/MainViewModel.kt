@@ -10,6 +10,14 @@ import com.elkuku.agenttools.data.TimelineEventResult
 import com.elkuku.agenttools.data.TimelineEventsResult
 import com.elkuku.agenttools.uiText
 import com.elkuku.agenttools.auth.AuthException
+import com.elkuku.agenttools.auth.BannergressConnector
+import com.elkuku.agenttools.auth.BannergressLogin
+import com.elkuku.agenttools.data.BannergressResult
+import com.elkuku.agenttools.data.BannergressSaveResult
+import com.elkuku.agenttools.data.BannergressSync
+import com.elkuku.agenttools.data.DoneBanner
+import com.elkuku.agenttools.data.DoneBannerResult
+import com.elkuku.agenttools.data.DoneBannersResult
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentProfile
@@ -42,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.IOException
 
 /** A message for the user; [untilSignIn] ones are about being signed out and go away on sign-in. */
 data class Status(val text: UiText, val isError: Boolean, val untilSignIn: Boolean = false)
@@ -98,6 +107,17 @@ data class UiState(
     val visibilityChosen: Boolean = true,
     /** The user opened the settings from the prompt or chose "Later": not asked again until the next sign-in. */
     val visibilityDismissed: Boolean = false,
+    /** What the app synced from Bannergress; null until loaded or synced. */
+    val bannergress: BannergressSync? = null,
+    val bannergressSignedIn: Boolean = false,
+    /** The Bannergress sign-in shown; null for none. */
+    val bannergressLogin: BannergressLogin? = null,
+    /** The user's Bannergress done list with the days; null until loaded. */
+    val doneBanners: List<DoneBanner>? = null,
+    /** "My banners" is shown, over "My stats" when opened from there. */
+    val bannergressOpen: Boolean = false,
+    /** The Bannergress screen of the [agent] shown is open. */
+    val agentBannergressOpen: Boolean = false,
 ) {
     /** Ask the user to choose what other users see of the profile. */
     val askVisibility: Boolean get() = session != null && !visibilityChosen && !visibilityDismissed
@@ -111,9 +131,16 @@ class MainViewModel(
     private val auth: GoogleAuth,
     private val api: StatsApi,
     private val scanMedals: suspend (List<ArgbImage>) -> List<RecognizedMedal>,
+    private val bannergress: BannergressConnector? = null,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
+
+    init {
+        bannergress?.let { account ->
+            viewModelScope.launch { account.signedIn.collect { signedIn -> _state.update { it.copy(bannergressSignedIn = signedIn) } } }
+        }
+    }
 
     fun signIn(context: Context) = launchBusy {
         try {
@@ -127,6 +154,8 @@ class MainViewModel(
 
     fun signOut(context: Context) = launchBusy {
         auth.signOut(context)
+        // The next Google account must not sync this Bannergress account
+        bannergress?.signOut()
         _state.update {
             it.copy(
                 session = null,
@@ -139,6 +168,9 @@ class MainViewModel(
                 timelineEvents = null,
                 importResult = null,
                 customMedals = null,
+                bannergress = null,
+                doneBanners = null,
+                bannergressOpen = false,
                 visibilityChosen = true,
                 statsOpen = false,
                 agentsOpen = false,
@@ -189,7 +221,16 @@ class MainViewModel(
 
     fun openStats() = _state.update { it.copy(statsOpen = true) }
 
-    fun closeStats() = _state.update { it.copy(statsOpen = false) }
+    fun closeStats() = _state.update { it.copy(statsOpen = false, bannergressOpen = false) }
+
+    /** "My banners": from the stats, the home page or the menu; back goes where it came from. */
+    fun openBannergress() = _state.update { it.copy(bannergressOpen = true, settingsOpen = false, agentsOpen = false) }
+
+    fun closeBannergress() = _state.update { it.copy(bannergressOpen = false) }
+
+    fun openAgentBannergress() = _state.update { it.copy(agentBannergressOpen = true) }
+
+    fun closeAgentBannergress() = _state.update { it.copy(agentBannergressOpen = false) }
 
     /** The agents who show their profile, or with [admin] every user (admins only), loaded each time. */
     fun openAgents(context: Context, admin: Boolean = false) {
@@ -210,7 +251,7 @@ class MainViewModel(
     }
 
     /** Back from an agent to the list. */
-    fun closeAgent() = _state.update { it.copy(agent = null, agentsStatus = null) }
+    fun closeAgent() = _state.update { it.copy(agent = null, agentBannergressOpen = false, agentsStatus = null) }
 
     /** Reloads the agent shown, or the list. */
     fun refreshAgents(context: Context) {
@@ -259,7 +300,7 @@ class MainViewModel(
     /** The data shown came from the old server: forget it and load it from the new one. */
     fun serverChanged(context: Context) {
         if (_state.value.session == null) return
-        _state.update { it.copy(role = null, agentName = null, entries = null, timelineEvents = null, importResult = null, customMedals = null, visibleParts = emptySet(), avatar = null, visibilityChosen = true) }
+        _state.update { it.copy(role = null, agentName = null, entries = null, timelineEvents = null, importResult = null, customMedals = null, visibleParts = emptySet(), avatar = null, visibilityChosen = true, bannergress = null, doneBanners = null) }
         refresh(context)
     }
 
@@ -403,6 +444,7 @@ class MainViewModel(
                     visibleParts = result.visibleParts,
                     visibilityChosen = result.visibilityChosen,
                     avatar = result.avatar,
+                    bannergress = result.bannergress,
                 )
             }
             is MeResult.Unauthorized -> signedOutBy(result.message)
@@ -426,8 +468,41 @@ class MainViewModel(
         when (val result = withToken(context, { it is TimelineEventsResult.Unauthorized }) { api.timelineEvents(it) }) {
             is TimelineEventsResult.Success -> _state.update { it.copy(timelineEvents = result.events) }
             is TimelineEventsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
-            is TimelineEventsResult.Unauthorized -> signedOutBy(result.message)
+            is TimelineEventsResult.Unauthorized -> {
+                signedOutBy(result.message)
+                return
+            }
+            null -> return
+        }
+
+        loadDoneBanners(context)
+    }
+
+    /** The Bannergress done list: the banners with a day are on the timeline. */
+    private suspend fun loadDoneBanners(context: Context) {
+        when (val result = withToken(context, { it is DoneBannersResult.Unauthorized }) { api.doneBanners(it) }) {
+            is DoneBannersResult.Success -> _state.update { it.copy(doneBanners = result.banners) }
+            is DoneBannersResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is DoneBannersResult.Unauthorized -> signedOutBy(result.message)
             null -> Unit
+        }
+    }
+
+    /** Sets the day a banner was done ([doneAt] `yyyy-MM-dd`), or removes it (null). */
+    fun saveDoneAt(context: Context, banner: DoneBanner, doneAt: String?) {
+        val id = banner.id ?: return
+        launchBusy {
+            when (val result = withToken(context, { it is DoneBannerResult.Unauthorized }) { api.saveDoneAt(it, id, doneAt) }) {
+                is DoneBannerResult.Success -> _state.update { state ->
+                    state.copy(
+                        doneBanners = state.doneBanners?.map { if (it.id == id) result.banner else it },
+                        status = Status(uiText(if (doneAt == null) R.string.bannergress_date_removed else R.string.bannergress_date_saved), false),
+                    )
+                }
+                is DoneBannerResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+                is DoneBannerResult.Unauthorized -> signedOutBy(result.message)
+                null -> Unit
+            }
         }
     }
 
@@ -456,6 +531,70 @@ class MainViewModel(
                 is TimelineEventResult.Unauthorized -> signedOutBy(result.message)
                 null -> Unit
             }
+        }
+    }
+
+    /** Shows the Bannergress sign-in; its redirect goes to [finishBannergressLogin]. */
+    fun startBannergressLogin() {
+        val account = bannergress ?: return
+        _state.update { it.copy(bannergressLogin = account.start()) }
+    }
+
+    fun cancelBannergressLogin() = _state.update { it.copy(bannergressLogin = null) }
+
+    /** The sign-in's authorization [code]: gets the tokens, then syncs. */
+    fun finishBannergressLogin(context: Context, code: String) {
+        val account = bannergress ?: return
+        val login = _state.value.bannergressLogin ?: return
+        _state.update { it.copy(bannergressLogin = null) }
+        launchBusy {
+            val signedIn = try {
+                account.finish(login, code)
+            } catch (e: IOException) {
+                _state.update { it.copy(status = Status(uiText(R.string.error_network, e.message.orEmpty()), true)) }
+                return@launchBusy
+            }
+            if (signedIn) {
+                syncBannergressNow(context, account)
+            } else {
+                _state.update { it.copy(status = Status(uiText(R.string.bannergress_sign_in_failed), true)) }
+            }
+        }
+    }
+
+    fun syncBannergress(context: Context) {
+        val account = bannergress ?: return
+        launchBusy { syncBannergressNow(context, account) }
+    }
+
+    fun signOutBannergress() {
+        bannergress?.signOut()
+    }
+
+    /** Reads the counts and lists from Bannergress and saves them on the server. */
+    private suspend fun syncBannergressNow(context: Context, account: BannergressConnector) {
+        val agentName = _state.value.agentName
+        if (agentName == null) {
+            _state.update { it.copy(status = Status(uiText(R.string.bannergress_needs_agent_name), true)) }
+            return
+        }
+
+        val result = withProgress(uiText(R.string.bannergress_syncing)) {
+            when (val read = account.sync(agentName)) {
+                is BannergressResult.Success -> withToken(context, { it is BannergressSaveResult.Unauthorized }) { api.saveBannergress(it, read.sync) }
+                BannergressResult.SignedOut -> BannergressSaveResult.Failure(uiText(R.string.bannergress_session_ended))
+                is BannergressResult.Failure -> BannergressSaveResult.Failure(read.message)
+            }
+        }
+        when (result) {
+            is BannergressSaveResult.Success -> {
+                _state.update { it.copy(bannergress = result.sync, status = Status(uiText(R.string.bannergress_synced), false)) }
+                // New banners on the done list, with the days kept
+                loadDoneBanners(context)
+            }
+            is BannergressSaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is BannergressSaveResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
         }
     }
 
@@ -504,6 +643,9 @@ class MainViewModel(
             entries = null,
             timelineEvents = null,
             customMedals = null,
+            bannergress = null,
+            doneBanners = null,
+            bannergressOpen = false,
             visibilityChosen = true,
             statsOpen = false,
             agentsOpen = false,

@@ -67,6 +67,7 @@ fun AgentsScreen(
     onOpenAgent: (String) -> Unit,
     onRefresh: () -> Unit,
     onBack: () -> Unit,
+    onOpenBannergress: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -110,7 +111,7 @@ fun AgentsScreen(
                 }
 
                 when {
-                    agent != null -> AgentProfileView(agent)
+                    agent != null -> AgentProfileView(agent, onOpenBannergress)
                     users != null -> UserList(users, onOpenAgent)
                     agents != null -> AgentList(agents, onOpenAgent)
                 }
@@ -222,6 +223,7 @@ private val ProfilePart.icon: Int
         ProfilePart.LATEST_STATS -> R.drawable.ic_bi_bar_chart
         ProfilePart.STATS_HISTORY -> R.drawable.ic_bi_clock_history
         ProfilePart.CUSTOM_MEDALS -> R.drawable.ic_bi_award
+        ProfilePart.BANNERGRESS -> R.drawable.ic_bi_grid_3x3_gap
     }
 
 /**
@@ -269,7 +271,7 @@ private fun RowScope.AgentHeader(
 
 /** What the agent shows: the stats with medals like the own ones, the custom medals and the history. */
 @Composable
-private fun AgentProfileView(profile: AgentProfile) {
+private fun AgentProfileView(profile: AgentProfile, onOpenBannergress: () -> Unit) {
     val latest = profile.latest
     if (latest != null) {
         // The first import tells about the history: only with it
@@ -285,12 +287,17 @@ private fun AgentProfileView(profile: AgentProfile) {
         CustomMedals(medals, emptyText = stringResource(R.string.custom_medals_none))
     }
 
-    profile.history?.let { history ->
+    profile.bannergress?.let { sync ->
         HorizontalDivider()
-        Timeline(history, profile.events.orEmpty())
+        BannergressSummary(sync, onOpen = onOpenBannergress, own = false)
     }
 
-    if (latest == null && profile.customMedals == null && profile.history == null) {
+    profile.history?.let { history ->
+        HorizontalDivider()
+        Timeline(history, profile.events.orEmpty(), banners = profile.doneBanners.orEmpty())
+    }
+
+    if (latest == null && profile.customMedals == null && profile.history == null && profile.bannergress == null) {
         Text(stringResource(R.string.agent_shows_nothing_more, profile.summary.agentName), style = MaterialTheme.typography.bodySmall)
     }
 }

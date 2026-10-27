@@ -23,6 +23,10 @@ data class AgentProfile(
     val customMedals: List<CustomMedalTier>? = null,
     /** The custom timeline events, with the history; newest first. */
     val events: List<TimelineEvent>? = null,
+    /** What the agent synced from Bannergress. */
+    val bannergress: BannergressSync? = null,
+    /** The done list with the days, with [bannergress]. */
+    val doneBanners: List<DoneBanner>? = null,
 )
 
 /** A user with the privacy settings, for admins (`GET /api/users`). */
@@ -81,6 +85,8 @@ internal data class AgentResponse(
     val history: List<JsonObject>? = null,
     val customMedals: JsonObject? = null,
     val events: List<TimelineEvent>? = null,
+    val bannergress: BannergressSync? = null,
+    val doneBanners: List<DoneBanner>? = null,
 ) {
     val summary: AgentSummary get() = AgentSummary(agentName, faction, level, avatar)
 
@@ -91,6 +97,8 @@ internal data class AgentResponse(
             history?.map(AgentStatEntry::fromJson),
             customMedals?.let(::customMedalsFromJson),
             events,
+            bannergress,
+            doneBanners,
         )
 }
 

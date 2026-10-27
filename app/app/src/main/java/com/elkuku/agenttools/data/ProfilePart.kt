@@ -12,7 +12,8 @@ enum class ProfilePart(val serverValue: String, @param:StringRes val label: Int,
     AVATAR("avatar", R.string.part_avatar, R.string.part_avatar_help),
     LATEST_STATS("latest_stats", R.string.part_latest_stats, R.string.part_latest_stats_help),
     STATS_HISTORY("stats_history", R.string.part_stats_history, R.string.part_stats_history_help),
-    CUSTOM_MEDALS("custom_medals", R.string.part_custom_medals, R.string.part_custom_medals_help);
+    CUSTOM_MEDALS("custom_medals", R.string.part_custom_medals, R.string.part_custom_medals_help),
+    BANNERGRESS("bannergress", R.string.part_bannergress, R.string.part_bannergress_help);
 
     companion object {
         /** Null for a part the app does not know. */

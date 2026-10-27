@@ -82,6 +82,8 @@
     <string name="part_stats_history_help">Every upload with its date and AP.</string>
     <string name="part_custom_medals">Custom medals</string>
     <string name="part_custom_medals_help">Your anomaly, annual and event medals.</string>
+    <string name="part_bannergress">Banners</string>
+    <string name="part_bannergress_help">The number of banners you published, have to do and have done, with the newest of your lists, as the app synced them.</string>
 
     <!-- Stats -->
     <string name="core_subscriptions">C.O.R.E subscriptions</string>
@@ -227,4 +229,42 @@
     <string name="error_stats_already_saved">These stats are already saved.</string>
     <string name="error_agent_private">%1$s no longer shows the profile.</string>
     <string name="error_rejected_timeline_event">The server rejected the event.</string>
+    <!-- Bannergress -->
+    <string name="bannergress_published">Published</string>
+    <string name="bannergress_todo">To-do</string>
+    <string name="bannergress_done">Done</string>
+    <string name="bannergress_todo_newest">The newest %1$d of your to-do list:</string>
+    <plurals name="bannergress_missions">
+        <item quantity="one">%1$d mission</item>
+        <item quantity="other">%1$d missions</item>
+    </plurals>
+    <string name="bannergress_synced_at">Synced %1$s</string>
+    <string name="bannergress_not_synced">Not synced yet. Open it, sign in to Bannergress and sync: your published, done and to-do banners are saved with your stats.</string>
+    <string name="bannergress_sign_in">Sign in to Bannergress</string>
+    <string name="bannergress_sync">Sync</string>
+    <string name="bannergress_sign_out">Sign out of Bannergress</string>
+    <string name="bannergress_syncing">Syncing with Bannergress…</string>
+    <string name="bannergress_synced">Bannergress synced.</string>
+    <string name="bannergress_session_ended">The Bannergress session ended: sign in again.</string>
+    <string name="bannergress_sign_in_failed">The Bannergress sign-in failed.</string>
+    <string name="bannergress_error_server">Bannergress answered with error %1$d.</string>
+    <string name="bannergress_needs_agent_name">Upload your stats first: the published banners are counted by agent name.</string>
+    <string name="bannergress_done_none">No banners on the done list.</string>
+    <string name="bannergress_date_help">Tap a banner to add the day you did it: it shows on your timeline.</string>
+    <string name="bannergress_done_on">Done on %1$s</string>
+    <string name="bannergress_date_add">Add the day</string>
+    <string name="bannergress_date_saved">The day is saved; the banner is on your timeline.</string>
+    <string name="bannergress_date_removed">The day is removed.</string>
+    <string name="bannergress_date_remove">Remove the day</string>
+    <string name="bannergress_timeline_done">Banner done: %1$s</string>
+    <string name="bannergress_open">Open on Bannergress</string>
+    <string name="timeline_filter_banners">Banners</string>
+    <string name="banners">Banners</string>
+    <string name="bannergress_published_none">No banners published.</string>
+    <string name="bannergress_todo_none">No banners on the to-do list.</string>
+    <string name="my_banners">My banners</string>
+    <string name="my_banners_card">Sign in to Bannergress and sync: your published, done and to-do banners, on a world map.</string>
+    <string name="my_banners_counts">Published: %1$d · Done: %2$d · To do: %3$d</string>
+    <string name="bannergress_map">Where your banners start</string>
+    <string name="bannergress_map_partial">Banners synced before the map have no start point yet: sync again.</string>
 </resources>

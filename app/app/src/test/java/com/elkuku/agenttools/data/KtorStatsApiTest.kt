@@ -231,6 +231,66 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun saveBannergressPatchesMe() = runTest {
+        val sync = BannergressSync(published = 2, todo = 5, done = 137, doneBanners = listOf(BannergressBanner("b-1", "Banner", 6, "/bnrs/pictures/p1")))
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Patch, req.method)
+            assertEquals("application/merge-patch+json", req.body.contentType.toString())
+            val body = Json.parseToJsonElement(String(req.body.toByteArray())) as JsonObject
+            assertEquals(Json.parseToJsonElement("""{"published": 2, "todo": 5, "done": 137, "doneBanners": [{"id": "b-1", "title": "Banner", "missions": 6, "picture": "/bnrs/pictures/p1"}]}"""), body["bannergress"])
+            // The done list is not sent back (doneBannersLoadsTheList)
+            respond(
+                """{"role": "ROLE_USER", "bannergress": {"published": 2, "todo": 5, "done": 137, "todoBanners": [], "syncedAt": "2026-10-27T18:00:00+00:00"}}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            BannergressSaveResult.Success(sync.copy(doneBanners = emptyList(), syncedAt = "2026-10-27T18:00:00+00:00")),
+            KtorStatsApi("http://server", engine).saveBannergress("t", sync),
+        )
+    }
+
+    @Test
+    fun doneBannersLoadsTheList() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals("http://server/api/done-banners", req.url.toString())
+            // Null days are left out
+            respond(
+                """{"member": [{"id": 7, "bannerId": "b-1", "title": "Banner", "missions": 6, "picture": "/bnrs/pictures/p1"},
+                    {"id": 8, "bannerId": "b-2", "title": "Other", "missions": 12, "doneAt": "2026-10-18"}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            DoneBannersResult.Success(
+                listOf(DoneBanner(7, "b-1", "Banner", 6, "/bnrs/pictures/p1"), DoneBanner(8, "b-2", "Other", 12, doneAt = "2026-10-18")),
+            ),
+            KtorStatsApi("http://server", engine).doneBanners("t"),
+        )
+    }
+
+    @Test
+    fun saveDoneAtPatchesTheBannerAndSendsNullToRemoveTheDay() = runTest {
+        val bodies = mutableListOf<String>()
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Patch, req.method)
+            assertEquals("http://server/api/done-banners/7", req.url.toString())
+            bodies += String(req.body.toByteArray())
+            respond("""{"id": 7, "bannerId": "b-1", "title": "Banner", "missions": 6}""", HttpStatusCode.OK, jsonHeaders)
+        }
+        val api = KtorStatsApi("http://server", engine)
+
+        assertEquals(DoneBannerResult.Success(DoneBanner(7, "b-1", "Banner", 6)), api.saveDoneAt("t", 7, "2026-10-18"))
+        api.saveDoneAt("t", 7, null)
+
+        assertEquals(listOf("""{"doneAt":"2026-10-18"}""", """{"doneAt":null}"""), bodies)
+    }
+
+    @Test
     fun meLoadsTheVisibleParts() = runTest {
         val engine = MockEngine {
             respond("""{"role": "ROLE_USER", "visibleParts": ["agent", "custom_medals", "future_part"]}""", HttpStatusCode.OK, jsonHeaders)

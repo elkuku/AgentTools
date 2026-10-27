@@ -43,6 +43,21 @@ class TimelineTest {
     }
 
     @Test
+    fun bannersDoneWithADayAreOnTheTimeline() {
+        val upload = entry(1, "2026-10-20 10:00:00", ap = 1000, level = 7)
+        val dated = DoneBanner(1, "quito-1", "Quito", 18, doneAt = "2026-10-20")
+        val undated = DoneBanner(2, "lima-2", "Lima", 6)
+
+        val items = timeline(listOf(upload), emptyList(), listOf(undated, dated))
+
+        // Before the uploads of its day, without the banners without a day
+        assertEquals(listOf(TimelineKind.BANNER, TimelineKind.UPLOAD), items.map { it.kind })
+        assertEquals(TimelineItem.Banner(dated), items[0])
+        assertEquals(listOf(2026), timelineYears(items))
+        assertEquals(listOf(TimelineKind.UPLOAD), items.filtered(setOf(TimelineKind.UPLOAD), null).map { it.kind })
+    }
+
+    @Test
     fun filtersByKindAndYear() {
         val upload = entry(1, "2024-05-01 10:00:00", ap = 1000, level = 7)
         val anomaly = TimelineEvent(5, "2026-03-01", "Anomaly")

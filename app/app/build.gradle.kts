@@ -129,6 +129,12 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 
+    // Banner pictures from Bannergress
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    // The banners' world map, OpenStreetMap tiles without an API key
+    implementation(libs.osmdroid.android)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)

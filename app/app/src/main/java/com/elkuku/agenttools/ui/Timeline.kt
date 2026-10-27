@@ -51,6 +51,7 @@ import com.elkuku.agenttools.data.LEVEL_NAMES
 import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.TimelineItem
 import com.elkuku.agenttools.data.TimelineKind
+import com.elkuku.agenttools.data.DoneBanner
 import com.elkuku.agenttools.data.filtered
 import com.elkuku.agenttools.data.medalFor
 import com.elkuku.agenttools.data.timeline
@@ -63,15 +64,18 @@ import java.time.ZoneOffset
 private const val EVENT_TEXT_MAX = 500
 
 /**
- * The stats uploads with what changed and the custom [events], newest first, as web's timeline.
- * With [onEditEvent] (the own timeline) an event opens for editing, [onAddEvent] adds one.
+ * The stats uploads with what changed, the custom [events] and the Bannergress [banners] done
+ * with a day, newest first, as web's timeline. With [onEditEvent] (the own timeline) an event
+ * opens for editing, [onAddEvent] adds one, [onOpenBanners] opens the Bannergress screen.
  */
 @Composable
 fun Timeline(
     entries: List<AgentStatEntry>,
     events: List<TimelineEvent>,
+    banners: List<DoneBanner> = emptyList(),
     onEditEvent: ((TimelineEvent) -> Unit)? = null,
     onAddEvent: (() -> Unit)? = null,
+    onOpenBanners: (() -> Unit)? = null,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(stringResource(R.string.timeline), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -85,7 +89,7 @@ fun Timeline(
 
     TimelineChart(entries, events)
 
-    val items = timeline(entries, events)
+    val items = timeline(entries, events, banners)
     if (items.isEmpty()) {
         Text(stringResource(R.string.no_stats), color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
@@ -95,6 +99,7 @@ fun Timeline(
     var uploads by rememberSaveable { mutableStateOf(true) }
     var singleEvents by rememberSaveable { mutableStateOf(true) }
     var travels by rememberSaveable { mutableStateOf(true) }
+    var bannersShown by rememberSaveable { mutableStateOf(true) }
     var year by rememberSaveable { mutableStateOf<Int?>(null) }
     var medalUpgrades by rememberSaveable { mutableStateOf(false) }
     TimelineFilters(
@@ -102,6 +107,8 @@ fun Timeline(
         medalUpgrades = medalUpgrades to { medalUpgrades = it },
         events = singleEvents to { singleEvents = it },
         travels = travels to { travels = it },
+        // Only for those who have them
+        banners = (bannersShown to { shown: Boolean -> bannersShown = shown }).takeIf { items.any { it is TimelineItem.Banner } },
         years = timelineYears(items),
         year = year,
         onYear = { year = it },
@@ -111,6 +118,7 @@ fun Timeline(
         if (uploads) add(TimelineKind.UPLOAD)
         if (singleEvents) add(TimelineKind.EVENT)
         if (travels) add(TimelineKind.TRAVEL)
+        if (bannersShown) add(TimelineKind.BANNER)
     }
     val shown = items.filtered(kinds, year, medalUpgrades)
     if (shown.isEmpty()) {
@@ -128,6 +136,11 @@ fun Timeline(
                     last = index == shown.lastIndex,
                     modifier = onEditEvent?.let { edit -> Modifier.clickable { edit(item.event) } } ?: Modifier,
                 ) { EventItem(item.event) }
+                is TimelineItem.Banner -> TimelineRow(
+                    dot = MaterialTheme.colorScheme.onSurfaceVariant,
+                    last = index == shown.lastIndex,
+                    modifier = onOpenBanners?.let { open -> Modifier.clickable { open() } } ?: Modifier,
+                ) { BannerItem(item.banner) }
             }
         }
     }
@@ -142,6 +155,7 @@ private fun TimelineFilters(
     medalUpgrades: Pair<Boolean, (Boolean) -> Unit>,
     events: Pair<Boolean, (Boolean) -> Unit>,
     travels: Pair<Boolean, (Boolean) -> Unit>,
+    banners: Pair<Boolean, (Boolean) -> Unit>?,
     years: List<Int>,
     year: Int?,
     onYear: (Int?) -> Unit,
@@ -152,9 +166,10 @@ private fun TimelineFilters(
             Triple(R.string.timeline_filter_uploads, R.drawable.ic_bi_bar_chart, uploads),
             Triple(R.string.timeline_filter_events, R.drawable.ic_bi_flag_fill, events),
             Triple(R.string.timeline_filter_travels, R.drawable.ic_bi_airplane_fill, travels),
+            banners?.let { Triple(R.string.timeline_filter_banners, R.drawable.ic_bi_grid_3x3_gap, it) },
             // Uploads only with a medal at a higher tier
             Triple(R.string.timeline_filter_medals, R.drawable.ic_bi_award, medalUpgrades),
-        ).forEach { (label, icon, state) ->
+        ).filterNotNull().forEach { (label, icon, state) ->
             val (selected, onChange) = state
             FilterChip(
                 selected = selected,
@@ -260,6 +275,21 @@ private fun EventItem(event: TimelineEvent) {
         )
         Text(event.text)
     }
+}
+
+@Composable
+private fun BannerItem(banner: DoneBanner) {
+    Text(banner.doneAt.orEmpty(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(
+            painterResource(R.drawable.ic_bi_grid_3x3_gap),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 3.dp).size(16.dp),
+        )
+        Text(stringResource(R.string.bannergress_timeline_done, banner.title))
+    }
+    banner.banner.pictureUrl?.let { BannerPicture(it) }
 }
 
 /**

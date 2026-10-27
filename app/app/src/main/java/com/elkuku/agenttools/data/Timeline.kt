@@ -40,29 +40,35 @@ sealed interface TimelineItem {
     data class Upload(val result: ImportResult) : TimelineItem
 
     data class Event(val event: TimelineEvent) : TimelineItem
+
+    /** A Bannergress banner done that day. */
+    data class Banner(val banner: DoneBanner) : TimelineItem
 }
 
 /**
- * The stats uploads ([entries], any order) and the custom [events], newest first, as web's
- * `TimelineBuilder`: an event comes before the uploads of its day.
+ * The stats uploads ([entries], any order), the custom [events] and the [banners] done with a
+ * day, newest first, as web's `TimelineBuilder`: events and banners come before the uploads of
+ * their day.
  */
-fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>): List<TimelineItem> {
+fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>, banners: List<DoneBanner> = emptyList()): List<TimelineItem> {
     val uploads = entries.sortedByDescending { it.datetime }
     val items = uploads.mapIndexed { index, entry ->
         entry.datetime to TimelineItem.Upload(computeImportResult(entry, uploads.getOrNull(index + 1)))
-    } + events.map { "${it.date} 23:59:59" to TimelineItem.Event(it) }
+    } + events.map { "${it.date} 23:59:59" to TimelineItem.Event(it) } +
+        banners.mapNotNull { banner -> banner.doneAt?.let { "$it 23:59:59" to TimelineItem.Banner(banner) } }
 
     // sortedByDescending is stable: uploads and events keep their order on the same date
     return items.sortedByDescending { it.first }.map { it.second }
 }
 
 /** What an entry is, for the timeline's filter (as web's `TimelineEntry::kind()`). */
-enum class TimelineKind { UPLOAD, EVENT, TRAVEL }
+enum class TimelineKind { UPLOAD, EVENT, TRAVEL, BANNER }
 
 val TimelineItem.kind: TimelineKind
     get() = when (this) {
         is TimelineItem.Upload -> TimelineKind.UPLOAD
         is TimelineItem.Event -> if (event.isTravel) TimelineKind.TRAVEL else TimelineKind.EVENT
+        is TimelineItem.Banner -> TimelineKind.BANNER
     }
 
 /** The years an entry falls in: a travel over New Year in both. */
@@ -70,6 +76,7 @@ val TimelineItem.years: IntRange
     get() = when (this) {
         is TimelineItem.Upload -> result.entry.datetime.take(4).toInt().let { it..it }
         is TimelineItem.Event -> event.date.take(4).toInt()..(event.endDate ?: event.date).take(4).toInt()
+        is TimelineItem.Banner -> banner.doneAt.orEmpty().take(4).toInt().let { it..it }
     }
 
 /** Every year of the timeline, newest first, for its year filter. */

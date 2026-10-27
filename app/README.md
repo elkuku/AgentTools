@@ -110,6 +110,18 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   tier, so a lower one is a wrong match). The user reviews the medals before saving; they are
   merged with the saved ones and uploaded to `web` (loaded with `GET /api/me`, saved with `PATCH /api/me`) in
   4e-website's format (`data/CustomMedalsJson.kt`).
+- My banners (home card, account menu under My stats, or My stats → Banners; `ui/Bannergress.kt`, as web's `/banners`), with a world map of where each banner starts (`ui/BannerMap.kt`, osmdroid with OpenStreetMap tiles, the app id as user agent, tiles cached in the app's cache dir): the app signs in to Bannergress as kBannerGuider
+  does (`auth/BannergressAuth.kt`: Keycloak PKCE for the `bannergress-website` client, whose
+  redirect to `https://bannergress.com/` is caught in a WebView; the refresh token is kept in the
+  private `bannergress` preferences, excluded from backups, the access token in memory). A sync
+  (`data/Bannergress.kt`, `GET https://api.bannergress.com/bnrs` with the Bearer token, page by
+  page: there is no count) reads (with the start points) every banner by the agent name (`author`, published), the whole
+  done list and the newest 20 to-do banners (and counts the to-do list, ids only), then saves it
+  with `PATCH /api/me` `bannergress`; web keeps the done list as done banners
+  (`GET /api/done-banners`), where the user sets the day each was done (a tap on a done banner,
+  `PATCH /api/done-banners/{id}`): banners with a day are on the timeline. The screen folds its
+  sections (published, done, to-do); pictures load with Coil. Signing out of Google signs out of
+  Bannergress too. Others see it with the Bannergress part ("Banners").
 - Languages: English (`res/values`, the default), German (`values-de`) and Spanish
   (`values-es`); keep the three `strings.xml` in sync (lint's `MissingTranslation` fails the build
   otherwise). `AppLanguage.kt` switches the language: Android 13+'s per-app language (also in the

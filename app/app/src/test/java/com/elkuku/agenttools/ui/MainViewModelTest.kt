@@ -5,6 +5,15 @@ import android.content.ContextWrapper
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.UiText
 import com.elkuku.agenttools.auth.AuthException
+import com.elkuku.agenttools.auth.BannergressConnector
+import com.elkuku.agenttools.auth.BannergressLogin
+import com.elkuku.agenttools.data.BannergressResult
+import com.elkuku.agenttools.data.BannergressSaveResult
+import com.elkuku.agenttools.data.BannergressSync
+import com.elkuku.agenttools.data.BannergressBanner
+import com.elkuku.agenttools.data.DoneBanner
+import com.elkuku.agenttools.data.DoneBannerResult
+import com.elkuku.agenttools.data.DoneBannersResult
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentProfile
@@ -32,6 +41,7 @@ import com.elkuku.agenttools.scan.RecognizedMedal
 import com.elkuku.agenttools.uiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -67,7 +77,7 @@ class MainViewModelTest {
 
     private val scanned = mutableListOf<List<ArgbImage>>()
 
-    private fun viewModel() = MainViewModel(auth, api) { scanned += it; recognized }
+    private fun viewModel() = MainViewModel(auth, api, scanMedals = { scanned += it; recognized })
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -624,6 +634,74 @@ class MainViewModelTest {
         assertEquals(listOf(TimelineEvent(1, "2026-10-20", "Anomaly")), viewModel.state.value.timelineEvents)
     }
 
+    @Test
+    fun theBannergressSignInSyncsAndSavesOnTheServer() {
+        val bannergress = FakeBannergress()
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, bannergress = bannergress).also { it.signIn(context) }
+
+        viewModel.startBannergressLogin()
+        assertNotNull(viewModel.state.value.bannergressLogin)
+        viewModel.finishBannergressLogin(context, "good")
+
+        val state = viewModel.state.value
+        assertNull(state.bannergressLogin)
+        assertTrue(state.bannergressSignedIn)
+        assertEquals(listOf("TestAgent"), bannergress.syncedAgents)
+        assertEquals(listOf(1), api.savedBannergress.map { it.done })
+        assertEquals("2026-10-27T18:00:00+00:00", state.bannergress?.syncedAt)
+        assertEquals(uiText(R.string.bannergress_synced), state.status?.text)
+
+        // The done list is reloaded with the sync
+        assertEquals(listOf(DoneBanner(1, "b-1", "Banner", 6)), state.doneBanners)
+
+        // Another Google account must not sync this Bannergress account
+        viewModel.signOut(context)
+        assertFalse(viewModel.state.value.bannergressSignedIn)
+        assertNull(viewModel.state.value.bannergress)
+    }
+
+    @Test
+    fun theDayOfADoneBannerIsSavedAndPutsItOnTheTimeline() {
+        api.serverDoneBanners += DoneBanner(1, "b-1", "Banner", 6)
+        val viewModel = signedIn()
+        assertEquals(listOf(DoneBanner(1, "b-1", "Banner", 6)), viewModel.state.value.doneBanners)
+
+        viewModel.saveDoneAt(context, DoneBanner(1, "b-1", "Banner", 6), "2026-10-18")
+
+        assertEquals("2026-10-18", viewModel.state.value.doneBanners?.single()?.doneAt)
+        assertEquals(Status(uiText(R.string.bannergress_date_saved), false), viewModel.state.value.status)
+
+        viewModel.saveDoneAt(context, viewModel.state.value.doneBanners!!.single(), null)
+        assertNull(viewModel.state.value.doneBanners?.single()?.doneAt)
+    }
+
+    @Test
+    fun anEndedBannergressSessionIsReported() {
+        val bannergress = FakeBannergress().apply { result = BannergressResult.SignedOut }
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, bannergress = bannergress).also { it.signIn(context) }
+
+        viewModel.syncBannergress(context)
+
+        assertEquals(Status(uiText(R.string.bannergress_session_ended), true), viewModel.state.value.status)
+        assertTrue(api.savedBannergress.isEmpty())
+    }
+
+    @Test
+    fun aRefusedBannergressSignInIsReported() {
+        val bannergress = FakeBannergress()
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, bannergress = bannergress)
+
+        viewModel.startBannergressLogin()
+        viewModel.finishBannergressLogin(context, "bad")
+
+        assertEquals(Status(uiText(R.string.bannergress_sign_in_failed), true), viewModel.state.value.status)
+        assertTrue(bannergress.syncedAgents.isEmpty())
+    }
+
     private fun signedIn(): MainViewModel {
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
@@ -833,6 +911,32 @@ class MainViewModelTest {
         }
     }
 
+    private class FakeBannergress : BannergressConnector {
+        override val signedIn = MutableStateFlow(false)
+
+        /** What a sync reads from "Bannergress". */
+        var result: BannergressResult = BannergressResult.Success(
+            BannergressSync(published = 1, todo = 2, done = 1, doneBanners = listOf(BannergressBanner("b-1", "Banner", 6))),
+        )
+        val syncedAgents = mutableListOf<String>()
+
+        override fun start() = BannergressLogin("https://login.bannergress.com/auth", "verifier", "state")
+
+        override suspend fun finish(login: BannergressLogin, code: String): Boolean {
+            signedIn.value = code == "good"
+            return signedIn.value
+        }
+
+        override suspend fun sync(agentName: String): BannergressResult {
+            syncedAgents += agentName
+            return result
+        }
+
+        override fun signOut() {
+            signedIn.value = false
+        }
+    }
+
     private class FakeStatsApi : StatsApi {
         val saves = ArrayDeque<SaveResult>()
         val lists = ArrayDeque<AgentStatsResult>()
@@ -907,6 +1011,26 @@ class MainViewModelTest {
             serverEvents.removeAll { it.id == saved.id }
             serverEvents += saved
             return TimelineEventResult.Success(saved)
+        }
+
+        val savedBannergress = mutableListOf<BannergressSync>()
+
+        /** The done list on the "server". */
+        val serverDoneBanners = mutableListOf<DoneBanner>()
+
+        override suspend fun doneBanners(idToken: String): DoneBannersResult = DoneBannersResult.Success(serverDoneBanners.toList())
+
+        override suspend fun saveDoneAt(idToken: String, id: Int, doneAt: String?): DoneBannerResult {
+            val saved = serverDoneBanners.single { it.id == id }.copy(doneAt = doneAt)
+            serverDoneBanners.replaceAll { if (it.id == id) saved else it }
+            return DoneBannerResult.Success(saved)
+        }
+
+        override suspend fun saveBannergress(idToken: String, sync: BannergressSync): BannergressSaveResult {
+            savedBannergress += sync
+            serverDoneBanners.clear()
+            serverDoneBanners += sync.doneBanners.mapIndexed { index, banner -> DoneBanner(index + 1, banner.id, banner.title, banner.missions, banner.picture) }
+            return BannergressSaveResult.Success(sync.copy(syncedAt = "2026-10-27T18:00:00+00:00"))
         }
 
         override suspend fun deleteTimelineEvent(idToken: String, id: Int): TimelineEventResult {

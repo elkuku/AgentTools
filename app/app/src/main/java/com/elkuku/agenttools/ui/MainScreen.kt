@@ -61,6 +61,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenAgents: () -> Unit,
+    onOpenBanners: () -> Unit,
     onOpenAdminAgents: () -> Unit,
     onChooseVisibility: () -> Unit,
     onDismissVisibility: () -> Unit,
@@ -82,6 +83,7 @@ fun MainScreen(
                             role = state.role,
                             avatar = state.avatar,
                             onOpenStats = onOpenStats,
+                            onOpenBanners = onOpenBanners,
                             onOpenSettings = onOpenSettings,
                             onSignOut = onSignOut,
                             enabled = !state.busy,
@@ -112,7 +114,7 @@ fun MainScreen(
                 state.medalScan?.let { MedalScanReview(it, known = state.medalScanKnown, onSave = onSaveMedalScan, onDismiss = onDismissMedalScan) }
                 Landing(serverUrl)
             } else {
-                Home(state, serverUrl, onOpenStats = onOpenStats, onOpenAgents = onOpenAgents, onOpenSettings = onOpenSettings)
+                Home(state, serverUrl, onOpenStats = onOpenStats, onOpenBanners = onOpenBanners, onOpenAgents = onOpenAgents, onOpenSettings = onOpenSettings)
             }
         }
     }
@@ -149,40 +151,46 @@ internal fun RefreshableColumn(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            val progress = state.progress
-            if (progress != null) {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Text(progress.asString(), style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            } else if (state.busy && !pulled) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-
-            state.status?.let { status ->
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (status.isError) {
-                            MaterialTheme.colorScheme.errorContainer
-                        } else {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        },
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(status.text.asString(), modifier = Modifier.padding(12.dp))
-                }
-            }
+            ProgressAndStatus(state, showBusy = !pulled)
 
             content()
         }
     }
+}
+
+/** What takes a while (or a bar while [UiState.busy] with [showBusy]) and the status message. */
+@Composable
+internal fun ProgressAndStatus(state: UiState, showBusy: Boolean = true) {
+        val progress = state.progress
+        if (progress != null) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                    Text(progress.asString(), style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        } else if (state.busy && showBusy) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+
+        state.status?.let { status ->
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if (status.isError) {
+                        MaterialTheme.colorScheme.errorContainer
+                    } else {
+                        MaterialTheme.colorScheme.secondaryContainer
+                    },
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(status.text.asString(), modifier = Modifier.padding(12.dp))
+            }
+        }
 }
 
 /** The user's role, colored like the badges of web's user list (admins stand out). */
@@ -224,6 +232,7 @@ private fun MainScreenPreview() {
             onOpenSettings = {},
             onOpenStats = {},
             onOpenAgents = {},
+            onOpenBanners = {},
             onOpenAdminAgents = {},
             onChooseVisibility = {},
             onDismissVisibility = {},
