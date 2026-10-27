@@ -11,9 +11,11 @@ use App\ApiResource\Agent;
 use App\ApiResource\CustomMedals;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
+use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Repository\AgentStatRepository;
+use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
 
 /**
@@ -27,6 +29,7 @@ final readonly class AgentProvider implements ProviderInterface
     public function __construct(
         private UserRepository $userRepository,
         private AgentStatRepository $agentStatRepository,
+        private TimelineEventRepository $timelineEventRepository,
     ) {
     }
 
@@ -48,21 +51,31 @@ final readonly class AgentProvider implements ProviderInterface
         }
 
         $stats = $this->agentStatRepository->findByOwner($user);
+        $showHistory = $user->isVisible(ProfilePart::STATS_HISTORY);
 
         return $this->agent(
             $user,
             $stats[0] ?? null,
             $user->isVisible(ProfilePart::LATEST_STATS) && isset($stats[0]) ? $this->row($stats[0]) : null,
-            $user->isVisible(ProfilePart::STATS_HISTORY) ? \array_values(\array_map($this->row(...), $stats)) : null,
+            $showHistory ? \array_map($this->row(...), $stats) : null,
+            $showHistory ? \array_map(
+                static fn (TimelineEvent $event): array => [
+                    'date' => $event->date?->format(TimelineEvent::DATE_FORMAT) ?? '',
+                    'endDate' => $event->endDate?->format(TimelineEvent::DATE_FORMAT),
+                    'text' => $event->text,
+                ],
+                $this->timelineEventRepository->findByOwner($user),
+            ) : null,
             $user->isVisible(ProfilePart::CUSTOM_MEDALS) ? CustomMedals::fromArray($user->getCustomMedals()) : null,
         );
     }
 
     /**
-     * @param array<string, int|string|null>|null       $latestStats
-     * @param list<array<string, int|string|null>>|null $history
+     * @param array<string, int|string|null>|null                                $latestStats
+     * @param list<array<string, int|string|null>>|null                          $history
+     * @param list<array{date: string, endDate: string|null, text: string}>|null $events
      */
-    private function agent(User $user, ?AgentStat $latest, ?array $latestStats = null, ?array $history = null, ?CustomMedals $customMedals = null): Agent
+    private function agent(User $user, ?AgentStat $latest, ?array $latestStats = null, ?array $history = null, ?array $events = null, ?CustomMedals $customMedals = null): Agent
     {
         return new Agent(
             (string) $user->getAgentName(),
@@ -71,6 +84,7 @@ final readonly class AgentProvider implements ProviderInterface
             $user->getVisibleAvatar(),
             $latestStats,
             $history,
+            $events,
             $customMedals,
         );
     }

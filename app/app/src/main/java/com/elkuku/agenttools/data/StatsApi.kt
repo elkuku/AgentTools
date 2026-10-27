@@ -11,6 +11,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -62,6 +63,12 @@ private data class MeResponse(
 
 @Serializable
 private data class VisiblePartsBody(val visibleParts: List<String>)
+
+@Serializable
+private data class TimelineEventBody(val date: String, val endDate: String?, val text: String)
+
+@Serializable
+private data class TimelineEventsPage(val member: List<TimelineEvent> = emptyList())
 
 @Serializable
 private data class CollectionView(val next: String? = null)
@@ -164,6 +171,15 @@ interface StatsApi {
 
     /** `GET /api/users`: every user with the privacy settings, for admins. */
     suspend fun users(idToken: String): UsersResult
+
+    /** `GET /api/timeline-events`: the user's custom timeline events, newest first. */
+    suspend fun timelineEvents(idToken: String): TimelineEventsResult
+
+    /** `POST /api/timeline-events` for a new event (no id), else `PATCH /api/timeline-events/{id}`. */
+    suspend fun saveTimelineEvent(idToken: String, event: TimelineEvent): TimelineEventResult
+
+    /** `DELETE /api/timeline-events/{id}`. */
+    suspend fun deleteTimelineEvent(idToken: String, id: Int): TimelineEventResult
 }
 
 /** [baseUrl] is read on every request: debug and dev builds can change the server on the settings screen. */
@@ -180,6 +196,8 @@ class KtorStatsApi(
     private val agentsUrl get() = "${baseUrl().trimEnd('/')}/api/agents"
 
     private val usersUrl get() = "${baseUrl().trimEnd('/')}/api/users"
+
+    private val timelineEventsUrl get() = "${baseUrl().trimEnd('/')}/api/timeline-events"
 
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -402,6 +420,84 @@ class KtorStatsApi(
 
             else -> UsersResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
+    }
+
+    override suspend fun timelineEvents(idToken: String): TimelineEventsResult {
+        val response = try {
+            client.get(timelineEventsUrl) {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return TimelineEventsResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<TimelineEventsPage>()
+                ?.let { TimelineEventsResult.Success(it.member) }
+                ?: TimelineEventsResult.Failure(uiText(R.string.error_unexpected_response))
+
+            HttpStatusCode.Unauthorized -> TimelineEventsResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
+
+            else -> TimelineEventsResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun saveTimelineEvent(idToken: String, event: TimelineEvent): TimelineEventResult {
+        // A null end date clears it (merge patch)
+        val body = TimelineEventBody(event.date, event.endDate, event.text)
+        val response = try {
+            if (event.id == null) {
+                client.post(timelineEventsUrl) {
+                    bearerAuth(idToken)
+                    contentType(LdJson)
+                    accept(LdJson)
+                    setBody(body)
+                }
+            } else {
+                client.patch("$timelineEventsUrl/${event.id}") {
+                    bearerAuth(idToken)
+                    contentType(MergePatchJson)
+                    accept(LdJson)
+                    setBody(body)
+                }
+            }
+        } catch (e: IOException) {
+            return TimelineEventResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK, HttpStatusCode.Created -> response.decodeOrNull<TimelineEvent>()
+                ?.let { TimelineEventResult.Success(it) }
+                ?: TimelineEventResult.Failure(uiText(R.string.error_unexpected_response))
+
+            else -> timelineEventError(response)
+        }
+    }
+
+    override suspend fun deleteTimelineEvent(idToken: String, id: Int): TimelineEventResult {
+        val response = try {
+            client.delete("$timelineEventsUrl/$id") {
+                bearerAuth(idToken)
+                accept(LdJson)
+            }
+        } catch (e: IOException) {
+            return TimelineEventResult.Failure(networkError(e))
+        }
+
+        return if (response.status == HttpStatusCode.NoContent) TimelineEventResult.Success(null) else timelineEventError(response)
+    }
+
+    private suspend fun timelineEventError(response: HttpResponse): TimelineEventResult = when (response.status) {
+        HttpStatusCode.Unauthorized -> TimelineEventResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
+
+        HttpStatusCode.UnprocessableEntity -> TimelineEventResult.Failure(
+            response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()
+                ?.let { UiText.Plain("${it.propertyPath}: ${it.message}") }
+                ?: uiText(R.string.error_rejected_timeline_event),
+        )
+
+        else -> TimelineEventResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
     }
 
     fun close() = client.close()

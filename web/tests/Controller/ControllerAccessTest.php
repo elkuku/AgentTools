@@ -36,6 +36,13 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_agent_show' => [
                 'params' => ['{agentName}' => 'TestAgent'],
             ],
+            // No event in the test database: the event is looked up before the login
+            'app_timeline_event_edit' => [
+                'statusCodes' => ['GET' => 404, 'POST' => 404],
+            ],
+            'app_timeline_event_delete' => [
+                'statusCodes' => ['POST' => 404],
+            ],
             'app_locale' => [
                 'params' => ['{locale}' => 'de'],
                 'statusCodes' => ['GET' => 302],

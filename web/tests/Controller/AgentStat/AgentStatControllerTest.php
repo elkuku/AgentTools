@@ -49,9 +49,12 @@ class AgentStatControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/agent-stats');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('table', 'MyAgent');
-        self::assertSelectorTextContains('table', '243,517,130');
-        self::assertSelectorTextNotContains('table', 'OtherAgent');
+        self::assertSelectorTextContains('#agent-stats', 'MyAgent');
+        // The imports are on the timeline, each one links to its stats
+        self::assertSelectorTextContains('#timeline-entries .timeline-upload', '2026-10-19 15:35');
+        self::assertSelectorTextContains('#timeline-entries .timeline-upload', '243,517,130 AP');
+        self::assertSelectorExists('#timeline-entries .timeline-upload a[href^="/agent-stats/"]');
+        self::assertSelectorTextNotContains('body', 'OtherAgent');
     }
 
     public function testShowRendersStats(): void

@@ -6,6 +6,7 @@ namespace App\Tests\Command;
 
 use App\Enum\ProfilePart;
 use App\Repository\AgentStatRepository;
+use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -40,9 +41,17 @@ class DemoAgentsCommandTest extends KernelTestCase
         self::assertTrue($frog->isVisible(ProfilePart::CUSTOM_MEDALS));
         self::assertStringStartsWith('data:image/jpeg;base64,', (string) $frog->getVisibleAvatar());
         $stats = $this->stats()->findByOwner($frog);
-        self::assertCount(6, $stats);
-        // Newest first, growing
+        self::assertCount(40, $stats);
+        // Newest first, growing; a veteran of several years who started at level 1
         self::assertGreaterThan($stats[1]->ap, $stats[0]->ap);
+        $first = $stats[\count($stats) - 1];
+        self::assertGreaterThanOrEqual(4, $first->datetime->diff($stats[0]->datetime)->y);
+        self::assertSame(1, $first->level);
+        self::assertSame(16, $stats[0]->level);
+        // Timeline events, some over several days
+        $events = $this->events()->findByOwner($frog);
+        self::assertCount(11, $events);
+        self::assertNotEmpty(\array_filter($events, static fn ($event): bool => null !== $event->endDate));
         self::assertNull($this->users()->findOneByAgentName('DemoNew')?->getVisibilityChosenAt());
     }
 
@@ -54,6 +63,7 @@ class DemoAgentsCommandTest extends KernelTestCase
 
         self::assertStringContainsString('Removed 8 demo agents.', $this->tester->getDisplay());
         self::assertNull($this->users()->findOneByAgentName('DemoFrog'));
+        self::assertSame(0, $this->events()->count([]));
         // The others stay
         self::assertNotNull($this->users()->findOneBy(['identifier' => 'admin']));
     }
@@ -64,6 +74,14 @@ class DemoAgentsCommandTest extends KernelTestCase
         $users = self::getContainer()->get(UserRepository::class);
 
         return $users;
+    }
+
+    private function events(): TimelineEventRepository
+    {
+        /** @var TimelineEventRepository $events */
+        $events = self::getContainer()->get(TimelineEventRepository::class);
+
+        return $events;
     }
 
     private function stats(): AgentStatRepository

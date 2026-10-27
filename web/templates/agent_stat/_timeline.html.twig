@@ -1,0 +1,69 @@
+{#
+    Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline.
+    timeline: list<TimelineEntry>, editable: bool (the own timeline: links to each upload, edit and delete events)
+#}
+<ol class="timeline list-unstyled" id="timeline-entries">
+    {% for entry in timeline %}
+        {% if entry.event %}
+            {% set event = entry.event %}
+            <li class="timeline-entry timeline-event" id="timeline-event-{{ event.id }}">
+                <div class="timeline-date small text-body-secondary">
+                    {{ event.date|date('Y-m-d') }}{% if event.endDate %} &ndash; {{ event.endDate|date('Y-m-d') }}{% endif %}
+                </div>
+                <div class="d-flex align-items-start gap-2">
+                    <i class="{{ event.endDate ? 'bi-airplane-fill timeline-travel-icon' : 'bi-flag-fill timeline-event-icon' }}"></i>
+                    <div class="flex-grow-1 timeline-text">{{ event.text }}</div>
+                    {% if editable %}
+                        <a class="btn btn-sm btn-link py-0" href="{{ path('app_timeline_event_edit', {id: event.id}) }}"
+                           title="{{ 'action.edit'|trans }}" aria-label="{{ 'action.edit'|trans }}"><i class="bi-pencil"></i></a>
+                        <form method="post" action="{{ path('app_timeline_event_delete', {id: event.id}) }}"
+                              onsubmit="return confirm('{{ 'timeline.event.confirm_delete'|trans|e('js') }}');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-event' ~ event.id) }}">
+                            <button class="btn btn-sm btn-link link-danger py-0" title="{{ 'action.delete'|trans }}"
+                                    aria-label="{{ 'action.delete'|trans }}"><i class="bi-trash"></i></button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
+        {% else %}
+            {% set stat = entry.stat %}
+            {% set faction = stat.factionCode %}
+            <li class="timeline-entry timeline-upload">
+                <div class="timeline-date small text-body-secondary">
+                    {% if editable %}
+                        <a href="{{ path('app_agent_stat_show', {id: stat.id}) }}">{{ stat.datetime|date('Y-m-d H:i') }}</a>
+                    {% else %}
+                        {{ stat.datetime|date('Y-m-d H:i') }}
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="fw-bold {{ faction ? 'faction-' ~ faction }}">L{{ stat.level ?? '–' }}</span>
+                    &middot; {{ 'stats.ap'|trans({'%ap%': stat.ap|number_format}) }}
+                    {% if entry.apGain > 0 %}<span class="text-success">+{{ entry.apGain|number_format }}</span>{% endif %}
+                </div>
+                {% if entry.first %}
+                    <div class="small text-body-secondary">{{ 'timeline.first_upload'|trans }}</div>
+                {% endif %}
+                {% if entry.newLevel %}
+                    <div class="fw-bold">{{ 'timeline.new_level'|trans({'%level%': entry.newLevel}) }}</div>
+                {% endif %}
+                {% if entry.recursions %}
+                    <div class="d-flex align-items-center gap-1">
+                        <img class="timeline-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="" title="Simulacrum">
+                        {{ 'timeline.recursion'|trans({'%count%': entry.recursions}) }}
+                    </div>
+                {% endif %}
+                {% if entry.medalUps %}
+                    <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+                        {% for medal in entry.medalUps %}
+                            <img class="timeline-badge" src="{{ asset(medal.badge) }}"
+                                 alt="{{ medal.medal.name }}: {{ medal.levelName }}" title="{{ medal.medal.name }}: {{ medal.levelName }}">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </li>
+        {% endif %}
+    {% else %}
+        <li class="text-body-secondary">{{ 'stats.none'|trans }}</li>
+    {% endfor %}
+</ol>

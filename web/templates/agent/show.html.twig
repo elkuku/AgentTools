@@ -35,29 +35,9 @@
         </div>
     {% endif %}
 
-    {% if history is not null %}
-        <h2 class="h5 mt-4">{{ 'stats.history'|trans }}</h2>
-        <table class="table" id="stats-history">
-            <thead>
-            <tr>
-                <th>{{ 'stats.date'|trans }}</th>
-                <th>{{ 'stats.level'|trans }}</th>
-                <th class="text-end">AP</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for stat in history %}
-                <tr>
-                    <td>{{ stat.datetime|date('Y-m-d H:i:s') }}</td>
-                    <td>{{ stat.level }}</td>
-                    <td class="text-end">{{ stat.ap|number_format }}</td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="3">{{ 'stats.none'|trans }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    {% if timeline is not null %}
+        <h2 class="h5 mt-4" id="timeline">{{ 'timeline.title'|trans }}</h2>
+        {% if chart %}{{ include('agent_stat/_timeline_chart.html.twig') }}{% endif %}
+        {{ include('agent_stat/_timeline.html.twig', {editable: false}) }}
     {% endif %}
 {% endblock %}

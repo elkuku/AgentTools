@@ -137,19 +137,17 @@ role:
     user: Benutzer
 
 stats:
+    ap: '%ap% AP'
     agent: Agent
-    all_imports: Alle Importe
     all_values: Alle Werte
     core_months: '{1} C.O.R.E %count% Monat|]1,Inf[ C.O.R.E %count% Monate'
     core_subscriptions: C.O.R.E-Abonnements
-    date: Datum
     drone:
         portals: 'Portale:'
         hacks: 'Hacks (Maverick):'
         recalls: 'Erzwungene Rückrufe:'
         flight: 'Flug:'
     first_import: 'Erster Import: %date%'
-    history: Statistikverlauf
     imported: importiert
     kinetic:
         completed: 'Abgeschlossene Kinetic Capsules: %count%'
@@ -168,6 +166,29 @@ theme:
     light: Hell
     dark: Dunkel
     auto: Automatisch
+
+timeline:
+    chart:
+        label: AP im Zeitverlauf mit Ereignissen und Reisen
+        ap: AP
+        event: Ereignis
+        travel: Reise
+    title: Zeitleiste
+    first_upload: Erster Upload
+    new_level: Neues Level %level%
+    recursion: 'Rekursion: %count%'
+    event:
+        add: Ereignis hinzufügen
+        date: Datum
+        end_date: Enddatum
+        end_date_help: 'Optional: der letzte Tag eines Ereignisses über mehrere Tage, z. B. einer Reise.'
+        text: Ereignis
+        text_help: 'Was passiert ist, z. B. eine Anomalie oder ein Mission Day. Wird mit deinem Statistikverlauf gezeigt.'
+        added: Das Ereignis wurde hinzugefügt.
+        updated: Das Ereignis wurde gespeichert.
+        deleted: Das Ereignis wurde gelöscht.
+        edit: Ereignis bearbeiten
+        confirm_delete: Dieses Ereignis löschen?
 
 user:
     agent_name: Agentenname

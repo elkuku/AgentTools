@@ -118,3 +118,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   (`ui/LanguageCard.kt`) is on the landing page and in the settings. The view model and the API
   client return `UiText` (`UiText.kt`): string resources resolved when shown, or server messages
   as they are. Medal, stat and faction names stay English.
+- Timeline (`data/Timeline.kt`, `ui/Timeline.kt`): the stats uploads with what changed (as the
+  import result) and the custom events (`GET /api/timeline-events`, loaded with the stats), newest
+  first, as web's `TimelineBuilder`. On My stats events are added, changed and deleted
+  (`TimelineEventDialog`; `POST` / `PATCH` / `DELETE /api/timeline-events`); an agent's profile shows
+  them read-only with the history (`GET /api/agents/{agentName}` `events`).
+  Events with an `endDate` last several days (a travel). Above the list `ui/TimelineChart.kt` draws
+  the chart (geometry in `data/TimelineChart.kt`, as web's `TimelineChart`): AP line, event flags,
+  travel bands; a tap shows a mark's details.

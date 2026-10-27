@@ -6,6 +6,7 @@ namespace App\Tests\Controller\Agent;
 
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
+use App\Entity\TimelineEvent;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Repository\UserRepository;
@@ -33,6 +34,7 @@ class AgentControllerTest extends WebTestCase
     {
         $em = $this->entityManager();
         $em->createQuery('DELETE FROM App\Entity\AgentStat')->execute();
+        $em->createQuery('DELETE FROM App\Entity\TimelineEvent')->execute();
         $em->createQuery("UPDATE App\\Entity\\User u SET u.agentName = NULL, u.visibleParts = '[]', u.visibilityChosenAt = NULL, u.customMedals = '{}'")
             ->execute();
 
@@ -94,6 +96,8 @@ class AgentControllerTest extends WebTestCase
     {
         $this->show('agent', [ProfilePart::AGENT, ProfilePart::LATEST_STATS]);
         $this->createAgentStat($this->user('agent'), '2026-10-19 15:35:56', 16);
+        // Events come with the stats history only
+        $this->createEvent($this->user('agent'), '2026-10-19', 'A private note');
 
         $this->client->loginUser($this->user('admin'));
         // Agent names ignore case
@@ -114,7 +118,8 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextContains('#agent-stats', 'Latest update: 2026-10-19');
         // The first import tells about the history
         self::assertSelectorTextNotContains('#agent-stats', 'First import');
-        self::assertSelectorNotExists('#stats-history');
+        self::assertSelectorNotExists('#timeline-entries');
+        self::assertSelectorTextNotContains('body', 'A private note');
         self::assertSelectorNotExists('#custom-medals');
     }
 
@@ -125,6 +130,7 @@ class AgentControllerTest extends WebTestCase
         $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY, ProfilePart::CUSTOM_MEDALS]);
         $this->createAgentStat($agent, '2026-10-19 15:35:56', 15);
         $this->createAgentStat($agent, '2026-10-20 15:35:56', 16);
+        $this->createEvent($agent, '2026-10-20', 'Anomaly in Quito');
 
         $this->client->loginUser($this->user('admin'));
         $crawler = $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
@@ -135,8 +141,15 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextSame('.lead', 'level 16');
         self::assertSelectorExists('#agent-level.faction-ENL');
         self::assertSelectorExists('h1 img.faction-logo[alt="ENL"]');
-        self::assertCount(2, $crawler->filter('#stats-history tbody tr'));
-        self::assertSelectorTextContains('#stats-history tbody tr', '2026-10-20 15:35:56');
+        // The timeline: the event at the end of its day, then the uploads, newest first
+        self::assertCount(2, $crawler->filter('#timeline-entries .timeline-upload'));
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(1).timeline-event', 'Anomaly in Quito');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', '2026-10-20 15:35');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'New level 16');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'First upload');
+        // Read-only for others
+        self::assertSelectorNotExists('#timeline-entries a[href*="/timeline-events/"]');
+        self::assertSelectorNotExists('#timeline-entries a[href^="/agent-stats/"]');
         self::assertSelectorExists('#custom-medals img[alt="Orion (Platinum)"][src*="anomaly_orion_platinum"]');
         self::assertSelectorExists('#custom-medals img[alt="Echo"][src*="anomaly_echo"]');
         // Annual medals are stored as levels
@@ -173,6 +186,16 @@ class AgentControllerTest extends WebTestCase
             ap: 243517130,
             level: $level,
         )));
+        $this->entityManager()->flush();
+    }
+
+    private function createEvent(User $owner, string $date, string $text): void
+    {
+        $event = new TimelineEvent();
+        $event->owner = $owner;
+        $event->date = new \DateTimeImmutable($date);
+        $event->text = $text;
+        $this->entityManager()->persist($event);
         $this->entityManager()->flush();
     }
 

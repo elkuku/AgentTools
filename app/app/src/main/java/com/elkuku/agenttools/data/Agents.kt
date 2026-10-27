@@ -21,6 +21,8 @@ data class AgentProfile(
     /** Newest first. */
     val history: List<AgentStatEntry>? = null,
     val customMedals: List<CustomMedalTier>? = null,
+    /** The custom timeline events, with the history; newest first. */
+    val events: List<TimelineEvent>? = null,
 )
 
 /** A user with the privacy settings, for admins (`GET /api/users`). */
@@ -78,6 +80,7 @@ internal data class AgentResponse(
     val latestStats: JsonObject? = null,
     val history: List<JsonObject>? = null,
     val customMedals: JsonObject? = null,
+    val events: List<TimelineEvent>? = null,
 ) {
     val summary: AgentSummary get() = AgentSummary(agentName, faction, level, avatar)
 
@@ -87,6 +90,7 @@ internal data class AgentResponse(
             latestStats?.let(AgentStatEntry::fromJson),
             history?.map(AgentStatEntry::fromJson),
             customMedals?.let(::customMedalsFromJson),
+            events,
         )
 }
 

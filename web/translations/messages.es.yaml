@@ -137,19 +137,17 @@ role:
     user: Usuario
 
 stats:
+    ap: '%ap% AP'
     agent: Agente
-    all_imports: Todas las importaciones
     all_values: Todos los valores
     core_months: '{1} C.O.R.E %count% mes|]1,Inf[ C.O.R.E %count% meses'
     core_subscriptions: Suscripciones C.O.R.E
-    date: Fecha
     drone:
         portals: 'Portales:'
         hacks: 'Hacks (Maverick):'
         recalls: 'Retiradas forzadas:'
         flight: 'Vuelo:'
     first_import: 'Primera importación: %date%'
-    history: Historial de estadísticas
     imported: importado
     kinetic:
         completed: 'Cápsulas cinéticas completadas: %count%'
@@ -168,6 +166,29 @@ theme:
     light: Claro
     dark: Oscuro
     auto: Automático
+
+timeline:
+    chart:
+        label: AP a lo largo del tiempo con eventos y viajes
+        ap: AP
+        event: Evento
+        travel: Viaje
+    title: Línea de tiempo
+    first_upload: Primera subida
+    new_level: Nuevo nivel %level%
+    recursion: 'Recursión: %count%'
+    event:
+        add: Añadir evento
+        date: Fecha
+        end_date: Fecha de fin
+        end_date_help: 'Opcional: el último día de un evento de varios días, p. ej. un viaje.'
+        text: Evento
+        text_help: 'Lo que pasó, p. ej. una anomalía o un Mission Day. Se muestra con tu historial de estadísticas.'
+        added: Se añadió el evento.
+        updated: Se guardó el evento.
+        deleted: Se eliminó el evento.
+        edit: Editar evento
+        confirm_delete: ¿Eliminar este evento?
 
 user:
     agent_name: Nombre de agente

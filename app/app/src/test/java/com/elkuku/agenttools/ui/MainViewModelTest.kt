@@ -20,6 +20,9 @@ import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
 import com.elkuku.agenttools.data.StatsApi
+import com.elkuku.agenttools.data.TimelineEvent
+import com.elkuku.agenttools.data.TimelineEventResult
+import com.elkuku.agenttools.data.TimelineEventsResult
 import com.elkuku.agenttools.data.UserPrivacy
 import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.data.UsersResult
@@ -576,6 +579,51 @@ class MainViewModelTest {
         assertEquals(emptyList<CustomMedalTier>(), viewModel.state.value.customMedals)
     }
 
+    @Test
+    fun signInLoadsTheTimelineEvents() {
+        api.serverEvents += TimelineEvent(1, "2026-10-20", "Anomaly")
+
+        val viewModel = signedIn()
+
+        assertEquals(listOf(TimelineEvent(1, "2026-10-20", "Anomaly")), viewModel.state.value.timelineEvents)
+
+        viewModel.signOut(context)
+        assertNull(viewModel.state.value.timelineEvents)
+    }
+
+    @Test
+    fun addsChangesAndDeletesTimelineEvents() {
+        val viewModel = signedIn()
+
+        viewModel.saveTimelineEvent(context, TimelineEvent(date = "2026-10-20", text = "Older"))
+        viewModel.saveTimelineEvent(context, TimelineEvent(date = "2026-10-25", text = "Newer"))
+        assertEquals(Status(uiText(R.string.event_saved), false), viewModel.state.value.status)
+        // Newest first, with the ids the server gave them
+        assertEquals(
+            listOf(TimelineEvent(2, "2026-10-25", "Newer"), TimelineEvent(1, "2026-10-20", "Older")),
+            viewModel.state.value.timelineEvents,
+        )
+
+        viewModel.saveTimelineEvent(context, TimelineEvent(1, "2026-10-30", "Moved"))
+        assertEquals(listOf("Moved", "Newer"), viewModel.state.value.timelineEvents?.map { it.text })
+
+        viewModel.deleteTimelineEvent(context, TimelineEvent(2, "2026-10-25", "Newer"))
+        assertEquals(listOf(TimelineEvent(1, "2026-10-30", "Moved")), viewModel.state.value.timelineEvents)
+        assertEquals(Status(uiText(R.string.event_deleted), false), viewModel.state.value.status)
+    }
+
+    @Test
+    fun aFailedEventSaveKeepsTheEvents() {
+        api.serverEvents += TimelineEvent(1, "2026-10-20", "Anomaly")
+        val viewModel = signedIn()
+        api.eventFailure = TimelineEventResult.Failure(uiText(R.string.error_network, "timeout"))
+
+        viewModel.saveTimelineEvent(context, TimelineEvent(1, "2026-10-20", "Changed"))
+
+        assertEquals(Status(uiText(R.string.error_network, "timeout"), true), viewModel.state.value.status)
+        assertEquals(listOf(TimelineEvent(1, "2026-10-20", "Anomaly")), viewModel.state.value.timelineEvents)
+    }
+
     private fun signedIn(): MainViewModel {
         auth.interactiveSession = session
         api.lists += AgentStatsResult.Success(listOf(entry))
@@ -845,6 +893,26 @@ class MainViewModelTest {
         override suspend fun users(idToken: String): UsersResult {
             usersRequests++
             return users
+        }
+
+        /** The custom timeline events on the "server"; [eventFailure] fails saving and deleting instead. */
+        val serverEvents = mutableListOf<TimelineEvent>()
+        var eventFailure: TimelineEventResult? = null
+
+        override suspend fun timelineEvents(idToken: String): TimelineEventsResult = TimelineEventsResult.Success(serverEvents.toList())
+
+        override suspend fun saveTimelineEvent(idToken: String, event: TimelineEvent): TimelineEventResult {
+            eventFailure?.let { return it }
+            val saved = event.copy(id = event.id ?: ((serverEvents.mapNotNull { it.id }.maxOrNull() ?: 0) + 1))
+            serverEvents.removeAll { it.id == saved.id }
+            serverEvents += saved
+            return TimelineEventResult.Success(saved)
+        }
+
+        override suspend fun deleteTimelineEvent(idToken: String, id: Int): TimelineEventResult {
+            eventFailure?.let { return it }
+            serverEvents.removeAll { it.id == id }
+            return TimelineEventResult.Success(null)
         }
     }
 }

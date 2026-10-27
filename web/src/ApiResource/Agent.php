@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * show the agent part, and only the parts they show (null for the others).
  */
 #[ApiResource(
-    description: 'Agents who show their profile to other users (the agent part, see Me::visibleParts), and the parts they show; private parts are null. The list has the agent name, faction, level and avatar; an agent also has latestStats (a stats row with the column names of /api/agent-stats), history (all stats rows, newest first) and customMedals.',
+    description: 'Agents who show their profile to other users (the agent part, see Me::visibleParts), and the parts they show; private parts are null. The list has the agent name, faction, level and avatar; an agent also has latestStats (a stats row with the column names of /api/agent-stats), history (all stats rows, newest first) with events (the custom timeline events: date, endDate (null for one day) and text, newest first) and customMedals.',
     operations: [
         new GetCollection(
             uriTemplate: '/agents',
@@ -41,8 +41,9 @@ final readonly class Agent
     public const string ITEM = 'agent:item';
 
     /**
-     * @param array<string, int|string|null>|null       $latestStats with the latest stats part
-     * @param list<array<string, int|string|null>>|null $history     with the stats history part, newest first
+     * @param array<string, int|string|null>|null                                $latestStats with the latest stats part
+     * @param list<array<string, int|string|null>>|null                          $history     with the stats history part, newest first
+     * @param list<array{date: string, endDate: string|null, text: string}>|null $events      the custom timeline events, with the stats history part, newest first
      */
     public function __construct(
         #[ApiProperty(identifier: true)]
@@ -60,6 +61,8 @@ final readonly class Agent
         public ?array $latestStats = null,
         #[Groups([self::ITEM])]
         public ?array $history = null,
+        #[Groups([self::ITEM])]
+        public ?array $events = null,
         /** With the custom medals part. */
         #[Groups([self::ITEM])]
         public ?CustomMedals $customMedals = null,

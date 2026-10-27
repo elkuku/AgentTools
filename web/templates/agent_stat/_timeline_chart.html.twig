@@ -1,0 +1,63 @@
+{#
+    The timeline as a chart (App\Timeline\TimelineChart): AP over time, events as flags, events over
+    several days (travels) as bands. Every mark has a tooltip; the list below has the details.
+    chart: TimelineChart
+#}
+{% set C = 'App\\Timeline\\TimelineChart' %}
+<figure class="timeline-chart mb-3{{ chart.dense ? ' dense' }}" id="timeline-chart">
+    <svg viewBox="0 0 {{ constant(C ~ '::WIDTH') }} {{ constant(C ~ '::HEIGHT') }}" role="img"
+         aria-label="{{ 'timeline.chart.label'|trans }}" preserveAspectRatio="xMidYMid meet">
+        {% set left = constant(C ~ '::LEFT') %}
+        {% set right = constant(C ~ '::RIGHT') %}
+        {% set top = constant(C ~ '::TOP') %}
+        {% set bottom = constant(C ~ '::BOTTOM') %}
+
+        {# Travels behind everything, over the whole height #}
+        {% for band in chart.bands %}
+            <g class="chart-band">
+                <title>{{ band.title }}</title>
+                <rect x="{{ band.x }}" y="{{ top }}" width="{{ band.width }}" height="{{ bottom - top }}" class="chart-band-fill"/>
+                <rect x="{{ band.x }}" y="{{ top - 6 }}" width="{{ band.width }}" height="4" rx="2" class="chart-band-edge"/>
+                {% if band.width > 60 %}
+                    <text x="{{ band.x + 4 }}" y="{{ top + 14 }}" class="chart-label">{{ band.label }}</text>
+                {% endif %}
+            </g>
+        {% endfor %}
+
+        {% for tick in chart.yTicks %}
+            <line x1="{{ left }}" x2="{{ right }}" y1="{{ tick.y }}" y2="{{ tick.y }}" class="chart-grid"/>
+            <text x="{{ left - 8 }}" y="{{ tick.y + 4 }}" text-anchor="end" class="chart-axis">{{ tick.label }}</text>
+        {% endfor %}
+        {% for tick in chart.xTicks %}
+            <line x1="{{ tick.x }}" x2="{{ tick.x }}" y1="{{ bottom }}" y2="{{ bottom + 4 }}" class="chart-baseline"/>
+            <text x="{{ tick.x }}" y="{{ bottom + 18 }}" text-anchor="middle" class="chart-axis">{{ tick.label }}</text>
+        {% endfor %}
+        <line x1="{{ left }}" x2="{{ right }}" y1="{{ bottom }}" y2="{{ bottom }}" class="chart-baseline"/>
+
+        {% for flag in chart.flags %}
+            <g class="chart-flag">
+                <title>{{ flag.title }}</title>
+                <line x1="{{ flag.x }}" x2="{{ flag.x }}" y1="{{ top - 10 }}" y2="{{ bottom }}" class="chart-flag-rule"/>
+                <path d="M{{ flag.x }},{{ top - 18 }} l10,4 l-10,4 z" class="chart-flag-mark"/>
+                {# A bigger target than the mark #}
+                <rect x="{{ flag.x - 8 }}" y="{{ top - 20 }}" width="16" height="{{ bottom - top + 20 }}" class="chart-hit"/>
+            </g>
+        {% endfor %}
+
+        {% if chart.points|length > 1 %}
+            <path d="{{ chart.path }}" class="chart-line"/>
+        {% endif %}
+        {% for point in chart.points %}
+            <g class="chart-point">
+                <title>{{ point.title }}</title>
+                <circle cx="{{ point.x }}" cy="{{ point.y }}" r="5" class="chart-dot"/>
+                <circle cx="{{ point.x }}" cy="{{ point.y }}" r="12" class="chart-hit"/>
+            </g>
+        {% endfor %}
+    </svg>
+    <figcaption class="d-flex flex-wrap gap-3 small text-body-secondary">
+        <span><span class="chart-key chart-key-ap"></span> {{ 'timeline.chart.ap'|trans }}</span>
+        <span><i class="bi-flag-fill timeline-event-icon"></i> {{ 'timeline.chart.event'|trans }}</span>
+        <span><span class="chart-key chart-key-travel"></span> {{ 'timeline.chart.travel'|trans }}</span>
+    </figcaption>
+</figure>

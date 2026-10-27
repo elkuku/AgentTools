@@ -10,6 +10,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -19,6 +23,7 @@ import com.elkuku.agenttools.R
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.CustomMedalTier
+import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import com.elkuku.agenttools.uiText
@@ -37,8 +42,12 @@ fun StatsScreen(
     onDismissImportResult: () -> Unit,
     onSaveMedalScan: (List<CustomMedalTier>) -> Unit,
     onDismissMedalScan: () -> Unit,
+    onSaveTimelineEvent: (TimelineEvent) -> Unit,
+    onDeleteTimelineEvent: (TimelineEvent) -> Unit,
     onBack: () -> Unit,
 ) {
+    var editing by remember { mutableStateOf<TimelineEvent?>(null) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -67,7 +76,34 @@ fun StatsScreen(
                 HorizontalDivider()
                 CustomMedals(customMedals)
             }
+
+            state.entries?.let { entries ->
+                HorizontalDivider()
+                Timeline(
+                    entries,
+                    state.timelineEvents.orEmpty(),
+                    onEditEvent = { event -> editing = event },
+                    onAddEvent = { editing = TimelineEvent(date = "", text = "") },
+                )
+            }
         }
+    }
+
+    // A new event has no id (and the dialog's date is today)
+    editing?.let { event ->
+        val close = { editing = null }
+        TimelineEventDialog(
+            event = event.takeIf { it.id != null },
+            onSave = {
+                onSaveTimelineEvent(it)
+                close()
+            },
+            onDelete = {
+                onDeleteTimelineEvent(it)
+                close()
+            },
+            onDismiss = close,
+        )
     }
 }
 
@@ -95,6 +131,8 @@ private fun StatsScreenPreview() {
             onDismissImportResult = {},
             onSaveMedalScan = {},
             onDismissMedalScan = {},
+            onSaveTimelineEvent = {},
+            onDeleteTimelineEvent = {},
             onBack = {},
         )
     }

@@ -1,6 +1,7 @@
 package com.elkuku.agenttools.ui
 
 import android.graphics.BitmapFactory
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +63,7 @@ fun CustomMedals(
     val byGroup = medals.groupBy { it.medal.group }
     CUSTOM_MEDAL_GROUPS.forEach { group ->
         val inGroup = byGroup[group] ?: return@forEach
-        Text(group.replaceFirstChar(Char::uppercase), style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(customMedalGroupLabel(group)), style = MaterialTheme.typography.labelLarge)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             inGroup.forEach { medal ->
                 Box(modifier = Modifier.clickable { selected = medal }) { CustomMedalBadge(medal) }
@@ -179,4 +180,12 @@ fun CustomMedalBadge(medal: CustomMedalTier, modifier: Modifier = Modifier, size
     } else {
         Text(medal.label, modifier = modifier.width(size), style = MaterialTheme.typography.labelSmall)
     }
+}
+
+/** The heading of a custom medal group (anomaly, annual, event), as web's `medals.group.*`. */
+@StringRes
+private fun customMedalGroupLabel(group: String): Int = when (group) {
+    "anomaly" -> R.string.medal_group_anomaly
+    "annual" -> R.string.medal_group_annual
+    else -> R.string.medal_group_event
 }

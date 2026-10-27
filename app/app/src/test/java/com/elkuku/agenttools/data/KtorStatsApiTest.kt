@@ -99,6 +99,92 @@ class KtorStatsApiTest {
     }
 
     @Test
+    fun anAgentHasTheTimelineEventsWithTheHistory() = runTest {
+        val engine = MockEngine {
+            respond(
+                """{"agentName": "TestAgent", "history": [{"datetime": "2026-10-20 15:35:56", "nickname": "TestAgent", "faction": "Enlightened", "ap": 5}],
+                    "events": [{"date": "2026-10-25", "endDate": null, "text": "Mission day"}, {"date": "2026-09-20", "endDate": "2026-10-02", "text": "Travel"}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        val profile = (KtorStatsApi("http://server", engine).agent("t", "TestAgent") as AgentProfileResult.Success).profile
+
+        assertEquals(1, profile.history?.size)
+        assertEquals(
+            listOf(TimelineEvent(null, "2026-10-25", "Mission day"), TimelineEvent(null, "2026-09-20", "Travel", endDate = "2026-10-02")),
+            profile.events,
+        )
+    }
+
+    @Test
+    fun timelineEventsAreListed() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Get, req.method)
+            assertEquals("http://server/api/timeline-events", req.url.toString())
+            respond(
+                """{"member": [{"@id": "/api/timeline-events/2", "id": 2, "date": "2026-10-25", "text": "Mission day"}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            TimelineEventsResult.Success(listOf(TimelineEvent(2, "2026-10-25", "Mission day"))),
+            KtorStatsApi("http://server", engine).timelineEvents("t"),
+        )
+    }
+
+    @Test
+    fun aNewTimelineEventIsPostedAndAChangedOnePatched() = runTest {
+        val requests = mutableListOf<Triple<HttpMethod, String, String>>()
+        val engine = MockEngine { req ->
+            requests += Triple(req.method, req.url.toString(), String(req.body.toByteArray()))
+            val status = if (req.method == HttpMethod.Post) HttpStatusCode.Created else HttpStatusCode.OK
+            respond("""{"id": 3, "date": "2026-10-25", "text": "Mission day"}""", status, jsonHeaders)
+        }
+        val api = KtorStatsApi("http://server", engine)
+
+        val event = TimelineEvent(null, "2026-10-25", "Mission day")
+        assertEquals(TimelineEventResult.Success(event.copy(id = 3)), api.saveTimelineEvent("t", event))
+        assertEquals(TimelineEventResult.Success(event.copy(id = 3)), api.saveTimelineEvent("t", event.copy(id = 3)))
+
+        assertEquals(HttpMethod.Post, requests[0].first)
+        assertEquals("http://server/api/timeline-events", requests[0].second)
+        assertEquals(mapOf("date" to "2026-10-25", "endDate" to null, "text" to "Mission day"), Json.decodeFromString<Map<String, String?>>(requests[0].third))
+        assertEquals(HttpMethod.Patch, requests[1].first)
+        assertEquals("http://server/api/timeline-events/3", requests[1].second)
+    }
+
+    @Test
+    fun timelineEventErrorsAreMapped() = runTest {
+        val invalid = MockEngine {
+            respond(
+                """{"violations": [{"propertyPath": "text", "message": "This value should not be blank."}]}""",
+                HttpStatusCode.UnprocessableEntity,
+                problemHeaders,
+            )
+        }
+        val deleted = MockEngine { req ->
+            assertEquals(HttpMethod.Delete, req.method)
+            assertEquals("http://server/api/timeline-events/3", req.url.toString())
+            respond("", HttpStatusCode.NoContent)
+        }
+        val forbidden = MockEngine { respond(problem(403, "Access Denied."), HttpStatusCode.Forbidden, problemHeaders) }
+
+        assertEquals(
+            TimelineEventResult.Failure(UiText.Plain("text: This value should not be blank.")),
+            KtorStatsApi("http://server", invalid).saveTimelineEvent("t", TimelineEvent(null, "2026-10-25", " ")),
+        )
+        assertEquals(TimelineEventResult.Success(null), KtorStatsApi("http://server", deleted).deleteTimelineEvent("t", 3))
+        assertEquals(
+            TimelineEventResult.Failure(UiText.Plain("Access Denied.")),
+            KtorStatsApi("http://server", forbidden).deleteTimelineEvent("t", 3),
+        )
+    }
+
+    @Test
     fun usersHaveThePrivacySettings() = runTest {
         val engine = MockEngine { req ->
             assertEquals("http://server/api/users", req.url.toString())

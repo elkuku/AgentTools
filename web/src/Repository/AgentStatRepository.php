@@ -20,7 +20,7 @@ class AgentStatRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return AgentStat[]
+     * @return list<AgentStat> newest first
      */
     public function findByOwner(User $owner): array
     {

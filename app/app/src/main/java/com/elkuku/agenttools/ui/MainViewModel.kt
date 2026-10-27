@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.UiText
+import com.elkuku.agenttools.data.TimelineEvent
+import com.elkuku.agenttools.data.TimelineEventResult
+import com.elkuku.agenttools.data.TimelineEventsResult
 import com.elkuku.agenttools.uiText
 import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
@@ -76,6 +79,8 @@ data class UiState(
     val progress: UiText? = null,
     /** The user's stats, newest first; null until loaded. */
     val entries: List<AgentStatEntry>? = null,
+    /** The user's custom timeline events, newest first; null until loaded. */
+    val timelineEvents: List<TimelineEvent>? = null,
     /** Stats shared from Ingress before the user signed in; saved after sign-in. */
     val pending: JsonObject? = null,
     /** What changed with the last saved stats, as on 4e-website after an import. */
@@ -131,6 +136,7 @@ class MainViewModel(
                 avatar = null,
                 visibilityStatus = null,
                 entries = null,
+                timelineEvents = null,
                 importResult = null,
                 customMedals = null,
                 visibilityChosen = true,
@@ -253,7 +259,7 @@ class MainViewModel(
     /** The data shown came from the old server: forget it and load it from the new one. */
     fun serverChanged(context: Context) {
         if (_state.value.session == null) return
-        _state.update { it.copy(role = null, agentName = null, entries = null, importResult = null, customMedals = null, visibleParts = emptySet(), avatar = null, visibilityChosen = true) }
+        _state.update { it.copy(role = null, agentName = null, entries = null, timelineEvents = null, importResult = null, customMedals = null, visibleParts = emptySet(), avatar = null, visibilityChosen = true) }
         refresh(context)
     }
 
@@ -409,10 +415,53 @@ class MainViewModel(
         when (val result = withToken(context, { it is AgentStatsResult.Unauthorized }) { api.list(it) }) {
             is AgentStatsResult.Success -> _state.update { it.copy(entries = result.entries) }
             is AgentStatsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
-            is AgentStatsResult.Unauthorized -> signedOutBy(result.message)
+            is AgentStatsResult.Unauthorized -> {
+                signedOutBy(result.message)
+                return
+            }
+            null -> return
+        }
+
+        // With the stats: they make the timeline together
+        when (val result = withToken(context, { it is TimelineEventsResult.Unauthorized }) { api.timelineEvents(it) }) {
+            is TimelineEventsResult.Success -> _state.update { it.copy(timelineEvents = result.events) }
+            is TimelineEventsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is TimelineEventsResult.Unauthorized -> signedOutBy(result.message)
             null -> Unit
         }
     }
+
+    /** Adds a custom event to the user's timeline ([TimelineEvent.id] null), or changes it. */
+    fun saveTimelineEvent(context: Context, event: TimelineEvent) = launchBusy {
+        when (val result = withToken(context, { it is TimelineEventResult.Unauthorized }) { api.saveTimelineEvent(it, event) }) {
+            is TimelineEventResult.Success -> _state.update { state ->
+                val saved = result.event ?: event
+                val others = state.timelineEvents.orEmpty().filter { it.id != saved.id }
+                state.copy(timelineEvents = newestFirst(others + saved), status = Status(uiText(R.string.event_saved), false))
+            }
+            is TimelineEventResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+            is TimelineEventResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
+
+    fun deleteTimelineEvent(context: Context, event: TimelineEvent) {
+        val id = event.id ?: return
+        launchBusy {
+            when (val result = withToken(context, { it is TimelineEventResult.Unauthorized }) { api.deleteTimelineEvent(it, id) }) {
+                is TimelineEventResult.Success -> _state.update { state ->
+                    state.copy(timelineEvents = state.timelineEvents?.filter { it.id != id }, status = Status(uiText(R.string.event_deleted), false))
+                }
+                is TimelineEventResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
+                is TimelineEventResult.Unauthorized -> signedOutBy(result.message)
+                null -> Unit
+            }
+        }
+    }
+
+    /** As the server lists them: by date, then the newest added first. */
+    private fun newestFirst(events: List<TimelineEvent>) =
+        events.sortedWith(compareByDescending<TimelineEvent> { it.date }.thenByDescending { it.id ?: Int.MAX_VALUE })
 
     /**
      * Calls [call] with the session's ID token. ID tokens expire after about an hour: when the
@@ -453,6 +502,7 @@ class MainViewModel(
             visibilityStatus = null,
             settingsOpen = false,
             entries = null,
+            timelineEvents = null,
             customMedals = null,
             visibilityChosen = true,
             statsOpen = false,

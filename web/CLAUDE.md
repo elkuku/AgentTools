@@ -34,7 +34,7 @@ vendor/bin/php-cs-fixer fix             # Auto-fix code style
 composer check       # Check outdated assets, PHP deps, and recipes
 composer db-diagram  # Regenerate assets/docs/database.svg
 symfony console user-admin  # Interactive user management CLI
-symfony console app:demo-agents  # Dev: add (or replace) 8 demo agents with stats, medals, pictures and every visibility; --remove removes them
+symfony console app:demo-agents  # Dev: add (or replace) 8 demo agents with stats (DemoFrog five years, DemoKey two), timeline events, medals, pictures and every visibility; --remove removes them
 ```
 
 ## Architecture
@@ -46,6 +46,7 @@ symfony console app:demo-agents  # Dev: add (or replace) 8 demo agents with stat
 - **`User::$avatar`** — the Google profile picture (the ID token's `picture` claim) as a 100 px JPEG `data:` URI, as 4e-website's; `Service/AvatarUpdater` fetches it on a web sign-in and on API requests, only when the URL (`$avatarSource`) changed and only from `*.googleusercontent.com`; a failure keeps the old one. Others see it with the avatar part (`User::getVisibleAvatar()`). In `test` the HTTP client is mocked (`tests/Fake/GooglePictureResponses`, `FakeGoogleIdTokenVerifier::token(picture: …)`).
 - **`User::$visibleParts`** — the `ProfilePart`s (enum: agent, avatar, latest stats, stats history, custom medals) other signed-in users see; JSON, private (`[]`) until the user saves the form on `/profile` (`User::$visibilityChosenAt`). `User::isVisible()`: the other parts only count with the agent part and an agent name. `EventListener/ChooseVisibilityListener` sends a web sign-in (`main` firewall) to `/profile` while `visibilityChosenAt` is null; the app asks when `GET /api/me` says `visibilityChosen: false` and saves them with `PATCH /api/me` `visibleParts`.
 - **`User::$customMedals`** — the custom medals (anomaly, annual, event) recognized by the app, as 4e-website's `Agent::$custom_medals` (JSON, `{}` by default).
+- **`TimelineEvent`** — a custom event on the user's timeline: `date` (`Y-m-d`), an optional `endDate` (an event over several days, e.g. a travel; not before `date`) and `text` (≤ 500), owned by a `User` (set by the form's controller or `State/TimelineEventProcessor`). API resource `/api/timeline-events` (own only via `Doctrine/AgentStatOwnerExtension`, newest first; `POST`, `PATCH`, `DELETE` for the owner, `Security/Voter/TimelineEventVoter`). Others see the events with the stats history part.
 - **`AgentStat`** — Ingress all-time stats with the columns of 4e-website's `agent_stat` (same names), owned by a `User` instead of an Agent. Unique per owner + `datetime`; `AgentStatService` throws `StatsAlreadyAddedException` (API: `409`). Also the API Platform resource (see API below); `#[SerializedName]` gives the stats their column names, `owner` and `getStats()` are `#[Ignore]`d. Input: `AgentStatInput`, keyed by column name (`#[SerializedName]` for the snake_case ones).
 
 ### Controllers
@@ -55,6 +56,7 @@ Single-action controller pattern under `src/Controller/`:
 - `System/` — `AboutController`, `LogviewController`
 - `AgentStat/` — the user's agent stats: Index, Read (owner only, `AgentStatVoter`). Stats come in only through the API (the app)
 - `Agent/` — other agents' profiles (`ROLE_USER`): Index `/agents` (`UserRepository::findVisibleAgents()`, filtered in PHP because the parts are JSON, for everyone; rows from `agent/_agent.html.twig`), Read `/agents/{agentName}` (ignoring case; `404` without the agent part) shows only the visible parts
+- `TimelineEvent/` — Update (`/timeline-events/{id}/edit`) and Delete of the own events (`TimelineEventVoter`); new events are added with the form on `/agent-stats` (`AgentStat/Index`, `Form/TimelineEventType`)
 - `ProfileController` (the visibility form `Form/ProfileVisibilityType`), `DefaultController`
 
 Keep controllers at most one directory below `src/Controller/`: `ControllerAccessTest` (from `elkuku/symfony-utils`) cannot resolve deeper namespaces.
@@ -81,6 +83,9 @@ The stateless `api` firewall (`^/api/`) uses `GoogleApiTokenAuthenticator`: `Aut
 Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons.
 
 Stats and medals look like the app: `agent_stat/_stats_card.html.twig` (latest stats, medal badges with a Bootstrap modal per medal, C.O.R.E, Dronenet, Kinetics) and `_custom_medals.html.twig`, on `/agent-stats`, `/agent-stats/{id}` and `/agents/{agentName}`. `Medal/MedalChecker` holds the medal levels and the custom medals (a port of the app's `data/Medals.kt` and `data/CustomMedals.kt`: keep them in sync). The images are the app's: `asset_mapper.yaml` maps `../app/app/src/main/res/drawable-nodpi` as `badges/` and `../app/app/src/main/assets/custom_medals` as `custom_medals/` (the deploy has the whole repo); `MedalCheckerTest` checks that every image exists.
+
+### Timeline
+`Timeline/TimelineBuilder` merges the stats uploads (each with what changed since the one before: AP, level, medal upgrades, recursion, as the app's `data/ImportResult.kt`) and the custom events, newest first; an event comes before the uploads of its day. `agent_stat/_timeline.html.twig` shows it on `/agent-stats` (editable) and `/agents/{agentName}` (with the stats history part, read-only). Above it `Timeline/TimelineChart` (server-side geometry) and `agent_stat/_timeline_chart.html.twig` draw an inline SVG: AP as a line with a dot per upload, single-day events as flags, events with an end date as bands, `<title>` tooltips; the colors are CSS variables `--timeline-ap|event|travel` per theme (validated for contrast and color blindness), the app uses the same (`ui/TimelineChart.kt`). `GET /api/agents/{agentName}` has the events next to `history`. The app builds the same timeline (`data/Timeline.kt`).
 
 ### Translations
 English, German and Spanish (`enabled_locales`). Texts are translation keys in `translations/messages.{en,de,es}.yaml` (keep all three in sync; `debug:translation de --only-missing`), the app's own constraint messages are in `validators.{de,es}.yaml`. `EventListener/LocaleListener` picks the language: the `locale` cookie set by the navbar's language selector (`Controller/Locale/Switcher`, `/locale/{locale}`), else the browser's `Accept-Language`. Enum `label()`/`help()` return keys. Medal, stat and faction names stay English; the API answers in English.

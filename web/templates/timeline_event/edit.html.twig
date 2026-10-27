@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'timeline.event.edit'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'timeline.event.edit'|trans }}</h1>
+
+    <div class="float-end">
+        <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}#timeline">{{ 'action.back_to_list'|trans }}</a>
+    </div>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary">{{ 'action.save'|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}

@@ -8,6 +8,9 @@
     <string name="show">Anzeigen</string>
     <string name="change">Ändern</string>
     <string name="choose">Auswählen</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="delete">Löschen</string>
     <string name="later">Später</string>
     <string name="loading">Wird geladen…</string>
     <string name="menu">Menü</string>
@@ -92,7 +95,6 @@
     <string name="kinetic_capsules_completed">Abgeschlossene Kinetic Capsules: %1$d</string>
     <string name="kinetic_capsules_none">Noch keine Kinetic Capsule abgeschlossen</string>
     <string name="first_import">Erster Import: %1$s</string>
-    <string name="stats_history">Statistikverlauf</string>
     <string name="no_stats">Noch keine Statistiken.</string>
 
     <!-- Import result -->
@@ -106,7 +108,33 @@
     <string name="recursion">Rekursion</string>
     <string name="no_stat_went_up">Keine Statistik ist gestiegen.</string>
 
+    <!-- Timeline -->
+    <string name="timeline">Zeitleiste</string>
+    <string name="event_add">Ereignis hinzufügen</string>
+    <string name="event_edit">Ereignis bearbeiten</string>
+    <string name="event_date">Datum</string>
+    <string name="event_text">Ereignis</string>
+    <string name="event_text_hint">Was passiert ist, z. B. eine Anomalie oder ein Mission Day. Andere sehen es mit deinem Statistikverlauf.</string>
+    <string name="timeline_ap">%1$s AP</string>
+    <string name="first_upload">Erster Upload</string>
+    <string name="timeline_recursion">Rekursion: %1$d</string>
+    <string name="event_saved">Ereignis gespeichert.</string>
+    <string name="event_deleted">Ereignis gelöscht.</string>
+
+    <string name="timeline_chart">AP im Zeitverlauf mit Ereignissen und Reisen</string>
+    <string name="chart_ap">AP</string>
+    <string name="chart_event">Ereignis</string>
+    <string name="chart_travel">Reise</string>
+    <string name="event_end_date">Enddatum</string>
+    <string name="event_end_date_none">Keines</string>
+    <string name="event_end_date_clear">Kein Enddatum</string>
+    <string name="event_end_date_hint">Optional: der letzte Tag eines Ereignisses über mehrere Tage, z. B. einer Reise.</string>
+    <string name="event_end_date_invalid">Das Enddatum darf nicht vor dem Datum liegen.</string>
+
     <!-- Custom medals -->
+    <string name="medal_group_anomaly">Anomalie</string>
+    <string name="medal_group_annual">Jährlich</string>
+    <string name="medal_group_event">Event</string>
     <string name="custom_medals_empty_hint">Mach in Ingress Screenshots der Medaillen in deinem Agentenprofil und teile sie mit dieser App.</string>
     <string name="custom_medals_none">Noch keine Sondermedaillen.</string>
     <plurals name="new_custom_medals_found">
@@ -188,4 +216,5 @@
     <string name="error_rejected_custom_medals">Der Server hat die Sondermedaillen abgelehnt.</string>
     <string name="error_stats_already_saved">Diese Statistiken sind schon gespeichert.</string>
     <string name="error_agent_private">%1$s zeigt das Profil nicht mehr.</string>
+    <string name="error_rejected_timeline_event">Der Server hat das Ereignis abgelehnt.</string>
 </resources>

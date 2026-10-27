@@ -86,6 +86,8 @@ class MainActivity : ComponentActivity() {
                         onDismissImportResult = viewModel::dismissImportResult,
                         onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
                         onDismissMedalScan = viewModel::dismissMedalScan,
+                        onSaveTimelineEvent = { viewModel.saveTimelineEvent(activity, it) },
+                        onDeleteTimelineEvent = { viewModel.deleteTimelineEvent(activity, it) },
                         onBack = viewModel::closeStats,
                     )
                 } else if (state.agentsOpen) {

@@ -109,3 +109,167 @@ main > .container {
 .privacy-icons i {
     margin-right: .15rem;
 }
+
+/* The timeline's colors (validated for both themes): AP, events and events over several days (travels) */
+:root,
+[data-bs-theme=light] {
+    --timeline-ap: #0d6efd;
+    --timeline-event: #b07400;
+    --timeline-travel: #0086b3;
+}
+
+[data-bs-theme=dark] {
+    --timeline-ap: #4d8ef7;
+    --timeline-event: #bd8500;
+    --timeline-travel: #1aa3c2;
+}
+
+/* The timeline of stats uploads and custom events (agent_stat/_timeline.html.twig) */
+.timeline {
+    border-left: 2px solid var(--bs-border-color);
+    margin-left: .5rem;
+    padding-left: 1.25rem;
+}
+
+.timeline-entry {
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.timeline-entry::before {
+    content: "";
+    position: absolute;
+    left: calc(-1.25rem - 7px);
+    top: .3rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bs-secondary-bg);
+    border: 2px solid var(--bs-secondary-color);
+}
+
+.timeline-event::before {
+    background: var(--timeline-event);
+    border-color: var(--timeline-event);
+}
+
+.timeline-upload::before {
+    border-color: var(--timeline-ap);
+}
+
+.timeline-event-icon {
+    color: var(--timeline-event);
+}
+
+.timeline-travel-icon {
+    color: var(--timeline-travel);
+}
+
+.timeline-text {
+    white-space: pre-line;
+}
+
+.timeline-badge {
+    width: 32px;
+    height: 32px;
+}
+
+/* The timeline chart (agent_stat/_timeline_chart.html.twig) */
+.timeline-chart svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.timeline-chart .chart-grid {
+    stroke: var(--bs-border-color-translucent);
+    stroke-width: 1;
+}
+
+.timeline-chart .chart-baseline {
+    stroke: var(--bs-secondary-color);
+    stroke-width: 1;
+}
+
+.timeline-chart .chart-axis,
+.timeline-chart .chart-label {
+    fill: var(--bs-secondary-color);
+    font-size: 12px;
+}
+
+.timeline-chart .chart-label {
+    fill: var(--bs-body-color);
+}
+
+.timeline-chart .chart-line {
+    fill: none;
+    stroke: var(--timeline-ap);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+/* A ring of the surface around each dot, so dots on the line stay apart */
+.timeline-chart .chart-dot {
+    fill: var(--timeline-ap);
+    stroke: var(--bs-body-bg);
+    stroke-width: 2;
+}
+
+.timeline-chart .chart-flag-rule {
+    stroke: var(--timeline-event);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+}
+
+.timeline-chart .chart-flag-mark {
+    fill: var(--timeline-event);
+}
+
+.timeline-chart .chart-band-fill {
+    fill: var(--timeline-travel);
+    opacity: .15;
+}
+
+.timeline-chart .chart-band-edge {
+    fill: var(--timeline-travel);
+}
+
+.timeline-chart .chart-hit {
+    fill: transparent;
+}
+
+.timeline-chart g:hover .chart-dot {
+    r: 7;
+}
+
+/* Many uploads: the line alone, the dot on hover */
+.timeline-chart.dense .chart-dot {
+    r: 0;
+}
+
+.timeline-chart.dense g:hover .chart-dot {
+    r: 6;
+}
+
+.timeline-chart g:hover .chart-band-fill {
+    opacity: .25;
+}
+
+.chart-key {
+    display: inline-block;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    vertical-align: baseline;
+}
+
+.chart-key-ap {
+    height: 2px;
+    vertical-align: middle;
+    background: var(--timeline-ap);
+}
+
+.chart-key-travel {
+    background: var(--timeline-travel);
+    opacity: .5;
+}

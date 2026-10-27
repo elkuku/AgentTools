@@ -15,33 +15,20 @@
         {{ include('agent_stat/_custom_medals.html.twig') }}
     </div>
 
-    <h2 class="h5 mt-4">{{ 'stats.all_imports'|trans }}</h2>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>{{ 'stats.date'|trans }}</th>
-            <th>{{ 'stats.agent'|trans }}</th>
-            <th>{{ 'stats.level'|trans }}</th>
-            <th class="text-end">AP</th>
-            <th>{{ 'action.actions'|trans }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for agent_stat in agent_stats %}
-            <tr>
-                <td>{{ agent_stat.datetime|date('Y-m-d H:i:s') }}</td>
-                <td>{{ agent_stat.nickname }} <span class="text-secondary">({{ agent_stat.faction }})</span></td>
-                <td>{{ agent_stat.level }}</td>
-                <td class="text-end">{{ agent_stat.ap|number_format }}</td>
-                <td>
-                    <a href="{{ path('app_agent_stat_show', {'id': agent_stat.id}) }}">{{ 'action.show'|trans }}</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">{{ 'action.no_records'|trans }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h2 class="h5 mt-4" id="timeline">{{ 'timeline.title'|trans }}</h2>
+    {% if chart %}{{ include('agent_stat/_timeline_chart.html.twig') }}{% endif %}
+    <details class="card mb-3" id="timeline-add"{% if eventForm.vars.submitted %} open{% endif %}>
+        <summary class="card-header"><i class="bi-flag"></i> {{ 'timeline.event.add'|trans }}</summary>
+        <div class="card-body">
+            {{ form_start(eventForm, {action: path('app_agent_stat_index') ~ '#timeline'}) }}
+                <div class="row">
+                    <div class="col-sm-6">{{ form_row(eventForm.date) }}</div>
+                    <div class="col-sm-6">{{ form_row(eventForm.endDate) }}</div>
+                </div>
+                {{ form_row(eventForm.text) }}
+                <button class="btn btn-primary">{{ 'timeline.event.add'|trans }}</button>
+            {{ form_end(eventForm) }}
+        </div>
+    </details>
+    {{ include('agent_stat/_timeline.html.twig', {editable: true}) }}
 {% endblock %}

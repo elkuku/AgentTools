@@ -287,29 +287,10 @@ private fun AgentProfileView(profile: AgentProfile) {
 
     profile.history?.let { history ->
         HorizontalDivider()
-        StatsHistory(history)
+        Timeline(history, profile.events.orEmpty())
     }
 
     if (latest == null && profile.customMedals == null && profile.history == null) {
         Text(stringResource(R.string.agent_shows_nothing_more, profile.summary.agentName), style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-/** Date, level and AP of each import, newest first, as web's history table. */
-@Composable
-private fun StatsHistory(history: List<AgentStatEntry>) {
-    Text(stringResource(R.string.stats_history), style = MaterialTheme.typography.titleMedium)
-    if (history.isEmpty()) {
-        Text(stringResource(R.string.no_stats))
-        return
-    }
-
-    history.forEach { entry ->
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(entry.datetime.take(16), modifier = Modifier.weight(1f))
-            Text("L${entry["level"] ?: "–"}", modifier = Modifier.width(48.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(entry["ap"].formatted(), textAlign = TextAlign.End, modifier = Modifier.width(120.dp))
-        }
     }
 }

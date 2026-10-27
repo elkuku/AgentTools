@@ -11,6 +11,9 @@
     <string name="show">Show</string>
     <string name="change">Change</string>
     <string name="choose">Choose</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
     <string name="later">Later</string>
     <string name="loading">Loading…</string>
     <string name="menu">Menu</string>
@@ -95,7 +98,6 @@
     <string name="kinetic_capsules_completed">Kinetic capsules completed: %1$d</string>
     <string name="kinetic_capsules_none">No kinetic capsules completed yet</string>
     <string name="first_import">First import: %1$s</string>
-    <string name="stats_history">Stats history</string>
     <string name="no_stats">No stats yet.</string>
 
     <!-- Import result -->
@@ -109,7 +111,33 @@
     <string name="recursion">Recursion</string>
     <string name="no_stat_went_up">No stat went up.</string>
 
+    <!-- Timeline -->
+    <string name="timeline">Timeline</string>
+    <string name="event_add">Add event</string>
+    <string name="event_edit">Edit event</string>
+    <string name="event_date">Date</string>
+    <string name="event_text">Event</string>
+    <string name="event_text_hint">What happened, e.g. an anomaly or a mission day. Others see it with your stats history.</string>
+    <string name="timeline_ap">%1$s AP</string>
+    <string name="first_upload">First upload</string>
+    <string name="timeline_recursion">Recursion: %1$d</string>
+    <string name="event_saved">Event saved.</string>
+    <string name="event_deleted">Event deleted.</string>
+
+    <string name="timeline_chart">AP over time with the events and travels</string>
+    <string name="chart_ap">AP</string>
+    <string name="chart_event">Event</string>
+    <string name="chart_travel">Travel</string>
+    <string name="event_end_date">End date</string>
+    <string name="event_end_date_none">None</string>
+    <string name="event_end_date_clear">No end date</string>
+    <string name="event_end_date_hint">Optional: the last day of an event over several days, e.g. a travel.</string>
+    <string name="event_end_date_invalid">The end date must not be before the date.</string>
+
     <!-- Custom medals -->
+    <string name="medal_group_anomaly">Anomaly</string>
+    <string name="medal_group_annual">Annual</string>
+    <string name="medal_group_event">Event</string>
     <string name="custom_medals_empty_hint">In Ingress, take screenshots of the medals in your agent profile and share them with this app.</string>
     <string name="custom_medals_none">No custom medals yet.</string>
     <plurals name="new_custom_medals_found">
@@ -191,4 +219,5 @@
     <string name="error_rejected_custom_medals">The server rejected the custom medals.</string>
     <string name="error_stats_already_saved">These stats are already saved.</string>
     <string name="error_agent_private">%1$s no longer shows the profile.</string>
+    <string name="error_rejected_timeline_event">The server rejected the event.</string>
 </resources>
