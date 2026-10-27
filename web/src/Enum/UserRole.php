@@ -18,11 +18,12 @@ enum UserRole: string
         };
     }
 
+    /** A translation key (messages). */
     public function label(): string
     {
         return match ($this) {
-            self::ADMIN => 'Administrator',
-            self::USER => 'User',
+            self::ADMIN => 'role.admin',
+            self::USER => 'role.user',
         };
     }
 }

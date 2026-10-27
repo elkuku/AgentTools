@@ -28,7 +28,7 @@ class ProfileController extends BaseController
             $user->chooseVisibleParts($parts, new \DateTimeImmutable());
             $entityManager->flush();
 
-            $this->addFlash('success', 'Your profile visibility has been saved.');
+            $this->addFlash('success', 'profile.visibility.saved');
 
             return $this->redirectToRoute('app_profile', [], Response::HTTP_SEE_OTHER);
         }

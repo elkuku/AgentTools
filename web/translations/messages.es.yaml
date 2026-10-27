@@ -1,0 +1,186 @@
+action:
+    actions: Acciones
+    back_to_list: volver a la lista
+    close: Cerrar
+    confirm_delete: ¿Seguro que quieres eliminar este elemento?
+    copy: Copiar
+    create_new: Crear nuevo
+    delete: Eliminar
+    edit: editar
+    no_records: no se encontraron registros
+    save: Guardar
+    show: ver
+    update: Actualizar
+
+agents:
+    title: Agentes
+    intro: Agentes que muestran su perfil a otros usuarios. Elige lo que muestras en tu <a href="%url%">perfil</a>.
+    none: Ningún agente muestra su perfil todavía.
+    own_page: Así ven tu perfil otros usuarios. Cámbialo en tu <a href="%url%">perfil</a>.
+
+footer:
+    made_with: Hecho con
+    tagline: estadísticas y medallas de agentes de Ingress
+    android_app: App para Android
+    api_docs: Documentación de la API
+
+home:
+    welcome: ¡Hola, %name%!
+    see_your_stats: Mira <a href="%url%">tus estadísticas de agente</a>.
+    icon_alt: Icono de AgentTools
+    lead: >-
+        Guarda tus estadísticas y medallas de agente de Ingress y míralas en un solo lugar.
+        Comparte tus estadísticas desde Ingress con la app para Android &mdash; las guarda aquí y las muestra
+        con tus medallas.
+    download: Descargar la app
+    my_stats: Mis estadísticas de agente
+    sign_in: Iniciar sesión
+    requirements: Android 8.0 o superior &middot; Inicio de sesión con Google
+    app:
+        title: La app para Android
+        share:
+            title: Compartir desde Ingress
+            text: Abre tu perfil de agente, selecciona <strong>ALL TIME</strong> y comparte las estadísticas con AgentTools. Se guardan al instante.
+        changes:
+            title: Mira qué cambió
+            text: 'Después de cada importación la app muestra qué cambió desde la anterior: cada estadística que subió, las medallas que alcanzaron un nuevo nivel y tu nuevo nivel.'
+        medals:
+            title: Tus medallas
+            text: Tus estadísticas más recientes con las medallas que consiguen, de bronce a ónix &mdash; toca una medalla para ver sus detalles.
+        custom_medals:
+            title: Medallas especiales
+            text: 'Las medallas de anomalías, anuales y de eventos no están en las estadísticas: comparte capturas de pantalla de tus medallas y la app las reconoce en el teléfono. Revísalas y luego guárdalas.'
+    web:
+        title: El sitio web
+        stats:
+            title: Todas tus estadísticas
+            text: Inicia sesión con Google para ver cada importación que guardaste con la app, la más reciente primero, y ver cada una en detalle.
+        private:
+            title: Privado por defecto
+            text: Tus primeras estadísticas fijan tu nombre de agente; nadie más puede guardar estadísticas para él. Tus estadísticas y medallas son privadas hasta que elijas en tu perfil qué ven otros agentes.
+        api:
+            title: API abierta
+            text: Las estadísticas se guardan con los nombres de columna de 4e-website. En la <a href="%api_docs%">documentación de la API</a> puedes probar cada petición con tu token de ID de Google.
+    start:
+        title: Primeros pasos
+        install: '<strong>Instala la app:</strong> descarga el APK de la <a href="%release%">última versión</a> en tu teléfono y ábrelo.'
+        sign_in: <strong>Inicia sesión con Google</strong> en la app. Tu cuenta se registra al instante.
+        share: <strong>Comparte tus estadísticas de siempre</strong> desde Ingress con AgentTools &mdash; y capturas de tus medallas para las especiales.
+        see: '<strong>Míralas donde quieras:</strong> en la app, o aquí después de iniciar sesión.'
+
+layout:
+    enable_javascript: ¡Activa JavaScript, por favor!
+
+login:
+    title: Iniciar sesión
+
+medals:
+    custom: Medallas especiales
+    custom_none: Todavía no hay medallas especiales.
+    locked: bloqueada
+    group:
+        anomaly: Anomalías
+        annual: Anuales
+        event: Eventos
+
+nav:
+    about: Acerca de
+    admin: Admin
+    agent_stats: Estadísticas de agente
+    agents: Agentes
+    language: Idioma
+    login: Iniciar sesión
+    logout: Cerrar sesión
+    logview: Registros
+    profile: Perfil
+    toggle_navigation: Mostrar navegación
+
+profile:
+    title: Perfil de usuario
+    picture: Foto de perfil
+    identifier: 'Identificador:'
+    agent_name: 'Nombre de agente:'
+    agent_name_not_set: 'aún no definido. Tus primeras estadísticas subidas lo fijan, o defínelo en los ajustes de la app: solo se aceptan estadísticas de este agente.'
+    see_agent_page: Ver tu página de agente
+    visibility:
+        title: Visibilidad
+        choose: Elige qué pueden ver otros usuarios de tu perfil. Hasta que guardes, todo es privado.
+        label: Visible para otros usuarios
+        help: Las partes sin marcar siguen privadas. Solo los usuarios con sesión iniciada ven tu página de agente.
+        saved: Se guardó la visibilidad de tu perfil.
+    api_token:
+        title: Token de la API
+        paste: Pégalo en la <a href="%url%">documentación de la API</a> en <strong>Authorize</strong>.
+        fake: Un token falso de desarrollo (<code>APP_FAKE_GOOGLE_TOKENS</code>), no caduca.
+        valid_until: Válido hasta el %date%; vuelve a iniciar sesión con Google para obtener uno nuevo.
+        none: Cierra sesión y vuelve a iniciarla con Google para obtener un token para la <a href="%url%">documentación de la API</a>. Solo un inicio de sesión con Google tiene uno, y vale aproximadamente una hora.
+
+profile_part:
+    agent:
+        label: Nombre de agente, facción y nivel
+        help: Tu página de agente y tu entrada en la lista de agentes. Las demás partes solo se muestran con ella.
+    avatar:
+        label: Foto de perfil
+        help: Tu foto de perfil de Google junto a tu nombre de agente.
+    latest_stats:
+        label: Estadísticas más recientes
+        help: Las estadísticas de siempre de tu última subida.
+    stats_history:
+        label: Historial de estadísticas
+        help: Cada subida con su fecha y AP.
+    custom_medals:
+        label: Medallas especiales
+        help: Tus medallas de anomalías, anuales y de eventos.
+
+role:
+    admin: Administrador
+    user: Usuario
+
+stats:
+    agent: Agente
+    all_imports: Todas las importaciones
+    all_values: Todos los valores
+    core_months: '{1} C.O.R.E %count% mes|]1,Inf[ C.O.R.E %count% meses'
+    core_subscriptions: Suscripciones C.O.R.E
+    date: Fecha
+    drone:
+        portals: 'Portales:'
+        hacks: 'Hacks (Maverick):'
+        recalls: 'Retiradas forzadas:'
+        flight: 'Vuelo:'
+    first_import: 'Primera importación: %date%'
+    history: Historial de estadísticas
+    imported: importado
+    kinetic:
+        completed: 'Cápsulas cinéticas completadas: %count%'
+        none: Todavía no hay cápsulas cinéticas completadas
+    latest_update: 'Última actualización: %date%'
+    level: Nivel
+    level_n: nivel %level%
+    mine: Mis estadísticas de agente
+    none: Todavía no hay estadísticas.
+
+system:
+    info: Información del sistema
+
+theme:
+    toggle: Cambiar tema
+    light: Claro
+    dark: Oscuro
+    auto: Automático
+
+user:
+    agent_name: Nombre de agente
+    agent_name_help: Las estadísticas subidas deben ser de este agente.
+    all_private: Todo privado
+    created: Se creó el usuario.
+    deleted: Se eliminó el usuario.
+    edit: Editar agente
+    identifier: Identificador
+    list: Administrar agentes
+    list_intro: Cada usuario, con lo que muestra a otros usuarios (los administradores ven todas las fotos).
+    new: Crear nuevo agente
+    role: Rol
+    shows: Muestra
+    updated: Se actualizó el usuario.
+    visibility_not_chosen: 'Aún no elegido: todo privado'

@@ -1,0 +1,18 @@
+{# The language switcher (App\Controller\Locale\Switcher); each language in its own name #}
+{% set languages = {en: 'English', de: 'Deutsch', es: 'Español'} %}
+<div class="dropdown me-2">
+    <button class="btn btn-dark py-2 dropdown-toggle d-flex align-items-center gap-1" id="language-selector" type="button"
+            data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'nav.language'|trans }}" title="{{ 'nav.language'|trans }}">
+        <i class="bi-translate"></i> <span class="text-uppercase small">{{ app.request.locale }}</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="language-selector">
+        {% for locale, name in languages %}
+            <li>
+                <a class="dropdown-item d-flex align-items-center{{ locale == app.request.locale ? ' active' }}" lang="{{ locale }}"
+                   href="{{ path('app_locale', {locale: locale}) }}"{% if locale == app.request.locale %} aria-current="true"{% endif %}>
+                    {{ name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

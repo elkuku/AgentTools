@@ -21,9 +21,9 @@ class ProfileVisibilityType extends AbstractType
             'multiple' => true,
             'expanded' => true,
             'required' => false,
-            'label' => 'Visible to other users',
+            'label' => 'profile.visibility.label',
             'choice_label' => static fn (ProfilePart $part): string => $part->label(),
-            'help' => 'Unchecked parts stay private. Only signed-in users see your agent page.',
+            'help' => 'profile.visibility.help',
         ]);
     }
 }

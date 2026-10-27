@@ -36,6 +36,10 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_agent_show' => [
                 'params' => ['{agentName}' => 'TestAgent'],
             ],
+            'app_locale' => [
+                'params' => ['{locale}' => 'de'],
+                'statusCodes' => ['GET' => 302],
+            ],
         ];
 
     public function testAllRoutesAreProtected(): void

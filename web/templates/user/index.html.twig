@@ -1,24 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin agents{% endblock %}
+{% block title %}{{ 'user.list'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Admin agents</h1>
+    <h1>{{ 'user.list'|trans }}</h1>
     <div class="float-end">
-        <a class="btn btn-outline-success" href="{{ path('app_user_new') }}">Create new</a>
+        <a class="btn btn-outline-success" href="{{ path('app_user_new') }}">{{ 'action.create_new'|trans }}</a>
     </div>
     <p class="text-body-secondary">
-        Every user, with what they show to other users (admins see every picture).
+        {{ 'user.list_intro'|trans }}
     </p>
 
     <table class="table table-sm align-middle" id="users">
         <thead>
         <tr>
-            <th>Agent</th>
-            <th>Role</th>
-            <th>Shows</th>
-            <th class="text-end">Level</th>
-            <th>Actions</th>
+            <th>{{ 'stats.agent'|trans }}</th>
+            <th>{{ 'user.role'|trans }}</th>
+            <th>{{ 'user.shows'|trans }}</th>
+            <th class="text-end">{{ 'stats.level'|trans }}</th>
+            <th>{{ 'action.actions'|trans }}</th>
         </tr>
         </thead>
         <tbody>
@@ -32,30 +32,30 @@
                     {{ include('agent/_agent.html.twig', {agent: user, picture: user.avatar, link: true, identifier: user.identifier}) }}
                 </td>
                 <td>
-                    <span class="{{ user.role.cssClass }}">{{ user.role.label }}</span>
+                    <span class="{{ user.role.cssClass }}">{{ user.role.label|trans }}</span>
                     {% if user.googleId %}<i class="bi-google text-body-secondary" title="Google: {{ user.googleId }}"></i>{% endif %}
                 </td>
                 <td class="privacy-icons text-nowrap">
                     {% if not user.visibilityChosenAt %}
-                        <i class="bi-question-circle text-body-secondary" title="Not chosen yet: all private"></i>
+                        <i class="bi-question-circle text-body-secondary" title="{{ 'user.visibility_not_chosen'|trans }}"></i>
                     {% elseif user.visibleParts is empty %}
-                        <i class="bi-lock text-body-secondary" title="All private"></i>
+                        <i class="bi-lock text-body-secondary" title="{{ 'user.all_private'|trans }}"></i>
                     {% else %}
                         {% for part in user.visibleParts %}
-                            <i class="{{ part.icon }} text-primary" title="{{ part.label }}"></i>
+                            <i class="{{ part.icon }} text-primary" title="{{ part.label|trans }}"></i>
                         {% endfor %}
                     {% endif %}
                 </td>
                 {# On a span: Bootstrap's table cells set their own color #}
                 <td class="text-end"><span class="fw-bold {{ faction ? 'faction-' ~ faction }}">{{ stat ? stat.level : '–' }}</span></td>
                 <td class="text-nowrap">
-                    <a href="{{ path('app_user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+                    <a href="{{ path('app_user_show', {'id': user.id}) }}">{{ 'action.show'|trans }}</a>
+                    <a href="{{ path('app_user_edit', {'id': user.id}) }}">{{ 'action.edit'|trans }}</a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">no records found</td>
+                <td colspan="5">{{ 'action.no_records'|trans }}</td>
             </tr>
         {% endfor %}
         </tbody>

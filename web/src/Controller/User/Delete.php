@@ -24,7 +24,7 @@ final class Delete extends BaseController
             $entityManager->remove($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'User has been deleted.');
+            $this->addFlash('success', 'user.deleted');
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);

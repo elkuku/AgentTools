@@ -17,26 +17,16 @@ enum ProfilePart: string
     case STATS_HISTORY = 'stats_history';
     case CUSTOM_MEDALS = 'custom_medals';
 
+    /** A translation key (messages). */
     public function label(): string
     {
-        return match ($this) {
-            self::AGENT => 'Agent name, faction and level',
-            self::AVATAR => 'Profile picture',
-            self::LATEST_STATS => 'Latest stats',
-            self::STATS_HISTORY => 'Stats history',
-            self::CUSTOM_MEDALS => 'Custom medals',
-        };
+        return 'profile_part.'.$this->value.'.label';
     }
 
+    /** A translation key (messages). */
     public function help(): string
     {
-        return match ($this) {
-            self::AGENT => 'Your agent page and your entry in the list of agents. The other parts are only shown with it.',
-            self::AVATAR => 'Your Google profile picture next to your agent name.',
-            self::LATEST_STATS => 'The all-time stats of your newest upload.',
-            self::STATS_HISTORY => 'Every upload with its date and AP.',
-            self::CUSTOM_MEDALS => 'Your anomaly, annual and event medals.',
-        };
+        return 'profile_part.'.$this->value.'.help';
     }
 
     /** The Bootstrap icon in the admins' list of users (the app uses the same). */

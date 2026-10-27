@@ -24,7 +24,7 @@ final class Update extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'User has been updated.');
+            $this->addFlash('success', 'user.updated');
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }

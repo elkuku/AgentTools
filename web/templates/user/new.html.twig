@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New agent{% endblock %}
+{% block title %}{{ 'user.new'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Create new agent</h1>
+    <h1>{{ 'user.new'|trans }}</h1>
 
     <div class="float-end">
-        <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">back to list</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">{{ 'action.back_to_list'|trans }}</a>
     </div>
 
     {{ include('user/_form.html.twig') }}

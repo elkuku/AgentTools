@@ -1,0 +1,187 @@
+# Medal, stat and faction names stay in English everywhere (as agents know them)
+action:
+    actions: Actions
+    back_to_list: back to list
+    close: Close
+    confirm_delete: Are you sure you want to delete this item?
+    copy: Copy
+    create_new: Create new
+    delete: Delete
+    edit: edit
+    no_records: no records found
+    save: Save
+    show: show
+    update: Update
+
+agents:
+    title: Agents
+    intro: Agents who show their profile to other users. Choose what you show on your <a href="%url%">profile</a>.
+    none: No agent shows a profile yet.
+    own_page: This is how other users see your profile. Change it on your <a href="%url%">profile</a>.
+
+footer:
+    made_with: Made with
+    tagline: Ingress agent stats and medals
+    android_app: Android app
+    api_docs: API docs
+
+home:
+    welcome: Welcome %name%!
+    see_your_stats: See <a href="%url%">your agent stats</a>.
+    icon_alt: AgentTools icon
+    lead: >-
+        Save your Ingress agent stats and medals and see them in one place.
+        Share your stats from Ingress with the Android app &mdash; it stores them here and shows them
+        with your medals.
+    download: Download the app
+    my_stats: My agent stats
+    sign_in: Sign in
+    requirements: Android 8.0 or newer &middot; Sign in with Google
+    app:
+        title: The Android app
+        share:
+            title: Share from Ingress
+            text: Open your agent profile, select <strong>ALL TIME</strong> and share the stats with AgentTools. They are saved right away.
+        changes:
+            title: See what changed
+            text: 'After each import the app shows what changed since your last one: every stat that went up, medals that reached a new tier and your new level.'
+        medals:
+            title: Your medals
+            text: Your latest stats with the medals they earn, from bronze to onyx &mdash; tap a medal for its details.
+        custom_medals:
+            title: Custom medals
+            text: 'Anomaly, annual and event medals are not in the stats: share screenshots of your medal grid and the app recognizes them on the phone. Check them, then save.'
+    web:
+        title: The website
+        stats:
+            title: All your stats
+            text: Sign in with Google to see every import you saved with the app, newest first, and look at each one in detail.
+        private:
+            title: Private by default
+            text: Your first stats set your agent name; no one else can save stats for it. Your stats and medals stay private until you choose on your profile what other agents see.
+        api:
+            title: Open API
+            text: Stats are stored with the column names of 4e-website. The <a href="%api_docs%">API docs</a> let you try every request with your Google ID token.
+    start:
+        title: Get started
+        install: '<strong>Install the app:</strong> download the APK from the <a href="%release%">latest release</a> on your phone and open it.'
+        sign_in: <strong>Sign in with Google</strong> in the app. Your account is registered right away.
+        share: <strong>Share your all-time stats</strong> from Ingress with AgentTools &mdash; and screenshots of your medals for the custom ones.
+        see: '<strong>See them anywhere:</strong> in the app, or here after signing in.'
+
+layout:
+    enable_javascript: Please activate JavaScript!
+
+login:
+    title: Login
+
+medals:
+    custom: Custom medals
+    custom_none: No custom medals yet.
+    locked: locked
+    group:
+        anomaly: Anomaly
+        annual: Annual
+        event: Event
+
+nav:
+    about: About
+    admin: Admin
+    agent_stats: Agent stats
+    agents: Agents
+    language: Language
+    login: Login
+    logout: Logout
+    logview: Logview
+    profile: Profile
+    toggle_navigation: Toggle navigation
+
+profile:
+    title: User Profile
+    picture: Profile picture
+    identifier: 'Identifier:'
+    agent_name: 'Agent name:'
+    agent_name_not_set: "not set yet. Your first stats upload sets it, or set it in the app's settings: only stats for this agent are accepted."
+    see_agent_page: See your agent page
+    visibility:
+        title: Visibility
+        choose: Choose what other users may see of your profile. Until you save, everything is private.
+        label: Visible to other users
+        help: Unchecked parts stay private. Only signed-in users see your agent page.
+        saved: Your profile visibility has been saved.
+    api_token:
+        title: API token
+        paste: Paste it in the <a href="%url%">API docs</a> under <strong>Authorize</strong>.
+        fake: A fake dev token (<code>APP_FAKE_GOOGLE_TOKENS</code>), it does not expire.
+        valid_until: Valid until %date%; sign in with Google again for a new one.
+        none: Sign out and sign in with Google to get a token for the <a href="%url%">API docs</a>. Only a Google sign-in has one, and it is valid for about an hour.
+
+profile_part:
+    agent:
+        label: Agent name, faction and level
+        help: Your agent page and your entry in the list of agents. The other parts are only shown with it.
+    avatar:
+        label: Profile picture
+        help: Your Google profile picture next to your agent name.
+    latest_stats:
+        label: Latest stats
+        help: The all-time stats of your newest upload.
+    stats_history:
+        label: Stats history
+        help: Every upload with its date and AP.
+    custom_medals:
+        label: Custom medals
+        help: Your anomaly, annual and event medals.
+
+role:
+    admin: Administrator
+    user: User
+
+stats:
+    agent: Agent
+    all_imports: All imports
+    all_values: All values
+    core_months: '{1} C.O.R.E %count% month|]1,Inf[ C.O.R.E %count% months'
+    core_subscriptions: C.O.R.E subscriptions
+    date: Date
+    drone:
+        portals: 'Portals:'
+        hacks: 'Hacks (Maverick):'
+        recalls: 'Forced recalls:'
+        flight: 'Flight:'
+    first_import: 'First import: %date%'
+    history: Stats history
+    imported: imported
+    kinetic:
+        completed: 'Kinetic capsules completed: %count%'
+        none: No kinetic capsules completed yet
+    latest_update: 'Latest update: %date%'
+    level: Level
+    level_n: level %level%
+    mine: My agent stats
+    none: No stats yet.
+
+system:
+    info: System Info
+
+theme:
+    toggle: Toggle theme
+    light: Light
+    dark: Dark
+    auto: Auto
+
+user:
+    agent_name: Agent name
+    agent_name_help: Uploaded stats must be for this agent.
+    all_private: All private
+    created: User has been created.
+    deleted: User has been deleted.
+    edit: Edit agent
+    identifier: Identifier
+    list: Admin agents
+    list_intro: Every user, with what they show to other users (admins see every picture).
+    new: Create new agent
+    role: Role
+    shows: Shows
+    updated: User has been updated.
+    visibility_not_chosen: 'Not chosen yet: all private'

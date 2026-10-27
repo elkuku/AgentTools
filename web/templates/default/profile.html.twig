@@ -1,72 +1,70 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }} - User Profile{% endblock %}
+{% block title %}{{ parent() }} - {{ 'profile.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>User Profile</h1>
+    <h1>{{ 'profile.title'|trans }}</h1>
 
     {% if app.user.avatar %}
-        <img class="avatar mb-3" src="{{ app.user.avatar }}" alt="Profile picture" width="100" height="100" id="avatar">
+        <img class="avatar mb-3" src="{{ app.user.avatar }}" alt="{{ 'profile.picture'|trans }}" width="100" height="100" id="avatar">
     {% endif %}
 
-    <p>Identifier: <code>{{ app.user.userIdentifier }}</code></p>
+    <p>{{ 'profile.identifier'|trans }} <code>{{ app.user.userIdentifier }}</code></p>
     <p>
-        Agent name:
+        {{ 'profile.agent_name'|trans }}
         {% if app.user.agentName %}
             <code>{{ app.user.agentName }}</code>
         {% else %}
-            not set yet. Your first stats upload sets it, or set it in the app's settings: only stats for
-            this agent are accepted.
+            {{ 'profile.agent_name_not_set'|trans }}
         {% endif %}
     </p>
 
-    <h2 class="mt-5">Visibility</h2>
+    <h2 class="mt-5">{{ 'profile.visibility.title'|trans }}</h2>
     {% if not app.user.visibilityChosenAt %}
         <div class="alert alert-info" id="visibility-not-chosen">
-            Choose what other users may see of your profile. Until you save, everything is private.
+            {{ 'profile.visibility.choose'|trans }}
         </div>
     {% endif %}
     {{ form_start(visibilityForm) }}
         <fieldset class="mb-3">
-            <legend class="col-form-label">{{ visibilityForm.visibleParts.vars.label }}</legend>
+            <legend class="col-form-label">{{ visibilityForm.visibleParts.vars.label|trans }}</legend>
             {% for part in visibilityForm.visibleParts %}
                 <div class="mb-2">
                     {{ form_widget(part) }}
-                    <div class="form-text ms-4 mt-0">{{ partHelp[part.vars.value] }}</div>
+                    <div class="form-text ms-4 mt-0">{{ partHelp[part.vars.value]|trans }}</div>
                 </div>
             {% endfor %}
-            <div class="form-text">{{ visibilityForm.visibleParts.vars.help }}</div>
+            <div class="form-text">{{ visibilityForm.visibleParts.vars.help|trans }}</div>
             {{ form_errors(visibilityForm.visibleParts) }}
         </fieldset>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">{{ 'action.save'|trans }}</button>
         {% if agentPageVisible %}
             <a class="btn btn-outline-secondary" href="{{ path('app_agent_show', {'agentName': app.user.agentName}) }}">
-                See your agent page
+                {{ 'profile.see_agent_page'|trans }}
             </a>
         {% endif %}
     {{ form_end(visibilityForm) }}
 
     {% if is_granted('ROLE_ADMIN') %}
-        <h2 class="mt-5">API token</h2>
+        <h2 class="mt-5">{{ 'profile.api_token.title'|trans }}</h2>
         {% if apiToken %}
             <p>
-                Paste it in the <a href="{{ path('api_doc') }}">API docs</a> under <strong>Authorize</strong>.
+                {{ 'profile.api_token.paste'|trans({'%url%': path('api_doc')})|raw }}
                 {% if apiToken.fake %}
-                    A fake dev token (<code>APP_FAKE_GOOGLE_TOKENS</code>), it does not expire.
+                    {{ 'profile.api_token.fake'|trans|raw }}
                 {% elseif apiToken.expiresAt %}
-                    Valid until {{ apiToken.expiresAt|date('Y-m-d H:i') }}; sign in with Google again for a new one.
+                    {{ 'profile.api_token.valid_until'|trans({'%date%': apiToken.expiresAt|date('Y-m-d H:i')}) }}
                 {% endif %}
             </p>
             <div class="input-group" data-controller="clipboard">
                 <input type="text" class="form-control font-monospace" id="api-token" name="api-token" value="{{ apiToken.token }}"
-                       readonly aria-label="API token" data-clipboard-target="source">
+                       readonly aria-label="{{ 'profile.api_token.title'|trans }}" data-clipboard-target="source">
                 <button type="button" class="btn btn-outline-secondary" data-action="clipboard#copy"
-                        data-clipboard-target="button">Copy</button>
+                        data-clipboard-target="button">{{ 'action.copy'|trans }}</button>
             </div>
         {% else %}
             <p>
-                Sign out and sign in with Google to get a token for the <a href="{{ path('api_doc') }}">API docs</a>.
-                Only a Google sign-in has one, and it is valid for about an hour.
+                {{ 'profile.api_token.none'|trans({'%url%': path('api_doc')})|raw }}
             </p>
         {% endif %}
     {% endif %}

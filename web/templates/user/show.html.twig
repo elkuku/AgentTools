@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Agent{% endblock %}
+{% block title %}{{ 'stats.agent'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Agent</h1>
+    <h1>{{ 'stats.agent'|trans }}</h1>
 
-<div class="btn-group float-end" role="group" aria-label="Basic example">
-    <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">back to list</a>
+<div class="btn-group float-end" role="group">
+    <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">{{ 'action.back_to_list'|trans }}</a>
 
-    <a class="btn btn-outline-warning" href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+    <a class="btn btn-outline-warning" href="{{ path('app_user_edit', {'id': user.id}) }}">{{ 'action.edit'|trans }}</a>
 
     {{ include('user/_delete_form.html.twig') }}
 </div>
@@ -20,15 +20,15 @@
                 <td>{{ user.id }}</td>
             </tr>
             <tr>
-                <th>Identifier</th>
+                <th>{{ 'user.identifier'|trans }}</th>
                 <td>{{ user.identifier }}</td>
             </tr>
             <tr>
-                <th>Role</th>
-                <td>{{ user.role.label }}</td>
+                <th>{{ 'user.role'|trans }}</th>
+                <td>{{ user.role.label|trans }}</td>
             </tr>
             <tr>
-                <th>Agent name</th>
+                <th>{{ 'user.agent_name'|trans }}</th>
                 <td>{{ user.agentName }}</td>
             </tr>
             <tr>

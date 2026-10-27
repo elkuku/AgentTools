@@ -6,28 +6,28 @@
             AgentTools
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="{{ 'nav.toggle_navigation'|trans }}">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
                 {% if is_granted('ROLE_USER') %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_agent_stat_index') }}">Agent stats</a>
+                        <a class="nav-link" href="{{ path('app_agent_stat_index') }}">{{ 'nav.agent_stats'|trans }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_agent_index') }}">Agents</a>
+                        <a class="nav-link" href="{{ path('app_agent_index') }}">{{ 'nav.agents'|trans }}</a>
                     </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item dropdown">
                         <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Admin
+                            {{ 'nav.admin'|trans }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ path('app_user_index') }}">Agents</a></li>
-                            <li><a class="dropdown-item" href="{{ path('app_system_about') }}">About</a></li>
-                            <li><a class="dropdown-item" href="{{ path('app_system_logview') }}">Logview</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_user_index') }}">{{ 'nav.agents'|trans }}</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_system_about') }}">{{ 'nav.about'|trans }}</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_system_logview') }}">{{ 'nav.logview'|trans }}</a></li>
                         </ul>
                     </li>
                 {% endif %}
@@ -38,20 +38,20 @@
                     <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
                         {% if app.user.avatar %}
-                            <img class="avatar" src="{{ app.user.avatar }}" alt="Profile" width="24" height="24">
+                            <img class="avatar" src="{{ app.user.avatar }}" alt="{{ 'nav.profile'|trans }}" width="24" height="24">
                         {% else %}
                             <i class="bi-person"></i>
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
-                        <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi-person"></i> Profile</a>
+                        <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi-person"></i> {{ 'nav.profile'|trans }}</a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item" href="{{ path('app_logout') }}" title="Logout">
-                                <i class="bi-box-arrow-up-right"></i> Logout
+                            <a class="dropdown-item" href="{{ path('app_logout') }}" title="{{ 'nav.logout'|trans }}">
+                                <i class="bi-box-arrow-up-right"></i> {{ 'nav.logout'|trans }}
                             </a>
                         </li>
                     </ul>
@@ -59,13 +59,14 @@
             {% else %}
                 <ul class="navbar-nav mb-2 mb-md-0 d-flex">
                     <li class="nav-item">
-                        <a class="nav-link" accesskey="l" href="{{ path('app_login') }}" title="Login">
+                        <a class="nav-link" accesskey="l" href="{{ path('app_login') }}" title="{{ 'nav.login'|trans }}">
                             <twig:ux:icon name="bi:box-arrow-in-down-right" />
                         </a>
                     </li>
                 </ul>
             {% endif %}
 
+            {% include '_/_language_selector.html.twig' %}
             {% include '_/_theme_selector.html.twig' %}
 
         </div>

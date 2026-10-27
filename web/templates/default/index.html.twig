@@ -3,151 +3,76 @@
 {% block body %}
     {% if app.user %}
         <div class="alert alert-success mt-4">
-            <h4>Welcome {{ app.user.agentName ?: app.user.userIdentifier }}!</h4>
-            See <a href="{{ path('app_agent_stat_index') }}">your agent stats</a>.
+            <h4>{{ 'home.welcome'|trans({'%name%': app.user.agentName ?: app.user.userIdentifier}) }}</h4>
+            {{ 'home.see_your_stats'|trans({'%url%': path('app_agent_stat_index')})|raw }}
         </div>
     {% endif %}
 
     <section class="landing-hero text-center py-5">
-        <img src="{{ asset('favicon.svg') }}" alt="AgentTools icon" width="128" height="128" class="landing-icon rounded-4 mb-4">
+        <img src="{{ asset('favicon.svg') }}" alt="{{ 'home.icon_alt'|trans }}" width="128" height="128" class="landing-icon rounded-4 mb-4">
         <h2 class="display-5 fw-bold">AgentTools</h2>
         <p class="lead col-lg-8 mx-auto text-body-secondary">
-            Save your Ingress agent stats and medals and see them in one place.
-            Share your stats from Ingress with the Android app &mdash; it stores them here and shows them
-            with your medals.
+            {{ 'home.lead'|trans|raw }}
         </p>
         <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
             <a class="btn btn-success btn-lg" href="https://github.com/elkuku/AgentTools/releases/latest">
-                <i class="bi-android2"></i> Download the app
+                <i class="bi-android2"></i> {{ 'home.download'|trans }}
             </a>
             {% if app.user %}
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_agent_stat_index') }}">
-                    <i class="bi-bar-chart-line"></i> My agent stats
+                    <i class="bi-bar-chart-line"></i> {{ 'home.my_stats'|trans }}
                 </a>
             {% else %}
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_login') }}">
-                    <i class="bi-box-arrow-in-right"></i> Sign in
+                    <i class="bi-box-arrow-in-right"></i> {{ 'home.sign_in'|trans }}
                 </a>
             {% endif %}
         </div>
-        <p class="small text-body-secondary mt-3">Android 8.0 or newer &middot; Sign in with Google</p>
+        <p class="small text-body-secondary mt-3">{{ 'home.requirements'|trans|raw }}</p>
     </section>
 
     <section class="py-4">
-        <h3 class="mb-4"><i class="bi-phone landing-accent"></i> The Android app</h3>
+        <h3 class="mb-4"><i class="bi-phone landing-accent"></i> {{ 'home.app.title'|trans }}</h3>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-share fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Share from Ingress</h5>
-                        <p class="card-text">
-                            Open your agent profile, select <strong>ALL TIME</strong> and share the stats with
-                            AgentTools. They are saved right away.
-                        </p>
+            {% for feature, icon in {share: 'bi-share', changes: 'bi-graph-up-arrow', medals: 'bi-award', custom_medals: 'bi-images'} %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 landing-feature">
+                        <div class="card-body">
+                            <i class="{{ icon }} fs-2 landing-accent"></i>
+                            <h5 class="card-title mt-2">{{ ('home.app.' ~ feature ~ '.title')|trans }}</h5>
+                            <p class="card-text">{{ ('home.app.' ~ feature ~ '.text')|trans|raw }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-graph-up-arrow fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">See what changed</h5>
-                        <p class="card-text">
-                            After each import the app shows what changed since your last one: every stat
-                            that went up, medals that reached a new tier and your new level.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-award fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Your medals</h5>
-                        <p class="card-text">
-                            Your latest stats with the medals they earn, from bronze to onyx &mdash; tap a
-                            medal for its details.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-images fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Custom medals</h5>
-                        <p class="card-text">
-                            Anomaly, annual and event medals are not in the stats: share screenshots of your
-                            medal grid and the app recognizes them on the phone. Check them, then save.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </section>
 
     <section class="py-4">
-        <h3 class="mb-4"><i class="bi-globe landing-accent"></i> The website</h3>
+        <h3 class="mb-4"><i class="bi-globe landing-accent"></i> {{ 'home.web.title'|trans }}</h3>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-table fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">All your stats</h5>
-                        <p class="card-text">
-                            Sign in with Google to see every import you saved with the app, newest first,
-                            and look at each one in detail.
-                        </p>
+            {% for feature, icon in {stats: 'bi-table', private: 'bi-shield-check', api: 'bi-braces'} %}
+                <div class="col-md-4">
+                    <div class="card h-100 landing-feature">
+                        <div class="card-body">
+                            <i class="{{ icon }} fs-2 landing-accent"></i>
+                            <h5 class="card-title mt-2">{{ ('home.web.' ~ feature ~ '.title')|trans }}</h5>
+                            <p class="card-text">{{ ('home.web.' ~ feature ~ '.text')|trans({'%api_docs%': path('api_doc')})|raw }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-shield-check fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Only for you</h5>
-                        <p class="card-text">
-                            Your first stats set your agent name; no one else can save stats for it. Your stats
-                            and medals are only visible to you.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 landing-feature">
-                    <div class="card-body">
-                        <i class="bi-braces fs-2 landing-accent"></i>
-                        <h5 class="card-title mt-2">Open API</h5>
-                        <p class="card-text">
-                            Stats are stored with the column names of 4e-website. The
-                            <a href="{{ path('api_doc') }}">API docs</a> let you try every request with your
-                            Google ID token.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </section>
 
     <section class="py-4 mb-4">
-        <h3 class="mb-4"><i class="bi-rocket-takeoff landing-accent"></i> Get started</h3>
+        <h3 class="mb-4"><i class="bi-rocket-takeoff landing-accent"></i> {{ 'home.start.title'|trans }}</h3>
         <ol class="list-group list-group-numbered">
-            <li class="list-group-item">
-                <strong>Install the app:</strong> download the APK from the
-                <a href="https://github.com/elkuku/AgentTools/releases/latest">latest release</a> on your phone
-                and open it.
-            </li>
-            <li class="list-group-item">
-                <strong>Sign in with Google</strong> in the app. Your account is registered right away.
-            </li>
-            <li class="list-group-item">
-                <strong>Share your all-time stats</strong> from Ingress with AgentTools &mdash; and screenshots of
-                your medals for the custom ones.
-            </li>
-            <li class="list-group-item">
-                <strong>See them anywhere:</strong> in the app, or here after signing in.
-            </li>
+            {% for step in ['install', 'sign_in', 'share', 'see'] %}
+                <li class="list-group-item">
+                    {{ ('home.start.' ~ step)|trans({'%release%': 'https://github.com/elkuku/AgentTools/releases/latest'})|raw }}
+                </li>
+            {% endfor %}
         </ol>
     </section>
 {% endblock %}

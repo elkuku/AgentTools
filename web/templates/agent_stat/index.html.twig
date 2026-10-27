@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}My agent stats{% endblock %}
+{% block title %}{{ 'stats.mine'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>My agent stats</h1>
+    <h1>{{ 'stats.mine'|trans }}</h1>
 
     {% if latest %}
         <div class="mt-3">
@@ -15,15 +15,15 @@
         {{ include('agent_stat/_custom_medals.html.twig') }}
     </div>
 
-    <h2 class="h5 mt-4">All imports</h2>
+    <h2 class="h5 mt-4">{{ 'stats.all_imports'|trans }}</h2>
     <table class="table">
         <thead>
         <tr>
-            <th>Date</th>
-            <th>Agent</th>
-            <th>Level</th>
+            <th>{{ 'stats.date'|trans }}</th>
+            <th>{{ 'stats.agent'|trans }}</th>
+            <th>{{ 'stats.level'|trans }}</th>
             <th class="text-end">AP</th>
-            <th>Actions</th>
+            <th>{{ 'action.actions'|trans }}</th>
         </tr>
         </thead>
         <tbody>
@@ -34,12 +34,12 @@
                 <td>{{ agent_stat.level }}</td>
                 <td class="text-end">{{ agent_stat.ap|number_format }}</td>
                 <td>
-                    <a href="{{ path('app_agent_stat_show', {'id': agent_stat.id}) }}">show</a>
+                    <a href="{{ path('app_agent_stat_show', {'id': agent_stat.id}) }}">{{ 'action.show'|trans }}</a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">no records found</td>
+                <td colspan="5">{{ 'action.no_records'|trans }}</td>
             </tr>
         {% endfor %}
         </tbody>

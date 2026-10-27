@@ -2,9 +2,9 @@
     Custom medals by group, like the app. customMedals: array<string, list<CustomMedalTier>> (MedalChecker::customMedalTiers())
 #}
 <div id="custom-medals">
-    <h2 class="h5">Custom medals</h2>
+    <h2 class="h5">{{ 'medals.custom'|trans }}</h2>
     {% for group, medals in customMedals %}
-        <h3 class="h6 mt-2">{{ group|capitalize }}</h3>
+        <h3 class="h6 mt-2">{{ ('medals.group.' ~ group)|trans }}</h3>
         <div class="d-flex flex-wrap gap-2">
             {% for medal in medals %}
                 {% set id = 'custom-medal-' ~ group ~ '-' ~ medal.medal.key %}
@@ -16,7 +16,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title fs-5" id="{{ id }}-title">{{ medal.label }}</h4>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'action.close'|trans }}"></button>
                             </div>
                             <div class="modal-body text-center">
                                 <img src="{{ asset(medal.image) }}" alt="{{ medal.label }}" width="120" height="120">
@@ -27,6 +27,6 @@
             {% endfor %}
         </div>
     {% else %}
-        <p>No custom medals yet.</p>
+        <p>{{ 'medals.custom_none'|trans }}</p>
     {% endfor %}
 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }} - Login{% endblock %}
+{% block title %}{{ parent() }} - {{ 'login.title'|trans }}{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -11,7 +11,7 @@
 
     <div class="row">
         <div class="col">
-            <h2>Login</h2>
+            <h2>{{ 'login.title'|trans }}</h2>
             <div>
                 <div id="g_id_onload"
                      data-client_id="{{ oauthGoogleId }}"
@@ -24,7 +24,8 @@
                      data-theme="outline"
                      data-text="sign_in_with"
                      data-shape="rectangular"
-                     data-logo_alignment="left">
+                     data-logo_alignment="left"
+                     data-locale="{{ app.request.locale }}">
                 </div>
             </div>
 
@@ -35,17 +36,17 @@
                 <form class="form-inline" role="form" method="post" action="{{ path('app_login') }}">
                     {% if error %}
                         <div class="alert alert-danger">
-                            {{ error.message }}
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
                         </div>
                     {% endif %}
                     <div class="form-floating">
-                        <input class="form-control" id="identifier" name="identifier" placeholder="Identifier"
+                        <input class="form-control" id="identifier" name="identifier" placeholder="{{ 'user.identifier'|trans }}"
                                value="{{ last_username }}" required autofocus>
-                        <label for="identifier">Identifier</label>
+                        <label for="identifier">{{ 'user.identifier'|trans }}</label>
                     </div>
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('login') }}">
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">{{ 'login.title'|trans }}</button>
                     </div>
                 </form>
             {% endif %}

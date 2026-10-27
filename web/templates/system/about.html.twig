@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}About{% endblock %}
+{% block title %}{{ 'nav.about'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>System Info</h1>
+    <h1>{{ 'system.info'|trans }}</h1>
 
     <h4>{{ project_dir }}</h4>
 

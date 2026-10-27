@@ -26,7 +26,7 @@ final class Create extends BaseController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'User has been created.');
+            $this->addFlash('success', 'user.created');
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }

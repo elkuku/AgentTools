@@ -82,6 +82,9 @@ Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons.
 
 Stats and medals look like the app: `agent_stat/_stats_card.html.twig` (latest stats, medal badges with a Bootstrap modal per medal, C.O.R.E, Dronenet, Kinetics) and `_custom_medals.html.twig`, on `/agent-stats`, `/agent-stats/{id}` and `/agents/{agentName}`. `Medal/MedalChecker` holds the medal levels and the custom medals (a port of the app's `data/Medals.kt` and `data/CustomMedals.kt`: keep them in sync). The images are the app's: `asset_mapper.yaml` maps `../app/app/src/main/res/drawable-nodpi` as `badges/` and `../app/app/src/main/assets/custom_medals` as `custom_medals/` (the deploy has the whole repo); `MedalCheckerTest` checks that every image exists.
 
+### Translations
+English, German and Spanish (`enabled_locales`). Texts are translation keys in `translations/messages.{en,de,es}.yaml` (keep all three in sync; `debug:translation de --only-missing`), the app's own constraint messages are in `validators.{de,es}.yaml`. `EventListener/LocaleListener` picks the language: the `locale` cookie set by the navbar's language selector (`Controller/Locale/Switcher`, `/locale/{locale}`), else the browser's `Accept-Language`. Enum `label()`/`help()` return keys. Medal, stat and faction names stay English; the API answers in English.
+
 ### Database
 PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/DataFixtures/` create one regular user and one admin.
 

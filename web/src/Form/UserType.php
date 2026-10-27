@@ -16,14 +16,16 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('identifier')
+            ->add('identifier', null, ['label' => 'user.identifier'])
             ->add('role', EnumType::class, [
                 'class' => UserRole::class,
+                'label' => 'user.role',
                 'choice_label' => fn (UserRole $role) => $role->label(),
             ])
             ->add('agentName', null, [
                 'required' => false,
-                'help' => 'Uploaded stats must be for this agent.',
+                'label' => 'user.agent_name',
+                'help' => 'user.agent_name_help',
             ])
         ;
     }

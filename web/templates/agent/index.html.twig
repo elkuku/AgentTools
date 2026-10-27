@@ -1,19 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Agents{% endblock %}
+{% block title %}{{ 'agents.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Agents</h1>
+    <h1>{{ 'agents.title'|trans }}</h1>
     <p class="text-body-secondary">
-        Agents who show their profile to other users. Choose what you show on your
-        <a href="{{ path('app_profile') }}">profile</a>.
+        {{ 'agents.intro'|trans({'%url%': path('app_profile')})|raw }}
     </p>
 
     <table class="table table-sm align-middle" id="agents">
         <thead>
         <tr>
-            <th>Agent</th>
-            <th class="text-end">Level</th>
+            <th>{{ 'stats.agent'|trans }}</th>
+            <th class="text-end">{{ 'stats.level'|trans }}</th>
         </tr>
         </thead>
         <tbody>
@@ -31,7 +30,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="2">No agent shows a profile yet.</td>
+                <td colspan="2">{{ 'agents.none'|trans }}</td>
             </tr>
         {% endfor %}
         </tbody>

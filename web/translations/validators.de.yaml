@@ -1,0 +1,5 @@
+# The app's own constraint messages (App\Entity\User); Symfony translates its built-in ones
+'This identifier is already in use': Diese Kennung wird bereits verwendet.
+'The role must be a valid user role.': Die Rolle muss eine gültige Benutzerrolle sein.
+'An agent name has only letters, digits and underscores.': Ein Agentenname besteht nur aus Buchstaben, Ziffern und Unterstrichen.
+'This agent name is already taken.': Dieser Agentenname ist bereits vergeben.

@@ -1,14 +1,14 @@
 <footer class="footer mt-auto py-3 bg-body-tertiary">
     <div class="container">
         <span class="float-end">
-            Made with <a href="https://symfony.com">
+            {{ 'footer.made_with'|trans }} <a href="https://symfony.com">
                 <twig:ux:icon name="fa-brands:symfony" /> Symfony
             </a>
         </span>
 
-        <span class="text-body-secondary">AgentTools &ndash; Ingress agent stats and medals</span>
-        <a class="ms-3" href="https://github.com/elkuku/AgentTools/releases/latest">Android app</a>
-        <a class="ms-3" href="{{ path('api_doc') }}">API docs</a>
+        <span class="text-body-secondary">AgentTools &ndash; {{ 'footer.tagline'|trans }}</span>
+        <a class="ms-3" href="https://github.com/elkuku/AgentTools/releases/latest">{{ 'footer.android_app'|trans }}</a>
+        <a class="ms-3" href="{{ path('api_doc') }}">{{ 'footer.api_docs'|trans }}</a>
         <a class="ms-3" href="https://github.com/elkuku/AgentTools">GitHub</a>
     </div>
 </footer>

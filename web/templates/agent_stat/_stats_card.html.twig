@@ -8,7 +8,7 @@
     {% set faction = stat.factionCode %}
     <div class="d-flex align-items-center gap-2">
         {% if avatar ?? null %}
-            <img class="avatar" src="{{ avatar }}" alt="Profile picture" width="48" height="48">
+            <img class="avatar" src="{{ avatar }}" alt="{{ 'profile.picture'|trans }}" width="48" height="48">
         {% endif %}
         {% if faction %}
             <img class="faction-logo" src="{{ asset('images/logos/' ~ faction ~ '.svg') }}" alt="{{ faction }}" title="{{ stat.faction }}">
@@ -32,8 +32,8 @@
     {% if months > 0 %}
         <div class="d-flex flex-wrap align-items-center gap-1 mt-2" id="core-badges">
             {% for badge in coreBadges %}
-                <img class="medal-badge" src="{{ asset(badge) }}" alt="C.O.R.E subscriptions" title="C.O.R.E subscriptions">
-                {% if loop.first %}<span class="fw-bold me-1">C.O.R.E {{ months }} months</span>{% endif %}
+                <img class="medal-badge" src="{{ asset(badge) }}" alt="{{ 'stats.core_subscriptions'|trans }}" title="{{ 'stats.core_subscriptions'|trans }}">
+                {% if loop.first %}<span class="fw-bold me-1">{{ 'stats.core_months'|trans({'%count%': months}) }}</span>{% endif %}
             {% endfor %}
         </div>
     {% endif %}
@@ -50,7 +50,7 @@
                     <img class="medal-badge" src="{{ asset(medal.badge) }}" alt="{{ medal.medal.name }}: {{ medal.levelName }}">
                     {% if medal.onyxCount > 1 %}<span class="medal-count">X {{ medal.onyxCount }}</span>{% endif %}
                 {% else %}
-                    <img class="medal-badge medal-locked" src="{{ asset('badges/ico_padlock.webp') }}" alt="{{ medal.medal.name }}: locked">
+                    <img class="medal-badge medal-locked" src="{{ asset('badges/ico_padlock.webp') }}" alt="{{ medal.medal.name }}: {{ 'medals.locked'|trans }}">
                 {% endif %}
             </button>
         {% endfor %}
@@ -62,7 +62,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title fs-5" id="medal-{{ medal.medal.column }}-title">{{ medal.medal.name }}</h3>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'action.close'|trans }}"></button>
                     </div>
                     <div class="modal-body text-center">
                         <p class="mb-1">{{ medal.medal.description }}</p>
@@ -87,21 +87,21 @@
         <img src="{{ asset('badges/ico_drone.webp') }}" alt="" height="32"> Dronenet
     </h3>
     <p id="dronenet">
-        Portals: {{ (stats.drone_portals_visited ?? 0)|number_format }}&nbsp;
-        Hacks (Maverick): {{ (stats.maverick ?? 0)|number_format }}&nbsp;
-        Forced recalls: {{ (stats.drone_forced_recalls ?? 0)|number_format }}&nbsp;
-        Flight: {{ (stats.drone_flight_distance ?? 0)|number_format }} km
+        {{ 'stats.drone.portals'|trans }} {{ (stats.drone_portals_visited ?? 0)|number_format }}&nbsp;
+        {{ 'stats.drone.hacks'|trans }} {{ (stats.maverick ?? 0)|number_format }}&nbsp;
+        {{ 'stats.drone.recalls'|trans }} {{ (stats.drone_forced_recalls ?? 0)|number_format }}&nbsp;
+        {{ 'stats.drone.flight'|trans }} {{ (stats.drone_flight_distance ?? 0)|number_format }} km
     </p>
 
     <h3 class="h6 d-flex align-items-center gap-2">
         <img src="{{ asset('badges/ico_kinetic_capsule.webp') }}" alt="" height="32"> Kinetics
     </h3>
     {% set capsules = stats.kinetic_capsules_completed ?? 0 %}
-    <p>{{ capsules > 0 ? 'Kinetic capsules completed: ' ~ capsules : 'No kinetic capsules completed yet' }}</p>
+    <p>{{ capsules > 0 ? 'stats.kinetic.completed'|trans({'%count%': capsules}) : 'stats.kinetic.none'|trans }}</p>
 
     <hr>
 
     <p class="small">
-        {% if first %}First import: {{ first.datetime|date('Y-m-d') }} - {% endif %}Latest update: {{ stat.datetime|date('Y-m-d') }}
+        {% if first %}{{ 'stats.first_import'|trans({'%date%': first.datetime|date('Y-m-d')}) }} - {% endif %}{{ 'stats.latest_update'|trans({'%date%': stat.datetime|date('Y-m-d')}) }}
     </p>
 </div>
