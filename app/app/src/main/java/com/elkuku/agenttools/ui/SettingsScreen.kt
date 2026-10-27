@@ -32,11 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
+import com.elkuku.agenttools.asString
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 
@@ -77,10 +79,10 @@ fun SettingsScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = "Back", modifier = Modifier.size(20.dp))
+                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = stringResource(R.string.back), modifier = Modifier.size(20.dp))
                     }
                 },
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
             )
         },
     ) { padding ->
@@ -94,17 +96,19 @@ fun SettingsScreen(
         ) {
             ProfileCard(profile, onSaveVisibleParts)
 
+            LanguageCard()
+
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("App", style = MaterialTheme.typography.titleMedium)
-                    Setting("Version", "${build.versionName} (${build.versionCode})")
-                    Setting("Build", build.type.replaceFirstChar { it.uppercase() })
+                    Text(stringResource(R.string.app), style = MaterialTheme.typography.titleMedium)
+                    Setting(stringResource(R.string.version), "${build.versionName} (${build.versionCode})")
+                    Setting(stringResource(R.string.build), build.type.replaceFirstChar { it.uppercase() })
                 }
             }
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Server", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.server), style = MaterialTheme.typography.titleMedium)
                     if (build.serverSwitch) {
                         ServerUrlField(serverUrl, defaultServerUrl, liveServerUrl, onSaveServerUrl)
                     } else {
@@ -121,23 +125,19 @@ private fun ProfileCard(profile: ProfileSetting, onSave: (Set<ProfilePart>) -> U
     var parts by rememberSaveable(profile.visibleParts) { mutableStateOf(profile.visibleParts) }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Profile", style = MaterialTheme.typography.titleMedium)
-            Setting("Agent name", profile.agentName ?: "–")
+            Text(stringResource(R.string.profile), style = MaterialTheme.typography.titleMedium)
+            Setting(stringResource(R.string.agent_name), profile.agentName ?: "–")
             if (profile.agentName == null) {
                 Text(
-                    "The first stats you share set it; only stats of this agent can be saved.",
+                    stringResource(R.string.agent_name_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
-            Text("Visible to other users", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
+            Text(stringResource(R.string.visible_to_others), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
             Text(
-                if (profile.chosen) {
-                    "Signed-in users see these parts on your agent page on the website. Unchecked parts stay private."
-                } else {
-                    "Choose what other users see. Until you save, everything is private."
-                },
+                stringResource(if (profile.chosen) R.string.visibility_chosen_hint else R.string.visibility_choose_hint),
                 style = MaterialTheme.typography.bodyMedium,
             )
             ProfilePart.entries.forEach { part ->
@@ -150,20 +150,20 @@ private fun ProfileCard(profile: ProfileSetting, onSave: (Set<ProfilePart>) -> U
                         enabled = enabled && !profile.busy,
                     )
                     Column(modifier = Modifier.padding(top = 12.dp)) {
-                        Text(part.label, color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(part.help, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(part.label), color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(part.help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             profile.status?.let { status ->
-                Text(status.text, color = if (status.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                Text(status.text.asString(), color = if (status.isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
             }
             // Without the agent part nothing is shown
             val toSave = if (ProfilePart.AGENT in parts) parts else emptySet()
             Button(
                 onClick = { onSave(toSave) },
                 enabled = !profile.busy && (!profile.chosen || toSave != profile.visibleParts),
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.save)) }
         }
     }
 }
@@ -194,30 +194,30 @@ private fun ServerUrlField(serverUrl: String, defaultServerUrl: String, liveServ
             error = null
             saved = false
         },
-        label = { Text("Server URL") },
+        label = { Text(stringResource(R.string.server_url)) },
         singleLine = true,
         isError = error != null,
         supportingText = {
             when {
                 error != null -> Text(error.orEmpty())
-                saved -> Text("Saved.", color = MaterialTheme.colorScheme.primary)
-                else -> Text("Default: $defaultServerUrl")
+                saved -> Text(stringResource(R.string.saved), color = MaterialTheme.colorScheme.primary)
+                else -> Text(stringResource(R.string.server_default, defaultServerUrl))
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
         modifier = Modifier.fillMaxWidth(),
     )
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(onClick = { save(input) }, enabled = input.trim().trimEnd('/') != serverUrl.trimEnd('/')) { Text("Save") }
-        TextButton(onClick = { save("") }, enabled = serverUrl != defaultServerUrl) { Text("Use default") }
+        Button(onClick = { save(input) }, enabled = input.trim().trimEnd('/') != serverUrl.trimEnd('/')) { Text(stringResource(R.string.save)) }
+        TextButton(onClick = { save("") }, enabled = serverUrl != defaultServerUrl) { Text(stringResource(R.string.use_default)) }
         if (liveServerUrl.isNotBlank()) {
             TextButton(onClick = { save(liveServerUrl) }, enabled = serverUrl.trimEnd('/') != liveServerUrl.trimEnd('/')) {
-                Text("Use live server")
+                Text(stringResource(R.string.use_live_server))
             }
         }
     }
     Text(
-        "Changing the server reloads your data from it.",
+        stringResource(R.string.server_change_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )

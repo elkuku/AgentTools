@@ -1,0 +1,191 @@
+<resources>
+    <!-- General -->
+    <string name="back">Zurück</string>
+    <string name="close">Schließen</string>
+    <string name="save">Speichern</string>
+    <string name="saved">Gespeichert.</string>
+    <string name="open">Öffnen</string>
+    <string name="show">Anzeigen</string>
+    <string name="change">Ändern</string>
+    <string name="choose">Auswählen</string>
+    <string name="later">Später</string>
+    <string name="loading">Wird geladen…</string>
+    <string name="menu">Menü</string>
+    <string name="app_icon">AgentTools-Symbol</string>
+    <string name="profile_picture">Profilbild</string>
+
+    <!-- Language -->
+    <string name="language">Sprache</string>
+    <string name="language_phone">Sprache des Handys</string>
+
+    <!-- Landing page (signed out) -->
+    <string name="landing_lead">Speichere deine Ingress-Agentenstatistiken und Medaillen und sieh sie an einem Ort.</string>
+    <string name="landing_hint">Melde dich mit Google an und teile deine Statistiken: Die ersten legen deinen Agentennamen fest.</string>
+    <string name="feature_share">Aus Ingress teilen</string>
+    <string name="feature_share_text">Öffne dein Agentenprofil, wähle ALL TIME und teile die Statistiken mit AgentTools. Sie werden sofort gespeichert.</string>
+    <string name="feature_changes">Sieh, was sich geändert hat</string>
+    <string name="feature_changes_text">Nach jedem Import: jede gestiegene Statistik, Medaillen mit einer neuen Stufe und dein neues Level.</string>
+    <string name="feature_medals">Deine Medaillen</string>
+    <string name="feature_medals_text">Deine neuesten Statistiken mit den Medaillen, die sie bringen, von Bronze bis Onyx. Tippe auf eine Medaille für die Details.</string>
+    <string name="feature_custom_medals">Sondermedaillen</string>
+    <string name="feature_custom_medals_text">Anomalie-, Jahres- und Event-Medaillen: Teile Screenshots deiner Medaillen, prüfe, was die App gefunden hat, und speichere.</string>
+    <string name="feature_web">Auch im Web</string>
+    <string name="feature_web_text">Deine Statistiken werden auf der AgentTools-Website gespeichert. Melde dich dort mit demselben Google-Konto an, um sie zu sehen.</string>
+
+    <!-- App bar and menus -->
+    <string name="sign_in">Anmelden</string>
+    <string name="sign_out">Abmelden</string>
+    <string name="account">Konto</string>
+    <string name="my_stats">Meine Statistiken</string>
+    <string name="settings">Einstellungen</string>
+    <string name="agents">Agenten</string>
+    <string name="admin_agents">Agenten verwalten</string>
+    <string name="role_user">Benutzer</string>
+    <string name="role_admin">Admin</string>
+
+    <!-- Home page -->
+    <string name="welcome">Willkommen, %1$s</string>
+    <string name="ap">AP: %1$s</string>
+    <string name="latest_update">Letzte Aktualisierung: %1$s</string>
+    <plurals name="uploads">
+        <item quantity="one">%1$d Upload</item>
+        <item quantity="other">%1$d Uploads</item>
+    </plurals>
+    <string name="no_stats_hint">Noch keine Statistiken. Öffne in Ingress dein Agentenprofil, wähle ALL TIME und teile die Statistiken mit dieser App.</string>
+    <string name="no_custom_medals_hint">Noch keine Sondermedaillen: Teile Screenshots deiner Ingress-Medaillen.</string>
+    <plurals name="custom_medals">
+        <item quantity="one">%1$d Sondermedaille</item>
+        <item quantity="other">%1$d Sondermedaillen</item>
+    </plurals>
+    <string name="your_profile">Dein Profil</string>
+    <string name="profile_not_chosen">Noch nicht gewählt: Alles ist privat.</string>
+    <string name="profile_private">Privat: Andere Benutzer sehen dein Profil nicht.</string>
+    <string name="profile_others_see">Andere Benutzer sehen: %1$s.</string>
+    <string name="agents_card">Die Agenten, die ihr Profil zeigen, mit ihren Statistiken und Medaillen.</string>
+    <string name="share_card">Öffne dein Agentenprofil, wähle ALL TIME und teile die Statistiken mit AgentTools. Teile Screenshots deiner Medaillen für deine Sondermedaillen.</string>
+    <string name="choose_visibility_prompt">Wähle, was andere Benutzer von deinem Profil sehen. Bis dahin ist alles privat.</string>
+
+    <!-- Profile parts (as on the website) -->
+    <string name="part_agent">Agentenname, Fraktion und Level</string>
+    <string name="part_agent_help">Deine Agentenseite und dein Eintrag in der Liste der Agenten. Die anderen Teile werden nur damit gezeigt.</string>
+    <string name="part_avatar">Profilbild</string>
+    <string name="part_avatar_help">Dein Google-Profilbild neben deinem Agentennamen.</string>
+    <string name="part_latest_stats">Neueste Statistiken</string>
+    <string name="part_latest_stats_help">Die All-Time-Statistiken deines neuesten Uploads.</string>
+    <string name="part_stats_history">Statistikverlauf</string>
+    <string name="part_stats_history_help">Jeder Upload mit Datum und AP.</string>
+    <string name="part_custom_medals">Sondermedaillen</string>
+    <string name="part_custom_medals_help">Deine Anomalie-, Jahres- und Event-Medaillen.</string>
+
+    <!-- Stats -->
+    <string name="core_subscriptions">C.O.R.E-Abonnements</string>
+    <plurals name="core_months">
+        <item quantity="one">C.O.R.E %1$d Monat</item>
+        <item quantity="other">C.O.R.E %1$d Monate</item>
+    </plurals>
+    <plurals name="core_subscriptions_months">
+        <item quantity="one">C.O.R.E-Abonnements (%1$d Monat)</item>
+        <item quantity="other">C.O.R.E-Abonnements (%1$d Monate)</item>
+    </plurals>
+    <string name="locked">gesperrt</string>
+    <string name="dronenet">Portale: %1$s  Hacks (Maverick): %2$s  Erzwungene Rückrufe: %3$s  Flug: %4$s km</string>
+    <string name="kinetic_capsules_completed">Abgeschlossene Kinetic Capsules: %1$d</string>
+    <string name="kinetic_capsules_none">Noch keine Kinetic Capsule abgeschlossen</string>
+    <string name="first_import">Erster Import: %1$s</string>
+    <string name="stats_history">Statistikverlauf</string>
+    <string name="no_stats">Noch keine Statistiken.</string>
+
+    <!-- Import result -->
+    <string name="changes_since">Änderungen seit %1$s</string>
+    <string name="first_import_title">Erster Import</string>
+    <string name="next_import_hint">Dein nächster Import zeigt, was sich geändert hat.</string>
+    <string name="new_level">Neues Level: %1$s</string>
+    <string name="medal_upgrades">Medaillen-Upgrades</string>
+    <string name="onyx_again">Wieder Onyx</string>
+    <string name="core_subscription">C.O.R.E-Abonnement</string>
+    <string name="recursion">Rekursion</string>
+    <string name="no_stat_went_up">Keine Statistik ist gestiegen.</string>
+
+    <!-- Custom medals -->
+    <string name="custom_medals_empty_hint">Mach in Ingress Screenshots der Medaillen in deinem Agentenprofil und teile sie mit dieser App.</string>
+    <string name="custom_medals_none">Noch keine Sondermedaillen.</string>
+    <plurals name="new_custom_medals_found">
+        <item quantity="one">%1$d neue Sondermedaille gefunden</item>
+        <item quantity="other">%1$d neue Sondermedaillen gefunden</item>
+    </plurals>
+    <string name="medal_review">Entferne die Häkchen bei allem, was falsch ist.</string>
+    <string name="medal_review_unsure">Entferne die Häkchen bei allem, was falsch ist. Die blassen sind unsichere Treffer: Hake sie an, wenn sie stimmen.</string>
+    <plurals name="custom_medals_already_saved">
+        <item quantity="one">%1$d Sondermedaille schon gespeichert, nicht gezeigt.</item>
+        <item quantity="other">%1$d Sondermedaillen schon gespeichert, nicht gezeigt.</item>
+    </plurals>
+    <plurals name="save_custom_medals">
+        <item quantity="one">%1$d Sondermedaille speichern</item>
+        <item quantity="other">%1$d Sondermedaillen speichern</item>
+    </plurals>
+
+    <!-- Agents -->
+    <string name="agents_intro">Agenten, die anderen Benutzern ihr Profil zeigen. Was du zeigst, wählst du in den Einstellungen.</string>
+    <string name="agents_none">Noch zeigt kein Agent sein Profil.</string>
+    <string name="admin_agents_intro">Alle Benutzer und was sie anderen Benutzern zeigen.</string>
+    <string name="visibility_not_chosen">Noch nicht gewählt: alles privat</string>
+    <string name="all_private">Alles privat</string>
+    <string name="agent_shows_nothing_more">%1$s zeigt nichts weiter.</string>
+
+    <!-- Settings -->
+    <string name="profile">Profil</string>
+    <string name="agent_name">Agentenname</string>
+    <string name="agent_name_hint">Die ersten Statistiken, die du teilst, legen ihn fest; nur Statistiken dieses Agenten können gespeichert werden.</string>
+    <string name="visible_to_others">Für andere Benutzer sichtbar</string>
+    <string name="visibility_chosen_hint">Angemeldete Benutzer sehen diese Teile auf deiner Agentenseite auf der Website. Nicht ausgewählte Teile bleiben privat.</string>
+    <string name="visibility_choose_hint">Wähle, was andere Benutzer sehen. Bis du speicherst, ist alles privat.</string>
+    <string name="app">App</string>
+    <string name="version">Version</string>
+    <string name="build">Build</string>
+    <string name="server">Server</string>
+    <string name="server_url">Server-URL</string>
+    <string name="server_default">Standard: %1$s</string>
+    <string name="use_default">Standard verwenden</string>
+    <string name="use_live_server">Live-Server verwenden</string>
+    <string name="server_change_hint">Nach einem Serverwechsel werden deine Daten von dort neu geladen.</string>
+
+    <!-- Messages -->
+    <string name="signed_out">Abgemeldet.</string>
+    <string name="not_authorized">Nicht autorisiert: %1$s Bitte melde dich erneut an.</string>
+    <string name="sign_in_cancelled">Anmeldung abgebrochen.</string>
+    <string name="sign_in_no_account">Auf diesem Gerät ist kein Google-Konto verfügbar.</string>
+    <string name="sign_in_failed">Anmeldung fehlgeschlagen: %1$s</string>
+    <string name="sign_in_invalid_token">Ungültiger Google-ID-Token: %1$s</string>
+    <string name="sign_in_no_email">Das Google-Konto hat keine E-Mail-Adresse.</string>
+    <string name="sign_in_to_save_stats">Melde dich an, um die geteilten Statistiken zu speichern.</string>
+    <string name="sign_in_to_save_custom_medals">Melde dich an, um die Sondermedaillen zu speichern.</string>
+    <string name="not_stats">Das sind keine All-Time-Statistiken aus Ingress. Öffne in Ingress dein Agentenprofil, wähle ALL TIME und teile die Statistiken.</string>
+    <string name="no_custom_medals_found">Keine Sondermedaillen gefunden. Teile Screenshots der Medaillen in deinem Ingress-Agentenprofil.</string>
+    <string name="looking_for_custom_medals">Suche nach Sondermedaillen…</string>
+    <string name="saving_agent_stats">Agentenstatistiken werden gespeichert…</string>
+    <string name="agent_stats_saved">Agentenstatistiken gespeichert.</string>
+    <string name="stats_of_other_agent">Diese Statistiken sind von Agent %1$s, dein Agentenname ist %2$s.</string>
+    <plurals name="saving_custom_medals">
+        <item quantity="one">%1$d Sondermedaille wird gespeichert…</item>
+        <item quantity="other">%1$d Sondermedaillen werden gespeichert…</item>
+    </plurals>
+    <plurals name="custom_medals_saved">
+        <item quantity="one">%1$d Sondermedaille gespeichert.</item>
+        <item quantity="other">%1$d Sondermedaillen gespeichert.</item>
+    </plurals>
+    <plurals name="custom_medals_all_known">
+        <item quantity="one">Die gefundene Sondermedaille ist schon gespeichert.</item>
+        <item quantity="other">Alle %1$d gefundenen Sondermedaillen sind schon gespeichert.</item>
+    </plurals>
+
+    <!-- Server errors -->
+    <string name="error_network">Netzwerkfehler: %1$s</string>
+    <string name="error_server">Serverfehler: HTTP %1$d</string>
+    <string name="error_unauthorized">Nicht autorisiert.</string>
+    <string name="error_unexpected_response">Unerwartete Antwort vom Server.</string>
+    <string name="error_rejected_stats">Der Server hat die Statistiken abgelehnt.</string>
+    <string name="error_rejected_visible_parts">Der Server hat die sichtbaren Teile abgelehnt.</string>
+    <string name="error_rejected_custom_medals">Der Server hat die Sondermedaillen abgelehnt.</string>
+    <string name="error_stats_already_saved">Diese Statistiken sind schon gespeichert.</string>
+    <string name="error_agent_private">%1$s zeigt das Profil nicht mehr.</string>
+</resources>

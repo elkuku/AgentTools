@@ -1,0 +1,4 @@
+<resources>
+    <!-- Profile parts inside a sentence ("Other users see: profile picture, …") start lowercase -->
+    <bool name="lowercase_parts_in_sentence">true</bool>
+</resources>

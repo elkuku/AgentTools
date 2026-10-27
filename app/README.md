@@ -110,3 +110,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   tier, so a lower one is a wrong match). The user reviews the medals before saving; they are
   merged with the saved ones and uploaded to `web` (loaded with `GET /api/me`, saved with `PATCH /api/me`) in
   4e-website's format (`data/CustomMedalsJson.kt`).
+- Languages: English (`res/values`, the default), German (`values-de`) and Spanish
+  (`values-es`); keep the three `strings.xml` in sync (lint's `MissingTranslation` fails the build
+  otherwise). `AppLanguage.kt` switches the language: Android 13+'s per-app language (also in the
+  system settings, from `generateLocaleConfig` and `res/resources.properties`), before that a
+  stored setting applied in `MainActivity.attachBaseContext`; the language card
+  (`ui/LanguageCard.kt`) is on the landing page and in the settings. The view model and the API
+  client return `UiText` (`UiText.kt`): string resources resolved when shown, or server messages
+  as they are. Medal, stat and faction names stay English.

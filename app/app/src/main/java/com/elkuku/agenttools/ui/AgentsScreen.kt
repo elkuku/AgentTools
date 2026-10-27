@@ -37,12 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
+import com.elkuku.agenttools.asString
 import com.elkuku.agenttools.data.AgentProfile
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.AgentSummary
@@ -71,10 +73,10 @@ fun AgentsScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = "Back", modifier = Modifier.size(20.dp))
+                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = stringResource(R.string.back), modifier = Modifier.size(20.dp))
                     }
                 },
-                title = { Text(agent?.summary?.agentName ?: if (users != null) "Admin agents" else "Agents", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text(agent?.summary?.agentName ?: stringResource(if (users != null) R.string.admin_agents else R.string.agents), maxLines = 1, overflow = TextOverflow.Ellipsis) },
             )
         },
     ) { padding ->
@@ -103,7 +105,7 @@ fun AgentsScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(it.text, modifier = Modifier.padding(12.dp))
+                        Text(it.text.asString(), modifier = Modifier.padding(12.dp))
                     }
                 }
 
@@ -119,9 +121,9 @@ fun AgentsScreen(
 
 @Composable
 private fun AgentList(agents: List<AgentSummary>, onOpenAgent: (String) -> Unit) {
-    Text("Agents who show their profile to other users. Choose what you show in the settings.", style = MaterialTheme.typography.bodySmall)
+    Text(stringResource(R.string.agents_intro), style = MaterialTheme.typography.bodySmall)
     if (agents.isEmpty()) {
-        Text("No agent shows a profile yet.")
+        Text(stringResource(R.string.agents_none))
         return
     }
 
@@ -148,7 +150,7 @@ private fun AgentList(agents: List<AgentSummary>, onOpenAgent: (String) -> Unit)
  */
 @Composable
 private fun UserList(users: List<UserPrivacy>, onOpenAgent: (String) -> Unit) {
-    Text("Every user, with what they show to other users.", style = MaterialTheme.typography.bodySmall)
+    Text(stringResource(R.string.admin_agents_intro), style = MaterialTheme.typography.bodySmall)
 
     val pictures = users.any { it.avatar != null }
     users.forEach { user ->
@@ -162,7 +164,7 @@ private fun UserList(users: List<UserPrivacy>, onOpenAgent: (String) -> Unit) {
                 .padding(vertical = 4.dp),
         ) {
             if (pictures) {
-                Box(Modifier.size(28.dp)) { rememberAvatar(user.avatar)?.let { Avatar(it, size = 28.dp, description = "Profile picture") } }
+                Box(Modifier.size(28.dp)) { rememberAvatar(user.avatar)?.let { Avatar(it, size = 28.dp, description = stringResource(R.string.profile_picture)) } }
             }
             Box(Modifier.width(14.dp), contentAlignment = Alignment.Center) {
                 faction?.let { FactionLogo(it, user.faction, height = 20.dp) }
@@ -197,10 +199,10 @@ private fun PrivacyIcons(user: UserPrivacy) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         when {
-            !user.visibilityChosen -> PrivacyIcon(R.drawable.ic_bi_question_circle, "Not chosen yet: all private", muted)
-            user.visibleParts.isEmpty() -> PrivacyIcon(R.drawable.ic_bi_lock, "All private", muted)
+            !user.visibilityChosen -> PrivacyIcon(R.drawable.ic_bi_question_circle, stringResource(R.string.visibility_not_chosen), muted)
+            user.visibleParts.isEmpty() -> PrivacyIcon(R.drawable.ic_bi_lock, stringResource(R.string.all_private), muted)
             else -> ProfilePart.entries.filter { it in user.visibleParts }.forEach { part ->
-                PrivacyIcon(part.icon, part.label, MaterialTheme.colorScheme.primary)
+                PrivacyIcon(part.icon, stringResource(part.label), MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -239,14 +241,14 @@ private fun RowScope.AgentHeader(
     val picture = rememberAvatar(agent.avatar)
     if (aligned) {
         if (pictures) {
-            Box(Modifier.size(avatarSize.dp)) { picture?.let { Avatar(it, size = avatarSize.dp, description = "Profile picture") } }
+            Box(Modifier.size(avatarSize.dp)) { picture?.let { Avatar(it, size = avatarSize.dp, description = stringResource(R.string.profile_picture)) } }
         }
         // The logos are a little narrower than high
         Box(Modifier.width((logoSize * 0.7f).dp), contentAlignment = Alignment.Center) {
             faction?.let { FactionLogo(it, agent.faction, height = logoSize.dp) }
         }
     } else {
-        picture?.let { Avatar(it, size = avatarSize.dp, description = "Profile picture") }
+        picture?.let { Avatar(it, size = avatarSize.dp, description = stringResource(R.string.profile_picture)) }
         faction?.let { FactionLogo(it, agent.faction, height = logoSize.dp) }
     }
     Text(
@@ -280,7 +282,7 @@ private fun AgentProfileView(profile: AgentProfile) {
 
     profile.customMedals?.let { medals ->
         HorizontalDivider()
-        CustomMedals(medals, emptyText = "No custom medals yet.")
+        CustomMedals(medals, emptyText = stringResource(R.string.custom_medals_none))
     }
 
     profile.history?.let { history ->
@@ -289,16 +291,16 @@ private fun AgentProfileView(profile: AgentProfile) {
     }
 
     if (latest == null && profile.customMedals == null && profile.history == null) {
-        Text("${profile.summary.agentName} shows nothing more.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.agent_shows_nothing_more, profile.summary.agentName), style = MaterialTheme.typography.bodySmall)
     }
 }
 
 /** Date, level and AP of each import, newest first, as web's history table. */
 @Composable
 private fun StatsHistory(history: List<AgentStatEntry>) {
-    Text("Stats history", style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.stats_history), style = MaterialTheme.typography.titleMedium)
     if (history.isEmpty()) {
-        Text("No stats yet.")
+        Text(stringResource(R.string.no_stats))
         return
     }
 

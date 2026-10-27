@@ -71,10 +71,4 @@ class CustomMedalsTest {
             merged,
         )
     }
-
-    @Test
-    fun countsAreSingularOrPlural() {
-        assertEquals("1 custom medal", customMedalCount(1))
-        assertEquals("3 custom medals", customMedalCount(3))
-    }
 }

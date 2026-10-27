@@ -18,7 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,10 +44,10 @@ fun ColumnScope.Home(
     val session = state.session ?: return
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Avatar(rememberAvatar(state.avatar), size = 56.dp, description = "Profile picture")
+        Avatar(rememberAvatar(state.avatar), size = 56.dp, description = stringResource(R.string.profile_picture))
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                "Welcome, ${state.agentName ?: session.displayName ?: session.email}",
+                stringResource(R.string.welcome, state.agentName ?: session.displayName ?: session.email),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -54,7 +57,7 @@ fun ColumnScope.Home(
         }
     }
 
-    HomeCard(R.drawable.ic_bi_bar_chart, "My stats", action = "Open" to onOpenStats) {
+    HomeCard(R.drawable.ic_bi_bar_chart, stringResource(R.string.my_stats), action = stringResource(R.string.open) to onOpenStats) {
         val latest = state.latest
         when {
             latest != null -> {
@@ -66,23 +69,24 @@ fun ColumnScope.Home(
                         Text("L$level", fontWeight = FontWeight.Bold, color = faction?.color() ?: MaterialTheme.colorScheme.primary)
                     }
                 }
-                Text("AP: ${latest["ap"].formatted()}")
+                Text(stringResource(R.string.ap, latest["ap"].formatted()))
                 val uploads = state.entries.orEmpty().size
                 Text(
-                    "Latest update: ${latest.datetime.take(10)} · $uploads ${if (uploads == 1) "upload" else "uploads"}",
+                    stringResource(R.string.latest_update, latest.datetime.take(10)) + " · " +
+                        pluralStringResource(R.plurals.uploads, uploads, uploads),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            state.entries != null -> Text(NO_STATS_HINT)
-            else -> Text("Loading…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            state.entries != null -> Text(stringResource(R.string.no_stats_hint))
+            else -> Text(stringResource(R.string.loading), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         state.customMedals?.let { medals ->
             Text(
-                when (medals.size) {
-                    0 -> "No custom medals yet: share screenshots of your Ingress medal grid."
-                    1 -> "1 custom medal"
-                    else -> "${medals.size} custom medals"
+                if (medals.isEmpty()) {
+                    stringResource(R.string.no_custom_medals_hint)
+                } else {
+                    pluralStringResource(R.plurals.custom_medals, medals.size, medals.size)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -90,22 +94,31 @@ fun ColumnScope.Home(
         }
     }
 
-    HomeCard(R.drawable.ic_bi_lock, "Your profile", action = "Change" to onOpenSettings) {
+    HomeCard(R.drawable.ic_bi_lock, stringResource(R.string.your_profile), action = stringResource(R.string.change) to onOpenSettings) {
         Text(
             when {
-                !state.visibilityChosen -> "Not chosen yet: everything is private."
-                ProfilePart.AGENT !in state.visibleParts -> "Private: other users don't see your profile."
-                else -> "Other users see: " + ProfilePart.entries.filter { it in state.visibleParts }.joinToString { it.label.lowercase() } + "."
+                !state.visibilityChosen -> stringResource(R.string.profile_not_chosen)
+                ProfilePart.AGENT !in state.visibleParts -> stringResource(R.string.profile_private)
+                else -> {
+                    // Inside the sentence: lowercase in English and Spanish, but not German nouns
+                    val lowercase = booleanResource(R.bool.lowercase_parts_in_sentence)
+                    stringResource(
+                        R.string.profile_others_see,
+                        ProfilePart.entries.filter { it in state.visibleParts }
+                            .map { stringResource(it.label).let { label -> if (lowercase) label.replaceFirstChar(Char::lowercaseChar) else label } }
+                            .joinToString(),
+                    )
+                }
             },
         )
     }
 
-    HomeCard(R.drawable.ic_bi_people, "Agents", action = "Show" to onOpenAgents) {
-        Text("The agents who show their profile, with their stats and medals.")
+    HomeCard(R.drawable.ic_bi_people, stringResource(R.string.agents), action = stringResource(R.string.show) to onOpenAgents) {
+        Text(stringResource(R.string.agents_card))
     }
 
-    HomeCard(R.drawable.ic_bi_share, "Share from Ingress") {
-        Text("Open your agent profile, select ALL TIME and share the stats with AgentTools. Share screenshots of your medal grid for your custom medals.")
+    HomeCard(R.drawable.ic_bi_share, stringResource(R.string.feature_share)) {
+        Text(stringResource(R.string.share_card))
     }
 
     val uriHandler = LocalUriHandler.current

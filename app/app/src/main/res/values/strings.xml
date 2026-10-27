@@ -1,3 +1,194 @@
 <resources>
-    <string name="app_name">AgentTools</string>
+    <string name="app_name" translatable="false">AgentTools</string>
+    <!-- Medal, stat and faction names stay in English in every language (as agents know them) -->
+
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="saved">Saved.</string>
+    <string name="open">Open</string>
+    <string name="show">Show</string>
+    <string name="change">Change</string>
+    <string name="choose">Choose</string>
+    <string name="later">Later</string>
+    <string name="loading">Loading…</string>
+    <string name="menu">Menu</string>
+    <string name="app_icon">AgentTools icon</string>
+    <string name="profile_picture">Profile picture</string>
+
+    <!-- Language -->
+    <string name="language">Language</string>
+    <string name="language_phone">Phone\'s language</string>
+
+    <!-- Landing page (signed out) -->
+    <string name="landing_lead">Save your Ingress agent stats and medals and see them in one place.</string>
+    <string name="landing_hint">Sign in with Google and share your stats: the first ones set your agent name.</string>
+    <string name="feature_share">Share from Ingress</string>
+    <string name="feature_share_text">Open your agent profile, select ALL TIME and share the stats with AgentTools. They are saved right away.</string>
+    <string name="feature_changes">See what changed</string>
+    <string name="feature_changes_text">After each import: every stat that went up, medals that reached a new tier and your new level.</string>
+    <string name="feature_medals">Your medals</string>
+    <string name="feature_medals_text">Your latest stats with the medals they earn, from bronze to onyx. Tap a medal for its details.</string>
+    <string name="feature_custom_medals">Custom medals</string>
+    <string name="feature_custom_medals_text">Anomaly, annual and event medals: share screenshots of your medal grid, check what the app found, then save.</string>
+    <string name="feature_web">On the web, too</string>
+    <string name="feature_web_text">Your stats are stored on the AgentTools website. Sign in there with the same Google account to see them.</string>
+
+    <!-- App bar and menus -->
+    <string name="sign_in">Sign in</string>
+    <string name="sign_out">Sign out</string>
+    <string name="account">Account</string>
+    <string name="my_stats">My stats</string>
+    <string name="settings">Settings</string>
+    <string name="agents">Agents</string>
+    <string name="admin_agents">Admin agents</string>
+    <string name="role_user">User</string>
+    <string name="role_admin">Admin</string>
+
+    <!-- Home page -->
+    <string name="welcome">Welcome, %1$s</string>
+    <string name="ap">AP: %1$s</string>
+    <string name="latest_update">Latest update: %1$s</string>
+    <plurals name="uploads">
+        <item quantity="one">%1$d upload</item>
+        <item quantity="other">%1$d uploads</item>
+    </plurals>
+    <string name="no_stats_hint">No stats yet. In Ingress, open your agent profile, select ALL TIME and share the stats with this app.</string>
+    <string name="no_custom_medals_hint">No custom medals yet: share screenshots of your Ingress medal grid.</string>
+    <plurals name="custom_medals">
+        <item quantity="one">%1$d custom medal</item>
+        <item quantity="other">%1$d custom medals</item>
+    </plurals>
+    <string name="your_profile">Your profile</string>
+    <string name="profile_not_chosen">Not chosen yet: everything is private.</string>
+    <string name="profile_private">Private: other users don\'t see your profile.</string>
+    <string name="profile_others_see">Other users see: %1$s.</string>
+    <string name="agents_card">The agents who show their profile, with their stats and medals.</string>
+    <string name="share_card">Open your agent profile, select ALL TIME and share the stats with AgentTools. Share screenshots of your medal grid for your custom medals.</string>
+    <string name="choose_visibility_prompt">Choose what other users see of your profile. Until you do, everything is private.</string>
+
+    <!-- Profile parts (as on the website) -->
+    <string name="part_agent">Agent name, faction and level</string>
+    <string name="part_agent_help">Your agent page and your entry in the list of agents. The other parts are only shown with it.</string>
+    <string name="part_avatar">Profile picture</string>
+    <string name="part_avatar_help">Your Google profile picture next to your agent name.</string>
+    <string name="part_latest_stats">Latest stats</string>
+    <string name="part_latest_stats_help">The all-time stats of your newest upload.</string>
+    <string name="part_stats_history">Stats history</string>
+    <string name="part_stats_history_help">Every upload with its date and AP.</string>
+    <string name="part_custom_medals">Custom medals</string>
+    <string name="part_custom_medals_help">Your anomaly, annual and event medals.</string>
+
+    <!-- Stats -->
+    <string name="core_subscriptions">C.O.R.E subscriptions</string>
+    <plurals name="core_months">
+        <item quantity="one">C.O.R.E %1$d month</item>
+        <item quantity="other">C.O.R.E %1$d months</item>
+    </plurals>
+    <plurals name="core_subscriptions_months">
+        <item quantity="one">C.O.R.E subscriptions (%1$d month)</item>
+        <item quantity="other">C.O.R.E subscriptions (%1$d months)</item>
+    </plurals>
+    <string name="locked">locked</string>
+    <string name="dronenet">Portals: %1$s  Hacks (Maverick): %2$s  Forced recalls: %3$s  Flight: %4$s km</string>
+    <string name="kinetic_capsules_completed">Kinetic capsules completed: %1$d</string>
+    <string name="kinetic_capsules_none">No kinetic capsules completed yet</string>
+    <string name="first_import">First import: %1$s</string>
+    <string name="stats_history">Stats history</string>
+    <string name="no_stats">No stats yet.</string>
+
+    <!-- Import result -->
+    <string name="changes_since">Changes since %1$s</string>
+    <string name="first_import_title">First import</string>
+    <string name="next_import_hint">Your next import will show what changed.</string>
+    <string name="new_level">New Level: %1$s</string>
+    <string name="medal_upgrades">Medal Upgrades</string>
+    <string name="onyx_again">Onyx again</string>
+    <string name="core_subscription">C.O.R.E Subscription</string>
+    <string name="recursion">Recursion</string>
+    <string name="no_stat_went_up">No stat went up.</string>
+
+    <!-- Custom medals -->
+    <string name="custom_medals_empty_hint">In Ingress, take screenshots of the medals in your agent profile and share them with this app.</string>
+    <string name="custom_medals_none">No custom medals yet.</string>
+    <plurals name="new_custom_medals_found">
+        <item quantity="one">%1$d new custom medal found</item>
+        <item quantity="other">%1$d new custom medals found</item>
+    </plurals>
+    <string name="medal_review">Untick what is wrong.</string>
+    <string name="medal_review_unsure">Untick what is wrong. The faded ones are unsure matches: tick them if they are right.</string>
+    <plurals name="custom_medals_already_saved">
+        <item quantity="one">%1$d custom medal already saved, not shown.</item>
+        <item quantity="other">%1$d custom medals already saved, not shown.</item>
+    </plurals>
+    <plurals name="save_custom_medals">
+        <item quantity="one">Save %1$d custom medal</item>
+        <item quantity="other">Save %1$d custom medals</item>
+    </plurals>
+
+    <!-- Agents -->
+    <string name="agents_intro">Agents who show their profile to other users. Choose what you show in the settings.</string>
+    <string name="agents_none">No agent shows a profile yet.</string>
+    <string name="admin_agents_intro">Every user, with what they show to other users.</string>
+    <string name="visibility_not_chosen">Not chosen yet: all private</string>
+    <string name="all_private">All private</string>
+    <string name="agent_shows_nothing_more">%1$s shows nothing more.</string>
+
+    <!-- Settings -->
+    <string name="profile">Profile</string>
+    <string name="agent_name">Agent name</string>
+    <string name="agent_name_hint">The first stats you share set it; only stats of this agent can be saved.</string>
+    <string name="visible_to_others">Visible to other users</string>
+    <string name="visibility_chosen_hint">Signed-in users see these parts on your agent page on the website. Unchecked parts stay private.</string>
+    <string name="visibility_choose_hint">Choose what other users see. Until you save, everything is private.</string>
+    <string name="app">App</string>
+    <string name="version">Version</string>
+    <string name="build">Build</string>
+    <string name="server">Server</string>
+    <string name="server_url">Server URL</string>
+    <string name="server_default">Default: %1$s</string>
+    <string name="use_default">Use default</string>
+    <string name="use_live_server">Use live server</string>
+    <string name="server_change_hint">Changing the server reloads your data from it.</string>
+
+    <!-- Messages -->
+    <string name="signed_out">Signed out.</string>
+    <string name="not_authorized">Not authorized: %1$s Please sign in again.</string>
+    <string name="sign_in_cancelled">Sign-in cancelled.</string>
+    <string name="sign_in_no_account">No Google account available on this device.</string>
+    <string name="sign_in_failed">Sign-in failed: %1$s</string>
+    <string name="sign_in_invalid_token">Invalid Google ID token: %1$s</string>
+    <string name="sign_in_no_email">The Google account has no email address.</string>
+    <string name="sign_in_to_save_stats">Sign in to save the shared stats.</string>
+    <string name="sign_in_to_save_custom_medals">Sign in to save the custom medals.</string>
+    <string name="not_stats">That is not Ingress all-time stats. In Ingress, open your agent profile, select ALL TIME and share the stats.</string>
+    <string name="no_custom_medals_found">No custom medals found. Share screenshots of the medals in your Ingress agent profile.</string>
+    <string name="looking_for_custom_medals">Looking for custom medals…</string>
+    <string name="saving_agent_stats">Saving agent stats…</string>
+    <string name="agent_stats_saved">Agent stats saved.</string>
+    <string name="stats_of_other_agent">These stats are for agent %1$s, your agent name is %2$s.</string>
+    <plurals name="saving_custom_medals">
+        <item quantity="one">Saving %1$d custom medal…</item>
+        <item quantity="other">Saving %1$d custom medals…</item>
+    </plurals>
+    <plurals name="custom_medals_saved">
+        <item quantity="one">%1$d custom medal saved.</item>
+        <item quantity="other">%1$d custom medals saved.</item>
+    </plurals>
+    <plurals name="custom_medals_all_known">
+        <item quantity="one">The custom medal found is already saved.</item>
+        <item quantity="other">All %1$d custom medals found are already saved.</item>
+    </plurals>
+
+    <!-- Server errors -->
+    <string name="error_network">Network error: %1$s</string>
+    <string name="error_server">Server error: HTTP %1$d</string>
+    <string name="error_unauthorized">Unauthorized.</string>
+    <string name="error_unexpected_response">Unexpected response from the server.</string>
+    <string name="error_rejected_stats">The server rejected the stats.</string>
+    <string name="error_rejected_visible_parts">The server rejected the visible parts.</string>
+    <string name="error_rejected_custom_medals">The server rejected the custom medals.</string>
+    <string name="error_stats_already_saved">These stats are already saved.</string>
+    <string name="error_agent_private">%1$s no longer shows the profile.</string>
 </resources>

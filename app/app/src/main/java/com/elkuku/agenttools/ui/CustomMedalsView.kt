@@ -31,13 +31,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.CUSTOM_MEDAL_GROUPS
 import com.elkuku.agenttools.data.CustomMedalTier
-import com.elkuku.agenttools.data.customMedalCount
 import com.elkuku.agenttools.data.tierLabel
 import com.elkuku.agenttools.scan.CUSTOM_MEDAL_ASSETS
 import com.elkuku.agenttools.scan.RecognizedMedal
@@ -47,11 +49,11 @@ import com.elkuku.agenttools.scan.RecognizedMedal
 @Composable
 fun CustomMedals(
     medals: List<CustomMedalTier>,
-    emptyText: String = "In Ingress, take screenshots of the medals in your agent profile and share them with this app.",
+    emptyText: String = stringResource(R.string.custom_medals_empty_hint),
 ) {
     var selected by remember { mutableStateOf<CustomMedalTier?>(null) }
 
-    Text("Custom medals", style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.feature_custom_medals), style = MaterialTheme.typography.titleMedium)
     if (medals.isEmpty()) {
         Text(emptyText)
         return
@@ -71,7 +73,7 @@ fun CustomMedals(
     selected?.let { medal ->
         AlertDialog(
             onDismissRequest = { selected = null },
-            confirmButton = { TextButton(onClick = { selected = null }) { Text("Close") } },
+            confirmButton = { TextButton(onClick = { selected = null }) { Text(stringResource(R.string.close)) } },
             title = { Text(medal.label) },
             text = {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
@@ -101,23 +103,23 @@ fun MedalScanReview(
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    if (recognized.size == 1) "1 new custom medal found" else "${recognized.size} new custom medals found",
+                    pluralStringResource(R.plurals.new_custom_medals_found, recognized.size, recognized.size),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onDismiss) { Text("Close") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
             }
             Text(
                 if (unsure > 0) {
-                    "Untick what is wrong. The faded ones are unsure matches: tick them if they are right."
+                    stringResource(R.string.medal_review_unsure)
                 } else {
-                    "Untick what is wrong."
+                    stringResource(R.string.medal_review)
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
             if (known > 0) {
                 Text(
-                    "${customMedalCount(known)} already saved, not shown.",
+                    pluralStringResource(R.plurals.custom_medals_already_saved, known, known),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -156,7 +158,7 @@ fun MedalScanReview(
             }
 
             Button(onClick = { onSave(recognized.map { it.medal }.filter { it in kept }) }, enabled = kept.isNotEmpty()) {
-                Text("Save ${customMedalCount(kept.size)}")
+                Text(pluralStringResource(R.plurals.save_custom_medals, kept.size, kept.size))
             }
         }
     }

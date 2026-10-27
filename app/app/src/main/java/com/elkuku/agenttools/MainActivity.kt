@@ -1,5 +1,6 @@
 package com.elkuku.agenttools
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,6 +38,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private val serverSettings get() = (application as AgentToolsApplication).serverSettings
+
+    // The chosen language before Android 13 (AppLanguage)
+    override fun attachBaseContext(newBase: Context) = super.attachBaseContext(AppLanguage.wrap(newBase))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

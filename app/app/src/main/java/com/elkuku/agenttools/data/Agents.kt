@@ -1,5 +1,6 @@
 package com.elkuku.agenttools.data
 
+import com.elkuku.agenttools.UiText
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
@@ -43,29 +44,29 @@ sealed interface UsersResult {
     data class Success(val users: List<UserPrivacy>) : UsersResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : UsersResult
+    data class Unauthorized(val message: UiText) : UsersResult
 
     /** E.g. 403 for a user who is no admin, or a network error. */
-    data class Failure(val message: String) : UsersResult
+    data class Failure(val message: UiText) : UsersResult
 }
 
 sealed interface AgentsResult {
     data class Success(val agents: List<AgentSummary>) : AgentsResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : AgentsResult
+    data class Unauthorized(val message: UiText) : AgentsResult
 
-    data class Failure(val message: String) : AgentsResult
+    data class Failure(val message: UiText) : AgentsResult
 }
 
 sealed interface AgentProfileResult {
     data class Success(val profile: AgentProfile) : AgentProfileResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : AgentProfileResult
+    data class Unauthorized(val message: UiText) : AgentProfileResult
 
     /** E.g. 404: the agent no longer shows the profile, or a network error. */
-    data class Failure(val message: String) : AgentProfileResult
+    data class Failure(val message: UiText) : AgentProfileResult
 }
 
 @Serializable

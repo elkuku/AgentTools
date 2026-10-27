@@ -31,14 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.asString
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
+import com.elkuku.agenttools.uiText
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 
@@ -70,7 +74,7 @@ fun MainScreen(
                 title = { Text("AgentTools", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
                     if (state.session == null) {
-                        TextButton(onClick = onSignIn, enabled = !state.busy) { Text("Sign in") }
+                        TextButton(onClick = onSignIn, enabled = !state.busy) { Text(stringResource(R.string.sign_in)) }
                     } else {
                         FeatureMenu(onOpenAgents = onOpenAgents, onOpenAdminAgents = onOpenAdminAgents.takeIf { state.role == UserRole.ADMIN })
                         AccountMenu(
@@ -94,10 +98,10 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Choose what other users see of your profile. Until you do, everything is private.")
+                        Text(stringResource(R.string.choose_visibility_prompt))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = onChooseVisibility) { Text("Choose") }
-                            TextButton(onClick = onDismissVisibility) { Text("Later") }
+                            Button(onClick = onChooseVisibility) { Text(stringResource(R.string.choose)) }
+                            TextButton(onClick = onDismissVisibility) { Text(stringResource(R.string.later)) }
                         }
                     }
                 }
@@ -154,7 +158,7 @@ internal fun RefreshableColumn(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                        Text(progress, style = MaterialTheme.typography.bodyLarge)
+                        Text(progress.asString(), style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             } else if (state.busy && !pulled) {
@@ -172,7 +176,7 @@ internal fun RefreshableColumn(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(status.text, modifier = Modifier.padding(12.dp))
+                    Text(status.text.asString(), modifier = Modifier.padding(12.dp))
                 }
             }
 
@@ -189,7 +193,7 @@ internal fun RoleBadge(role: UserRole) {
         UserRole.ADMIN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
     }
     Surface(color = container, contentColor = content, shape = MaterialTheme.shapes.small) {
-        Text(role.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+        Text(stringResource(role.label), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
     }
 }
 
@@ -211,7 +215,7 @@ private fun MainScreenPreview() {
                 session = GoogleSession("token", "jane@example.com", "Jane"),
                 role = UserRole.USER,
                 entries = listOf(AgentStatEntry.fromJson(stats)),
-                status = Status("Agent stats saved.", false),
+                status = Status(uiText(R.string.agent_stats_saved), false),
             ),
             serverUrl = "https://agent-tools.example.com",
             onSignIn = {},

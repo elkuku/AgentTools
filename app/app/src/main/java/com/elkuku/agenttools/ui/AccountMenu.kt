@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ fun AccountMenu(
 
     Box {
         IconButton(onClick = { expanded = true }) {
-            Avatar(picture, size = 32.dp, description = "Account")
+            Avatar(picture, size = 32.dp, description = stringResource(R.string.account))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             Row(
@@ -70,16 +71,16 @@ fun AccountMenu(
                 }
             }
             HorizontalDivider()
-            MenuItem(R.drawable.ic_bi_bar_chart, "My stats") {
+            MenuItem(R.drawable.ic_bi_bar_chart, stringResource(R.string.my_stats)) {
                 expanded = false
                 onOpenStats()
             }
-            MenuItem(R.drawable.ic_bi_gear, "Settings") {
+            MenuItem(R.drawable.ic_bi_gear, stringResource(R.string.settings)) {
                 expanded = false
                 onOpenSettings()
             }
             HorizontalDivider()
-            MenuItem(R.drawable.ic_bi_box_arrow_right, "Sign out", enabled) {
+            MenuItem(R.drawable.ic_bi_box_arrow_right, stringResource(R.string.sign_out), enabled) {
                 expanded = false
                 onSignOut()
             }
@@ -133,15 +134,15 @@ fun FeatureMenu(onOpenAgents: () -> Unit, onOpenAdminAgents: (() -> Unit)? = nul
 
     Box {
         IconButton(onClick = { expanded = true }) {
-            Icon(painterResource(R.drawable.ic_bi_list), contentDescription = "Menu", modifier = Modifier.size(24.dp))
+            Icon(painterResource(R.drawable.ic_bi_list), contentDescription = stringResource(R.string.menu), modifier = Modifier.size(24.dp))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            MenuItem(R.drawable.ic_bi_people, "Agents") {
+            MenuItem(R.drawable.ic_bi_people, stringResource(R.string.agents)) {
                 expanded = false
                 onOpenAgents()
             }
             onOpenAdminAgents?.let { open ->
-                MenuItem(R.drawable.ic_bi_person_gear, "Admin agents") {
+                MenuItem(R.drawable.ic_bi_person_gear, stringResource(R.string.admin_agents)) {
                     expanded = false
                     open()
                 }

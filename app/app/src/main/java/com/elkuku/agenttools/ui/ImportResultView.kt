@@ -15,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,22 +35,22 @@ fun ImportResultView(result: ImportResult, onDismiss: () -> Unit) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    result.previous?.let { "Changes since ${it.datetime}" } ?: "First import",
+                    result.previous?.let { stringResource(R.string.changes_since, it.datetime) } ?: stringResource(R.string.first_import_title),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onDismiss) { Text("Close") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
             }
 
             if (result.isFirstImport) {
-                Text("Your next import will show what changed.")
+                Text(stringResource(R.string.next_import_hint))
                 return@Column
             }
 
-            result.newLevel?.let { Highlight("New Level: $it") }
+            result.newLevel?.let { Highlight(stringResource(R.string.new_level, it)) }
 
             if (result.medalUps.isNotEmpty()) {
-                Highlight("Medal Upgrades")
+                Highlight(stringResource(R.string.medal_upgrades))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     result.medalUps.forEach { (column, level) ->
                         medalBadge(column, level)?.let {
@@ -60,7 +61,7 @@ fun ImportResultView(result: ImportResult, onDismiss: () -> Unit) {
             }
 
             if (result.medalDoubles.isNotEmpty()) {
-                Highlight("Onyx again")
+                Highlight(stringResource(R.string.onyx_again))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     result.medalDoubles.forEach { (column, times) ->
                         medalBadge(column, 5)?.let { Badge(it, "${medalFor(column)?.name}: Onyx", count = times) }
@@ -69,19 +70,19 @@ fun ImportResultView(result: ImportResult, onDismiss: () -> Unit) {
             }
 
             if (result.coreBadges.isNotEmpty()) {
-                Highlight("C.O.R.E Subscription")
+                Highlight(stringResource(R.string.core_subscription))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     result.coreBadges.forEach { Badge(CORE_BADGES[it], "C.O.R.E") }
                 }
             }
 
             result.recursions?.let {
-                Highlight("Recursion")
+                Highlight(stringResource(R.string.recursion))
                 Badge(R.drawable.unique_badge_simulacrum, "Simulacrum", count = it.takeIf { it > 1 })
             }
 
             if (result.diff.isEmpty()) {
-                Text("No stat went up.")
+                Text(stringResource(R.string.no_stat_went_up))
             }
 
             result.diff.forEach { (column, increase) ->

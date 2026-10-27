@@ -3,6 +3,9 @@ package com.elkuku.agenttools.ui
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.UiText
+import com.elkuku.agenttools.uiText
 import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
@@ -18,7 +21,6 @@ import com.elkuku.agenttools.data.ImportResult
 import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
-import com.elkuku.agenttools.data.customMedalCount
 import com.elkuku.agenttools.data.StatsApi
 import com.elkuku.agenttools.data.UserPrivacy
 import com.elkuku.agenttools.data.UserRole
@@ -39,7 +41,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 /** A message for the user; [untilSignIn] ones are about being signed out and go away on sign-in. */
-data class Status(val text: String, val isError: Boolean, val untilSignIn: Boolean = false)
+data class Status(val text: UiText, val isError: Boolean, val untilSignIn: Boolean = false)
 
 data class UiState(
     val session: GoogleSession? = null,
@@ -71,7 +73,7 @@ data class UiState(
     val agentsStatus: Status? = null,
     val busy: Boolean = false,
     /** What takes a while (saving, scanning), shown with a loading animation; null for nothing. */
-    val progress: String? = null,
+    val progress: UiText? = null,
     /** The user's stats, newest first; null until loaded. */
     val entries: List<AgentStatEntry>? = null,
     /** Stats shared from Ingress before the user signed in; saved after sign-in. */
@@ -114,7 +116,7 @@ class MainViewModel(
             signedIn(session)
             savePendingOrLoad(context)
         } catch (e: AuthException) {
-            _state.update { it.copy(status = if (e.cancelled) null else Status(e.message.orEmpty(), true)) }
+            _state.update { it.copy(status = if (e.cancelled) null else Status(e.text, true)) }
         }
     }
 
@@ -139,7 +141,7 @@ class MainViewModel(
                 users = null,
                 agent = null,
                 agentsStatus = null,
-                status = Status("Signed out.", false, untilSignIn = true),
+                status = Status(uiText(R.string.signed_out), false, untilSignIn = true),
             )
         }
     }
@@ -171,7 +173,7 @@ class MainViewModel(
 
         _state.update { it.copy(pending = stats, importResult = null, status = null) }
         if (_state.value.session == null) {
-            _state.update { it.copy(status = Status("Sign in to save the shared stats.", false)) }
+            _state.update { it.copy(status = Status(uiText(R.string.sign_in_to_save_stats), false)) }
         } else {
             launchBusy { savePendingOrLoad(context) }
         }
@@ -240,7 +242,7 @@ class MainViewModel(
         val result = withToken(context, { it is VisibilityResult.Unauthorized }) { api.saveVisibleParts(it, parts) }
         when (result) {
             is VisibilityResult.Success -> _state.update {
-                it.copy(visibleParts = result.visibleParts, visibilityChosen = true, visibilityStatus = Status("Saved.", false))
+                it.copy(visibleParts = result.visibleParts, visibilityChosen = true, visibilityStatus = Status(uiText(R.string.saved), false))
             }
             is VisibilityResult.Failure -> _state.update { it.copy(visibilityStatus = Status(result.message, true)) }
             is VisibilityResult.Unauthorized -> signedOutBy(result.message)
@@ -269,7 +271,7 @@ class MainViewModel(
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
         _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, medalScan = null, medalScanKnown = 0, status = null) }
-        val recognized = withProgress("Looking for custom medals…") { scanMedals(read()) }
+        val recognized = withProgress(uiText(R.string.looking_for_custom_medals)) { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })
             .mapValues { (_, tiers) -> tiers.max() }
@@ -290,7 +292,7 @@ class MainViewModel(
     fun saveMedalScan(context: Context, medals: List<CustomMedalTier>) {
         _state.update { it.copy(medalScan = null, medalScanKnown = 0, pendingMedals = mergeCustomMedals(it.pendingMedals.orEmpty(), medals)) }
         if (_state.value.session == null) {
-            _state.update { it.copy(status = Status("Sign in to save the custom medals.", false)) }
+            _state.update { it.copy(status = Status(uiText(R.string.sign_in_to_save_custom_medals), false)) }
         } else {
             // The saved medals may have changed meanwhile, e.g. from another device
             launchBusy {
@@ -324,7 +326,7 @@ class MainViewModel(
         val nickname = stats["nickname"]?.jsonPrimitive?.contentOrNull.orEmpty()
         if (state.agentName != null && !nickname.equals(state.agentName, ignoreCase = true)) {
             _state.update {
-                it.copy(pending = null, status = Status("These stats are for agent $nickname, your agent name is ${state.agentName}.", true))
+                it.copy(pending = null, status = Status(uiText(R.string.stats_of_other_agent, nickname, state.agentName), true))
             }
             loadStats(context)
             return
@@ -332,20 +334,20 @@ class MainViewModel(
 
         // Taken before saving, so a sign-in and a share at the same time save it only once
         _state.update { it.copy(pending = null) }
-        val result = withProgress("Saving agent stats…") {
+        val result = withProgress(uiText(R.string.saving_agent_stats)) {
             withToken(context, { it is SaveResult.Unauthorized }) { api.save(it, stats) }
         }
 
         when (result) {
             is SaveResult.Success -> {
-                _state.update { it.copy(agentName = it.agentName ?: nickname.trim(), status = Status("Agent stats saved.", false)) }
+                _state.update { it.copy(agentName = it.agentName ?: nickname.trim(), status = Status(uiText(R.string.agent_stats_saved), false)) }
                 loadStats(context)
                 _state.update { state ->
                     val entries = state.entries.orEmpty()
                     state.copy(importResult = entries.find { it.id == result.id }?.let { importResultFor(it, entries) })
                 }
             }
-            is SaveResult.Invalid -> _state.update { it.copy(status = Status(result.messages.joinToString("\n"), true)) }
+            is SaveResult.Invalid -> _state.update { it.copy(status = Status(UiText.Lines(result.messages), true)) }
             is SaveResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is SaveResult.Unauthorized -> signedOutBy(result.message)
             null -> Unit
@@ -364,7 +366,7 @@ class MainViewModel(
 
         // Taken before saving, so a sign-in and a save at the same time save them only once
         _state.update { it.copy(pendingMedals = null) }
-        val result = withProgress("Saving ${customMedalCount(medals.size)}…") {
+        val result = withProgress(UiText.Plural(R.plurals.saving_custom_medals, medals.size)) {
             withToken(context, { it is CustomMedalsResult.Unauthorized }) { api.saveCustomMedals(it, mergeCustomMedals(saved, medals)) }
         }
 
@@ -373,7 +375,7 @@ class MainViewModel(
         }
         when (result) {
             is CustomMedalsResult.Success -> _state.update {
-                it.copy(customMedals = result.medals, status = Status("${customMedalCount(medals.size)} saved.", false))
+                it.copy(customMedals = result.medals, status = Status(UiText.Plural(R.plurals.custom_medals_saved, medals.size), false))
             }
             is CustomMedalsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is CustomMedalsResult.Unauthorized -> signedOutBy(result.message)
@@ -441,7 +443,7 @@ class MainViewModel(
 
     private val CustomMedalTier.tierIndex: Int get() = medal.tierOrNone.indexOf(tier)
 
-    private fun signedOutBy(message: String) = _state.update {
+    private fun signedOutBy(message: UiText) = _state.update {
         it.copy(
             session = null,
             role = null,
@@ -460,12 +462,12 @@ class MainViewModel(
             users = null,
             agent = null,
             agentsStatus = null,
-            status = Status("Not authorized: $message Please sign in again.", true, untilSignIn = true),
+            status = Status(uiText(R.string.not_authorized, message), true, untilSignIn = true),
         )
     }
 
     /** Runs [block] with the loading animation and [progress] shown. */
-    private suspend fun <T> withProgress(progress: String, block: suspend () -> T): T {
+    private suspend fun <T> withProgress(progress: UiText, block: suspend () -> T): T {
         _state.update { it.copy(progress = progress) }
         try {
             return block()
@@ -486,13 +488,10 @@ class MainViewModel(
     }
 
     companion object {
-        fun allKnownMessage(count: Int) =
-            if (count == 1) "The custom medal found is already saved." else "All $count custom medals found are already saved."
+        fun allKnownMessage(count: Int): UiText = UiText.Plural(R.plurals.custom_medals_all_known, count)
 
-        const val NOT_STATS_MESSAGE =
-            "That is not Ingress all-time stats. In Ingress, open your agent profile, select ALL TIME and share the stats."
+        val NOT_STATS_MESSAGE = uiText(R.string.not_stats)
 
-        const val NO_MEDALS_MESSAGE =
-            "No custom medals found. Share screenshots of the medals in your Ingress agent profile."
+        val NO_MEDALS_MESSAGE = uiText(R.string.no_custom_medals_found)
     }
 }

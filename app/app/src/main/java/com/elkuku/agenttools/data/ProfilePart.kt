@@ -1,15 +1,18 @@
 package com.elkuku.agenttools.data
 
+import androidx.annotation.StringRes
+import com.elkuku.agenttools.R
+
 /**
  * A part of the agent profile that the user shows to other users (signed in on the website) or
  * keeps private, as `ProfilePart` in web. The other parts are only shown together with [AGENT].
  */
-enum class ProfilePart(val serverValue: String, val label: String, val help: String) {
-    AGENT("agent", "Agent name, faction and level", "Your agent page and your entry in the list of agents. The other parts are only shown with it."),
-    AVATAR("avatar", "Profile picture", "Your Google profile picture next to your agent name."),
-    LATEST_STATS("latest_stats", "Latest stats", "The all-time stats of your newest upload."),
-    STATS_HISTORY("stats_history", "Stats history", "Every upload with its date and AP."),
-    CUSTOM_MEDALS("custom_medals", "Custom medals", "Your anomaly, annual and event medals.");
+enum class ProfilePart(val serverValue: String, @param:StringRes val label: Int, @param:StringRes val help: Int) {
+    AGENT("agent", R.string.part_agent, R.string.part_agent_help),
+    AVATAR("avatar", R.string.part_avatar, R.string.part_avatar_help),
+    LATEST_STATS("latest_stats", R.string.part_latest_stats, R.string.part_latest_stats_help),
+    STATS_HISTORY("stats_history", R.string.part_stats_history, R.string.part_stats_history_help),
+    CUSTOM_MEDALS("custom_medals", R.string.part_custom_medals, R.string.part_custom_medals_help);
 
     companion object {
         /** Null for a part the app does not know. */

@@ -90,6 +90,18 @@ android {
         buildConfig = true
     }
 
+    // The app's languages for Android 13+'s per-app language setting (res/resources.properties: English is the default)
+    androidResources {
+        generateLocaleConfig = true
+    }
+
+    // An app bundle keeps every language: the app switches them itself (AppLanguage)
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     testOptions {
         unitTests.isReturnDefaultValues = true
     }

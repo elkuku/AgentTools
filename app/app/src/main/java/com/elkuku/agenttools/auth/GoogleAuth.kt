@@ -1,6 +1,9 @@
 package com.elkuku.agenttools.auth
 
 import android.content.Context
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.UiText
+import com.elkuku.agenttools.uiText
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -20,7 +23,8 @@ data class GoogleSession(
     val displayName: String?,
 )
 
-class AuthException(message: String, val cancelled: Boolean = false) : Exception(message)
+/** [text] is shown to the user. */
+class AuthException(val text: UiText, val cancelled: Boolean = false) : Exception(text.toString())
 
 /**
  * Google sign-in. Every call takes the current Activity context because
@@ -50,11 +54,11 @@ class CredentialManagerGoogleAuth(
         return try {
             request(context, GetCredentialRequest.Builder().addCredentialOption(option).build())
         } catch (_: GetCredentialCancellationException) {
-            throw AuthException("Sign-in cancelled.", cancelled = true)
+            throw AuthException(uiText(R.string.sign_in_cancelled), cancelled = true)
         } catch (_: NoCredentialException) {
-            throw AuthException("No Google account available on this device.")
+            throw AuthException(uiText(R.string.sign_in_no_account))
         } catch (e: GetCredentialException) {
-            throw AuthException("Sign-in failed: ${e.message ?: e.type}")
+            throw AuthException(uiText(R.string.sign_in_failed, e.message ?: e.type))
         }
     }
 
@@ -83,25 +87,25 @@ class CredentialManagerGoogleAuth(
         if (credential !is CustomCredential ||
             credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
-            throw AuthException("Unexpected credential type: ${credential.type}")
+            throw AuthException(UiText.Plain("Unexpected credential type: ${credential.type}"))
         }
 
         val google = try {
             GoogleIdTokenCredential.createFrom(credential.data)
         } catch (e: GoogleIdTokenParsingException) {
-            throw AuthException("Invalid Google ID token: ${e.message}")
+            throw AuthException(uiText(R.string.sign_in_invalid_token, e.message.orEmpty()))
         }
 
         return GoogleSession(
             idToken = google.idToken,
-            email = google.email ?: throw AuthException("The Google account has no email address."),
+            email = google.email ?: throw AuthException(uiText(R.string.sign_in_no_email)),
             displayName = google.displayName,
         )
     }
 
     private fun requireClientId(): String {
         if (serverClientId.isBlank()) {
-            throw AuthException("google.serverClientId is not set in local.properties.")
+            throw AuthException(UiText.Plain("google.serverClientId is not set in local.properties."))
         }
         return serverClientId
     }

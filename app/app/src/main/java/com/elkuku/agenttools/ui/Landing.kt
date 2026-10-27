@@ -1,6 +1,7 @@
 package com.elkuku.agenttools.ui
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,33 +37,33 @@ import com.elkuku.agenttools.BuildConfig
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 
-private data class Feature(@param:DrawableRes val icon: Int, val title: String, val text: String)
+private data class Feature(@param:DrawableRes val icon: Int, @param:StringRes val title: Int, @param:StringRes val text: Int)
 
 private val FEATURES = listOf(
     Feature(
         R.drawable.ic_bi_share,
-        "Share from Ingress",
-        "Open your agent profile, select ALL TIME and share the stats with AgentTools. They are saved right away.",
+        R.string.feature_share,
+        R.string.feature_share_text,
     ),
     Feature(
         R.drawable.ic_bi_graph_up_arrow,
-        "See what changed",
-        "After each import: every stat that went up, medals that reached a new tier and your new level.",
+        R.string.feature_changes,
+        R.string.feature_changes_text,
     ),
     Feature(
         R.drawable.ic_bi_award,
-        "Your medals",
-        "Your latest stats with the medals they earn, from bronze to onyx. Tap a medal for its details.",
+        R.string.feature_medals,
+        R.string.feature_medals_text,
     ),
     Feature(
         R.drawable.ic_bi_images,
-        "Custom medals",
-        "Anomaly, annual and event medals: share screenshots of your medal grid, check what the app found, then save.",
+        R.string.feature_custom_medals,
+        R.string.feature_custom_medals_text,
     ),
     Feature(
         R.drawable.ic_bi_globe,
-        "On the web, too",
-        "Your stats are stored on the AgentTools website. Sign in there with the same Google account to see them.",
+        R.string.feature_web,
+        R.string.feature_web_text,
     ),
 )
 
@@ -81,19 +83,21 @@ fun Landing(serverUrl: String, modifier: Modifier = Modifier) {
         AppIcon(modifier = Modifier.padding(top = 8.dp))
         Text("AgentTools", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "Save your Ingress agent stats and medals and see them in one place.",
+            stringResource(R.string.landing_lead),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            "Sign in with Google and share your stats: the first ones set your agent name.",
+            stringResource(R.string.landing_hint),
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         FEATURES.forEach { FeatureCard(it) }
+
+        LanguageCard()
 
         val uriHandler = LocalUriHandler.current
         TextButton(onClick = { uriHandler.openUri(serverUrl) }) {
@@ -107,7 +111,7 @@ fun Landing(serverUrl: String, modifier: Modifier = Modifier) {
 fun AppIcon(modifier: Modifier = Modifier, size: Dp = 112.dp) {
     Box(modifier = modifier.size(size).clip(RoundedCornerShape(percent = 25))) {
         Image(painterResource(R.drawable.ic_launcher_background), contentDescription = null, modifier = Modifier.fillMaxSize())
-        Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = "AgentTools icon", modifier = Modifier.fillMaxSize())
+        Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = stringResource(R.string.app_icon), modifier = Modifier.fillMaxSize())
     }
 }
 
@@ -126,8 +130,8 @@ private fun FeatureCard(feature: Feature) {
                 modifier = Modifier.padding(4.dp).size(32.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(feature.title, style = MaterialTheme.typography.titleMedium)
-                Text(feature.text, style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(feature.title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(feature.text), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

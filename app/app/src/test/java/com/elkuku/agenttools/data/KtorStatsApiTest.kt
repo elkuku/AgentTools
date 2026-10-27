@@ -1,5 +1,8 @@
 package com.elkuku.agenttools.data
 
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.UiText
+import com.elkuku.agenttools.uiText
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
@@ -126,7 +129,7 @@ class KtorStatsApiTest {
         val engine = MockEngine { respond(problem(404, "Not Found"), HttpStatusCode.NotFound, problemHeaders) }
 
         assertEquals(
-            AgentProfileResult.Failure("PrivateAgent no longer shows the profile."),
+            AgentProfileResult.Failure(uiText(R.string.error_agent_private, "PrivateAgent")),
             KtorStatsApi("http://server", engine).agent("t", "PrivateAgent"),
         )
     }
@@ -185,7 +188,7 @@ class KtorStatsApiTest {
         }
 
         assertEquals(
-            VisibilityResult.Failure("The value is not a valid choice."),
+            VisibilityResult.Failure(UiText.Plain("The value is not a valid choice.")),
             KtorStatsApi("http://server", engine).saveVisibleParts("t", setOf(ProfilePart.AGENT)),
         )
     }
@@ -201,7 +204,7 @@ class KtorStatsApiTest {
         }
 
         assertEquals(
-            SaveResult.Invalid(listOf("These stats are for agent SomeoneElse, your agent name is TestAgent.")),
+            SaveResult.Invalid(listOf(UiText.Plain("These stats are for agent SomeoneElse, your agent name is TestAgent."))),
             KtorStatsApi("http://server", engine).save("t", JsonObject(emptyMap())),
         )
     }
@@ -213,8 +216,8 @@ class KtorStatsApiTest {
         val offline = MockEngine { throw IOException("timeout") }
 
         assertEquals(MeResult.Success(null), KtorStatsApi("http://server", unknown).me("t"))
-        assertEquals(MeResult.Unauthorized("Invalid ID token."), KtorStatsApi("http://server", unauthorized).me("t"))
-        assertEquals(MeResult.Failure("Network error: timeout"), KtorStatsApi("http://server", offline).me("t"))
+        assertEquals(MeResult.Unauthorized(UiText.Plain("Invalid ID token.")), KtorStatsApi("http://server", unauthorized).me("t"))
+        assertEquals(MeResult.Failure(uiText(R.string.error_network, "timeout")), KtorStatsApi("http://server", offline).me("t"))
     }
 
     @Test
@@ -244,7 +247,7 @@ class KtorStatsApiTest {
     fun saveMapsUnauthorized() = runTest {
         val engine = MockEngine { respond(problem(401, "Unknown user."), HttpStatusCode.Unauthorized, problemHeaders) }
 
-        assertEquals(SaveResult.Unauthorized("Unknown user."), KtorStatsApi("http://server", engine).save("t", stats))
+        assertEquals(SaveResult.Unauthorized(UiText.Plain("Unknown user.")), KtorStatsApi("http://server", engine).save("t", stats))
     }
 
     @Test
@@ -252,7 +255,7 @@ class KtorStatsApiTest {
         val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(SaveResult.Failure(detail), KtorStatsApi("http://server", engine).save("t", stats))
+        assertEquals(SaveResult.Failure(UiText.Plain(detail)), KtorStatsApi("http://server", engine).save("t", stats))
     }
 
     @Test
@@ -266,25 +269,25 @@ class KtorStatsApiTest {
         val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, problemHeaders) }
 
         assertEquals(
-            SaveResult.Invalid(listOf("ap: This value should not be null.", "Something general.")),
+            SaveResult.Invalid(listOf(UiText.Plain("ap: This value should not be null."), UiText.Plain("Something general."))),
             KtorStatsApi("http://server", engine).save("t", stats),
         )
     }
 
     @Test
-    fun saveMapsConflictToServerMessage() = runTest {
+    fun saveMapsConflictToAlreadySaved() = runTest {
         val engine = MockEngine {
             respond(problem(409, "Stat entry already added!"), HttpStatusCode.Conflict, problemHeaders)
         }
 
-        assertEquals(SaveResult.Failure("Stat entry already added!"), KtorStatsApi("http://server", engine).save("t", stats))
+        assertEquals(SaveResult.Failure(uiText(R.string.error_stats_already_saved)), KtorStatsApi("http://server", engine).save("t", stats))
     }
 
     @Test
     fun saveMapsServerError() = runTest {
         val engine = MockEngine { respond("oops", HttpStatusCode.InternalServerError) }
 
-        assertEquals(SaveResult.Failure("Server error: HTTP 500"), KtorStatsApi("http://server", engine).save("t", stats))
+        assertEquals(SaveResult.Failure(uiText(R.string.error_server, 500)), KtorStatsApi("http://server", engine).save("t", stats))
     }
 
     @Test
@@ -292,7 +295,7 @@ class KtorStatsApiTest {
         val engine = MockEngine { throw IOException("connection refused") }
 
         assertEquals(
-            SaveResult.Failure("Network error: connection refused"),
+            SaveResult.Failure(uiText(R.string.error_network, "connection refused")),
             KtorStatsApi("http://server", engine).save("t", stats),
         )
     }
@@ -356,7 +359,7 @@ class KtorStatsApiTest {
     fun listMapsUnauthorized() = runTest {
         val engine = MockEngine { respond(problem(401, "Invalid ID token."), HttpStatusCode.Unauthorized, problemHeaders) }
 
-        assertEquals(AgentStatsResult.Unauthorized("Invalid ID token."), KtorStatsApi("http://server", engine).list("t"))
+        assertEquals(AgentStatsResult.Unauthorized(UiText.Plain("Invalid ID token.")), KtorStatsApi("http://server", engine).list("t"))
     }
 
     @Test
@@ -364,14 +367,14 @@ class KtorStatsApiTest {
         val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(AgentStatsResult.Failure(detail), KtorStatsApi("http://server", engine).list("t"))
+        assertEquals(AgentStatsResult.Failure(UiText.Plain(detail)), KtorStatsApi("http://server", engine).list("t"))
     }
 
     @Test
     fun listMapsNetworkError() = runTest {
         val engine = MockEngine { throw IOException("timeout") }
 
-        assertEquals(AgentStatsResult.Failure("Network error: timeout"), KtorStatsApi("http://server", engine).list("t"))
+        assertEquals(AgentStatsResult.Failure(uiText(R.string.error_network, "timeout")), KtorStatsApi("http://server", engine).list("t"))
     }
 
     private val orion = customMedal("anomaly", "orion")!!
@@ -422,7 +425,7 @@ class KtorStatsApiTest {
         val detail = "Access Denied."
         val engine = MockEngine { respond(problem(403, detail), HttpStatusCode.Forbidden, problemHeaders) }
 
-        assertEquals(CustomMedalsResult.Failure(detail), KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()))
+        assertEquals(CustomMedalsResult.Failure(UiText.Plain(detail)), KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()))
     }
 
     @Test
@@ -432,7 +435,7 @@ class KtorStatsApiTest {
         val engine = MockEngine { respond(body, HttpStatusCode.UnprocessableEntity, problemHeaders) }
 
         assertEquals(
-            CustomMedalsResult.Failure("customMedals.annual[voyager]: The level must be 1 to 5."),
+            CustomMedalsResult.Failure(UiText.Plain("customMedals.annual[voyager]: The level must be 1 to 5.")),
             KtorStatsApi("http://server", engine).saveCustomMedals("t", emptyList()),
         )
     }
@@ -443,11 +446,11 @@ class KtorStatsApiTest {
         val offline = MockEngine { throw IOException("timeout") }
 
         assertEquals(
-            CustomMedalsResult.Unauthorized("Invalid ID token."),
+            CustomMedalsResult.Unauthorized(UiText.Plain("Invalid ID token.")),
             KtorStatsApi("http://server", unauthorized).saveCustomMedals("t", emptyList()),
         )
         assertEquals(
-            CustomMedalsResult.Failure("Network error: timeout"),
+            CustomMedalsResult.Failure(uiText(R.string.error_network, "timeout")),
             KtorStatsApi("http://server", offline).saveCustomMedals("t", emptyList()),
         )
     }

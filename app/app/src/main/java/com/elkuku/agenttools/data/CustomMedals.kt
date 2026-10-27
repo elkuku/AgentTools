@@ -36,9 +36,6 @@ data class CustomMedalTier(val medal: CustomMedal, val tier: String) {
 /** "black" is onyx, as everywhere else in the app. */
 fun tierLabel(tier: String): String = if (tier == "black") "Onyx" else tier.replaceFirstChar(Char::uppercase)
 
-/** "1 custom medal", "2 custom medals". */
-fun customMedalCount(count: Int): String = if (count == 1) "1 custom medal" else "$count custom medals"
-
 /** The custom medal groups in 4e's order. */
 val CUSTOM_MEDAL_GROUPS = listOf("anomaly", "annual", "event")
 

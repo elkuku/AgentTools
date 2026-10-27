@@ -1,5 +1,9 @@
 package com.elkuku.agenttools.data
 
+import androidx.annotation.StringRes
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.UiText
+import com.elkuku.agenttools.uiText
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
@@ -70,29 +74,29 @@ sealed interface SaveResult {
     data class Success(val id: Int, val createdAt: String) : SaveResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : SaveResult
+    data class Unauthorized(val message: UiText) : SaveResult
 
     /** The server rejected the stats; one message per violation. */
-    data class Invalid(val messages: List<String>) : SaveResult
+    data class Invalid(val messages: List<UiText>) : SaveResult
 
-    /** E.g. a network error, or 409 "Stat entry already added!". */
-    data class Failure(val message: String) : SaveResult
+    /** E.g. a network error, or 409 for stats saved before. */
+    data class Failure(val message: UiText) : SaveResult
 }
 
 sealed interface CustomMedalsResult {
     data class Success(val medals: List<CustomMedalTier>) : CustomMedalsResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : CustomMedalsResult
+    data class Unauthorized(val message: UiText) : CustomMedalsResult
 
     /** E.g. a network error, or 422 for medals the server does not accept. */
-    data class Failure(val message: String) : CustomMedalsResult
+    data class Failure(val message: UiText) : CustomMedalsResult
 }
 
 /** The user's role on the server, as `UserRole` in web. */
-enum class UserRole(val label: String) {
-    USER("User"),
-    ADMIN("Admin");
+enum class UserRole(@param:StringRes val label: Int) {
+    USER(R.string.role_user),
+    ADMIN(R.string.role_admin);
 
     companion object {
         /** `ROLE_ADMIN` → [ADMIN]; null for a role the app does not know. */
@@ -117,9 +121,9 @@ sealed interface MeResult {
     ) : MeResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : MeResult
+    data class Unauthorized(val message: UiText) : MeResult
 
-    data class Failure(val message: String) : MeResult
+    data class Failure(val message: UiText) : MeResult
 }
 
 sealed interface VisibilityResult {
@@ -127,10 +131,10 @@ sealed interface VisibilityResult {
     data class Success(val visibleParts: Set<ProfilePart>) : VisibilityResult
 
     /** The ID token was rejected (expired or invalid). */
-    data class Unauthorized(val message: String) : VisibilityResult
+    data class Unauthorized(val message: UiText) : VisibilityResult
 
     /** E.g. a part the server does not know (422), or a network error. */
-    data class Failure(val message: String) : VisibilityResult
+    data class Failure(val message: UiText) : VisibilityResult
 }
 
 interface StatsApi {
@@ -202,11 +206,11 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
                 ?.let { MeResult.Success(UserRole.fromServer(it.role), it.agentName, it.customMedals?.let(::customMedalsFromJson), it.parts, it.visibilityChosen, it.avatar) }
-                ?: MeResult.Failure("Unexpected response from the server.")
+                ?: MeResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> MeResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
-            else -> MeResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> MeResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -225,16 +229,16 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()
                 ?.let { VisibilityResult.Success(it.parts) }
-                ?: VisibilityResult.Failure("Unexpected response from the server.")
+                ?: VisibilityResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> VisibilityResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> VisibilityResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
             HttpStatusCode.UnprocessableEntity -> VisibilityResult.Failure(
-                response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()?.message
-                    ?: "The server rejected the visible parts.",
+                response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()?.message?.let(UiText::Plain)
+                    ?: uiText(R.string.error_rejected_visible_parts),
             )
 
-            else -> VisibilityResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> VisibilityResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -253,18 +257,19 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.Created -> response.body<CreatedResponse>().let { SaveResult.Success(it.id, it.createdAt) }
 
-            HttpStatusCode.Unauthorized -> SaveResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> SaveResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
             HttpStatusCode.UnprocessableEntity -> SaveResult.Invalid(
                 response.decodeOrNull<ValidationResponse>()?.violations
-                    ?.map { if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}" }
+                    ?.map { UiText.Plain(if (it.propertyPath.isBlank()) it.message else "${it.propertyPath}: ${it.message}") }
                     ?.ifEmpty { null }
                     // No violations: e.g. stats of another agent
-                    ?: listOf(response.errorMessage() ?: "The server rejected the stats.")
+                    ?: listOf(response.errorMessage() ?: uiText(R.string.error_rejected_stats))
             )
 
-            // e.g. 409 "Stat entry already added!"
-            else -> SaveResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            HttpStatusCode.Conflict -> SaveResult.Failure(uiText(R.string.error_stats_already_saved))
+
+            else -> SaveResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -286,17 +291,17 @@ class KtorStatsApi(
             when (response.status) {
                 HttpStatusCode.OK -> {
                     val page = response.decodeOrNull<CollectionPage>()
-                        ?: return AgentStatsResult.Failure("Unexpected response from the server.")
+                        ?: return AgentStatsResult.Failure(uiText(R.string.error_unexpected_response))
                     entries += page.member.map(AgentStatEntry::fromJson)
                     // view.next is an IRI like "/api/agent-stats?page=2"
                     pageUrl = page.view?.next?.let { URLBuilder(currentUrl).takeFrom(it).buildString() }
                 }
 
                 HttpStatusCode.Unauthorized ->
-                    return AgentStatsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+                    return AgentStatsResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
                 else -> return AgentStatsResult.Failure(
-                    response.errorMessage() ?: "Server error: HTTP ${response.status.value}",
+                    response.errorMessage() ?: uiText(R.string.error_server, response.status.value),
                 )
             }
         }
@@ -320,17 +325,17 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<MeResponse>()?.customMedals
                 ?.let { CustomMedalsResult.Success(customMedalsFromJson(it)) }
-                ?: CustomMedalsResult.Failure("Unexpected response from the server.")
+                ?: CustomMedalsResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> CustomMedalsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> CustomMedalsResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
             HttpStatusCode.UnprocessableEntity -> CustomMedalsResult.Failure(
                 response.decodeOrNull<ValidationResponse>()?.violations?.firstOrNull()
-                    ?.let { "${it.propertyPath}: ${it.message}" }
-                    ?: "The server rejected the custom medals.",
+                    ?.let { UiText.Plain("${it.propertyPath}: ${it.message}") }
+                    ?: uiText(R.string.error_rejected_custom_medals),
             )
 
-            else -> CustomMedalsResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> CustomMedalsResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -347,11 +352,11 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<AgentsPage>()
                 ?.let { page -> AgentsResult.Success(page.member.map { it.summary }) }
-                ?: AgentsResult.Failure("Unexpected response from the server.")
+                ?: AgentsResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> AgentsResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> AgentsResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
-            else -> AgentsResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> AgentsResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -368,13 +373,13 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<AgentResponse>()
                 ?.let { AgentProfileResult.Success(it.profile) }
-                ?: AgentProfileResult.Failure("Unexpected response from the server.")
+                ?: AgentProfileResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> AgentProfileResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> AgentProfileResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
-            HttpStatusCode.NotFound -> AgentProfileResult.Failure("$agentName no longer shows the profile.")
+            HttpStatusCode.NotFound -> AgentProfileResult.Failure(uiText(R.string.error_agent_private, agentName))
 
-            else -> AgentProfileResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> AgentProfileResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
@@ -391,19 +396,19 @@ class KtorStatsApi(
         return when (response.status) {
             HttpStatusCode.OK -> response.decodeOrNull<UsersPage>()
                 ?.let { page -> UsersResult.Success(page.member.map { it.user }) }
-                ?: UsersResult.Failure("Unexpected response from the server.")
+                ?: UsersResult.Failure(uiText(R.string.error_unexpected_response))
 
-            HttpStatusCode.Unauthorized -> UsersResult.Unauthorized(response.errorMessage() ?: "Unauthorized.")
+            HttpStatusCode.Unauthorized -> UsersResult.Unauthorized(response.errorMessage() ?: uiText(R.string.error_unauthorized))
 
-            else -> UsersResult.Failure(response.errorMessage() ?: "Server error: HTTP ${response.status.value}")
+            else -> UsersResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 
     fun close() = client.close()
 
-    private fun networkError(e: IOException) = "Network error: ${e.message ?: e::class.simpleName}"
+    private fun networkError(e: IOException) = uiText(R.string.error_network, e.message ?: e::class.simpleName.orEmpty())
 
-    private suspend fun HttpResponse.errorMessage(): String? = decodeOrNull<Problem>()?.detail?.ifBlank { null }
+    private suspend fun HttpResponse.errorMessage(): UiText? = decodeOrNull<Problem>()?.detail?.ifBlank { null }?.let(UiText::Plain)
 
     private suspend inline fun <reified T> HttpResponse.decodeOrNull(): T? =
         try {

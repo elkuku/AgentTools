@@ -1,5 +1,6 @@
 package com.elkuku.agenttools.data
 
+import com.elkuku.agenttools.UiText
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
@@ -37,7 +38,7 @@ sealed interface AgentStatsResult {
     /** Newest first. */
     data class Success(val entries: List<AgentStatEntry>) : AgentStatsResult
 
-    data class Unauthorized(val message: String) : AgentStatsResult
+    data class Unauthorized(val message: UiText) : AgentStatsResult
 
-    data class Failure(val message: String) : AgentStatsResult
+    data class Failure(val message: UiText) : AgentStatsResult
 }

@@ -30,6 +30,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,7 +61,7 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry?, avatar: String? =
 
     val faction = Faction.of(latest.faction)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        rememberAvatar(avatar)?.let { Avatar(it, size = 48.dp, description = "Profile picture") }
+        rememberAvatar(avatar)?.let { Avatar(it, size = 48.dp, description = stringResource(R.string.profile_picture)) }
         faction?.let { FactionLogo(it, latest.faction) }
         Text(latest.nickname, style = MaterialTheme.typography.headlineSmall, fontFamily = FontFamily.Monospace)
         latest["level"]?.let { level ->
@@ -85,15 +87,15 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry?, avatar: String? =
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Badge(CORE_BADGES[0], "C.O.R.E subscriptions")
-            Text("C.O.R.E $months months", fontWeight = FontWeight.Bold)
+            Badge(CORE_BADGES[0], stringResource(R.string.core_subscriptions))
+            Text(pluralStringResource(R.plurals.core_months, months.toInt(), months), fontWeight = FontWeight.Bold)
             CORE_BADGE_MONTHS.forEachIndexed { index, needed ->
-                if (months >= needed) Badge(CORE_BADGES[index + 1], "C.O.R.E subscriptions ($needed months)")
+                if (months >= needed) Badge(CORE_BADGES[index + 1], pluralStringResource(R.plurals.core_subscriptions_months, needed.toInt(), needed))
             }
         }
     }
 
-    Text("AP: ${latest["ap"].formatted()}", style = MaterialTheme.typography.titleLarge)
+    Text(stringResource(R.string.ap, latest["ap"].formatted()), style = MaterialTheme.typography.titleLarge)
 
     HorizontalDivider()
 
@@ -107,7 +109,7 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry?, avatar: String? =
                 } else {
                     Badge(
                         R.drawable.ico_padlock,
-                        "${medal.medal.name}: locked",
+                        "${medal.medal.name}: ${stringResource(R.string.locked)}",
                         modifier = Modifier.alpha(0.6f),
                         // The padlock is black: draw it in the text color so it shows in dark mode, too
                         tint = MaterialTheme.colorScheme.onSurface,
@@ -121,22 +123,26 @@ fun AgentStats(latest: AgentStatEntry, first: AgentStatEntry?, avatar: String? =
 
     Section(R.drawable.ico_drone, "Dronenet") {
         Text(
-            "Portals: ${latest["drone_portals_visited"].formatted()}  " +
-                "Hacks (Maverick): ${latest["maverick"].formatted()}  " +
-                "Forced recalls: ${latest["drone_forced_recalls"].formatted()}  " +
-                "Flight: ${latest["drone_flight_distance"].formatted()} km",
+            stringResource(
+                R.string.dronenet,
+                latest["drone_portals_visited"].formatted(),
+                latest["maverick"].formatted(),
+                latest["drone_forced_recalls"].formatted(),
+                latest["drone_flight_distance"].formatted(),
+            ),
         )
     }
 
     Section(R.drawable.ico_kinetic_capsule, "Kinetics") {
         val capsules = latest["kinetic_capsules_completed"] ?: 0
-        Text(if (capsules > 0) "Kinetic capsules completed: $capsules" else "No kinetic capsules completed yet")
+        Text(if (capsules > 0) stringResource(R.string.kinetic_capsules_completed, capsules) else stringResource(R.string.kinetic_capsules_none))
     }
 
     HorizontalDivider()
 
     Text(
-        (first?.let { "First import: ${it.datetime.take(10)} - " } ?: "") + "Latest update: ${latest.datetime.take(10)}",
+        (first?.let { stringResource(R.string.first_import, it.datetime.take(10)) + " - " } ?: "") +
+            stringResource(R.string.latest_update, latest.datetime.take(10)),
         style = MaterialTheme.typography.bodySmall,
     )
 
@@ -177,7 +183,7 @@ internal fun Badge(
 private fun MedalDialog(medal: MedalLevel, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
         title = { Text(medal.medal.name) },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {

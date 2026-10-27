@@ -2,6 +2,8 @@ package com.elkuku.agenttools.ui
 
 import android.content.Context
 import android.content.ContextWrapper
+import com.elkuku.agenttools.R
+import com.elkuku.agenttools.UiText
 import com.elkuku.agenttools.auth.AuthException
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.GoogleSession
@@ -24,6 +26,7 @@ import com.elkuku.agenttools.data.UsersResult
 import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
+import com.elkuku.agenttools.uiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -79,18 +82,18 @@ class MainViewModelTest {
 
     @Test
     fun signInFailureShowsError() {
-        auth.signInError = AuthException("No Google account available on this device.")
+        auth.signInError = AuthException(uiText(R.string.sign_in_no_account))
         val viewModel = viewModel()
 
         viewModel.signIn(context)
 
         assertNull(viewModel.state.value.session)
-        assertEquals(Status("No Google account available on this device.", true), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.sign_in_no_account), true), viewModel.state.value.status)
     }
 
     @Test
     fun cancelledSignInShowsNothing() {
-        auth.signInError = AuthException("Sign-in cancelled.", cancelled = true)
+        auth.signInError = AuthException(uiText(R.string.sign_in_cancelled), cancelled = true)
         val viewModel = viewModel()
 
         viewModel.signIn(context)
@@ -135,7 +138,7 @@ class MainViewModelTest {
 
     @Test
     fun aFailedRoleLoadShowsNoMessage() {
-        api.me = MeResult.Failure("Network error: timeout")
+        api.me = MeResult.Failure(uiText(R.string.error_network, "timeout"))
         val viewModel = signedIn()
 
         assertNull(viewModel.state.value.role)
@@ -239,19 +242,19 @@ class MainViewModelTest {
         assertEquals("TestAgent", viewModel.state.value.agentName)
         assertNull(viewModel.state.value.pending)
         assertFalse(viewModel.state.value.settingsOpen)
-        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.agent_stats_saved), false), viewModel.state.value.status)
     }
 
     @Test
     fun aTakenAgentNameRejectsTheFirstStats() {
         api.me = MeResult.Success(UserRole.USER, null)
         val viewModel = signedIn()
-        api.saves += SaveResult.Invalid(listOf("This agent name is already taken."))
+        api.saves += SaveResult.Invalid(listOf(UiText.Plain("This agent name is already taken.")))
 
         viewModel.onShared(context, ingressStats())
 
         assertNull(viewModel.state.value.agentName)
-        assertEquals(Status("This agent name is already taken.", true), viewModel.state.value.status)
+        assertEquals(Status(UiText.Lines(listOf(UiText.Plain("This agent name is already taken."))), true), viewModel.state.value.status)
     }
 
     @Test
@@ -265,7 +268,7 @@ class MainViewModelTest {
         assertTrue(api.saved.isEmpty())
         assertNull(viewModel.state.value.pending)
         assertEquals(
-            Status("These stats are for agent TestAgent, your agent name is OtherAgent.", true),
+            Status(uiText(R.string.stats_of_other_agent, "TestAgent", "OtherAgent"), true),
             viewModel.state.value.status,
         )
     }
@@ -343,7 +346,7 @@ class MainViewModelTest {
         viewModel.openAgent(context, "GoneAgent")
 
         assertNull(viewModel.state.value.agent)
-        assertEquals(Status("GoneAgent no longer shows the profile.", true), viewModel.state.value.agentsStatus)
+        assertEquals(Status(uiText(R.string.error_agent_private, "GoneAgent"), true), viewModel.state.value.agentsStatus)
     }
 
     @Test
@@ -389,7 +392,7 @@ class MainViewModelTest {
         assertEquals(setOf(ProfilePart.AGENT, ProfilePart.STATS_HISTORY), viewModel.state.value.visibleParts)
         assertTrue(viewModel.state.value.visibilityChosen)
         assertTrue(viewModel.state.value.settingsOpen)
-        assertEquals(Status("Saved.", false), viewModel.state.value.visibilityStatus)
+        assertEquals(Status(uiText(R.string.saved), false), viewModel.state.value.visibilityStatus)
 
         viewModel.closeSettings()
         assertNull(viewModel.state.value.visibilityStatus)
@@ -400,20 +403,20 @@ class MainViewModelTest {
         api.me = MeResult.Success(UserRole.USER, "TestAgent", visibilityChosen = false)
         val viewModel = signedIn()
         viewModel.openSettings()
-        api.visibilityResult = VisibilityResult.Failure("Network error: timeout")
+        api.visibilityResult = VisibilityResult.Failure(uiText(R.string.error_network, "timeout"))
 
         viewModel.saveVisibleParts(context, setOf(ProfilePart.AGENT))
 
         assertFalse(viewModel.state.value.visibilityChosen)
         assertEquals(emptySet<ProfilePart>(), viewModel.state.value.visibleParts)
-        assertEquals(Status("Network error: timeout", true), viewModel.state.value.visibilityStatus)
+        assertEquals(Status(uiText(R.string.error_network, "timeout"), true), viewModel.state.value.visibilityStatus)
     }
 
     @Test
     fun signingInAgainHidesTheSignedOutMessage() {
         val viewModel = signedIn()
         viewModel.signOut(context)
-        assertEquals("Signed out.", viewModel.state.value.status?.text)
+        assertEquals(uiText(R.string.signed_out), viewModel.state.value.status?.text)
 
         api.lists += AgentStatsResult.Success(listOf(entry))
         viewModel.signIn(context)
@@ -436,7 +439,7 @@ class MainViewModelTest {
         assertEquals(JsonPrimitive("2026-10-19 15:35:56"), stats["datetime"])
         assertEquals(JsonPrimitive(243517130L), stats["ap"])
         assertNull(viewModel.state.value.pending)
-        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.agent_stats_saved), false), viewModel.state.value.status)
         assertEquals(newest, viewModel.state.value.latest)
         assertEquals(entry, viewModel.state.value.first)
         assertFalse(viewModel.state.value.busy)
@@ -489,7 +492,7 @@ class MainViewModelTest {
         viewModel.onShared(context, ingressStats())
 
         assertTrue(api.saved.isEmpty())
-        assertEquals(Status("Sign in to save the shared stats.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.sign_in_to_save_stats), false), viewModel.state.value.status)
 
         auth.interactiveSession = session
         api.saves += SaveResult.Success(2, "now")
@@ -498,17 +501,17 @@ class MainViewModelTest {
 
         assertEquals(1, api.saved.size)
         assertNull(viewModel.state.value.pending)
-        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.agent_stats_saved), false), viewModel.state.value.status)
     }
 
     @Test
     fun duplicateShowsServerMessage() {
         val viewModel = signedIn()
-        api.saves += SaveResult.Failure("Stat entry already added!")
+        api.saves += SaveResult.Failure(uiText(R.string.error_stats_already_saved))
 
         viewModel.onShared(context, ingressStats())
 
-        assertEquals(Status("Stat entry already added!", true), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.error_stats_already_saved), true), viewModel.state.value.status)
         assertNull(viewModel.state.value.pending)
     }
 
@@ -517,7 +520,7 @@ class MainViewModelTest {
         val viewModel = signedIn()
         val refreshed = session.copy(idToken = "token-2")
         auth.silentSessions += refreshed
-        api.saves += SaveResult.Unauthorized("Invalid ID token.")
+        api.saves += SaveResult.Unauthorized(UiText.Plain("Invalid ID token."))
         api.saves += SaveResult.Success(2, "now")
         api.lists += AgentStatsResult.Success(listOf(entry))
 
@@ -525,19 +528,19 @@ class MainViewModelTest {
 
         assertEquals(listOf("token-1", "token-2"), api.saved.map { it.first })
         assertEquals(refreshed, viewModel.state.value.session)
-        assertEquals(Status("Agent stats saved.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.agent_stats_saved), false), viewModel.state.value.status)
     }
 
     @Test
     fun unauthorizedWithoutRefreshSignsOut() {
         val viewModel = signedIn()
-        api.lists += AgentStatsResult.Unauthorized("Unknown user.")
+        api.lists += AgentStatsResult.Unauthorized(UiText.Plain("Unknown user."))
 
         viewModel.refresh(context)
 
         assertNull(viewModel.state.value.session)
         assertEquals(
-            Status("Not authorized: Unknown user. Please sign in again.", true, untilSignIn = true),
+            Status(uiText(R.string.not_authorized, UiText.Plain("Unknown user.")), true, untilSignIn = true),
             viewModel.state.value.status,
         )
     }
@@ -545,12 +548,12 @@ class MainViewModelTest {
     @Test
     fun loadFailureKeepsStats() {
         val viewModel = signedIn()
-        api.lists += AgentStatsResult.Failure("Network error: timeout")
+        api.lists += AgentStatsResult.Failure(uiText(R.string.error_network, "timeout"))
 
         viewModel.refresh(context)
 
         assertEquals(entry, viewModel.state.value.latest)
-        assertEquals(Status("Network error: timeout", true), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.error_network, "timeout"), true), viewModel.state.value.status)
     }
 
     private fun ingressStats(): String =
@@ -560,7 +563,7 @@ class MainViewModelTest {
     fun refreshClearsAnOutdatedMessage() {
         auth.interactiveSession = session
         api.me = MeResult.Success(UserRole.USER)
-        api.lists += AgentStatsResult.Failure("Network error: timeout")
+        api.lists += AgentStatsResult.Failure(uiText(R.string.error_network, "timeout"))
         val viewModel = viewModel().also { it.signIn(context) }
 
         // Back online
@@ -677,12 +680,12 @@ class MainViewModelTest {
     @Test
     fun scanningShowsProgress() {
         val viewModel = viewModel()
-        var progress: String? = null
+        var progress: UiText? = null
         recognized = emptyList()
 
         viewModel.onSharedScreenshots { progress = viewModel.state.value.progress; emptyList() }
 
-        assertEquals("Looking for custom medals…", progress)
+        assertEquals(uiText(R.string.looking_for_custom_medals), progress)
         assertNull(viewModel.state.value.progress)
     }
 
@@ -709,7 +712,7 @@ class MainViewModelTest {
         assertEquals(expected, viewModel.state.value.customMedals)
         assertNull(viewModel.state.value.medalScan)
         assertNull(viewModel.state.value.pendingMedals)
-        assertEquals(Status("1 custom medal saved.", false), viewModel.state.value.status)
+        assertEquals(Status(UiText.Plural(R.plurals.custom_medals_saved, 1), false), viewModel.state.value.status)
     }
 
     @Test
@@ -718,7 +721,7 @@ class MainViewModelTest {
 
         viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
 
-        assertEquals(Status("Sign in to save the custom medals.", false), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.sign_in_to_save_custom_medals), false), viewModel.state.value.status)
         assertTrue(api.savedMedals.isEmpty())
 
         auth.interactiveSession = session
@@ -733,11 +736,11 @@ class MainViewModelTest {
     @Test
     fun failedSaveKeepsTheMedalsForRefresh() {
         val viewModel = signedIn()
-        api.medalFailure = CustomMedalsResult.Failure("Network error: timeout")
+        api.medalFailure = CustomMedalsResult.Failure(uiText(R.string.error_network, "timeout"))
 
         viewModel.saveMedalScan(context, listOf(CustomMedalTier(orion, "gold")))
 
-        assertEquals(Status("Network error: timeout", true), viewModel.state.value.status)
+        assertEquals(Status(uiText(R.string.error_network, "timeout"), true), viewModel.state.value.status)
         assertEquals(listOf(CustomMedalTier(orion, "gold")), viewModel.state.value.pendingMedals)
 
         api.medalFailure = null
@@ -833,7 +836,7 @@ class MainViewModelTest {
         override suspend fun agents(idToken: String): AgentsResult = agents
 
         override suspend fun agent(idToken: String, agentName: String): AgentProfileResult =
-            agentProfiles[agentName] ?: AgentProfileResult.Failure("$agentName no longer shows the profile.")
+            agentProfiles[agentName] ?: AgentProfileResult.Failure(uiText(R.string.error_agent_private, agentName))
 
         /** What `GET /api/users` answers (admins). */
         var users: UsersResult = UsersResult.Success(emptyList())
