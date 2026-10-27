@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dev build: amber diagonal stripes on black, so it differs from the release app on the home screen -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M0,0h108v108h-108z" />
+    <path
+        android:fillAlpha="0.45"
+        android:fillColor="#FFB300"
+        android:pathData="M-108,0h9l108,108h-9zM-90,0h9l108,108h-9zM-72,0h9l108,108h-9zM-54,0h9l108,108h-9zM-36,0h9l108,108h-9zM-18,0h9l108,108h-9zM0,0h9l108,108h-9zM18,0h9l108,108h-9zM36,0h9l108,108h-9zM54,0h9l108,108h-9zM72,0h9l108,108h-9zM90,0h9l108,108h-9zM108,0h9l108,108h-9z" />
+</vector>
