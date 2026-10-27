@@ -131,6 +131,13 @@
     <string name="event_end_date_hint">Optional: der letzte Tag eines Ereignisses über mehrere Tage, z. B. einer Reise.</string>
     <string name="event_end_date_invalid">Das Enddatum darf nicht vor dem Datum liegen.</string>
 
+    <string name="timeline_filter_uploads">Uploads</string>
+    <string name="timeline_filter_events">Ereignisse</string>
+    <string name="timeline_filter_travels">Reisen</string>
+    <string name="timeline_filter_medals">Medaillen-Upgrades</string>
+    <string name="timeline_filter_all_years">Alle Jahre</string>
+    <string name="timeline_filter_none">Keine Einträge passen zu den Filtern.</string>
+
     <!-- Custom medals -->
     <string name="medal_group_anomaly">Anomalie</string>
     <string name="medal_group_annual">Jährlich</string>

@@ -19,7 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +33,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,8 +50,11 @@ import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.LEVEL_NAMES
 import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.TimelineItem
+import com.elkuku.agenttools.data.TimelineKind
+import com.elkuku.agenttools.data.filtered
 import com.elkuku.agenttools.data.medalFor
 import com.elkuku.agenttools.data.timeline
+import com.elkuku.agenttools.data.timelineYears
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -84,16 +91,94 @@ fun Timeline(
         return
     }
 
+    // Filters in one row: what and when (as web's)
+    var uploads by rememberSaveable { mutableStateOf(true) }
+    var singleEvents by rememberSaveable { mutableStateOf(true) }
+    var travels by rememberSaveable { mutableStateOf(true) }
+    var year by rememberSaveable { mutableStateOf<Int?>(null) }
+    var medalUpgrades by rememberSaveable { mutableStateOf(false) }
+    TimelineFilters(
+        uploads = uploads to { uploads = it },
+        medalUpgrades = medalUpgrades to { medalUpgrades = it },
+        events = singleEvents to { singleEvents = it },
+        travels = travels to { travels = it },
+        years = timelineYears(items),
+        year = year,
+        onYear = { year = it },
+    )
+
+    val kinds = buildSet {
+        if (uploads) add(TimelineKind.UPLOAD)
+        if (singleEvents) add(TimelineKind.EVENT)
+        if (travels) add(TimelineKind.TRAVEL)
+    }
+    val shown = items.filtered(kinds, year, medalUpgrades)
+    if (shown.isEmpty()) {
+        Text(stringResource(R.string.timeline_filter_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        return
+    }
+
     val colors = timelineColors()
     Column {
-        items.forEachIndexed { index, item ->
+        shown.forEachIndexed { index, item ->
             when (item) {
-                is TimelineItem.Upload -> TimelineRow(dot = colors.ap, last = index == items.lastIndex) { UploadItem(item) }
+                is TimelineItem.Upload -> TimelineRow(dot = colors.ap, last = index == shown.lastIndex) { UploadItem(item) }
                 is TimelineItem.Event -> TimelineRow(
                     dot = if (item.event.isTravel) colors.travel else colors.event,
-                    last = index == items.lastIndex,
+                    last = index == shown.lastIndex,
                     modifier = onEditEvent?.let { edit -> Modifier.clickable { edit(item.event) } } ?: Modifier,
                 ) { EventItem(item.event) }
+            }
+        }
+    }
+}
+
+/**
+ * A chip per kind and for the medal upgrades (on/off and its setter), and the year (null: all years).
+ */
+@Composable
+private fun TimelineFilters(
+    uploads: Pair<Boolean, (Boolean) -> Unit>,
+    medalUpgrades: Pair<Boolean, (Boolean) -> Unit>,
+    events: Pair<Boolean, (Boolean) -> Unit>,
+    travels: Pair<Boolean, (Boolean) -> Unit>,
+    years: List<Int>,
+    year: Int?,
+    onYear: (Int?) -> Unit,
+) {
+    var choosingYear by remember { mutableStateOf(false) }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            Triple(R.string.timeline_filter_uploads, R.drawable.ic_bi_bar_chart, uploads),
+            Triple(R.string.timeline_filter_events, R.drawable.ic_bi_flag_fill, events),
+            Triple(R.string.timeline_filter_travels, R.drawable.ic_bi_airplane_fill, travels),
+            // Uploads only with a medal at a higher tier
+            Triple(R.string.timeline_filter_medals, R.drawable.ic_bi_award, medalUpgrades),
+        ).forEach { (label, icon, state) ->
+            val (selected, onChange) = state
+            FilterChip(
+                selected = selected,
+                onClick = { onChange(!selected) },
+                label = { Text(stringResource(label)) },
+                leadingIcon = { Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(14.dp)) },
+            )
+        }
+        Box {
+            FilterChip(
+                selected = year != null,
+                onClick = { choosingYear = true },
+                label = { Text(year?.toString() ?: stringResource(R.string.timeline_filter_all_years)) },
+            )
+            DropdownMenu(expanded = choosingYear, onDismissRequest = { choosingYear = false }) {
+                (listOf<Int?>(null) + years).forEach { choice ->
+                    DropdownMenuItem(
+                        text = { Text(choice?.toString() ?: stringResource(R.string.timeline_filter_all_years)) },
+                        onClick = {
+                            onYear(choice)
+                            choosingYear = false
+                        },
+                    )
+                }
             }
         }
     }

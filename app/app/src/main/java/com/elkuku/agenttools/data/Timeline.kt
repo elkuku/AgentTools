@@ -55,3 +55,33 @@ fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>): List<T
     // sortedByDescending is stable: uploads and events keep their order on the same date
     return items.sortedByDescending { it.first }.map { it.second }
 }
+
+/** What an entry is, for the timeline's filter (as web's `TimelineEntry::kind()`). */
+enum class TimelineKind { UPLOAD, EVENT, TRAVEL }
+
+val TimelineItem.kind: TimelineKind
+    get() = when (this) {
+        is TimelineItem.Upload -> TimelineKind.UPLOAD
+        is TimelineItem.Event -> if (event.isTravel) TimelineKind.TRAVEL else TimelineKind.EVENT
+    }
+
+/** The years an entry falls in: a travel over New Year in both. */
+val TimelineItem.years: IntRange
+    get() = when (this) {
+        is TimelineItem.Upload -> result.entry.datetime.take(4).toInt().let { it..it }
+        is TimelineItem.Event -> event.date.take(4).toInt()..(event.endDate ?: event.date).take(4).toInt()
+    }
+
+/** Every year of the timeline, newest first, for its year filter. */
+fun timelineYears(items: List<TimelineItem>): List<Int> = items.flatMap { it.years }.distinct().sortedDescending()
+
+/**
+ * The entries of the [kinds], in the [year] (null: every year); with [medalUpgradesOnly] only the
+ * uploads with a medal at a higher tier (events keep their own kinds).
+ */
+fun List<TimelineItem>.filtered(kinds: Set<TimelineKind>, year: Int?, medalUpgradesOnly: Boolean = false): List<TimelineItem> =
+    filter {
+        it.kind in kinds &&
+            (year == null || year in it.years) &&
+            (!medalUpgradesOnly || it !is TimelineItem.Upload || it.result.medalUps.isNotEmpty())
+    }
