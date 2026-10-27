@@ -162,12 +162,13 @@ stats:
 
 stats_import:
     title: 'Import stats from a file'
-    intro: 'Import the stats you saved on 4e-website: there, open the account menu, <strong>Migrate</strong>, <strong>Export CSV</strong>, and upload the file here. Stats you already have are skipped; only stats of your agent are imported.'
-    file: 'CSV file'
-    file_help: 'A header row with the column names of the stats (datetime, nickname, faction, ap, …), one row per upload.'
+    intro: 'Import what you saved on 4e-website: there, open the account menu, <strong>Migrate</strong>, then <strong>Export CSV</strong> for your stats and <strong>Export custom medals</strong> for your anomaly, annual and event medals, and upload each file here. Stats you already have are skipped, and only stats of your agent are imported; a custom medal you already have keeps the higher tier.'
+    file: File
+    file_help: 'The stats as CSV (a header row with the column names: datetime, nickname, faction, ap, …) or the custom medals as JSON.'
     submit: 'Import'
     done: 'Imported %imported% stats, skipped %skipped% you already had.'
     errors: '{1} One row was not imported:|]1,Inf[ %count% rows were not imported:'
+    medals_done: 'Custom medals: %added% added, %upgraded% at a higher tier, %kept% you already had.'
 
 system:
     info: System Info

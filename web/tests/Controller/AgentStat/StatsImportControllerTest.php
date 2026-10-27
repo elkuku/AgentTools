@@ -67,6 +67,25 @@ class StatsImportControllerTest extends WebTestCase
         self::assertCount(1, $this->stats()->findByOwner($this->user()));
     }
 
+    public function testImportsCustomMedalsFromJson(): void
+    {
+        $json = \tempnam(\sys_get_temp_dir(), 'medals').'.json';
+        \file_put_contents($json, '{"anomaly": {"orion": "platinum"}, "annual": {"voyager": 5}, "event": {}}');
+
+        $this->client->loginUser($this->user());
+        $this->client->request(Request::METHOD_GET, '/agent-stats/import');
+        $this->client->submitForm('Import', ['stats_import[file]' => $json]);
+        \unlink($json);
+
+        self::assertResponseRedirects('/agent-stats');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Custom medals: 2 added, 0 at a higher tier, 0 you already had.');
+        self::assertSelectorExists('#custom-medals img[alt="Orion (Platinum)"]');
+
+        $this->user()->setCustomMedals([]);
+        $this->entityManager()->flush();
+    }
+
     public function testOnlyCsvFiles(): void
     {
         $image = \tempnam(\sys_get_temp_dir(), 'stats').'.png';

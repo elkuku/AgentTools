@@ -11,7 +11,8 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 /**
- * A CSV file of agent stats (App\Import\AgentStatCsvImporter), on /agent-stats/import.
+ * A CSV file of agent stats (App\Import\AgentStatCsvImporter) or a JSON file of custom medals
+ * (App\Import\CustomMedalsJsonImporter), on /agent-stats/import.
  */
 class StatsImportType extends AbstractType
 {
@@ -20,10 +21,10 @@ class StatsImportType extends AbstractType
         $builder->add('file', FileType::class, [
             'label' => 'stats_import.file',
             'help' => 'stats_import.file_help',
-            'attr' => ['accept' => '.csv,text/csv'],
+            'attr' => ['accept' => '.csv,text/csv,.json,application/json'],
             'constraints' => [
                 new NotNull(message: 'stats_import.no_file'),
-                new File(maxSize: '5M', extensions: ['csv', 'txt']),
+                new File(maxSize: '5M', extensions: ['csv', 'txt', 'json']),
             ],
         ]);
     }
