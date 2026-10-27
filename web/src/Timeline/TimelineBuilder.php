@@ -44,6 +44,21 @@ final readonly class TimelineBuilder
         return $entries;
     }
 
+    /**
+     * Every year of [$timeline], newest first: the timeline's filter.
+     *
+     * @param list<TimelineEntry> $timeline
+     *
+     * @return list<int>
+     */
+    public static function years(array $timeline): array
+    {
+        $years = \array_unique(\array_merge(...\array_map(static fn (TimelineEntry $entry): array => $entry->years(), $timeline)));
+        \rsort($years);
+
+        return $years;
+    }
+
     private function statEntry(AgentStat $stat, ?AgentStat $previous): TimelineEntry
     {
         if (!$previous instanceof AgentStat) {

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'stats_import.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'stats_import.title'|trans }}</h1>
+
+    <p class="text-body-secondary">{{ 'stats_import.intro'|trans|raw }}</p>
+
+    {{ form_start(form) }}
+        {{ form_row(form.file) }}
+        <button class="btn btn-primary">{{ 'stats_import.submit'|trans }}</button>
+        <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}">{{ 'stats.mine'|trans }}</a>
+    {{ form_end(form) }}
+{% endblock %}

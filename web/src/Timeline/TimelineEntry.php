@@ -14,6 +14,12 @@ use App\Medal\MedalLevel;
  */
 final readonly class TimelineEntry
 {
+    public const string UPLOAD = 'upload';
+
+    public const string EVENT = 'event';
+
+    public const string TRAVEL = 'travel';
+
     /**
      * @param list<MedalLevel> $medalUps medals with a higher level than in the previous upload, at their new level
      */
@@ -30,5 +36,28 @@ final readonly class TimelineEntry
         /** The recursions, when there is a new one. */
         public ?int $recursions = null,
     ) {
+    }
+
+    /** UPLOAD, EVENT or TRAVEL (an event with an end date): the timeline's filter. */
+    public function kind(): string
+    {
+        return match (true) {
+            !$this->event instanceof TimelineEvent => self::UPLOAD,
+            $this->event->endDate instanceof \DateTimeImmutable => self::TRAVEL,
+            default => self::EVENT,
+        };
+    }
+
+    /**
+     * The years it falls in, for the filter: a travel over New Year in both.
+     *
+     * @return list<int>
+     */
+    public function years(): array
+    {
+        $first = (int) ($this->event->date ?? $this->date)->format('Y');
+        $last = (int) ($this->event->endDate ?? $this->event->date ?? $this->date)->format('Y');
+
+        return \range($first, \max($first, $last));
     }
 }

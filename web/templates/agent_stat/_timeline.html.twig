@@ -2,11 +2,38 @@
     Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline.
     timeline: list<TimelineEntry>, editable: bool (the own timeline: links to each upload, edit and delete events)
 #}
+<div data-controller="timeline-filter">
+{% if timeline is not empty %}
+    {# Filters in one row: what and when #}
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="timeline-filters">
+        {% for kind, icon in {upload: 'bi-bar-chart-line', event: 'bi-flag-fill', travel: 'bi-airplane-fill'} %}
+            <input type="checkbox" class="btn-check" id="timeline-filter-{{ kind }}" value="{{ kind }}" checked autocomplete="off"
+                   data-timeline-filter-target="kind" data-action="timeline-filter#apply">
+            <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-{{ kind }}">
+                <i class="{{ icon }}"></i> {{ ('timeline.filter.' ~ kind)|trans }}
+            </label>
+        {% endfor %}
+        {# Uploads only with a medal at a higher tier; events keep their own toggles #}
+        <input type="checkbox" class="btn-check" id="timeline-filter-medals" autocomplete="off"
+               data-timeline-filter-target="medals" data-action="timeline-filter#apply">
+        <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-medals">
+            <i class="bi-award"></i> {{ 'timeline.filter.medals'|trans }}
+        </label>
+        <select class="form-select form-select-sm w-auto" id="timeline-filter-year" aria-label="{{ 'timeline.filter.year'|trans }}"
+                data-timeline-filter-target="year" data-action="timeline-filter#apply">
+            <option value="">{{ 'timeline.filter.all_years'|trans }}</option>
+            {% for year in timeline_years(timeline) %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}
 <ol class="timeline list-unstyled" id="timeline-entries">
     {% for entry in timeline %}
         {% if entry.event %}
             {% set event = entry.event %}
-            <li class="timeline-entry timeline-event" id="timeline-event-{{ event.id }}">
+            <li class="timeline-entry timeline-event" id="timeline-event-{{ event.id }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}">
                 <div class="timeline-date small text-body-secondary">
                     {{ event.date|date('Y-m-d') }}{% if event.endDate %} &ndash; {{ event.endDate|date('Y-m-d') }}{% endif %}
                 </div>
@@ -28,7 +55,9 @@
         {% else %}
             {% set stat = entry.stat %}
             {% set faction = stat.factionCode %}
-            <li class="timeline-entry timeline-upload">
+            <li class="timeline-entry timeline-upload"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}"
+                {%- if entry.medalUps %} data-medals{% endif %}>
                 <div class="timeline-date small text-body-secondary">
                     {% if editable %}
                         <a href="{{ path('app_agent_stat_show', {id: stat.id}) }}">{{ stat.datetime|date('Y-m-d H:i') }}</a>
@@ -66,4 +95,6 @@
     {% else %}
         <li class="text-body-secondary">{{ 'stats.none'|trans }}</li>
     {% endfor %}
+    <li class="text-body-secondary" id="timeline-filter-empty" data-timeline-filter-target="empty" hidden>{{ 'timeline.filter.none'|trans }}</li>
 </ol>
+</div>

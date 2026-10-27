@@ -84,6 +84,7 @@ medals:
         event: Event
 
 nav:
+    import_stats: Statistiken importieren
     about: Über
     admin: Admin
     agent_stats: Agentenstatistiken
@@ -158,6 +159,15 @@ stats:
     mine: Meine Agentenstatistiken
     none: Noch keine Statistiken.
 
+stats_import:
+    title: 'Statistiken aus einer Datei importieren'
+    intro: 'Importiere die Statistiken, die du auf der 4e-website gespeichert hast: Öffne dort das Kontomenü, <strong>Migrate</strong>, <strong>Export CSV</strong>, und lade die Datei hier hoch. Statistiken, die du schon hast, werden übersprungen; nur Statistiken deines Agenten werden importiert.'
+    file: 'CSV-Datei'
+    file_help: 'Eine Kopfzeile mit den Spaltennamen der Statistiken (datetime, nickname, faction, ap, …), eine Zeile pro Upload.'
+    submit: 'Importieren'
+    done: '%imported% Statistiken importiert, %skipped% schon vorhandene übersprungen.'
+    errors: '{1} Eine Zeile wurde nicht importiert:|]1,Inf[ %count% Zeilen wurden nicht importiert:'
+
 system:
     info: Systeminfo
 
@@ -168,6 +178,14 @@ theme:
     auto: Automatisch
 
 timeline:
+    filter:
+        medals: Medaillen-Upgrades
+        upload: Uploads
+        event: Ereignisse
+        travel: Reisen
+        year: Jahr
+        all_years: Alle Jahre
+        none: Keine Einträge passen zu den Filtern.
     chart:
         label: AP im Zeitverlauf mit Ereignissen und Reisen
         ap: AP

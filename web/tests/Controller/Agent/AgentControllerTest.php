@@ -147,6 +147,14 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', '2026-10-20 15:35');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'New level 16');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'First upload');
+        // Filters by kind and year
+        self::assertSelectorExists('#timeline-filters input#timeline-filter-travel[value="travel"]');
+        self::assertSame(['', '2026'], $crawler->filter('#timeline-filter-year option')->each(static fn ($option): string => (string) $option->attr('value')));
+        self::assertSelectorExists('#timeline-entries li.timeline-event[data-kind="event"][data-years="2026"]');
+        self::assertSelectorExists('#timeline-entries li.timeline-upload[data-kind="upload"]');
+        // Only uploads with medal upgrades are marked for the medal filter: the first has nothing to compare
+        self::assertSelectorExists('#timeline-filters input#timeline-filter-medals');
+        self::assertCount(0, $crawler->filter('#timeline-entries li.timeline-upload[data-medals]'));
         // Read-only for others
         self::assertSelectorNotExists('#timeline-entries a[href*="/timeline-events/"]');
         self::assertSelectorNotExists('#timeline-entries a[href^="/agent-stats/"]');
@@ -155,6 +163,23 @@ class AgentControllerTest extends WebTestCase
         // Annual medals are stored as levels
         self::assertSelectorExists('#custom-medals img[alt="Voyager (Onyx)"][src*="badge_voyager_black"]');
         self::assertSelectorTextNotContains('#custom-medals', 'Event');
+    }
+
+    public function testUploadsWithMedalUpgradesAreMarkedForTheFilter(): void
+    {
+        $agent = $this->user('agent');
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY]);
+        $this->createAgentStat($agent, '2026-10-19 15:35:56', 16, explorer: 900);
+        // Explorer from bronze to gold
+        $this->createAgentStat($agent, '2026-10-20 15:35:56', 16, explorer: 2500);
+        $this->createAgentStat($agent, '2026-10-21 15:35:56', 16, explorer: 2600);
+
+        $this->client->loginUser($this->user('admin'));
+        $crawler = $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
+
+        $marked = $crawler->filter('#timeline-entries li.timeline-upload[data-medals]');
+        self::assertCount(1, $marked);
+        self::assertStringContainsString('2026-10-20 15:35', $marked->text());
     }
 
     public function testTheAgentSeesTheOwnPageAsOthersDo(): void
@@ -177,7 +202,7 @@ class AgentControllerTest extends WebTestCase
         $this->entityManager()->flush();
     }
 
-    private function createAgentStat(User $owner, string $datetime, int $level): void
+    private function createAgentStat(User $owner, string $datetime, int $level, ?int $explorer = null): void
     {
         $this->entityManager()->persist(new AgentStat($owner, new AgentStatInput(
             datetime: $datetime,
@@ -185,6 +210,7 @@ class AgentControllerTest extends WebTestCase
             faction: 'Enlightened',
             ap: 243517130,
             level: $level,
+            explorer: $explorer,
         )));
         $this->entityManager()->flush();
     }

@@ -85,6 +85,7 @@ medals:
         event: Event
 
 nav:
+    import_stats: Import stats
     about: About
     admin: Admin
     agent_stats: Agent stats
@@ -159,6 +160,15 @@ stats:
     mine: My agent stats
     none: No stats yet.
 
+stats_import:
+    title: 'Import stats from a file'
+    intro: 'Import the stats you saved on 4e-website: there, open the account menu, <strong>Migrate</strong>, <strong>Export CSV</strong>, and upload the file here. Stats you already have are skipped; only stats of your agent are imported.'
+    file: 'CSV file'
+    file_help: 'A header row with the column names of the stats (datetime, nickname, faction, ap, …), one row per upload.'
+    submit: 'Import'
+    done: 'Imported %imported% stats, skipped %skipped% you already had.'
+    errors: '{1} One row was not imported:|]1,Inf[ %count% rows were not imported:'
+
 system:
     info: System Info
 
@@ -169,6 +179,14 @@ theme:
     auto: Auto
 
 timeline:
+    filter:
+        medals: Medal upgrades
+        upload: Uploads
+        event: Events
+        travel: Travels
+        year: Year
+        all_years: All years
+        none: No entries match the filters.
     chart:
         label: AP over time with your events and travels
         ap: AP

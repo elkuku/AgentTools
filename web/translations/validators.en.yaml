@@ -1,0 +1,2 @@
+# The app's own constraint messages; Symfony translates its built-in ones
+stats_import.no_file: Choose a CSV file to import.

@@ -60,6 +60,22 @@ class TimelineBuilderTest extends TestCase
         );
     }
 
+    public function testKindsAndYearsForTheFilters(): void
+    {
+        $travel = $this->event('2025-12-28', 'New Year in Quito');
+        $travel->endDate = new \DateTimeImmutable('2026-01-03');
+
+        $timeline = new TimelineBuilder(new MedalChecker())->build(
+            [$this->stat('2024-05-01 10:00:00', ap: 1000, level: 7)],
+            [$this->event('2026-03-01', 'Anomaly'), $travel],
+        );
+
+        self::assertSame(['event', 'travel', 'upload'], \array_map(static fn ($entry): string => $entry->kind(), $timeline));
+        // Over New Year: in both years
+        self::assertSame([2025, 2026], $timeline[1]->years());
+        self::assertSame([2026, 2025, 2024], TimelineBuilder::years($timeline));
+    }
+
     private function stat(string $datetime, int $ap, int $level, ?int $explorer = null, ?int $recursions = null): AgentStat
     {
         return new AgentStat(new User(), new AgentStatInput(

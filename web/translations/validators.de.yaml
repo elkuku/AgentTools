@@ -4,3 +4,4 @@
 'An agent name has only letters, digits and underscores.': Ein Agentenname besteht nur aus Buchstaben, Ziffern und Unterstrichen.
 'This agent name is already taken.': Dieser Agentenname ist bereits vergeben.
 'The end date must not be before the date.': Das Enddatum darf nicht vor dem Datum liegen.
+stats_import.no_file: Wähle eine CSV-Datei zum Importieren.
