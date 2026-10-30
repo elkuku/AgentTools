@@ -16,7 +16,7 @@ in [`../app`](../app), and lists them. It includes:
 * A user CRUD interface
 * Bootstrap
 
-Setting up Google Sign-In for the app: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.md).
+Setting up Google Sign-In for the app: [docs/developers/google-sign-in.md](../docs/developers/google-sign-in.md).
 
 ## Installation
 In this folder (`web/`), run

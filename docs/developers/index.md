@@ -1,14 +1,14 @@
-# AgentTools – developer guide
+# Developer guide
 
 [![Symfony tests](https://github.com/elkuku/AgentTools/actions/workflows/symfony-tests.yml/badge.svg)](https://github.com/elkuku/AgentTools/actions/workflows/symfony-tests.yml)
 [![Android](https://github.com/elkuku/AgentTools/actions/workflows/android.yml/badge.svg)](https://github.com/elkuku/AgentTools/actions/workflows/android.yml)
 
 | Folder                                   | What                                                                     |
 |------------------------------------------|--------------------------------------------------------------------------|
-| [`app/`](../app)                         | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)     |
-| [`web/`](../web)                         | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, user admin |
-| [`docs/`](.)                             | [Google Sign-In setup](google-sign-in-setup.md), this guide              |
-| [`PLAN.md`](../PLAN.md)                  | Design decisions and build plan                                          |
+| [`app/`](https://github.com/elkuku/AgentTools/tree/master/app) | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)     |
+| [`web/`](https://github.com/elkuku/AgentTools/tree/master/web) | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, user admin |
+| [`docs/`](https://github.com/elkuku/AgentTools/tree/master/docs) | This documentation (VitePress), published to GitHub Pages |
+| [`PLAN.md`](https://github.com/elkuku/AgentTools/blob/master/PLAN.md) | Design decisions and build plan                                          |
 
 ## How it works
 
@@ -32,7 +32,7 @@
    saved to `web`.
 
 The app uses the **Web** client ID as `serverClientId`; the Android OAuth client only registers
-the package name and SHA-1. See [google-sign-in-setup.md](google-sign-in-setup.md).
+the package name and SHA-1. See [google-sign-in-setup.md](./google-sign-in).
 
 ## Quick start
 
@@ -47,9 +47,9 @@ cp local.properties.example local.properties   # set google.serverClientId and s
 ```
 
 To try everything without Google credentials, use fake tokens in dev:
-[app/README.md → Without Google](../app/README.md#without-google-fake-tokens).
+[app/README.md → Without Google](https://github.com/elkuku/AgentTools/blob/master/app/README.md#without-google-fake-tokens).
 
-More details: [app/README.md](../app/README.md), [web/CLAUDE.md](../web/CLAUDE.md).
+More details: [app/README.md](https://github.com/elkuku/AgentTools/blob/master/app/README.md), [web/CLAUDE.md](https://github.com/elkuku/AgentTools/blob/master/web/CLAUDE.md), [Architecture](./architecture), [API](./api).
 
 ## Tests
 
@@ -58,13 +58,30 @@ cd web && make tests              # PHPUnit, PHPStan, Rector, PHP-CS-Fixer
 cd app && ./gradlew testDebugUnitTest lintDebug
 ```
 
-CI runs both on GitHub Actions; the Symfony test coverage is published to
-[GitHub Pages](https://elkuku.github.io/AgentTools/).
+CI runs both on GitHub Actions; the Symfony test coverage is published with this documentation
+([Downloads](/downloads)).
+
+## Documentation
+
+This site is built with [VitePress](https://vitepress.dev) from `docs/`:
+
+```shell
+cd docs
+npm install
+npm run dev      # http://localhost:5173/AgentTools/
+npm run build    # docs/.vitepress/dist
+```
+
+The GitHub Pages workflow (`.github/workflows/symfony-pages.yml`) builds it on every push to
+master that changes `docs/`, `web/` or `app/`, and adds the dev APK (`/agenttools-dev.apk`) and the
+web test coverage (`/coverage/`). The screenshots in `docs/public/screenshots/` show the demo
+agents (`symfony console app:demo-agents`; the app signed in as DemoFrog with a fake token), never
+real users.
 
 ## Dev app
 
 The GitHub Pages workflow also builds the `dev` build type of the latest master and puts it on the
-project page as `agenttools-dev.apk`. It is a release build with its own package
+[Downloads](/downloads) page as `agenttools-dev.apk`. It is a release build with its own package
 (`com.elkuku.agenttools.dev`, "AgentTools Dev", installs next to the release app), talks to the
 live server and, like debug builds, has the server switch in its settings (HTTPS only). Its version
 name is `<versionName>-dev+<run number>.<commit>`.

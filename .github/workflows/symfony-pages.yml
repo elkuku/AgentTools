@@ -4,6 +4,7 @@ on:
     push:
         branches: [master]
         paths:
+            - 'docs/**'
             - 'web/**'
             - 'app/**'
             - '.github/workflows/symfony-pages.yml'
@@ -98,8 +99,20 @@ jobs:
                   rm "$RUNNER_TEMP/dev.jks"
                   echo "DEV_APK_VERSION=$(jq -r '.elements[0].versionName' app/build/outputs/apk/dev/output-metadata.json)" >> "$GITHUB_ENV"
 
-            - name: Generate project page
-              run: php .github/scripts/generate-page.php
+            # The documentation (VitePress) with the coverage and the dev APK next to it
+            - name: Setup Node
+              uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+                  cache: npm
+                  cache-dependency-path: docs/package-lock.json
+
+            - name: Build the documentation
+              working-directory: docs
+              run: |
+                  npm ci
+                  npm run build
+                  cp -r ../web/docs/coverage ../web/docs/agenttools-dev.apk .vitepress/dist/
 
             - name: Configure Pages
               uses: actions/configure-pages@v6
@@ -107,7 +120,7 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v5
               with:
-                  path: web/docs/
+                  path: docs/.vitepress/dist/
 
     deploy:
         needs: build

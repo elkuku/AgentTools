@@ -9,7 +9,7 @@ from Ingress to `web` (`POST /api/agent-stats`) and shows them with medals.
 
 ## Setup
 
-Step-by-step guide: [docs/google-sign-in-setup.md](../docs/google-sign-in-setup.md).
+Step-by-step guide: [docs/developers/google-sign-in.md](../docs/developers/google-sign-in.md).
 
 1. **Google Cloud** (in the same project as the web OAuth client of `web`):
    - Create an OAuth client of type **Android** with package name `com.elkuku.agenttools` and the

@@ -124,7 +124,7 @@ cd web && symfony serve --no-tls --allow-all-ip --port=8000
 Start an emulator with a **Google Play** system image and add your Google account under
 *Settings → Passwords & accounts*. Then install the app (`./gradlew installDebug`) and sign in.
 Share your all-time stats from Ingress with the app and save them. They appear at
-<http://localhost:8000/agent-stats>.
+`http://localhost:8000/agent-stats`.
 
 ## Troubleshooting
 
