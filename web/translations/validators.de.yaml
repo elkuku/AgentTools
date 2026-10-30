@@ -3,5 +3,6 @@
 'The role must be a valid user role.': Die Rolle muss eine gültige Benutzerrolle sein.
 'An agent name has only letters, digits and underscores.': Ein Agentenname besteht nur aus Buchstaben, Ziffern und Unterstrichen.
 'This agent name is already taken.': Dieser Agentenname ist bereits vergeben.
+'Travels cannot overlap: {{ travel }}.': 'Reisen dürfen sich nicht überschneiden: {{ travel }}.'
 'The end date must not be before the date.': Das Enddatum darf nicht vor dem Datum liegen.
 stats_import.no_file: Wähle eine CSV-Datei zum Importieren.

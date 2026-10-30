@@ -127,7 +127,8 @@ main > .container {
 /* The timeline of stats uploads and custom events (agent_stat/_timeline.html.twig) */
 .timeline {
     border-left: 2px solid var(--bs-border-color);
-    margin-left: .5rem;
+    /* Room for the travel line beside it */
+    margin-left: 1.25rem;
     padding-left: 1.25rem;
 }
 
@@ -146,11 +147,56 @@ main > .container {
     border-radius: 50%;
     background: var(--bs-secondary-bg);
     border: 2px solid var(--bs-secondary-color);
+    z-index: 1;
 }
 
 .timeline-event::before {
     background: var(--timeline-event);
     border-color: var(--timeline-event);
+}
+
+.timeline-travel::before {
+    background: var(--timeline-travel);
+    border-color: var(--timeline-travel);
+}
+
+/*
+ * A travel's line beside the timeline: from its end (newest first: above) to its start, through
+ * the entries in it, with an elbow to the dot of the end and of the start. Travels cannot overlap.
+ */
+.timeline-travel::after,
+.timeline-in-travel::after {
+    content: "";
+    position: absolute;
+    left: calc(-1.25rem - 2px - 12px);
+    width: 12px;
+    border: 0 solid var(--timeline-travel);
+    border-left-width: 3px;
+}
+
+.timeline-in-travel::after {
+    top: 0;
+    bottom: 0;
+}
+
+.timeline-travel-end::after {
+    /* From the middle of the dot down */
+    top: calc(.3rem + 7px);
+    bottom: 0;
+    border-top-width: 3px;
+    border-top-left-radius: 6px;
+}
+
+.timeline-travel-start::after {
+    top: 0;
+    height: calc(.3rem + 7px);
+    border-bottom-width: 3px;
+    border-bottom-left-radius: 6px;
+}
+
+/* Without the travels, no line */
+.timeline-no-travels .timeline-in-travel::after {
+    display: none;
 }
 
 .timeline-upload::before {

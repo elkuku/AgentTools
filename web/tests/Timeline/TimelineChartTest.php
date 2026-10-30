@@ -92,6 +92,41 @@ class TimelineChartTest extends TestCase
         self::assertTrue(TimelineChart::build($stats(TimelineChart::MAX_DOTS + 1), [], 'en')?->dense());
     }
 
+    public function testZoomedToTheDays(): void
+    {
+        $stats = [
+            $this->stat('2026-10-30 12:00:00', 9000),
+            $this->stat('2026-09-15 12:00:00', 2000),
+            $this->stat('2026-09-01 12:00:00', 1000),
+            $this->stat('2025-01-01 12:00:00', 10),
+        ];
+        $events = [
+            $this->event('2025-06-01', null, 'Anomaly'),
+            // Over the end of the days shown
+            $this->event('2026-09-20', '2026-10-02', 'Travel to Cuenca'),
+        ];
+
+        $chart = TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-09-01'), TimelineChart::date('2026-09-30'));
+
+        self::assertNotNull($chart);
+        // Only the uploads and events on the days, both included; the AP axis for those uploads
+        self::assertSame(['2026-09-01', '2026-09-15'], \array_map(static fn (array $point): string => \substr($point['title'], 0, 10), $chart->points));
+        self::assertSame([], $chart->flags);
+        self::assertSame(['1k', '1.5k', '2k'], \array_column($chart->yTicks, 'label'));
+        // The travel is cut at the end of the plot
+        self::assertCount(1, $chart->bands);
+        self::assertEqualsWithDelta(TimelineChart::RIGHT, $chart->bands[0]['x'] + $chart->bands[0]['width'], 0.001);
+        self::assertLessThan(TimelineChart::RIGHT, $chart->bands[0]['x']);
+
+        // From a day on, to the newest upload
+        self::assertCount(2, TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-09-15'))->points ?? []);
+        // A travel on the first day shown, not one that ended the day before
+        self::assertCount(1, TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-10-02'))->bands ?? []);
+        self::assertCount(0, TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-10-03'))->bands ?? []);
+        // Nothing on the days
+        self::assertNull(TimelineChart::build($stats, $events, 'en', TimelineChart::date('2024-01-01'), TimelineChart::date('2024-12-31')));
+    }
+
     private function stat(string $datetime, int $ap): AgentStat
     {
         return new AgentStat(new User(), new AgentStatInput(datetime: $datetime, nickname: 'TestAgent', faction: 'Enlightened', ap: $ap, level: 16));

@@ -76,17 +76,23 @@ class BannersControllerTest extends WebTestCase
         $this->client->followRedirect();
         self::assertSelectorExists('#done-banner-'.$banner->id.' input[name="doneAt"][value="2026-10-18"]');
 
-        // On the timeline of the stats page, with a link to change the day
+        // Counted on the stats page, which links to the Bannergress page
         $this->client->request(Request::METHOD_GET, '/agent-stats');
-        self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Quito old town');
-        self::assertSelectorTextContains('#timeline-entries .timeline-banner', '2026-10-18');
-        self::assertSelectorExists('#timeline-entries .timeline-banner a[href="/banners#done-banner-'.$banner->id.'"]');
+        self::assertSelectorTextContains('#timeline-count-banner', '1');
         self::assertSelectorExists('#bannergress h2 a[href="/banners"]');
+
+        // On the timeline, with a button to change the day
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
+        self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Quito old town');
+        self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Oct 18, 2026');
+        self::assertSelectorExists('#timeline-entries .timeline-banner a.btn[href="/banners#done-banner-'.$banner->id.'"]');
+        // The title without a link to Bannergress
+        self::assertSelectorNotExists('#timeline-entries .timeline-banner a[href^="https://bannergress.com"]');
 
         // An empty day takes it off the timeline
         $this->client->request(Request::METHOD_GET, '/banners');
         $this->client->submitForm('Save', ['doneAt' => '']);
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
         self::assertSelectorNotExists('#timeline-entries .timeline-banner');
     }
 

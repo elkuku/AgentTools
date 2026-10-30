@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'timeline.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h1 id="timeline">{{ 'timeline.title'|trans }}</h1>
+        <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}">{{ 'stats.mine'|trans }}</a>
+    </div>
+
+    {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
+    <details class="card mb-3" id="timeline-add"{% if eventForm.vars.submitted %} open{% endif %}>
+        <summary class="card-header"><i class="bi-flag"></i> {{ 'timeline.event.add'|trans }}</summary>
+        <div class="card-body">
+            {{ form_start(eventForm, {action: path('app_agent_stat_timeline')}) }}
+                <div class="row">
+                    <div class="col-sm-6">{{ form_row(eventForm.date) }}</div>
+                    <div class="col-sm-6">{{ form_row(eventForm.endDate) }}</div>
+                </div>
+                {{ form_row(eventForm.text) }}
+                <button class="btn btn-primary">{{ 'timeline.event.add'|trans }}</button>
+            {{ form_end(eventForm) }}
+        </div>
+    </details>
+    {{ include('agent_stat/_timeline.html.twig', {editable: true}) }}
+{% endblock %}

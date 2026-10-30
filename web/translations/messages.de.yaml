@@ -142,7 +142,6 @@ role:
     user: Benutzer
 
 stats:
-    ap: '%ap% AP'
     agent: Agent
     all_values: Alle Werte
     core_months: '{1} C.O.R.E %count% Monat|]1,Inf[ C.O.R.E %count% Monate'
@@ -184,13 +183,14 @@ theme:
 
 timeline:
     filter:
-        medals: Medaillen-Upgrades
+        medals: Medaillen
+        new_level: Neues Level
         upload: Uploads
         event: Ereignisse
         banner: Banner
         travel: Reisen
-        year: Jahr
-        all_years: Alle Jahre
+        from: Von
+        to: Bis
         none: Keine Einträge passen zu den Filtern.
     chart:
         label: AP im Zeitverlauf mit Ereignissen und Reisen
@@ -198,6 +198,9 @@ timeline:
         event: Ereignis
         travel: Reise
     title: Zeitleiste
+    travel:
+        start: Beginn der Reise
+        end: Ende der Reise
     first_upload: Erster Upload
     new_level: Neues Level %level%
     recursion: 'Rekursion: %count%'

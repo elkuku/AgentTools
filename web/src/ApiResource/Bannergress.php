@@ -33,9 +33,9 @@ final class Bannergress
     public const string BANNER_BASE = 'https://bannergress.com/banner/';
 
     /**
-     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null}> $todoBanners      newest first
-     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null}> $doneBanners      newest first, written only
-     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null}> $publishedBanners newest first
+     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null}>                               $todoBanners      newest first
+     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null, eventStartDate?: string|null}> $doneBanners      newest first, written only
+     * @param list<array{id: string, title: string, missions: int, picture: string|null, startLatitude?: float|int|null, startLongitude?: float|int|null}>                               $publishedBanners newest first
      */
     public function __construct(
         /** Banners with a mission the agent created. */
@@ -69,6 +69,8 @@ final class Bannergress
             'picture' => new Assert\Optional([new Assert\Type('string'), new Assert\Regex(self::PICTURE_PATTERN)]),
             'startLatitude' => new Assert\Optional([new Assert\Type(['int', 'float']), new Assert\Range(min: -90, max: 90)]),
             'startLongitude' => new Assert\Optional([new Assert\Type(['int', 'float']), new Assert\Range(min: -180, max: 180)]),
+            // The first day of an event banner: the day it was done unless the user set one
+            'eventStartDate' => new Assert\Optional([new Assert\Type('string'), new Assert\Date()]),
         ])])]
         public array $doneBanners = [],
         /** Every banner with a mission the agent created, newest first. */

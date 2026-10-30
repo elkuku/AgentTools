@@ -1,45 +1,52 @@
 {#
-    Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline.
-    timeline: list<TimelineEntry>, editable: bool (the own timeline: links to each upload, edit and delete events)
+    Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline:
+    uploads only for what changed besides the AP (TimelineEntry::isListed(); the AP is in the chart). Each with its day in the
+    page's language (medium: Oct 22, 2026 / 22.10.2026), without the time.
+    The entries have no links (only the edit and delete buttons of the own timeline).
+    timeline: list<TimelineEntry>, editable: bool (the own timeline: edit and delete events, change a banner's day)
 #}
 <div data-controller="timeline-filter">
-{% if timeline is not empty %}
-    {# Filters in one row: what and when #}
+{% set listed = timeline|filter(e => e.listed) %}
+{% if listed is not empty %}
+    {# Filters in one row, as the app's: uploads with medals or a new level (milestones always), each kind of event, the days #}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="timeline-filters">
-        {% for kind, icon in {upload: 'bi-bar-chart-line', event: 'bi-flag-fill', travel: 'bi-airplane-fill', banner: 'bi-grid-3x3-gap'}|filter((icon, kind) => kind != 'banner' or timeline|filter(e => e.banner)|length > 0) %}
+        {% for filter, icon in {medals: 'bi-award', new_level: 'bi-graph-up-arrow'} %}
+            <input type="checkbox" class="btn-check" id="timeline-filter-{{ filter|replace({'_': '-'}) }}" checked autocomplete="off"
+                   data-timeline-filter-target="{{ filter == 'medals' ? 'medals' : 'newLevels' }}" data-action="timeline-filter#apply">
+            <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-{{ filter|replace({'_': '-'}) }}">
+                <i class="{{ icon }}"></i> {{ ('timeline.filter.' ~ filter)|trans }}
+            </label>
+        {% endfor %}
+        {% for kind, icon in {event: 'bi-flag-fill', travel: 'bi-airplane-fill', banner: 'bi-grid-3x3-gap'}|filter((icon, kind) => kind != 'banner' or listed|filter(e => e.banner)|length > 0) %}
             <input type="checkbox" class="btn-check" id="timeline-filter-{{ kind }}" value="{{ kind }}" checked autocomplete="off"
                    data-timeline-filter-target="kind" data-action="timeline-filter#apply">
             <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-{{ kind }}">
                 <i class="{{ icon }}"></i> {{ ('timeline.filter.' ~ kind)|trans }}
             </label>
         {% endfor %}
-        {# Uploads only with a medal at a higher tier; events keep their own toggles #}
-        <input type="checkbox" class="btn-check" id="timeline-filter-medals" autocomplete="off"
-               data-timeline-filter-target="medals" data-action="timeline-filter#apply">
-        <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-medals">
-            <i class="bi-award"></i> {{ 'timeline.filter.medals'|trans }}
-        </label>
-        <select class="form-select form-select-sm w-auto" id="timeline-filter-year" aria-label="{{ 'timeline.filter.year'|trans }}"
-                data-timeline-filter-target="year" data-action="timeline-filter#apply">
-            <option value="">{{ 'timeline.filter.all_years'|trans }}</option>
-            {% for year in timeline_years(timeline) %}
-                <option value="{{ year }}">{{ year }}</option>
-            {% endfor %}
-        </select>
+        {# Both days included; an empty one: no limit #}
+        <div class="input-group input-group-sm w-auto">
+            <label class="input-group-text" for="timeline-filter-from">{{ 'timeline.filter.from'|trans }}</label>
+            <input type="date" class="form-control" id="timeline-filter-from"
+                   data-timeline-filter-target="from" data-action="timeline-filter#apply">
+            <label class="input-group-text" for="timeline-filter-to">{{ 'timeline.filter.to'|trans }}</label>
+            <input type="date" class="form-control" id="timeline-filter-to"
+                   data-timeline-filter-target="to" data-action="timeline-filter#apply">
+        </div>
     </div>
 {% endif %}
 <ol class="timeline list-unstyled" id="timeline-entries">
-    {% for entry in timeline %}
+    {% for entry in listed %}
         {% if entry.banner %}
             {% set banner = entry.banner %}
-            <li class="timeline-entry timeline-banner" id="timeline-banner-{{ banner.id }}"
-                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}">
-                <div class="timeline-date small text-body-secondary">{{ banner.doneAt|date('Y-m-d') }}</div>
+            <li class="timeline-entry timeline-banner{{ entry.inTravel ? ' timeline-in-travel' }}" id="timeline-banner-{{ banner.id }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-from="{{ entry.days[0] }}" data-to="{{ entry.days[1] }}">
+                <div class="timeline-date small text-body-secondary">{{ banner.doneAt|format_date('medium') }}</div>
                 <div class="d-flex align-items-start gap-2">
                     <i class="bi-grid-3x3-gap timeline-banner-icon"></i>
                     <div class="flex-grow-1">
                         {{ 'bannergress.timeline_done'|trans }}
-                        <a href="{{ banner.url }}" target="_blank" rel="noopener">{{ banner.title }}</a>
+                        {{ banner.title }}
                         <span class="small text-body-secondary">&middot; {{ 'bannergress.missions'|trans({'%count%': banner.missions}) }}</span>
                         {% if banner.pictureUrl %}
                             <img class="d-block rounded mt-1 banner-picture" src="{{ banner.pictureUrl }}" alt="" loading="lazy">
@@ -53,13 +60,17 @@
             </li>
         {% elseif entry.event %}
             {% set event = entry.event %}
-            <li class="timeline-entry timeline-event" id="timeline-event-{{ event.id }}"
-                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}">
+            {# A travel twice: its end and its start, each with its day; a single-day event once #}
+            {% set edge = entry.travelEdge %}
+            <li class="timeline-entry timeline-event{{ edge ? ' timeline-travel timeline-travel-' ~ edge }}{{ entry.inTravel ? ' timeline-in-travel' }}"
+                id="timeline-event-{{ event.id }}{{ edge == 'end' ? '-end' }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-from="{{ entry.days[0] }}" data-to="{{ entry.days[1] }}">
                 <div class="timeline-date small text-body-secondary">
-                    {{ event.date|date('Y-m-d') }}{% if event.endDate %} &ndash; {{ event.endDate|date('Y-m-d') }}{% endif %}
+                    {{ (edge == 'end' ? event.endDate : event.date)|format_date('medium') }}
+                    {% if edge %}&middot; {{ ('timeline.travel.' ~ edge)|trans }}{% endif %}
                 </div>
                 <div class="d-flex align-items-start gap-2">
-                    <i class="{{ event.endDate ? 'bi-airplane-fill timeline-travel-icon' : 'bi-flag-fill timeline-event-icon' }}"></i>
+                    <i class="{{ edge ? 'bi-airplane-fill timeline-travel-icon' : 'bi-flag-fill timeline-event-icon' }}"></i>
                     <div class="flex-grow-1 timeline-text">{{ event.text }}</div>
                     {% if editable %}
                         <a class="btn btn-sm btn-link py-0" href="{{ path('app_timeline_event_edit', {id: event.id}) }}"
@@ -75,22 +86,13 @@
             </li>
         {% else %}
             {% set stat = entry.stat %}
-            {% set faction = stat.factionCode %}
-            <li class="timeline-entry timeline-upload"
-                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-years="{{ entry.years|join(' ') }}"
-                {%- if entry.medalUps %} data-medals{% endif %}>
-                <div class="timeline-date small text-body-secondary">
-                    {% if editable %}
-                        <a href="{{ path('app_agent_stat_show', {id: stat.id}) }}">{{ stat.datetime|date('Y-m-d H:i') }}</a>
-                    {% else %}
-                        {{ stat.datetime|date('Y-m-d H:i') }}
-                    {% endif %}
-                </div>
-                <div>
-                    <span class="fw-bold {{ faction ? 'faction-' ~ faction }}">L{{ stat.level ?? '–' }}</span>
-                    &middot; {{ 'stats.ap'|trans({'%ap%': stat.ap|number_format}) }}
-                    {% if entry.apGain > 0 %}<span class="text-success">+{{ entry.apGain|number_format }}</span>{% endif %}
-                </div>
+            <li class="timeline-entry timeline-upload{{ entry.inTravel ? ' timeline-in-travel' }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-from="{{ entry.days[0] }}" data-to="{{ entry.days[1] }}"
+                {%- if entry.milestone %} data-milestone{% endif %}
+                {%- if entry.medalUps %} data-medals{% endif %}
+                {%- if entry.newLevel %} data-new-level{% endif %}>
+                <div class="timeline-date small text-body-secondary">{{ stat.datetime|format_date('medium') }}</div>
+                {# Level and AP are in the chart; the list shows only what changed #}
                 {% if entry.first %}
                     <div class="small text-body-secondary">{{ 'timeline.first_upload'|trans }}</div>
                 {% endif %}

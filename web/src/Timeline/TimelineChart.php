@@ -27,6 +27,9 @@ final readonly class TimelineChart
 
     public const int BOTTOM = 212;
 
+    /** A day of the date filter (Y-m-d), as a regular expression for the query parameters. */
+    public const string DAY = '/^\d{4}-\d{2}-\d{2}$/';
+
     /** With more uploads the dots would run together: the line alone, a dot on hover. */
     public const int MAX_DOTS = 20;
 
@@ -62,18 +65,31 @@ final readonly class TimelineChart
     }
 
     /**
-     * Null when there is nothing to show.
+     * Null when there is nothing to show. Zoomed to the days from $from to $to (both included, null:
+     * no limit) as the app's: only the uploads and events on them, the AP axis for those uploads.
      *
      * @param list<AgentStat>     $stats  any order
      * @param list<TimelineEvent> $events
      */
-    public static function build(array $stats, array $events, string $locale): ?self
+    public static function build(array $stats, array $events, string $locale, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): ?self
     {
+        $first = $from instanceof \DateTimeImmutable ? self::day($from->setTime(0, 0)) : null;
+        // To the end of the last day
+        $last = $to instanceof \DateTimeImmutable ? self::day($to->setTime(0, 0)) + 1 : null;
+        $stats = \array_values(\array_filter($stats, static fn (AgentStat $stat): bool => self::within(self::day($stat->datetime), self::day($stat->datetime), $first, $last)));
+        $events = \array_values(\array_filter($events, static fn (TimelineEvent $event): bool => self::within(
+            self::day(self::startOf($event)),
+            // The start of its last day: on the first day shown or later
+            self::day($event->endDate ?? self::startOf($event)),
+            $first,
+            $last,
+        )));
+
         if ([] === $stats && [] === $events) {
             return null;
         }
 
-        [$start, $end] = self::timeRange($stats, $events);
+        [$start, $end] = self::timeRange($stats, $events, $first, $last);
         $x = static fn (float $time): float => self::LEFT + ($time - $start) / ($end - $start) * (self::RIGHT - self::LEFT);
 
         $aps = \array_map(static fn (AgentStat $stat): int => $stat->ap, $stats);
@@ -106,6 +122,18 @@ final readonly class TimelineChart
         );
     }
 
+    /** A day of the date filter (Y-m-d, see DAY); null for none. */
+    public static function date(?string $day): ?\DateTimeImmutable
+    {
+        return null === $day || '' === $day ? null : new \DateTimeImmutable($day.' 00:00:00', new \DateTimeZone('UTC'));
+    }
+
+    /** Whether the time from $start to $end overlaps the days from $first to $last (null: no limit). */
+    private static function within(float $start, float $end, ?float $first, ?float $last): bool
+    {
+        return (null === $first || $end >= $first) && (null === $last || $start < $last);
+    }
+
     /** Days since the epoch: a date and the time of an upload on the same scale. */
     private static function day(\DateTimeImmutable $date): float
     {
@@ -118,15 +146,15 @@ final readonly class TimelineChart
     }
 
     /**
-     * The days the chart shows: every upload and event, at least 30 days, with a little room on
-     * both sides for the dots and flags.
+     * The days the chart shows: from $first to $last when given, else every upload and event, at
+     * least 30 days; with a little room on both sides for the dots and flags.
      *
      * @param list<AgentStat>     $stats
      * @param list<TimelineEvent> $events
      *
      * @return array{float, float}
      */
-    private static function timeRange(array $stats, array $events): array
+    private static function timeRange(array $stats, array $events, ?float $first = null, ?float $last = null): array
     {
         $times = \array_map(static fn (AgentStat $stat): float => self::day($stat->datetime), $stats);
         foreach ($events as $event) {
@@ -140,8 +168,8 @@ final readonly class TimelineChart
             $times = [self::day(new \DateTimeImmutable())];
         }
 
-        [$start, $end] = [\min($times), \max($times)];
-        if ($end - $start < 30) {
+        [$start, $end] = [$first ?? \min($times), $last ?? \max($times)];
+        if (null === $first && null === $last && $end - $start < 30) {
             [$start, $end] = [($start + $end) / 2 - 15, ($start + $end) / 2 + 15];
         }
 
@@ -175,11 +203,13 @@ final readonly class TimelineChart
     {
         $date = self::startOf($event);
         $endDate = $event->endDate ?? $date;
-        $left = $x(self::day($date));
+        // Cut to the plot: a zoomed chart can start or end within a travel
+        $left = \max((float) self::LEFT, $x(self::day($date)));
+        $right = \min((float) self::RIGHT, $x(self::day($endDate) + 1));
 
         return [
             'x' => $left,
-            'width' => \max(2.0, $x(self::day($endDate) + 1) - $left),
+            'width' => \max(2.0, $right - $left),
             'title' => \sprintf('%s – %s: %s', $date->format('Y-m-d'), $endDate->format('Y-m-d'), $event->text),
             // The first line
             'label' => \mb_strimwidth(\strtok($event->text, "\n") ?: '', 0, 40, '…'),

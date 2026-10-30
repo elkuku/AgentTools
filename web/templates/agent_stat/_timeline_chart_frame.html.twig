@@ -1,0 +1,7 @@
+{#
+    The chart where the timeline's date filter puts the zoomed one (timeline_filter_controller.js
+    loads the page with from, to and chart=1, which renders only this). chart: TimelineChart|null
+#}
+<div id="timeline-chart-frame">
+    {% if chart %}{{ include('agent_stat/_timeline_chart.html.twig') }}{% endif %}
+</div>

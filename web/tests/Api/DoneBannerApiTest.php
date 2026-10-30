@@ -64,6 +64,30 @@ class DoneBannerApiTest extends WebTestCase
         self::assertSame([50.94, 6.96], [$banners[2]['startLatitude'], $banners[2]['startLongitude']]);
     }
 
+    public function testEventBannersGetTheFirstDayOfTheEvent(): void
+    {
+        $this->sync(['md-1', 'dated-2', 'plain-3'], ['md-1' => '2026-05-17', 'dated-2' => '2026-05-02']);
+        $dated = $this->banner('dated-2');
+        $dated->doneAt = new \DateTimeImmutable('2026-05-03');
+        $this->entityManager()->flush();
+
+        $this->sync(['md-1', 'dated-2', 'plain-3'], ['md-1' => '2026-05-17', 'dated-2' => '2026-05-02']);
+
+        // The day the user set is kept
+        self::assertSame('2026-05-17', $this->banner('md-1')->doneAt?->format('Y-m-d'));
+        self::assertSame('2026-05-03', $this->banner('dated-2')->doneAt?->format('Y-m-d'));
+        self::assertNull($this->banner('plain-3')->doneAt);
+    }
+
+    public function testRejectsInvalidEventDates(): void
+    {
+        $banner = ['id' => 'md-1', 'title' => 'MD', 'missions' => 6, 'eventStartDate' => 'tomorrow'];
+        $this->request(Request::METHOD_PATCH, '/api/me', ['bannergress' => ['done' => 1, 'doneBanners' => [$banner]]]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertContains('bannergress.doneBanners[0][eventStartDate]', \array_column($this->responseJson()['violations'], 'propertyPath'));
+    }
+
     public function testTheOwnerSetsTheDay(): void
     {
         $this->sync(['quito-1']);
@@ -96,11 +120,16 @@ class DoneBannerApiTest extends WebTestCase
     }
 
     /**
-     * @param list<string> $ids newest first
+     * @param list<string>          $ids    newest first
+     * @param array<string, string> $events the first day of the event banners, by id
      */
-    private function sync(array $ids): void
+    private function sync(array $ids, array $events = []): void
     {
-        $banners = \array_map(static fn (string $id): array => ['id' => $id, 'title' => 'Banner '.$id, 'missions' => 6, 'picture' => '/bnrs/pictures/abc', 'startLatitude' => 50.94, 'startLongitude' => 6.96], $ids);
+        $banners = \array_map(
+            static fn (string $id): array => ['id' => $id, 'title' => 'Banner '.$id, 'missions' => 6, 'picture' => '/bnrs/pictures/abc', 'startLatitude' => 50.94, 'startLongitude' => 6.96]
+                + (isset($events[$id]) ? ['eventStartDate' => $events[$id]] : []),
+            $ids,
+        );
         $this->request(Request::METHOD_PATCH, '/api/me', ['bannergress' => ['done' => \count($ids), 'doneBanners' => $banners]]);
         self::assertResponseIsSuccessful();
         $this->entityManager()->clear();

@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,7 +35,7 @@ class AgentStatControllerTest extends WebTestCase
     {
         $agentStat = $this->createAgentStat($this->getUserByIdentifier('agent'), 'Mine');
 
-        foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
+        foreach (['/agent-stats', '/agent-stats/timeline', '/agent-stats/'.$agentStat->id] as $path) {
             $this->client->request(Request::METHOD_GET, $path);
             self::assertResponseRedirects();
         }
@@ -50,13 +51,60 @@ class AgentStatControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#agent-stats', 'MyAgent');
-        // The imports are on the timeline, each one links to its stats
-        self::assertSelectorTextContains('#timeline-entries .timeline-upload', '2026-10-19 15:35');
-        self::assertSelectorTextContains('#timeline-entries .timeline-upload', '243,517,130 AP');
-        self::assertSelectorExists('#timeline-entries .timeline-upload a[href^="/agent-stats/"]');
         self::assertSelectorTextNotContains('body', 'OtherAgent');
         // Not synced from the app yet
         self::assertSelectorExists('#bannergress #bannergress-none');
+        // The timeline is on its own page: only the counts here
+        self::assertSelectorNotExists('#timeline-entries');
+        self::assertSelectorTextContains('#timeline-count-upload', '1');
+        self::assertSelectorTextContains('#timeline-count-event', '0');
+        self::assertSelectorExists('#timeline-summary h2 a[href="/agent-stats/timeline"]');
+    }
+
+    public function testTimelineListsOnlyOwnImports(): void
+    {
+        $this->createAgentStat($this->getUserByIdentifier('agent'), 'MyAgent');
+        $this->createAgentStat($this->getUserByIdentifier('admin'), 'OtherAgent');
+
+        $this->client->loginUser($this->getUserByIdentifier('agent'));
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
+
+        self::assertResponseIsSuccessful();
+        // Level and AP are only in the chart
+        self::assertCount(1, $this->client->getCrawler()->filter('#timeline-entries .timeline-upload'));
+        // The day in the page's language, without the time
+        self::assertSelectorTextContains('#timeline-entries .timeline-upload', 'Oct 19, 2026');
+        self::assertSelectorTextNotContains('#timeline-entries', '15:35');
+        self::assertSelectorTextNotContains('#timeline-entries', 'AP');
+        // No links in the list
+        self::assertSelectorNotExists('#timeline-entries .timeline-upload a');
+        self::assertSelectorExists('#timeline-chart-frame #timeline-chart');
+
+        $this->client->getCookieJar()->set(new Cookie('locale', 'de'));
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
+        self::assertSelectorTextContains('#timeline-entries .timeline-upload', '19.10.2026');
+    }
+
+    public function testTheDateFilterLoadsTheZoomedChart(): void
+    {
+        $this->createAgentStat($this->getUserByIdentifier('agent'), 'MyAgent');
+        $this->client->loginUser($this->getUserByIdentifier('agent'));
+
+        // Only the chart, for the days with the upload
+        $crawler = $this->client->request(Request::METHOD_GET, '/agent-stats/timeline?from=2026-10-01&to=2026-10-31&chart=1');
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('#timeline-chart-frame #timeline-chart .chart-point'));
+        self::assertSelectorNotExists('#timeline-entries');
+        self::assertSelectorNotExists('nav');
+
+        // Days without anything: an empty frame
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline?from=2025-01-01&to=2025-12-31&chart=1');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#timeline-chart-frame');
+        self::assertSelectorNotExists('#timeline-chart');
+
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline?from=yesterday&chart=1');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
     public function testShowRendersStats(): void
@@ -88,7 +136,7 @@ class AgentStatControllerTest extends WebTestCase
         $agentStat = $this->createAgentStat($user, 'Mine');
 
         $this->client->loginUser($user);
-        foreach (['/agent-stats', '/agent-stats/'.$agentStat->id] as $path) {
+        foreach (['/agent-stats', '/agent-stats/timeline', '/agent-stats/'.$agentStat->id] as $path) {
             $this->client->request(Request::METHOD_GET, $path);
             self::assertResponseIsSuccessful();
         }

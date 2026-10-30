@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Post;
 use App\Repository\TimelineEventRepository;
 use App\Security\Voter\TimelineEventVoter;
 use App\State\TimelineEventProcessor;
+use App\Validator\NoOverlappingTravel;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -28,13 +29,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A custom event on the user's timeline (e.g. an anomaly or a mission day), with the stats
- * uploads; with an end date it lasts from [date] to [endDate] (e.g. a travel). Others see the events with the stats history (ProfilePart::STATS_HISTORY).
+ * uploads; with an end date it lasts from [date] to [endDate] (e.g. a travel; travels cannot overlap). Others see the events with the stats history (ProfilePart::STATS_HISTORY).
  *
  * API: the user's own events, newest first (OwnerExtension); the owner adds, changes and deletes them.
  */
 #[Entity(repositoryClass: TimelineEventRepository::class)]
 #[ApiResource(
-    description: 'Custom events on your timeline: a date, an optional end date (an event over several days, e.g. a travel) and a text. Lists only your own, newest first; other agents see them with your stats history (GET /api/agents/{agentName} events).',
+    description: 'Custom events on your timeline: a date, an optional end date (an event over several days, e.g. a travel; travels cannot overlap: 422) and a text. Lists only your own, newest first; other agents see them with your stats history (GET /api/agents/{agentName} events).',
     operations: [
         new GetCollection(paginationEnabled: false, security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('".TimelineEventVoter::EDIT."', object)"),
@@ -46,6 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => [self::WRITE]],
     order: ['date' => 'DESC', 'id' => 'DESC'],
 )]
+#[NoOverlappingTravel]
 class TimelineEvent
 {
     public const string READ = 'timeline_event:read';

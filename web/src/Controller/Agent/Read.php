@@ -22,12 +22,14 @@ use App\Timeline\TimelineChart;
 use App\Timeline\TimelineEntry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * An agent's page with the profile parts the agent shows; 404 when the agent part is private.
- * The stats history is a timeline with the agent's custom events.
+ * The stats history is a timeline with the agent's custom events; with from and to (Y-m-d) its
+ * chart is zoomed to those days, with chart=1 only the chart, for the date filter.
  * The agent sees it as the others do.
  */
 #[Route('/agents/{agentName}', name: 'app_agent_show', requirements: ['agentName' => '[A-Za-z0-9_]{1,50}'], methods: ['GET'])]
@@ -43,10 +45,19 @@ final class Read extends BaseController
         MedalChecker $medalChecker,
         TimelineBuilder $timelineBuilder,
         DoneBannerRepository $doneBannerRepository,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => TimelineChart::DAY])]
+        ?string $from = null,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => TimelineChart::DAY])]
+        ?string $to = null,
+        #[MapQueryParameter]
+        bool $chart = false,
     ): Response {
-        $agent = $userRepository->findOneByAgentName($agentName);
-        if (!$agent instanceof User || !$agent->isVisible(ProfilePart::AGENT)) {
-            throw $this->createNotFoundException('No agent '.$agentName.' to show.');
+        $agent = $this->agent($agentName, $userRepository);
+
+        if ($chart) {
+            return $this->render('agent_stat/_timeline_chart_frame.html.twig', [
+                'chart' => $this->zoomedChart($agent, $agentStatRepository, $timelineEventRepository, $request->getLocale(), $from, $to),
+            ]);
         }
 
         $stats = $agentStatRepository->findByOwner($agent);
@@ -84,6 +95,41 @@ final class Read extends BaseController
             'timeline' => $timelineBuilder->build($stats, $events, $banners),
             'chart' => TimelineChart::build($stats, $events, $locale),
         ];
+    }
+
+    /** The agent, 404 when there is none with the name or the agent part is private. */
+    private function agent(string $agentName, UserRepository $userRepository): User
+    {
+        $agent = $userRepository->findOneByAgentName($agentName);
+        if (!$agent instanceof User || !$agent->isVisible(ProfilePart::AGENT)) {
+            throw $this->createNotFoundException('No agent '.$agentName.' to show.');
+        }
+
+        return $agent;
+    }
+
+    /**
+     * The chart for the timeline's date filter; null without the stats history part.
+     */
+    private function zoomedChart(
+        User $agent,
+        AgentStatRepository $agentStatRepository,
+        TimelineEventRepository $timelineEventRepository,
+        string $locale,
+        ?string $from,
+        ?string $to,
+    ): ?TimelineChart {
+        if (!$agent->isVisible(ProfilePart::STATS_HISTORY)) {
+            return null;
+        }
+
+        return TimelineChart::build(
+            $agentStatRepository->findByOwner($agent),
+            $timelineEventRepository->findByOwner($agent),
+            $locale,
+            TimelineChart::date($from),
+            TimelineChart::date($to),
+        );
     }
 
     /**

@@ -31,7 +31,7 @@ final class Update extends BaseController
 
             $this->addFlash('success', 'timeline.event.updated');
 
-            return $this->redirectToRoute('app_agent_stat_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_agent_stat_timeline', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('timeline_event/edit.html.twig', [

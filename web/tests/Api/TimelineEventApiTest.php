@@ -122,6 +122,27 @@ class TimelineEventApiTest extends WebTestCase
         self::assertSame(['endDate'], \array_column($violations, 'propertyPath'));
     }
 
+    public function testTravelsCannotOverlap(): void
+    {
+        $this->request(Request::METHOD_POST, '/api/timeline-events', self::GOOGLE_ID, ['date' => '2026-09-20', 'endDate' => '2026-10-02', 'text' => 'Travel to Cuenca']);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $json = $this->request(Request::METHOD_POST, '/api/timeline-events', self::GOOGLE_ID, ['date' => '2026-09-01', 'endDate' => '2026-09-20', 'text' => 'Travel to Lima']);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var list<array<string, mixed>> $violations */
+        $violations = $json['violations'];
+        self::assertSame(['endDate'], \array_column($violations, 'propertyPath'));
+        self::assertSame(['Travels cannot overlap: Travel to Cuenca (2026-09-20 – 2026-10-02).'], \array_column($violations, 'message'));
+
+        // Into a travel by a patch; other agents' travels do not count
+        $lima = $this->request(Request::METHOD_POST, '/api/timeline-events', self::GOOGLE_ID, ['date' => '2026-09-01', 'endDate' => '2026-09-19', 'text' => 'Travel to Lima']);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        $this->request(Request::METHOD_PATCH, '/api/timeline-events/'.$lima['id'], self::GOOGLE_ID, ['endDate' => '2026-09-21']);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->request(Request::METHOD_POST, '/api/timeline-events', self::OTHER_GOOGLE_ID, ['date' => '2026-09-01', 'endDate' => '2026-09-30', 'text' => 'Travel to Quito']);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+    }
+
     public function testOthersCannotChangeOrDeleteAnEvent(): void
     {
         $event = $this->createEvent($this->user('agent'), '2026-10-25', 'Mine');

@@ -143,7 +143,6 @@ role:
     user: User
 
 stats:
-    ap: '%ap% AP'
     agent: Agent
     all_values: All values
     core_months: '{1} C.O.R.E %count% month|]1,Inf[ C.O.R.E %count% months'
@@ -185,13 +184,14 @@ theme:
 
 timeline:
     filter:
-        medals: Medal upgrades
+        medals: Medals
+        new_level: New level
         upload: Uploads
         event: Events
         banner: Banners
         travel: Travels
-        year: Year
-        all_years: All years
+        from: From
+        to: To
         none: No entries match the filters.
     chart:
         label: AP over time with your events and travels
@@ -199,6 +199,9 @@ timeline:
         event: Event
         travel: Travel
     title: Timeline
+    travel:
+        start: Start of the travel
+        end: End of the travel
     first_upload: First upload
     new_level: New level %level%
     recursion: 'Recursion: %count%'

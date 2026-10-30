@@ -26,7 +26,8 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * A banner on the user's Bannergress done list, as the app synced it (Bannergress sync, see
- * BannergressSync), with the day the user did it: the user sets [doneAt], a sync keeps it.
+ * BannergressSync), with the day the user did it: the user sets [doneAt], a sync keeps it (an
+ * event banner without a day gets the event's first day).
  * Banners with a day are on the timeline. Others see them with the Bannergress part.
  *
  * API: the user's own, newest on the list first (OwnerExtension); the owner sets the day.
@@ -34,7 +35,7 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 #[Entity(repositoryClass: DoneBannerRepository::class)]
 #[UniqueConstraint(name: 'done_banner_owner_banner', fields: ['owner', 'bannerId'])]
 #[ApiResource(
-    description: 'The banners on your Bannergress done list, as the app synced them (PATCH /api/me bannergress doneBanners), newest on the list first: bannerId (the Bannergress id), title, missions, picture (relative to https://api.bannergress.com), startLatitude / startLongitude (where it starts) and doneAt, the day you did it (Y-m-d, null until you set it; banners with a day are on your timeline). PATCH sets doneAt; a sync keeps it.',
+    description: 'The banners on your Bannergress done list, as the app synced them (PATCH /api/me bannergress doneBanners), newest on the list first: bannerId (the Bannergress id), title, missions, picture (relative to https://api.bannergress.com), startLatitude / startLongitude (where it starts) and doneAt, the day you did it (Y-m-d, null until you set it; banners with a day are on your timeline). PATCH sets doneAt; a sync keeps it, and gives an event banner without a day the first day of the event (doneBanners eventStartDate).',
     operations: [
         new GetCollection(paginationEnabled: false, security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('".DoneBannerVoter::EDIT."', object)"),

@@ -14,7 +14,9 @@ use App\Medal\MedalLevel;
  * The timeline of stats uploads, custom events and the Bannergress banners done (with a day),
  * newest first. An upload shows what changed
  * since the one before it, as the app's import result (data/ImportResult.kt): AP, level, medal
- * upgrades and recursions. Events come before the uploads of the same day.
+ * upgrades and recursions. Events come before the uploads of the same day; a travel is its end
+ * (before the uploads of its last day) and its start (after those of its first), the entries
+ * between are in it.
  */
 final readonly class TimelineBuilder
 {
@@ -37,8 +39,7 @@ final readonly class TimelineBuilder
         }
 
         foreach ($events as $event) {
-            // At the end of its day: before that day's uploads, newest first
-            $entries[] = new TimelineEntry(($event->date ?? $event->createdAt)->setTime(23, 59, 59), event: $event);
+            \array_push($entries, ...$this->eventEntries($event));
         }
 
         foreach ($banners as $banner) {
@@ -51,22 +52,46 @@ final readonly class TimelineBuilder
         // usort is stable: uploads and events keep their order on the same date
         \usort($entries, static fn (TimelineEntry $a, TimelineEntry $b): int => $b->date <=> $a->date);
 
-        return $entries;
+        $travels = \array_values(\array_filter($events, static fn (TimelineEvent $event): bool => $event->endDate instanceof \DateTimeImmutable));
+
+        return \array_map(static fn (TimelineEntry $entry): TimelineEntry => self::inTravel($entry, $travels) ? $entry->withInTravel() : $entry, $entries);
     }
 
     /**
-     * Every year of [$timeline], newest first: the timeline's filter.
+     * A single-day event at the end of its day: before that day's uploads, newest first. A travel
+     * as its end, at the end of its last day, and its start, at the start of its first: after
+     * that day's uploads, which are in the travel.
      *
-     * @param list<TimelineEntry> $timeline
-     *
-     * @return list<int>
+     * @return list<TimelineEntry>
      */
-    public static function years(array $timeline): array
+    private function eventEntries(TimelineEvent $event): array
     {
-        $years = \array_unique(\array_merge(...\array_map(static fn (TimelineEntry $entry): array => $entry->years(), $timeline)));
-        \rsort($years);
+        $date = $event->date ?? $event->createdAt;
+        if (!$event->endDate instanceof \DateTimeImmutable) {
+            return [new TimelineEntry($date->setTime(23, 59, 59), event: $event)];
+        }
 
-        return $years;
+        return [
+            new TimelineEntry($event->endDate->setTime(23, 59, 59), event: $event, travelEdge: TimelineEntry::TRAVEL_END),
+            new TimelineEntry($date->setTime(0, 0), event: $event, travelEdge: TimelineEntry::TRAVEL_START),
+        ];
+    }
+
+    /**
+     * Whether an entry other than a travel's end or start is on a day of a travel.
+     *
+     * @param list<TimelineEvent> $travels events with an end date
+     */
+    private static function inTravel(TimelineEntry $entry, array $travels): bool
+    {
+        if (null !== $entry->travelEdge) {
+            return false;
+        }
+
+        // Y-m-d compares as text
+        $day = $entry->date->format('Y-m-d');
+
+        return \array_any($travels, fn ($travel) => $day >= ($travel->date ?? $travel->createdAt)->format('Y-m-d') && $day <= $travel->endDate?->format('Y-m-d'));
     }
 
     private function statEntry(AgentStat $stat, ?AgentStat $previous): TimelineEntry

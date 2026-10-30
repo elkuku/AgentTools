@@ -1,0 +1,17 @@
+{#
+    The number of timeline entries of each kind, linking to the timeline page, as the app's "My stats".
+    timelineCounts: array<string, int> by TimelineEntry kind
+#}
+<div id="timeline-summary">
+    <h2 class="h5"><a href="{{ path('app_agent_stat_timeline') }}">{{ 'timeline.title'|trans }} <i class="bi-chevron-right small"></i></a></h2>
+    <div class="row g-2 text-center mb-2">
+        {% for kind in ['upload', 'event', 'travel', 'banner'] %}
+            <div class="col-3">
+                <div class="border rounded py-2">
+                    <div class="fs-4 fw-bold" id="timeline-count-{{ kind }}">{{ (timelineCounts[kind] ?? 0)|number_format }}</div>
+                    <div class="small text-body-secondary">{{ ('timeline.filter.' ~ kind)|trans }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

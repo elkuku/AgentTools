@@ -29,6 +29,6 @@ final class Delete extends BaseController
             $this->addFlash('success', 'timeline.event.deleted');
         }
 
-        return $this->redirectToRoute('app_agent_stat_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_agent_stat_timeline', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -43,7 +43,7 @@
 
     {% if timeline is not null %}
         <h2 class="h5 mt-4" id="timeline">{{ 'timeline.title'|trans }}</h2>
-        {% if chart %}{{ include('agent_stat/_timeline_chart.html.twig') }}{% endif %}
+        {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
         {{ include('agent_stat/_timeline.html.twig', {editable: false}) }}
     {% endif %}
 {% endblock %}

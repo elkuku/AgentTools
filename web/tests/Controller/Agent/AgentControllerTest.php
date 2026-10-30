@@ -124,6 +124,12 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorNotExists('#timeline-entries');
         self::assertSelectorTextNotContains('body', 'A private note');
         self::assertSelectorNotExists('#custom-medals');
+
+        // No chart to zoom without the stats history
+        $this->client->request(Request::METHOD_GET, '/agents/testagent?from=2026-10-01&chart=1');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#timeline-chart-frame');
+        self::assertSelectorNotExists('#timeline-chart');
     }
 
     public function testShowsTheHistoryAndTheCustomMedals(): void
@@ -147,17 +153,28 @@ class AgentControllerTest extends WebTestCase
         // The timeline: the event at the end of its day, then the uploads, newest first
         self::assertCount(2, $crawler->filter('#timeline-entries .timeline-upload'));
         self::assertSelectorTextContains('#timeline-entries li:nth-child(1).timeline-event', 'Anomaly in Quito');
-        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', '2026-10-20 15:35');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'Oct 20, 2026');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'New level 16');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'First upload');
-        // Filters by kind and year
+        // Filters as the app's: medals, new level, by kind and days
         self::assertSelectorExists('#timeline-filters input#timeline-filter-travel[value="travel"]');
-        self::assertSame(['', '2026'], $crawler->filter('#timeline-filter-year option')->each(static fn ($option): string => (string) $option->attr('value')));
-        self::assertSelectorExists('#timeline-entries li.timeline-event[data-kind="event"][data-years="2026"]');
-        self::assertSelectorExists('#timeline-entries li.timeline-upload[data-kind="upload"]');
+        self::assertSelectorNotExists('#timeline-filters input[value="upload"]');
+        self::assertSelectorExists('#timeline-filters input#timeline-filter-from[type="date"]');
+        self::assertSelectorExists('#timeline-filters input#timeline-filter-to[type="date"]');
+        self::assertSelectorExists('#timeline-entries li.timeline-event[data-kind="event"][data-from="2026-10-20"][data-to="2026-10-20"]');
+        // The first upload always, the new level with its filter
+        self::assertSelectorExists('#timeline-entries li.timeline-upload[data-milestone]');
+        self::assertSelectorExists('#timeline-filters input#timeline-filter-new-level');
+        self::assertCount(1, $crawler->filter('#timeline-entries li.timeline-upload[data-new-level]'));
         // Only uploads with medal upgrades are marked for the medal filter: the first has nothing to compare
         self::assertSelectorExists('#timeline-filters input#timeline-filter-medals');
         self::assertCount(0, $crawler->filter('#timeline-entries li.timeline-upload[data-medals]'));
+        // The date filter zooms the chart: the day of the second upload and the event
+        $zoomed = $this->client->request(Request::METHOD_GET, '/agents/TestAgent?from=2026-10-20&to=2026-10-20&chart=1');
+        self::assertCount(1, $zoomed->filter('#timeline-chart .chart-point'));
+        self::assertCount(1, $zoomed->filter('#timeline-chart .chart-flag'));
+        self::assertSelectorNotExists('#custom-medals');
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent');
         // Read-only for others
         self::assertSelectorNotExists('#timeline-entries a[href*="/timeline-events/"]');
         self::assertSelectorNotExists('#timeline-entries a[href^="/agent-stats/"]');
@@ -200,7 +217,7 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextSame('#bannergress-done', '1,234');
         self::assertSelectorExists('#bannergress h2 a[href="/agents/TestAgent/banners"]');
         self::assertSelectorTextContains('#timeline-entries li.timeline-banner[data-kind="banner"]', 'Quito old town');
-        self::assertSelectorTextContains('#timeline-entries li.timeline-banner', '2026-10-18');
+        self::assertSelectorTextContains('#timeline-entries li.timeline-banner', 'Oct 18, 2026');
         self::assertSelectorExists('#timeline-filter-banner');
         self::assertSelectorNotExists('#timeline-entries .timeline-banner a[href^="/banners"]');
 
@@ -212,13 +229,14 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorNotExists('#bannergress-done-list form');
     }
 
-    public function testUploadsWithMedalUpgradesAreMarkedForTheFilter(): void
+    public function testUploadsWithMedalsAreMarkedForTheFilterAndApOnlyOnesLeftOut(): void
     {
         $agent = $this->user('agent');
         $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY]);
         $this->createAgentStat($agent, '2026-10-19 15:35:56', 16, explorer: 900);
         // Explorer from bronze to gold
         $this->createAgentStat($agent, '2026-10-20 15:35:56', 16, explorer: 2500);
+        // Only the AP changed: not in the list
         $this->createAgentStat($agent, '2026-10-21 15:35:56', 16, explorer: 2600);
 
         $this->client->loginUser($this->user('admin'));
@@ -226,7 +244,9 @@ class AgentControllerTest extends WebTestCase
 
         $marked = $crawler->filter('#timeline-entries li.timeline-upload[data-medals]');
         self::assertCount(1, $marked);
-        self::assertStringContainsString('2026-10-20 15:35', $marked->text());
+        self::assertStringContainsString('Oct 20, 2026', $marked->text());
+        self::assertCount(2, $crawler->filter('#timeline-entries li.timeline-upload'));
+        self::assertSelectorTextNotContains('#timeline-entries', 'Oct 21, 2026');
     }
 
     public function testTheAgentSeesTheOwnPageAsOthersDo(): void

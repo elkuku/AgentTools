@@ -36,7 +36,7 @@ class TimelineEventControllerTest extends WebTestCase
     public function testAddsAnEventToTheTimeline(): void
     {
         $this->client->loginUser($this->user('agent'));
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
         self::assertResponseIsSuccessful();
 
         $this->client->submitForm('Add event', [
@@ -44,11 +44,11 @@ class TimelineEventControllerTest extends WebTestCase
             'timeline_event[text]' => "Mission day\nin Quito",
         ]);
 
-        self::assertResponseRedirects('/agent-stats#timeline');
+        self::assertResponseRedirects('/agent-stats/timeline');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'The event has been added.');
         self::assertSelectorTextContains('#timeline-entries .timeline-event', 'Mission day');
-        self::assertSelectorTextContains('#timeline-entries .timeline-event', '2026-10-25');
+        self::assertSelectorTextContains('#timeline-entries .timeline-event', 'Oct 25, 2026');
 
         $events = $this->events()->findByOwner($this->user('agent'));
         self::assertCount(1, $events);
@@ -58,7 +58,7 @@ class TimelineEventControllerTest extends WebTestCase
     public function testATravelIsShownWithItsDates(): void
     {
         $this->client->loginUser($this->user('agent'));
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
 
         $this->client->submitForm('Add event', [
             'timeline_event[date]' => '2026-09-20',
@@ -67,8 +67,12 @@ class TimelineEventControllerTest extends WebTestCase
         ]);
         $this->client->followRedirect();
 
-        self::assertSelectorTextContains('#timeline-entries .timeline-event', '2026-09-20 – 2026-10-02');
-        self::assertSelectorExists('#timeline-entries .timeline-event i.bi-airplane-fill');
+        // Its end and its start, each with its day
+        $event = $this->events()->findByOwner($this->user('agent'))[0];
+        self::assertSelectorTextContains('#timeline-event-'.$event->id.'-end.timeline-travel-end', 'Oct 2, 2026 · End of the travel');
+        self::assertSelectorTextContains('#timeline-event-'.$event->id.'.timeline-travel-start', 'Sep 20, 2026 · Start of the travel');
+        self::assertSelectorExists('#timeline-event-'.$event->id.'.timeline-travel-start i.bi-airplane-fill');
+        self::assertSelectorTextContains('#timeline-event-'.$event->id.'-end', 'Travel to Cuenca');
         // A band on the chart, with its dates and text as the tooltip
         self::assertSelectorTextContains('#timeline-chart .chart-band title', '2026-09-20 – 2026-10-02: Travel to Cuenca');
     }
@@ -76,7 +80,7 @@ class TimelineEventControllerTest extends WebTestCase
     public function testTheEndDateIsNotBeforeTheDate(): void
     {
         $this->client->loginUser($this->user('agent'));
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
 
         $this->client->submitForm('Add event', [
             'timeline_event[date]' => '2026-09-20',
@@ -88,10 +92,51 @@ class TimelineEventControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-add .invalid-feedback', 'The end date must not be before the date.');
     }
 
+    public function testTravelsCannotOverlap(): void
+    {
+        $this->client->loginUser($this->user('agent'));
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
+        $this->client->submitForm('Add event', [
+            'timeline_event[date]' => '2026-09-20',
+            'timeline_event[endDate]' => '2026-10-02',
+            'timeline_event[text]' => 'Travel to Cuenca',
+        ]);
+        $this->client->followRedirect();
+
+        // Sharing a day
+        $this->client->submitForm('Add event', [
+            'timeline_event[date]' => '2026-10-02',
+            'timeline_event[endDate]' => '2026-10-05',
+            'timeline_event[text]' => 'Travel to Lima',
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSelectorTextContains('#timeline-add .invalid-feedback', 'Travels cannot overlap: Travel to Cuenca (2026-09-20 – 2026-10-02).');
+
+        // The day after, and a single-day event during the travel
+        $this->client->submitForm('Add event', [
+            'timeline_event[date]' => '2026-10-03',
+            'timeline_event[endDate]' => '2026-10-05',
+            'timeline_event[text]' => 'Travel to Lima',
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        $this->client->submitForm('Add event', ['timeline_event[date]' => '2026-09-25', 'timeline_event[text]' => 'Mission day']);
+        self::assertResponseRedirects();
+        self::assertCount(3, $this->events()->findByOwner($this->user('agent')));
+
+        // Editing a travel keeps it apart from the others, not from itself
+        $cuenca = \array_last($this->events()->findByOwner($this->user('agent')));
+        $this->client->request(Request::METHOD_GET, '/timeline-events/'.$cuenca->id.'/edit');
+        $this->client->submitForm('Save', ['timeline_event[endDate]' => '2026-10-04']);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->client->submitForm('Save', ['timeline_event[endDate]' => '2026-10-01']);
+        self::assertResponseRedirects('/agent-stats/timeline');
+    }
+
     public function testAnEventNeedsAText(): void
     {
         $this->client->loginUser($this->user('agent'));
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
 
         $this->client->submitForm('Add event', ['timeline_event[date]' => '2026-10-25', 'timeline_event[text]' => '  ']);
 
@@ -106,18 +151,18 @@ class TimelineEventControllerTest extends WebTestCase
         $event = $this->createEvent($this->user('agent'), 'Old text');
         $this->client->loginUser($this->user('agent'));
 
-        $this->client->request(Request::METHOD_GET, '/agent-stats');
+        $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
         $this->client->click($this->client->getCrawler()->filter('#timeline-event-'.$event->id.' a[title="edit"]')->link());
         self::assertResponseIsSuccessful();
         $this->client->submitForm('Save', ['timeline_event[text]' => 'New text']);
 
-        self::assertResponseRedirects('/agent-stats');
+        self::assertResponseRedirects('/agent-stats/timeline');
         $this->client->followRedirect();
         self::assertSelectorTextContains('#timeline-event-'.$event->id, 'New text');
 
         $this->client->submit($this->client->getCrawler()->filter('#timeline-event-'.$event->id.' form')->form());
 
-        self::assertResponseRedirects('/agent-stats');
+        self::assertResponseRedirects('/agent-stats/timeline');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'The event has been deleted.');
         self::assertCount(0, $this->events()->findByOwner($this->user('agent')));
