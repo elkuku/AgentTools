@@ -2,10 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
 use App\Service\AvatarUpdater;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -23,10 +20,11 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
 
+    public const string CSRF_TOKEN = 'g_csrf_token';
+
     public function __construct(
         private readonly GoogleIdTokenVerifierInterface $idTokenVerifier,
-        private readonly UserRepository $userRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly GoogleUserResolver $userResolver,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ApiTokenStore $apiTokenStore,
         private readonly AvatarUpdater $avatarUpdater,
@@ -42,6 +40,14 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
     #[\Override]
     public function authenticate(Request $request): Passport
     {
+        // Google's double-submit cookie: the button posts the same g_csrf_token as a cookie and a field
+        $csrfCookie = (string) $request->cookies->get(self::CSRF_TOKEN);
+        $csrfField = (string) $request->request->get(self::CSRF_TOKEN);
+
+        if ('' === $csrfCookie || !\hash_equals($csrfCookie, $csrfField)) {
+            throw new AuthenticationException('Invalid CSRF token :(');
+        }
+
         $idToken = (string) $request->request->get('credential');
 
         if ('' === $idToken || '0' === $idToken) {
@@ -54,14 +60,9 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
             throw new AuthenticationException('Invalid ID token :(');
         }
 
-        $googleId = \is_string($payload['sub'] ?? null) ? $payload['sub'] : '';
-        $email = \is_string($payload['email'] ?? null) ? $payload['email'] : '';
+        [$googleId, $email] = GoogleUserResolver::identity($payload);
 
-        if ('' === $googleId || '' === $email) {
-            throw new AuthenticationException('Invalid ID token :(');
-        }
-
-        $user = $this->getUser($googleId, $email);
+        $user = $this->userResolver->resolve($googleId, $email);
         $this->avatarUpdater->update($user, $payload['picture'] ?? null);
         $this->apiTokenStore->store($request->getSession(), $idToken, $payload);
 
@@ -105,25 +106,5 @@ class GoogleIdentityAuthenticator extends AbstractAuthenticator
         $session->getFlashBag()->add('danger', $message);
 
         return new RedirectResponse($this->urlGenerator->generate('app_login'));
-    }
-
-    private function getUser(string $googleId, string $email): User
-    {
-        $user = $this->userRepository->findOneBy(['googleId' => $googleId]);
-
-        if (null !== $user) {
-            return $user;
-        }
-
-        // Link to existing account with same email, or register a new user
-        $user = $this->userRepository->findOneBy(['identifier' => $email])
-            ?? new User()->setIdentifier($email);
-
-        $user->setGoogleId($googleId);
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return $user;
     }
 }

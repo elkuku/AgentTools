@@ -2,12 +2,11 @@
 
 namespace App\Tests\Security;
 
-use App\Entity\User;
-use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use App\Security\ApiTokenStore;
 use App\Security\GoogleIdentityAuthenticator;
 use App\Security\GoogleIdTokenVerifierInterface;
+use App\Security\GoogleUserResolver;
 use App\Service\AvatarUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -41,8 +40,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
 
         $this->authenticator = new GoogleIdentityAuthenticator(
             $this->createStub(GoogleIdTokenVerifierInterface::class),
-            $this->userRepository,
-            $this->entityManager,
+            new GoogleUserResolver($this->userRepository, $this->entityManager),
             $this->urlGenerator,
             new ApiTokenStore(false),
             new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
@@ -62,8 +60,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
 
     public function testAuthenticateThrowsOnEmptyCredential(): void
     {
-        $request = new Request([], ['credential' => '']);
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $request = $this->request('');
 
         $this->expectException(AuthenticationException::class);
         $this->expectExceptionMessage('Missing credentials');
@@ -72,8 +69,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
 
     public function testAuthenticateThrowsOnZeroCredential(): void
     {
-        $request = new Request([], ['credential' => '0']);
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $request = $this->request('0');
 
         $this->expectException(AuthenticationException::class);
         $this->expectExceptionMessage('Missing credentials');
@@ -83,17 +79,15 @@ class GoogleIdentityAuthenticatorTest extends TestCase
     public function testAuthenticateThrowsWithoutEmail(): void
     {
         $verifier = $this->createStub(GoogleIdTokenVerifierInterface::class);
-        $verifier->method('verify')->willReturn(['sub' => 'gid-123']);
+        $verifier->method('verify')->willReturn(['sub' => 'gid-123', 'email_verified' => true]);
         $authenticator = new GoogleIdentityAuthenticator(
             $verifier,
-            $this->userRepository,
-            $this->entityManager,
+            new GoogleUserResolver($this->userRepository, $this->entityManager),
             $this->urlGenerator,
             new ApiTokenStore(false),
             new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
         );
-        $request = new Request([], ['credential' => 'token']);
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $request = $this->request('token');
 
         $this->entityManager->expects(self::never())->method('persist');
 
@@ -102,57 +96,43 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $authenticator->authenticate($request);
     }
 
-    public function testGetUserReturnsExistingUserByGoogleId(): void
+    public function testAuthenticateThrowsWithoutCsrfCookie(): void
     {
-        $existingUser = new User()->setIdentifier('test@example.com')->setGoogleId('gid-123');
+        $request = new Request([], ['credential' => 'token', GoogleIdentityAuthenticator::CSRF_TOKEN => 'csrf']);
+        $request->setSession(new Session(new MockArraySessionStorage()));
 
-        $this->userRepository->expects(self::once())->method('findOneBy')
-            ->with(['googleId' => 'gid-123'])
-            ->willReturn($existingUser);
-
-        $this->entityManager->expects(self::never())->method('persist');
-        $this->entityManager->expects(self::never())->method('flush');
-
-        $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, 'gid-123', 'test@example.com');
-
-        self::assertSame($existingUser, $result);
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('Invalid CSRF token');
+        $this->authenticator->authenticate($request);
     }
 
-    public function testGetUserLinksExistingAccountByEmail(): void
+    public function testAuthenticateThrowsOnCsrfMismatch(): void
     {
-        $existingUser = new User()->setIdentifier('shared@example.com');
+        $request = $this->request('token');
+        $request->request->set(GoogleIdentityAuthenticator::CSRF_TOKEN, 'other');
 
-        $this->userRepository->method('findOneBy')
-            ->willReturnMap([
-                [['googleId' => 'gid-999'], null],
-                [['identifier' => 'shared@example.com'], $existingUser],
-            ]);
-
-        $this->entityManager->expects(self::once())->method('persist');
-        $this->entityManager->expects(self::once())->method('flush');
-
-        $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, 'gid-999', 'shared@example.com');
-
-        self::assertSame($existingUser, $result);
-        self::assertSame('gid-999', $result->getGoogleId());
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('Invalid CSRF token');
+        $this->authenticator->authenticate($request);
     }
 
-    public function testGetUserCreatesNewUserWhenNotFound(): void
+    public function testAuthenticateThrowsOnUnverifiedEmail(): void
     {
-        $this->userRepository->method('findOneBy')->willReturn(null);
+        $verifier = $this->createStub(GoogleIdTokenVerifierInterface::class);
+        $verifier->method('verify')->willReturn(['sub' => 'gid-123', 'email' => 'victim@example.com', 'email_verified' => false]);
+        $authenticator = new GoogleIdentityAuthenticator(
+            $verifier,
+            new GoogleUserResolver($this->userRepository, $this->entityManager),
+            $this->urlGenerator,
+            new ApiTokenStore(false),
+            new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
+        );
 
-        $this->entityManager->expects(self::once())->method('persist');
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->userRepository->expects(self::never())->method('findOneBy');
 
-        $method = new \ReflectionMethod($this->authenticator, 'getUser');
-        $result = $method->invoke($this->authenticator, 'gid-999', 'brand@new.com');
-
-        self::assertSame('brand@new.com', $result->getIdentifier());
-        self::assertSame('gid-999', $result->getGoogleId());
-        // New users wait for an admin to make them agents
-        self::assertSame(UserRole::USER, $result->getRole());
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('Email address is not verified');
+        $authenticator->authenticate($this->request('token'));
     }
 
     public function testOnAuthenticationSuccessRedirectsToTargetPath(): void
@@ -201,5 +181,19 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         );
 
         self::assertSame('/login', $response->getTargetUrl());
+    }
+
+    /** A sign-in post with Google's matching CSRF cookie and field. */
+    private function request(string $credential): Request
+    {
+        $request = new Request(
+            [],
+            ['credential' => $credential, GoogleIdentityAuthenticator::CSRF_TOKEN => 'csrf'],
+            [],
+            [GoogleIdentityAuthenticator::CSRF_TOKEN => 'csrf'],
+        );
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        return $request;
     }
 }

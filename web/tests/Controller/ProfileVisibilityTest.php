@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
+use App\Tests\Fake\GoogleSignIn;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -72,15 +73,15 @@ class ProfileVisibilityTest extends WebTestCase
 
     public function testTheFirstGoogleSignInLeadsToTheProfileUntilTheUserChooses(): void
     {
-        $credential = ['credential' => FakeGoogleIdTokenVerifier::token('gid-visibility', 'user')];
+        $idToken = FakeGoogleIdTokenVerifier::token('gid-visibility', 'user');
 
-        $this->client->request(Request::METHOD_POST, '/connect/google/verify', $credential);
+        GoogleSignIn::post($this->client, $idToken);
         self::assertResponseRedirects('/profile');
 
         $this->submit([]);
         $this->client->request(Request::METHOD_GET, '/logout');
 
-        $this->client->request(Request::METHOD_POST, '/connect/google/verify', $credential);
+        GoogleSignIn::post($this->client, $idToken);
         self::assertResponseRedirects('/');
     }
 

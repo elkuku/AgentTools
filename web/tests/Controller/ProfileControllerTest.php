@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
+use App\Tests\Fake\GoogleSignIn;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,7 +57,7 @@ class ProfileControllerTest extends WebTestCase
         $client = static::createClient();
         $idToken = FakeGoogleIdTokenVerifier::token('gid-profile', 'admin');
 
-        $client->request(Request::METHOD_POST, '/connect/google/verify', ['credential' => $idToken]);
+        GoogleSignIn::post($client, $idToken);
         self::assertResponseRedirects();
 
         $client->request(Request::METHOD_GET, '/profile');
@@ -71,7 +72,7 @@ class ProfileControllerTest extends WebTestCase
         $client = static::createClient();
         $idToken = FakeGoogleIdTokenVerifier::token('gid-profile-user', 'user');
 
-        $client->request(Request::METHOD_POST, '/connect/google/verify', ['credential' => $idToken]);
+        GoogleSignIn::post($client, $idToken);
         self::assertResponseRedirects();
 
         $client->request(Request::METHOD_GET, '/profile');

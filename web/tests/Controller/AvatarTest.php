@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
+use App\Tests\Fake\GoogleSignIn;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -38,9 +39,7 @@ class AvatarTest extends WebTestCase
 
     public function testAWebSignInStoresThePicture(): void
     {
-        $this->client->request(Request::METHOD_POST, '/connect/google/verify', [
-            'credential' => FakeGoogleIdTokenVerifier::token('gid-avatar', 'user', picture: self::PICTURE),
-        ]);
+        GoogleSignIn::post($this->client, FakeGoogleIdTokenVerifier::token('gid-avatar', 'user', picture: self::PICTURE));
         self::assertResponseRedirects();
 
         $this->entityManager()->clear();

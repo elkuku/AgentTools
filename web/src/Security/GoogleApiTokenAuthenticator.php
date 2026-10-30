@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
 use App\Service\AvatarUpdater;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,8 +30,7 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
 
     public function __construct(
         private readonly GoogleIdTokenVerifierInterface $idTokenVerifier,
-        private readonly UserRepository $userRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly GoogleUserResolver $userResolver,
         private readonly AvatarUpdater $avatarUpdater,
     ) {
     }
@@ -59,20 +56,11 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
             throw new CustomUserMessageAuthenticationException('Invalid ID token.');
         }
 
-        if (true !== ($payload['email_verified'] ?? false)) {
-            throw new CustomUserMessageAuthenticationException('Email address is not verified.');
-        }
-
-        $googleId = \is_string($payload['sub'] ?? null) ? $payload['sub'] : '';
-        $email = \is_string($payload['email'] ?? null) ? $payload['email'] : '';
-
-        if ('' === $googleId || '' === $email) {
-            throw new CustomUserMessageAuthenticationException('Invalid ID token.');
-        }
+        [$googleId, $email] = GoogleUserResolver::identity($payload);
 
         return new SelfValidatingPassport(
             new UserBadge($googleId, function () use ($googleId, $email, $payload): User {
-                $user = $this->findUser($googleId, $email);
+                $user = $this->userResolver->resolve($googleId, $email);
                 // The app signs in with Google only: its users get their picture here
                 $this->avatarUpdater->update($user, $payload['picture'] ?? null);
 
@@ -97,26 +85,6 @@ class GoogleApiTokenAuthenticator extends AbstractAuthenticator implements Authe
     public function start(Request $request, ?AuthenticationException $authException = null): JsonResponse
     {
         return $this->unauthorized('Authentication required.');
-    }
-
-    private function findUser(string $googleId, string $email): User
-    {
-        $user = $this->userRepository->findOneBy(['googleId' => $googleId]);
-
-        if (null !== $user) {
-            return $user;
-        }
-
-        // Link an existing account with the same email to this Google account, or register a new user
-        $user = $this->userRepository->findOneBy(['identifier' => $email])
-            ?? new User()->setIdentifier($email);
-
-        $user->setGoogleId($googleId);
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return $user;
     }
 
     /**
