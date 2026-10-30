@@ -1,6 +1,7 @@
 action:
     actions: Aktionen
     back_to_list: zurück zur Liste
+    cancel: Abbrechen
     close: Schließen
     confirm_delete: Soll dieser Eintrag wirklich gelöscht werden?
     copy: Kopieren

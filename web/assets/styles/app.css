@@ -220,6 +220,11 @@ main > .container {
     background: var(--bs-secondary-color);
 }
 
+/* A banner done opens to its picture */
+.timeline-banner-details > summary {
+    cursor: pointer;
+}
+
 .timeline-banner-icon {
     color: var(--bs-secondary-color);
 }

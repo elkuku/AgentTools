@@ -105,9 +105,10 @@ final readonly class TimelineChart
             'title' => \sprintf('%s · L%s · %s AP', $stat->datetime->format('Y-m-d H:i'), $stat->level ?? '–', \number_format($stat->ap)),
         ], $sorted);
 
+        // No AP axis without uploads (e.g. zoomed to the days of a travel only)
         $yTicks = [];
-        for ($ap = $low; $ap <= $high + $step / 2; $ap += $step) {
-            $yTicks[] = ['y' => $y($ap), 'label' => self::compact($ap)];
+        for ($ap = $low; [] !== $stats && $ap <= $high + $step / 2; $ap += $step) {
+            $yTicks[] = ['y' => $y($ap), 'label' => self::compact($ap, $step)];
         }
 
         $single = \array_values(\array_filter($events, static fn (TimelineEvent $event): bool => !$event->endDate instanceof \DateTimeImmutable));
@@ -239,21 +240,32 @@ final readonly class TimelineChart
         return [\floor($min / $step) * $step, \ceil($max / $step) * $step, $step];
     }
 
-    /** 243962582 → 244M, 5400 → 5.4k: short enough for the axis in every language. */
-    private static function compact(float $value): string
+    /**
+     * 243962582 → 244M, 5400 → 5.4k: short enough for the axis in every language. With the ticks'
+     * $step as many decimals as it needs, so that close ticks differ (243.6M, 243.8M); trailing
+     * zeros dropped (1k, 1.5k).
+     */
+    private static function compact(float $value, ?float $step = null): string
     {
         foreach ([[1e9, 'B'], [1e6, 'M'], [1e3, 'k']] as [$unit, $suffix]) {
             if (\abs($value) >= $unit) {
-                $short = $value / $unit;
+                $text = \number_format($value / $unit, self::decimals($value / $unit, $unit, $step), '.', '');
 
-                // 2.5M, but 3M and 250M
-                $decimals = \abs($short) < 10 && \round($short, 1) !== \round($short) ? 1 : 0;
-
-                return \number_format($short, $decimals, '.', '').$suffix;
+                return (\str_contains($text, '.') ? \rtrim(\rtrim($text, '0'), '.') : $text).$suffix;
             }
         }
 
         return \number_format($value, 0, '.', '');
+    }
+
+    /** For a step of 0.1M one decimal of M; without a step one below 10 (2.5M, but 250M). */
+    private static function decimals(float $short, float $unit, ?float $step): int
+    {
+        if (null === $step) {
+            return \abs($short) < 10 ? 1 : 0;
+        }
+
+        return \max(0, (int) \ceil(-\log10($step / $unit) - 1e-9));
     }
 
     /**

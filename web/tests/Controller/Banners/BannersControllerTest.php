@@ -85,6 +85,9 @@ class BannersControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
         self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Quito old town');
         self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Oct 18, 2026');
+        // Collapsed: the title, and the picture when opened
+        self::assertSelectorTextContains('#timeline-entries .timeline-banner details:not([open]) > summary', 'Quito old town');
+        self::assertSelectorExists('#timeline-entries .timeline-banner details > img.banner-picture[src="https://api.bannergress.com/bnrs/pictures/q1"]');
         self::assertSelectorExists('#timeline-entries .timeline-banner a.btn[href="/banners#done-banner-'.$banner->id.'"]');
         // The title without a link to Bannergress
         self::assertSelectorNotExists('#timeline-entries .timeline-banner a[href^="https://bannergress.com"]');

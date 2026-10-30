@@ -123,8 +123,29 @@ class TimelineChartTest extends TestCase
         // A travel on the first day shown, not one that ended the day before
         self::assertCount(1, TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-10-02'))->bands ?? []);
         self::assertCount(0, TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-10-03'))->bands ?? []);
+        // Only a travel on the days: no AP axis
+        self::assertSame([], TimelineChart::build($stats, $events, 'en', TimelineChart::date('2026-09-21'), TimelineChart::date('2026-09-30'))->yTicks ?? null);
         // Nothing on the days
         self::assertNull(TimelineChart::build($stats, $events, 'en', TimelineChart::date('2024-01-01'), TimelineChart::date('2024-12-31')));
+    }
+
+    public function testCloseTicksHaveDecimals(): void
+    {
+        // Production's uploads: 243.6M to 244M, ticks 0.1M apart
+        $chart = TimelineChart::build([
+            $this->stat('2026-10-22 14:54:00', 243_649_369),
+            $this->stat('2026-10-23 14:54:00', 243_655_000),
+            $this->stat('2026-10-24 14:54:00', 243_962_582),
+        ], [], 'en');
+
+        self::assertSame(['243.6M', '243.7M', '243.8M', '243.9M', '244M'], \array_column($chart->yTicks ?? [], 'label'));
+        // Every tick its own label
+        self::assertCount(\count($chart->yTicks ?? []), \array_unique(\array_column($chart->yTicks ?? [], 'label')));
+        // 10.5M in steps of 0.5M
+        self::assertSame(['10M', '10.5M', '11M', '11.5M', '12M'], \array_column(TimelineChart::build([
+            $this->stat('2026-10-22 14:54:00', 10_200_000),
+            $this->stat('2026-10-23 14:54:00', 11_800_000),
+        ], [], 'en')->yTicks ?? [], 'label'));
     }
 
     private function stat(string $datetime, int $ap): AgentStat

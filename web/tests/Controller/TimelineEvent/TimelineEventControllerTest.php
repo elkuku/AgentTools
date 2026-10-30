@@ -38,6 +38,9 @@ class TimelineEventControllerTest extends WebTestCase
         $this->client->loginUser($this->user('agent'));
         $this->client->request(Request::METHOD_GET, '/agent-stats/timeline');
         self::assertResponseIsSuccessful();
+        // In a modal, closed at first, opened from the title row
+        self::assertSelectorExists('#timeline-add.modal[data-modal-open-value="false"] form');
+        self::assertSelectorExists('a#timeline-add-open[data-bs-toggle="modal"][href="#timeline-add"]');
 
         $this->client->submitForm('Add event', [
             'timeline_event[date]' => '2026-10-25',
@@ -141,8 +144,8 @@ class TimelineEventControllerTest extends WebTestCase
         $this->client->submitForm('Add event', ['timeline_event[date]' => '2026-10-25', 'timeline_event[text]' => '  ']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-        // The form stays open with the error
-        self::assertSelectorExists('#timeline-add[open] .invalid-feedback');
+        // The modal opens again with the error
+        self::assertSelectorExists('#timeline-add.modal[data-modal-open-value="true"] .invalid-feedback');
         self::assertCount(0, $this->events()->findByOwner($this->user('agent')));
     }
 

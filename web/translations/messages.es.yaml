@@ -1,6 +1,7 @@
 action:
     actions: Acciones
     back_to_list: volver a la lista
+    cancel: Cancelar
     close: Cerrar
     confirm_delete: ¿Seguro que quieres eliminar este elemento?
     copy: Copiar

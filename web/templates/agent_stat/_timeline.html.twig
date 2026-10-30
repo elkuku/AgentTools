@@ -44,14 +44,20 @@
                 <div class="timeline-date small text-body-secondary">{{ banner.doneAt|format_date('medium') }}</div>
                 <div class="d-flex align-items-start gap-2">
                     <i class="bi-grid-3x3-gap timeline-banner-icon"></i>
-                    <div class="flex-grow-1">
+                    {# Collapsed: the picture (the missions' medals) when opened #}
+                    {% set line %}
                         {{ 'bannergress.timeline_done'|trans }}
                         {{ banner.title }}
                         <span class="small text-body-secondary">&middot; {{ 'bannergress.missions'|trans({'%count%': banner.missions}) }}</span>
-                        {% if banner.pictureUrl %}
+                    {% endset %}
+                    {% if banner.pictureUrl %}
+                        <details class="flex-grow-1 timeline-banner-details">
+                            <summary>{{ line }}</summary>
                             <img class="d-block rounded mt-1 banner-picture" src="{{ banner.pictureUrl }}" alt="" loading="lazy">
-                        {% endif %}
-                    </div>
+                        </details>
+                    {% else %}
+                        <div class="flex-grow-1">{{ line }}</div>
+                    {% endif %}
                     {% if editable %}
                         <a class="btn btn-sm btn-link py-0" href="{{ path('app_banners') }}#done-banner-{{ banner.id }}"
                            title="{{ 'action.edit'|trans }}" aria-label="{{ 'action.edit'|trans }}"><i class="bi-pencil"></i></a>

@@ -2,6 +2,7 @@
 action:
     actions: Actions
     back_to_list: back to list
+    cancel: Cancel
     close: Close
     confirm_delete: Are you sure you want to delete this item?
     copy: Copy
