@@ -27,7 +27,7 @@ class TimelineChartTest {
         assertEquals("2026-08-17 18:00:00", first.entry.datetime)
         assertTrue(last.x > first.x && last.y > first.y)
         assertTrue(first.x >= 0f && last.x <= 1f && first.y >= 0f && last.y <= 1f)
-        assertEquals(listOf("250M", "300M", "350M"), chart.yTicks.map { compactNumber(it.value) })
+        assertEquals(listOf("250M", "300M", "350M"), chart.yTicks.map { it.label })
         assertEquals(listOf(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 10, 1)), chart.xTicks.map { it.month })
     }
 
@@ -42,7 +42,23 @@ class TimelineChartTest {
         assertEquals(listOf(travel), chart.bands.map { it.event })
         // 13 days: more than twice the 4.5 between the first upload and the flag
         assertTrue(chart.bands[0].width > 2 * (chart.flags[0].x - chart.points[0].x))
-        assertEquals(listOf("1k", "1.5k", "2k", "2.5k"), chart.yTicks.map { compactNumber(it.value) })
+        assertEquals(listOf("1k", "1.5k", "2k", "2.5k"), chart.yTicks.map { it.label })
+    }
+
+    @Test
+    fun closeTicksHaveDecimals() {
+        // Production's uploads: 243.6M to 244M, ticks 0.1M apart (all "244M" before), as web's
+        val chart = timelineChart(
+            listOf(entry("2026-10-22 14:54:00", 243_649_369), entry("2026-10-23 14:54:00", 243_655_000), entry("2026-10-24 14:54:00", 243_962_582)),
+            emptyList(),
+        )!!
+        assertEquals(listOf("243.6M", "243.7M", "243.8M", "243.9M", "244M"), chart.yTicks.map { it.label })
+
+        val half = timelineChart(listOf(entry("2026-10-22 14:54:00", 10_200_000), entry("2026-10-23 14:54:00", 11_800_000)), emptyList())!!
+        assertEquals(listOf("10M", "10.5M", "11M", "11.5M", "12M"), half.yTicks.map { it.label })
+
+        // Only events: no AP axis
+        assertEquals(emptyList<TimelineChartData.YTick>(), timelineChart(emptyList(), listOf(TimelineEvent(1, "2026-10-01", "Travel", "2026-10-05")))!!.yTicks)
     }
 
     @Test
@@ -55,7 +71,7 @@ class TimelineChartTest {
 
         assertEquals(listOf("2026-09-10 12:00:00", "2026-09-20 12:00:00"), chart.points.map { it.entry.datetime })
         // The AP axis for the uploads shown, the travel up to the edge
-        assertEquals("300k", compactNumber(chart.yTicks.first().value))
+        assertEquals("300k", chart.yTicks.first().label)
         assertEquals(emptyList<TimelineChartData.Flag>(), chart.flags)
         assertEquals(1f, chart.bands.single().x + chart.bands.single().width)
         assertNull(timelineChart(entries, emptyList(), LocalDate.of(2025, 1, 1)..LocalDate.of(2025, 1, 31)))

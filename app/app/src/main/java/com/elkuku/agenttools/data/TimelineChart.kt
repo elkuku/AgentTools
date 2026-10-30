@@ -4,6 +4,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -34,7 +35,8 @@ data class TimelineChartData(
 
     data class Band(val x: Float, val width: Float, val event: TimelineEvent)
 
-    data class YTick(val y: Float, val value: Double)
+    /** [label] as [compactNumber] with the ticks' step. */
+    data class YTick(val y: Float, val value: Double, val label: String)
 
     /** The first day of a month. */
     data class XTick(val x: Float, val month: LocalDate)
@@ -107,7 +109,8 @@ private fun chart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, da
             val left = x(day(it.date)).coerceAtLeast(0f)
             TimelineChartData.Band(left, x(day(it.endDate ?: it.date) + 1).coerceAtMost(1f) - left, it)
         },
-        yTicks = generateSequence(low) { it + step }.takeWhile { it <= high + step / 2 }.map { TimelineChartData.YTick(y(it), it) }.toList(),
+        // No AP axis without uploads (e.g. zoomed to the days of a travel only), as web's
+        yTicks = generateSequence(low) { it + step }.takeWhile { entries.isNotEmpty() && it <= high + step / 2 }.map { TimelineChartData.YTick(y(it), it, compactNumber(it, step)) }.toList(),
         xTicks = generateSequence(month) { it.plusMonths(every.toLong()) }.takeWhile { !it.isAfter(lastDay) }
             .map { TimelineChartData.XTick(x(it.toEpochDay().toDouble()), it) }.toList(),
     )
@@ -134,14 +137,19 @@ private fun niceRange(minimum: Double, maximum: Double): Triple<Double, Double, 
     return Triple(floor(min / step) * step, ceil(max / step) * step, step)
 }
 
-/** 243962582 → 244M, 5400 → 5.4k: short enough for the axis in every language, as web's. */
-fun compactNumber(value: Double): String {
+/**
+ * 243962582 → 244M, 5400 → 5.4k: short enough for the axis in every language, as web's. With the
+ * ticks' [step] as many decimals as it needs, so that close ticks differ (243.6M, 243.8M);
+ * trailing zeros dropped (1k, 1.5k).
+ */
+fun compactNumber(value: Double, step: Double? = null): String {
     for ((unit, suffix) in listOf(1e9 to "B", 1e6 to "M", 1e3 to "k")) {
         if (abs(value) >= unit) {
             val short = value / unit
-            // 2.5M, but 3M and 250M
-            val tenths = (short * 10).roundToLong()
-            return if (abs(short) < 10 && tenths % 10 != 0L) "${tenths / 10}.${abs(tenths % 10)}$suffix" else "${short.roundToLong()}$suffix"
+            // Without a step: 2.5M, but 3M and 250M
+            val decimals = step?.let { max(0, ceil(-log10(it / unit) - 1e-9).toInt()) } ?: if (abs(short) < 10) 1 else 0
+            val text = String.format(Locale.ROOT, "%.${decimals}f", short)
+            return (if ('.' in text) text.trimEnd('0').trimEnd('.') else text) + suffix
         }
     }
 

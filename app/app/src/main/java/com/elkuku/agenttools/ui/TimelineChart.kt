@@ -47,7 +47,6 @@ import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.TimelineChartData
 import com.elkuku.agenttools.data.TimelineEvent
-import com.elkuku.agenttools.data.compactNumber
 import com.elkuku.agenttools.data.timelineChart
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -129,7 +128,7 @@ fun TimelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, ra
 
             chart.yTicks.forEach { tick ->
                 drawLine(grid, Offset(left, py(tick.y)), Offset(right, py(tick.y)), strokeWidth = 1.dp.toPx())
-                val label = measurer.measure(compactNumber(tick.value), labelStyle.copy(color = axis))
+                val label = measurer.measure(tick.label, labelStyle.copy(color = axis))
                 drawText(label, topLeft = Offset(left - 6.dp.toPx() - label.size.width, py(tick.y) - label.size.height / 2))
             }
             drawLine(axis, Offset(left, bottom), Offset(right, bottom), strokeWidth = 1.dp.toPx())

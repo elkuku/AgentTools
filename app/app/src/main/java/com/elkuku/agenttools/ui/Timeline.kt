@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -175,6 +177,8 @@ fun Timeline(
 
     val colors = timelineColors()
     val travelEvents = remember(events) { events.filter { it.isTravel } }
+    // The banners done that show their picture (by bannerId); collapsed at first, as web's
+    var openBanners by remember { mutableStateOf(emptySet<String>()) }
     Column {
         shown.forEachIndexed { index, item ->
             // The travel line goes with the travels
@@ -193,12 +197,17 @@ fun Timeline(
                     travelLine = travelLine,
                     modifier = onEditEvent?.let { edit -> Modifier.clickable { edit(item.event) } } ?: Modifier,
                 ) { EventItem(item.event, item.edge) }
-                is TimelineItem.Banner -> TimelineRow(
-                    dot = MaterialTheme.colorScheme.onSurfaceVariant,
-                    last = index == shown.lastIndex,
-                    travelLine = travelLine,
-                    modifier = onOpenBanners?.let { open -> Modifier.clickable { open() } } ?: Modifier,
-                ) { BannerItem(item.banner) }
+                is TimelineItem.Banner -> {
+                    val open = item.banner.bannerId in openBanners
+                    TimelineRow(
+                        dot = MaterialTheme.colorScheme.onSurfaceVariant,
+                        last = index == shown.lastIndex,
+                        travelLine = travelLine,
+                        modifier = Modifier.clickable {
+                            openBanners = if (open) openBanners - item.banner.bannerId else openBanners + item.banner.bannerId
+                        },
+                    ) { BannerItem(item.banner, open, onOpenBanners) }
+                }
             }
         }
     }
@@ -239,7 +248,8 @@ private fun TimelineFilters(
         FilterChip(
             selected = range != null,
             onClick = { choosingRange = true },
-            label = { Text(range?.let { "${it.start} – ${it.endInclusive}" } ?: stringResource(R.string.timeline_filter_all_dates)) },
+            // The days in the app's language, as the list's
+            label = { Text(range?.let { "${localDate(it.start.toString())} – ${localDate(it.endInclusive.toString())}" } ?: stringResource(R.string.timeline_filter_all_dates)) },
         )
     }
 
@@ -408,8 +418,12 @@ private fun EventItem(event: TimelineEvent, edge: TravelEdge?) {
     }
 }
 
+/**
+ * A banner done: its day and title; [open] (a tap) also its picture (the missions' medals) and,
+ * with [onOpenBanners] (the own timeline), a button to My banners.
+ */
 @Composable
-private fun BannerItem(banner: DoneBanner) {
+private fun BannerItem(banner: DoneBanner, open: Boolean, onOpenBanners: (() -> Unit)?) {
     Text(localDate(banner.doneAt.orEmpty()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Icon(
@@ -418,9 +432,20 @@ private fun BannerItem(banner: DoneBanner) {
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 3.dp).size(16.dp),
         )
-        Text(stringResource(R.string.bannergress_timeline_done, banner.title))
+        Text(stringResource(R.string.bannergress_timeline_done, banner.title), modifier = Modifier.weight(1f))
+        Icon(
+            painterResource(R.drawable.ic_bi_chevron_right),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 3.dp).size(14.dp).rotate(if (open) 90f else 0f),
+        )
     }
-    banner.banner.pictureUrl?.let { BannerPicture(it) }
+    if (open) {
+        banner.banner.pictureUrl?.let { BannerPicture(it) }
+        onOpenBanners?.let { openBanners ->
+            TextButton(onClick = openBanners, contentPadding = PaddingValues(0.dp)) { Text(stringResource(R.string.my_banners)) }
+        }
+    }
 }
 
 /**
