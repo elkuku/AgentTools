@@ -24,6 +24,7 @@ import com.elkuku.agenttools.ui.ProgressAndStatus
 import com.elkuku.agenttools.ui.ProfileSetting
 import com.elkuku.agenttools.ui.SettingsScreen
 import com.elkuku.agenttools.ui.StatsScreen
+import com.elkuku.agenttools.ui.TimelineScreen
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,6 +105,16 @@ class MainActivity : ComponentActivity() {
                         onSetDoneAt = { banner, doneAt -> viewModel.saveDoneAt(activity, banner, doneAt) },
                         header = { ProgressAndStatus(state) },
                     )
+                } else if (state.statsOpen && state.timelineOpen && state.session != null) {
+                    BackHandler(onBack = viewModel::closeTimeline)
+                    TimelineScreen(
+                        state = state,
+                        onRefresh = { viewModel.refresh(activity) },
+                        onSaveTimelineEvent = { viewModel.saveTimelineEvent(activity, it) },
+                        onDeleteTimelineEvent = { viewModel.deleteTimelineEvent(activity, it) },
+                        onOpenBannergress = viewModel::openBannergress,
+                        onBack = viewModel::closeTimeline,
+                    )
                 } else if (state.statsOpen && state.session != null) {
                     BackHandler(onBack = viewModel::closeStats)
                     StatsScreen(
@@ -112,9 +123,8 @@ class MainActivity : ComponentActivity() {
                         onDismissImportResult = viewModel::dismissImportResult,
                         onSaveMedalScan = { viewModel.saveMedalScan(activity, it) },
                         onDismissMedalScan = viewModel::dismissMedalScan,
-                        onSaveTimelineEvent = { viewModel.saveTimelineEvent(activity, it) },
-                        onDeleteTimelineEvent = { viewModel.deleteTimelineEvent(activity, it) },
                         onOpenBannergress = viewModel::openBannergress,
+                        onOpenTimeline = viewModel::openTimeline,
                         onBack = viewModel::closeStats,
                     )
                 } else if (state.agentsOpen && state.agentBannergressOpen && state.agent != null) {

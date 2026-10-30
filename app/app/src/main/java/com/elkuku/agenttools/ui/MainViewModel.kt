@@ -71,6 +71,8 @@ data class UiState(
     val settingsOpen: Boolean = false,
     /** The user's stats ("My stats") are shown instead of the home page. */
     val statsOpen: Boolean = false,
+    /** The timeline is shown over "My stats". */
+    val timelineOpen: Boolean = false,
     /** The list of agents (or [agent]) is shown instead of the home page. */
     val agentsOpen: Boolean = false,
     /** The agents who show their profile; null until loaded, and for admins. */
@@ -173,6 +175,7 @@ class MainViewModel(
                 bannergressOpen = false,
                 visibilityChosen = true,
                 statsOpen = false,
+                timelineOpen = false,
                 agentsOpen = false,
                 adminAgents = false,
                 agents = null,
@@ -202,7 +205,7 @@ class MainViewModel(
      */
     fun onShared(context: Context, text: String) {
         // The result of a share shows on the stats screen
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, timelineOpen = false) }
         val stats = parseIngressStats(text)
         if (stats == null) {
             _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
@@ -221,7 +224,11 @@ class MainViewModel(
 
     fun openStats() = _state.update { it.copy(statsOpen = true) }
 
-    fun closeStats() = _state.update { it.copy(statsOpen = false, bannergressOpen = false) }
+    fun closeStats() = _state.update { it.copy(statsOpen = false, timelineOpen = false, bannergressOpen = false) }
+
+    fun openTimeline() = _state.update { it.copy(timelineOpen = true) }
+
+    fun closeTimeline() = _state.update { it.copy(timelineOpen = false) }
 
     /** "My banners": from the stats, the home page or the menu; back goes where it came from. */
     fun openBannergress() = _state.update { it.copy(bannergressOpen = true, settingsOpen = false, agentsOpen = false) }
@@ -317,7 +324,7 @@ class MainViewModel(
      * Ingress shows only the highest tier, so a lower one is a wrong match.
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, medalScan = null, medalScanKnown = 0, status = null) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, timelineOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
         val recognized = withProgress(uiText(R.string.looking_for_custom_medals)) { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })
@@ -648,6 +655,7 @@ class MainViewModel(
             bannergressOpen = false,
             visibilityChosen = true,
             statsOpen = false,
+            timelineOpen = false,
             agentsOpen = false,
             adminAgents = false,
             agents = null,

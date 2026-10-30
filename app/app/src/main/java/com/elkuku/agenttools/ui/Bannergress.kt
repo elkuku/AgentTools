@@ -193,7 +193,15 @@ fun BannergressScreen(
             if (Section.DONE in open) {
                 val done = doneBanners.orEmpty()
                 if (onSetDoneAt != null && done.isNotEmpty()) {
-                    item { Text(stringResource(R.string.bannergress_date_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(R.string.bannergress_date_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val undated = done.count { it.doneAt == null }
+                            if (undated > 0) {
+                                Text(pluralStringResource(R.plurals.bannergress_undated, undated, undated), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
                 }
                 if (done.isEmpty() && doneBanners != null) item { None(R.string.bannergress_done_none) }
                 items(done, key = { "done-${it.bannerId}" }) { banner ->
@@ -261,8 +269,9 @@ private fun None(text: Int) {
     Text(stringResource(text), color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
+/** A number with its [label] in a card, e.g. the Bannergress and timeline counts. */
 @Composable
-private fun Count(value: Int, label: Int, modifier: Modifier) {
+fun Count(value: Int, label: Int, modifier: Modifier) {
     Card(modifier) {
         Column(Modifier.padding(vertical = 8.dp).align(Alignment.CenterHorizontally), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value.toLong().formatted(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)

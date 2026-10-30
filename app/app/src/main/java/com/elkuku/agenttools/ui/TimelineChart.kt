@@ -49,6 +49,7 @@ import com.elkuku.agenttools.data.TimelineChartData
 import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.compactNumber
 import com.elkuku.agenttools.data.timelineChart
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
@@ -69,12 +70,12 @@ private const val BOTTOM = 22f
 private const val RIGHT = 8f
 
 /**
- * AP over time with the custom events as flags and the travels as bands, as web's timeline chart.
- * Tapping a mark shows what it is below the chart.
+ * AP over time with the custom events as flags and the travels as bands, as web's timeline chart,
+ * zoomed to the days of the [range] (null: all). Tapping a mark shows what it is below the chart.
  */
 @Composable
-fun TimelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>) {
-    val chart = remember(entries, events) { timelineChart(entries, events) } ?: return
+fun TimelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, range: ClosedRange<LocalDate>? = null) {
+    val chart = remember(entries, events, range) { timelineChart(entries, events, range) } ?: return
     val colors = timelineColors()
     val grid = MaterialTheme.colorScheme.outlineVariant
     val axis = MaterialTheme.colorScheme.onSurfaceVariant

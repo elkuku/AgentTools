@@ -135,12 +135,16 @@
     <string name="event_end_date_clear">No end date</string>
     <string name="event_end_date_hint">Optional: the last day of an event over several days, e.g. a travel.</string>
     <string name="event_end_date_invalid">The end date must not be before the date.</string>
+    <string name="event_travels_overlap">Travels cannot overlap: %1$s (%2$s – %3$s).</string>
+    <string name="timeline_travel_start">Start of the travel</string>
+    <string name="timeline_travel_end">End of the travel</string>
 
     <string name="timeline_filter_uploads">Uploads</string>
     <string name="timeline_filter_events">Events</string>
     <string name="timeline_filter_travels">Travels</string>
-    <string name="timeline_filter_medals">Medal upgrades</string>
-    <string name="timeline_filter_all_years">All years</string>
+    <string name="timeline_filter_medals">Medals</string>
+    <string name="timeline_filter_new_level">New level</string>
+    <string name="timeline_filter_all_dates">All dates</string>
     <string name="timeline_filter_none">No entries match the filters.</string>
 
     <!-- Custom medals -->
@@ -250,7 +254,11 @@
     <string name="bannergress_error_server">Bannergress answered with error %1$d.</string>
     <string name="bannergress_needs_agent_name">Upload your stats first: the published banners are counted by agent name.</string>
     <string name="bannergress_done_none">No banners on the done list.</string>
-    <string name="bannergress_date_help">Tap a banner to add the day you did it: it shows on your timeline.</string>
+    <string name="bannergress_date_help">Tap a banner to add the day you did it: it shows on your timeline. Event banners get the day of the event when you sync.</string>
+    <plurals name="bannergress_undated">
+        <item quantity="one">%1$d banner has no day yet.</item>
+        <item quantity="other">%1$d banners have no day yet.</item>
+    </plurals>
     <string name="bannergress_done_on">Done on %1$s</string>
     <string name="bannergress_date_add">Add the day</string>
     <string name="bannergress_date_saved">The day is saved; the banner is on your timeline.</string>

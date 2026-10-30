@@ -10,10 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,7 +19,6 @@ import com.elkuku.agenttools.R
 import com.elkuku.agenttools.auth.GoogleSession
 import com.elkuku.agenttools.data.AgentStatEntry
 import com.elkuku.agenttools.data.CustomMedalTier
-import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.UserRole
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 import com.elkuku.agenttools.uiText
@@ -31,8 +26,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 
 /**
- * "My stats": the user's latest stats with medals, the custom medals, Bannergress and the
- * timeline, below what the last share changed and the review of shared medal screenshots.
+ * "My stats": the user's latest stats with medals, the custom medals, Bannergress and a summary of
+ * the timeline (on its own screen), below what the last share changed and the review of shared
+ * medal screenshots.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,13 +38,10 @@ fun StatsScreen(
     onDismissImportResult: () -> Unit,
     onSaveMedalScan: (List<CustomMedalTier>) -> Unit,
     onDismissMedalScan: () -> Unit,
-    onSaveTimelineEvent: (TimelineEvent) -> Unit,
-    onDeleteTimelineEvent: (TimelineEvent) -> Unit,
     onOpenBannergress: () -> Unit,
+    onOpenTimeline: () -> Unit,
     onBack: () -> Unit,
 ) {
-    var editing by remember { mutableStateOf<TimelineEvent?>(null) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,33 +78,9 @@ fun StatsScreen(
 
             state.entries?.let { entries ->
                 HorizontalDivider()
-                Timeline(
-                    entries,
-                    state.timelineEvents.orEmpty(),
-                    onEditEvent = { event -> editing = event },
-                    banners = state.doneBanners.orEmpty(),
-                    onAddEvent = { editing = TimelineEvent(date = "", text = "") },
-                    onOpenBanners = onOpenBannergress,
-                )
+                TimelineSummary(entries, state.timelineEvents.orEmpty(), state.doneBanners.orEmpty(), onOpen = onOpenTimeline)
             }
         }
-    }
-
-    // A new event has no id (and the dialog's date is today)
-    editing?.let { event ->
-        val close = { editing = null }
-        TimelineEventDialog(
-            event = event.takeIf { it.id != null },
-            onSave = {
-                onSaveTimelineEvent(it)
-                close()
-            },
-            onDelete = {
-                onDeleteTimelineEvent(it)
-                close()
-            },
-            onDismiss = close,
-        )
     }
 }
 
@@ -139,9 +108,8 @@ private fun StatsScreenPreview() {
             onDismissImportResult = {},
             onSaveMedalScan = {},
             onDismissMedalScan = {},
-            onSaveTimelineEvent = {},
-            onDeleteTimelineEvent = {},
             onOpenBannergress = {},
+            onOpenTimeline = {},
             onBack = {},
         )
     }

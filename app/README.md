@@ -116,10 +116,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   private `bannergress` preferences, excluded from backups, the access token in memory). A sync
   (`data/Bannergress.kt`, `GET https://api.bannergress.com/bnrs` with the Bearer token, page by
   page: there is no count) reads (with the start points) every banner by the agent name (`author`, published), the whole
-  done list and the newest 20 to-do banners (and counts the to-do list, ids only), then saves it
+  done list (with `eventStartDate`, the first day of an event banner) and the newest 20 to-do banners (and counts the to-do list, ids only), then saves it
   with `PATCH /api/me` `bannergress`; web keeps the done list as done banners
   (`GET /api/done-banners`), where the user sets the day each was done (a tap on a done banner,
-  `PATCH /api/done-banners/{id}`): banners with a day are on the timeline. The screen folds its
+  `PATCH /api/done-banners/{id}`; an event banner without a day gets the event's first day from web
+  on the sync, the done section counts those still without one): banners with a day are on the timeline. The screen folds its
   sections (published, done, to-do); pictures load with Coil. Signing out of Google signs out of
   Bannergress too. Others see it with the Bannergress part ("Banners").
 - Languages: English (`res/values`, the default), German (`values-de`) and Spanish
@@ -131,10 +132,19 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   client return `UiText` (`UiText.kt`): string resources resolved when shown, or server messages
   as they are. Medal, stat and faction names stay English.
 - Timeline (`data/Timeline.kt`, `ui/Timeline.kt`): the stats uploads with what changed (as the
-  import result) and the custom events (`GET /api/timeline-events`, loaded with the stats), newest
-  first, as web's `TimelineBuilder`. On My stats events are added, changed and deleted
+  import result, without level, AP and AP gain, which are in the chart; the list below the chart leaves out those where only the AP changed) and the custom events (`GET /api/timeline-events`, loaded with the stats), newest
+  first, as web's `TimelineBuilder`. My stats shows only a summary (`TimelineSummary`: uploads,
+  events, travels, dated banners); a tap opens the timeline screen (`ui/TimelineScreen.kt`,
+  `UiState.timelineOpen`, over My stats), where events are added, changed and deleted
   (`TimelineEventDialog`; `POST` / `PATCH` / `DELETE /api/timeline-events`); an agent's profile shows
   them read-only with the history (`GET /api/agents/{agentName}` `events`).
-  Events with an `endDate` last several days (a travel). Above the list `ui/TimelineChart.kt` draws
+  The list shows each day in the app's language without the time (`localDate`, `FormatStyle.MEDIUM`, as web's).
+  Events with an `endDate` last several days (a travel): on the list its end and its start
+  (`TimelineItem.Event.edge`, each with its day, as web's), with a line beside the timeline
+  through the entries in it (`isInTravel`); travels cannot overlap (`overlappingTravel`, checked
+  in `TimelineEventDialog`; web answers 422). Above the list `ui/TimelineChart.kt` draws
   the chart (geometry in `data/TimelineChart.kt`, as web's `TimelineChart`): AP line, event flags,
-  travel bands; a tap shows a mark's details.
+  travel bands; a tap shows a mark's details. The list always has the uploads with a
+  milestone (`isMilestone`: first upload, recursion). Filters (as web's): medals (the uploads
+  with a medal at a higher tier), new level, events, travels, banners and a date range
+  (`DateRangePicker`, both days included) that also zooms the chart (`timelineChart(…, range)`).

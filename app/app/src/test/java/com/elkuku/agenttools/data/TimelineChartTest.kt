@@ -46,6 +46,22 @@ class TimelineChartTest {
     }
 
     @Test
+    fun aRangeZoomsToItsDays() {
+        val before = TimelineEvent(1, "2026-08-01", "Before")
+        val travel = TimelineEvent(2, "2026-09-25", "Travel to Cuenca", endDate = "2026-10-10")
+        val entries = listOf(entry("2026-08-15 12:00:00", 1000), entry("2026-09-10 12:00:00", 300_000), entry("2026-09-20 12:00:00", 340_000))
+
+        val chart = timelineChart(entries, listOf(before, travel), LocalDate.of(2026, 9, 1)..LocalDate.of(2026, 9, 30))!!
+
+        assertEquals(listOf("2026-09-10 12:00:00", "2026-09-20 12:00:00"), chart.points.map { it.entry.datetime })
+        // The AP axis for the uploads shown, the travel up to the edge
+        assertEquals("300k", compactNumber(chart.yTicks.first().value))
+        assertEquals(emptyList<TimelineChartData.Flag>(), chart.flags)
+        assertEquals(1f, chart.bands.single().x + chart.bands.single().width)
+        assertNull(timelineChart(entries, emptyList(), LocalDate.of(2025, 1, 1)..LocalDate.of(2025, 1, 31)))
+    }
+
+    @Test
     fun manyUploadsAreALineWithoutPoints() {
         val entries = { count: Int -> (1..count).map { entry(LocalDate.of(2026, 1, 1).plusDays(it.toLong()).toString() + " 12:00:00", 1000L + it) } }
 

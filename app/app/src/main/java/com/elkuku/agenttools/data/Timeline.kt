@@ -2,6 +2,7 @@ package com.elkuku.agenttools.data
 
 import com.elkuku.agenttools.UiText
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 
 /**
  * A custom event on the timeline (`/api/timeline-events`, web's `TimelineEvent`): a date
@@ -34,27 +35,40 @@ sealed interface TimelineEventResult {
     data class Failure(val message: UiText) : TimelineEventResult
 }
 
+/** The end or the start of a travel: a travel is two entries of the timeline. */
+enum class TravelEdge { START, END }
+
 /** One entry of the timeline, as web's `TimelineEntry`. */
 sealed interface TimelineItem {
     /** A stats upload with what changed since the one before it ([ImportResult.isFirstImport] for the first). */
     data class Upload(val result: ImportResult) : TimelineItem
 
-    data class Event(val event: TimelineEvent) : TimelineItem
+    /** A single-day event, or the [edge] of a travel. */
+    data class Event(val event: TimelineEvent, val edge: TravelEdge? = null) : TimelineItem
 
     /** A Bannergress banner done that day. */
     data class Banner(val banner: DoneBanner) : TimelineItem
 }
 
+/** The first upload or a recursion: an upload the list always has. */
+val ImportResult.isMilestone: Boolean
+    get() = isFirstImport || recursions != null
+
 /**
  * The stats uploads ([entries], any order), the custom [events] and the [banners] done with a
  * day, newest first, as web's `TimelineBuilder`: events and banners come before the uploads of
- * their day.
+ * their day. A travel is its end (before the uploads of its last day) and its start (after those
+ * of its first); travels cannot overlap.
  */
 fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>, banners: List<DoneBanner> = emptyList()): List<TimelineItem> {
     val uploads = entries.sortedByDescending { it.datetime }
     val items = uploads.mapIndexed { index, entry ->
         entry.datetime to TimelineItem.Upload(computeImportResult(entry, uploads.getOrNull(index + 1)))
-    } + events.map { "${it.date} 23:59:59" to TimelineItem.Event(it) } +
+    } + events.flatMap { event ->
+        event.endDate?.let { end ->
+            listOf("$end 23:59:59" to TimelineItem.Event(event, TravelEdge.END), "${event.date} 00:00:00" to TimelineItem.Event(event, TravelEdge.START))
+        } ?: listOf("${event.date} 23:59:59" to TimelineItem.Event(event))
+    } +
         banners.mapNotNull { banner -> banner.doneAt?.let { "$it 23:59:59" to TimelineItem.Banner(banner) } }
 
     // sortedByDescending is stable: uploads and events keep their order on the same date
@@ -71,24 +85,58 @@ val TimelineItem.kind: TimelineKind
         is TimelineItem.Banner -> TimelineKind.BANNER
     }
 
-/** The years an entry falls in: a travel over New Year in both. */
-val TimelineItem.years: IntRange
+/** The day of an entry: of a travel's end its end date. */
+val TimelineItem.day: LocalDate
     get() = when (this) {
-        is TimelineItem.Upload -> result.entry.datetime.take(4).toInt().let { it..it }
-        is TimelineItem.Event -> event.date.take(4).toInt()..(event.endDate ?: event.date).take(4).toInt()
-        is TimelineItem.Banner -> banner.doneAt.orEmpty().take(4).toInt().let { it..it }
+        is TimelineItem.Upload -> LocalDate.parse(result.entry.datetime.take(10))
+        is TimelineItem.Event -> LocalDate.parse(if (edge == TravelEdge.END) event.endDate else event.date)
+        is TimelineItem.Banner -> LocalDate.parse(banner.doneAt.orEmpty())
     }
 
-/** Every year of the timeline, newest first, for its year filter. */
-fun timelineYears(items: List<TimelineItem>): List<Int> = items.flatMap { it.years }.distinct().sortedDescending()
+/** The days an entry covers, for the filter: its [day]. */
+val TimelineItem.days: ClosedRange<LocalDate>
+    get() = day.let { it..it }
 
 /**
- * The entries of the [kinds], in the [year] (null: every year); with [medalUpgradesOnly] only the
- * uploads with a medal at a higher tier (events keep their own kinds).
+ * Whether an entry other than a travel's end or start is on a day of one of the [travels]
+ * (events with an end date): between them on the timeline, with the travel line.
  */
-fun List<TimelineItem>.filtered(kinds: Set<TimelineKind>, year: Int?, medalUpgradesOnly: Boolean = false): List<TimelineItem> =
+fun TimelineItem.isInTravel(travels: List<TimelineEvent>): Boolean =
+    !(this is TimelineItem.Event && edge != null) &&
+        travels.any { travel -> travel.endDate?.let { day in LocalDate.parse(travel.date)..LocalDate.parse(it) } ?: false }
+
+/**
+ * Whether [event] (with an end date) shares a day with one of the other [events]' travels, as
+ * web's `NoOverlappingTravel`; the first such travel, else null.
+ */
+fun overlappingTravel(event: TimelineEvent, events: List<TimelineEvent>): TimelineEvent? {
+    val end = event.endDate ?: return null
+    return events.firstOrNull { other ->
+        other.id != event.id && other.endDate != null && other.date <= end && other.endDate >= event.date
+    }
+}
+
+/** Whether the days overlap: a travel counts on every day of it. */
+fun ClosedRange<LocalDate>.overlaps(other: ClosedRange<LocalDate>): Boolean = start <= other.endInclusive && endInclusive >= other.start
+
+/**
+ * The entries of the timeline's list on the days of the [range] (null: every day). Uploads are
+ * there for what changed besides the AP: those with a milestone ([isMilestone]) always, with
+ * [medals] those with a medal at a higher tier, with [newLevels] those with a new level; the
+ * others for their [kinds].
+ */
+fun List<TimelineItem>.filtered(
+    kinds: Set<TimelineKind>,
+    range: ClosedRange<LocalDate>?,
+    medals: Boolean = true,
+    newLevels: Boolean = true,
+): List<TimelineItem> =
     filter {
-        it.kind in kinds &&
-            (year == null || year in it.years) &&
-            (!medalUpgradesOnly || it !is TimelineItem.Upload || it.result.medalUps.isNotEmpty())
+        val listed = when (it) {
+            is TimelineItem.Upload -> it.result.isMilestone ||
+                (medals && it.result.medalUps.isNotEmpty()) ||
+                (newLevels && it.result.newLevel != null)
+            else -> it.kind in kinds
+        }
+        listed && (range == null || it.days.overlaps(range))
     }

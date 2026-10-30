@@ -51,14 +51,32 @@ private fun AgentStatEntry.day(): Double =
 
 private fun day(date: String): Double = LocalDate.parse(date).toEpochDay().toDouble()
 
-/** Null when there is nothing to show. */
-fun timelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>): TimelineChartData? {
+/**
+ * Null when there is nothing to show. With a [range] zoomed to its days: only the uploads and
+ * events on them, the AP axis for those uploads.
+ */
+fun timelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, range: ClosedRange<LocalDate>? = null): TimelineChartData? {
+    if (range != null) {
+        val from = range.start.toEpochDay().toDouble()
+        val to = range.endInclusive.toEpochDay() + 1.0
+        return chart(
+            entries.filter { it.day() >= from && it.day() < to },
+            events.filter { (LocalDate.parse(it.date)..LocalDate.parse(it.endDate ?: it.date)).overlaps(range) },
+            from to to,
+        )
+    }
+
+    return chart(entries, events, null)
+}
+
+/** Over the [days] (epoch days, the end excluded), else over the entries and events. */
+private fun chart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, days: Pair<Double, Double>?): TimelineChartData? {
     if (entries.isEmpty() && events.isEmpty()) return null
 
     val times = entries.map { it.day() } + events.flatMap { listOf(day(it.date), day(it.endDate ?: it.date) + 1) }
-    var start = times.min()
-    var end = times.max()
-    if (end - start < 30) {
+    var start = days?.first ?: times.min()
+    var end = days?.second ?: times.max()
+    if (days == null && end - start < 30) {
         val middle = (start + end) / 2
         start = middle - 15
         end = middle + 15
@@ -84,9 +102,10 @@ fun timelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>): T
     return TimelineChartData(
         points = entries.sortedBy { it.datetime }.map { TimelineChartData.Point(x(it.day()), y((it["ap"] ?: 0).toDouble()), it) },
         flags = events.filter { !it.isTravel }.map { TimelineChartData.Flag(x(day(it.date) + 0.5), it) },
+        // A travel that starts or ends outside the zoomed days up to the edge
         bands = events.filter { it.isTravel }.map {
-            val left = x(day(it.date))
-            TimelineChartData.Band(left, x(day(it.endDate ?: it.date) + 1) - left, it)
+            val left = x(day(it.date)).coerceAtLeast(0f)
+            TimelineChartData.Band(left, x(day(it.endDate ?: it.date) + 1).coerceAtMost(1f) - left, it)
         },
         yTicks = generateSequence(low) { it + step }.takeWhile { it <= high + step / 2 }.map { TimelineChartData.YTick(y(it), it) }.toList(),
         xTicks = generateSequence(month) { it.plusMonths(every.toLong()) }.takeWhile { !it.isAfter(lastDay) }

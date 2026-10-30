@@ -205,6 +205,28 @@ class MainViewModelTest {
     }
 
     @Test
+    fun theTimelineOpensFromTheStatsAndBackGoesToThem() {
+        val viewModel = signedIn()
+        viewModel.openStats()
+
+        viewModel.openTimeline()
+        assertTrue(viewModel.state.value.timelineOpen)
+
+        viewModel.closeTimeline()
+        assertFalse(viewModel.state.value.timelineOpen)
+        assertTrue(viewModel.state.value.statsOpen)
+
+        // Closing the stats closes it too, and a share shows its result on the stats
+        viewModel.openTimeline()
+        viewModel.closeStats()
+        assertFalse(viewModel.state.value.timelineOpen)
+        viewModel.openStats()
+        viewModel.openTimeline()
+        viewModel.onShared(context, "not stats")
+        assertFalse(viewModel.state.value.timelineOpen)
+    }
+
+    @Test
     fun aShareOpensTheStatsInsteadOfTheAgents() {
         val viewModel = signedIn()
         viewModel.openAgents(context)

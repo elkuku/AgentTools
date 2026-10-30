@@ -18,7 +18,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.IOException
 
-/** A banner on Bannergress; [picture] is relative to [BANNERGRESS_API]. It starts at [startLatitude], [startLongitude]. */
+/**
+ * A banner on Bannergress; [picture] is relative to [BANNERGRESS_API]. It starts at [startLatitude],
+ * [startLongitude]. [eventStartDate] (`yyyy-MM-dd`) is the first day of an event banner, read for the
+ * done list only: web makes it the day it was done unless the user set one.
+ */
 @Serializable
 data class BannergressBanner(
     val id: String,
@@ -27,6 +31,7 @@ data class BannergressBanner(
     val picture: String? = null,
     val startLatitude: Double? = null,
     val startLongitude: Double? = null,
+    val eventStartDate: String? = null,
 ) {
     val url: String get() = "https://bannergress.com/banner/$id"
 
@@ -111,8 +116,9 @@ private data class BannerResponse(
     val picture: String? = null,
     val startLatitude: Double? = null,
     val startLongitude: Double? = null,
+    val eventStartDate: String? = null,
 ) {
-    val banner: BannergressBanner get() = BannergressBanner(id, title, numberOfMissions, picture, startLatitude, startLongitude)
+    val banner: BannergressBanner get() = BannergressBanner(id, title, numberOfMissions, picture, startLatitude, startLongitude, eventStartDate)
 }
 
 private class SignedOutException : Exception()
@@ -131,8 +137,8 @@ class BannergressApi(engine: HttpClientEngine = OkHttp.create()) {
 
     /** The counts, the published banners of [agentName], the newest to-do banners and the whole done list. */
     suspend fun sync(accessToken: String, agentName: String): BannergressResult = try {
-        val done = all(accessToken, "done")
-        val published = all(accessToken) { parameter("author", agentName) }
+        val done = all(accessToken, DONE_ATTRIBUTES) { newestFirst("done") }
+        val published = all(accessToken, BANNER_ATTRIBUTES) { parameter("author", agentName) }
         BannergressResult.Success(
             BannergressSync(
                 published = published.size,
@@ -163,14 +169,11 @@ class BannergressApi(engine: HttpClientEngine = OkHttp.create()) {
     private suspend fun newest(accessToken: String, listType: String): List<BannergressBanner> =
         page(accessToken, MAX_BANNERS, 0, BANNER_ATTRIBUTES) { newestFirst(listType) }.map { it.banner }
 
-    /** Every banner of a list, newest first. */
-    private suspend fun all(accessToken: String, listType: String) = all(accessToken) { newestFirst(listType) }
-
-    /** Every banner of the [filter], page by page. */
-    private suspend fun all(accessToken: String, filter: HttpRequestBuilder.() -> Unit): List<BannergressBanner> {
+    /** Every banner of the [filter] with the [attributes], page by page. */
+    private suspend fun all(accessToken: String, attributes: List<String>, filter: HttpRequestBuilder.() -> Unit): List<BannergressBanner> {
         val banners = mutableListOf<BannergressBanner>()
         while (true) {
-            val page = page(accessToken, PAGE_SIZE, banners.size, BANNER_ATTRIBUTES, filter)
+            val page = page(accessToken, PAGE_SIZE, banners.size, attributes, filter)
             banners += page.map { it.banner }
             if (page.size < PAGE_SIZE) return banners
         }
@@ -212,5 +215,8 @@ class BannergressApi(engine: HttpClientEngine = OkHttp.create()) {
         const val PAGE_SIZE = 100
 
         val BANNER_ATTRIBUTES = listOf("id", "title", "numberOfMissions", "picture", "startLatitude", "startLongitude")
+
+        /** The done list's also with the first day of an event: web dates those banners. */
+        val DONE_ATTRIBUTES = BANNER_ATTRIBUTES + "eventStartDate"
     }
 }
