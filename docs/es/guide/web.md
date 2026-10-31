@@ -8,7 +8,7 @@ de la app; el sitio web también puede importar estadísticas que guardaste en o
 
 ![La página de inicio de sesión](/screenshots/web/login.webp){.shot-web}
 
-Haz clic en **Iniciar sesión con Google** y elige la misma cuenta de Google que en la app. La
+Haz clic en **Acceder con Google** y elige la misma cuenta de Google que en la app. La
 primera vez, el sitio web te lleva a tu perfil para que elijas lo que ven otros usuarios.
 
 La barra de navegación tiene tus estadísticas, **Mis banners** y **Agentes**. A la derecha: tu foto

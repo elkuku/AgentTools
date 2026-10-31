@@ -79,6 +79,16 @@ Testabdeckung des Webs (`/coverage/`) hinzu. Die Screenshots in `docs/public/scr
 die Demo-Agenten (`symfony console app:demo-agents`; die App mit einem Fake-Token als DemoFrog
 angemeldet), nie echte Benutzer.
 
+Die Screenshots der Website nimmt ein Skript auf, während die Web-App in dev läuft und die
+Demo-Agenten angelegt sind: headless Chromium im dunklen Design und auf Englisch, als DemoFrog
+angemeldet, ohne die Teile, die es nur in dev gibt. Es braucht ein Chromium oder Chrome
+(`CHROME`, Standard `chromium`; nicht Brave, das die Sprache des Browsers vor Websites verbirgt):
+
+```shell
+cd docs
+CHROME=/path/to/chrome npm run screenshots:web   # optional: -- <URL der Web-App>
+```
+
 ## Dev-App {#dev-app}
 
 Der GitHub-Pages-Workflow baut außerdem den Build-Typ `dev` des neuesten master und stellt ihn auf

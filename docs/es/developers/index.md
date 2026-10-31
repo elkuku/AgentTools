@@ -80,6 +80,16 @@ cobertura de tests web (`/coverage/`). Las capturas de `docs/public/screenshots/
 agentes de demostración (`symfony console app:demo-agents`; la app con sesión iniciada como
 DemoFrog con un token falso), nunca usuarios reales.
 
+Las capturas del sitio web las toma un script, con la app web en dev y los agentes de
+demostración añadidos: Chromium headless en el tema oscuro y en inglés, con sesión iniciada como
+DemoFrog, sin las partes que solo existen en dev. Necesita un Chromium o Chrome (`CHROME`, por
+defecto `chromium`; no Brave, que oculta el idioma del navegador a los sitios):
+
+```shell
+cd docs
+CHROME=/path/to/chrome npm run screenshots:web   # opcional: -- <URL de la app web>
+```
+
 ## App de desarrollo {#dev-app}
 
 El workflow de GitHub Pages también compila el tipo de compilación `dev` del último master y lo

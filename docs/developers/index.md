@@ -79,6 +79,16 @@ web test coverage (`/coverage/`). The screenshots in `docs/public/screenshots/` 
 agents (`symfony console app:demo-agents`; the app signed in as DemoFrog with a fake token), never
 real users.
 
+The website's screenshots are taken by a script, with the web app running in dev and the demo
+agents added: headless Chromium in the dark theme and in English, signed in as DemoFrog, without
+the dev-only parts. It needs a Chromium or Chrome (`CHROME`, default `chromium`; not Brave, which
+hides the browser's language from sites):
+
+```shell
+cd docs
+CHROME=/path/to/chrome npm run screenshots:web   # optional: -- <URL of the web app>
+```
+
 ## Dev app
 
 The GitHub Pages workflow also builds the `dev` build type of the latest master and puts it on the
