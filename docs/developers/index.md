@@ -63,7 +63,9 @@ CI runs both on GitHub Actions; the Symfony test coverage is published with this
 
 ## Documentation
 
-This site is built with [VitePress](https://vitepress.dev) from `docs/`:
+This site is built with [VitePress](https://vitepress.dev) from `docs/`, in English at the top
+and in German and Spanish in `docs/de/` and `docs/es/` (the same pages and headings' anchors; a
+change to a page goes into all three):
 
 ```shell
 cd docs

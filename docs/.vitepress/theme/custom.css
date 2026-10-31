@@ -1,9 +1,10 @@
-/* AgentTools colors: the logo's Enlightened green and Resistance blue */
+/* AgentTools colors: an orange accent; the hero title and glow keep the logo's Enlightened
+   green and Resistance blue */
 :root {
-  --vp-c-brand-1: #1f8a4c;
-  --vp-c-brand-2: #26a35b;
-  --vp-c-brand-3: #2bb866;
-  --vp-c-brand-soft: rgba(43, 184, 102, 0.14);
+  --vp-c-brand-1: #c2410c;
+  --vp-c-brand-2: #ea580c;
+  --vp-c-brand-3: #f97316;
+  --vp-c-brand-soft: rgba(249, 115, 22, 0.14);
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #2bb866 30%, #2f7df6);
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #2bb86655 50%, #2f7df655 50%);
@@ -11,9 +12,9 @@
 }
 
 .dark {
-  --vp-c-brand-1: #4cd283;
-  --vp-c-brand-2: #3cc274;
-  --vp-c-brand-3: #2bb866;
+  --vp-c-brand-1: #fb923c;
+  --vp-c-brand-2: #f97316;
+  --vp-c-brand-3: #ea580c;
 }
 
 /* Screenshots: phones beside the text, web pages full width */
