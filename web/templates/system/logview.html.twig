@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'nav.about'|trans }}{% endblock %}
+{% block title %}{{ 'nav.logview'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>{{ 'system.info'|trans }}</h1>
+    <h1>{{ 'nav.logview'|trans }}</h1>
 
     <div class="accordion" id="accordionLog">
         {% for date, log in logEntries %}

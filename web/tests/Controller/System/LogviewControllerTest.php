@@ -56,6 +56,8 @@ class LogviewControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/system/logview');
 
         self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Logview');
+        self::assertSelectorTextSame('main .container > h1', 'Logview');
     }
 
     public function testOpenEntryThrowsOnDoubleOpen(): void
