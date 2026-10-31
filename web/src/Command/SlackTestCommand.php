@@ -19,7 +19,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Checks the Slack setup: the bot token (Slack's auth.test names the bot and the workspace) and a
- * test message to each channel, the activity one (SLACK_DSN) and SLACK_ERRORS_CHANNEL, with what
+ * test message to each channel, SLACK_CHANNEL and SLACK_ERRORS_CHANNEL, with what
  * to do for Slack's usual errors; -v shows Slack's whole answer.
  */
 #[AsCommand(name: 'app:slack:test', description: 'Check the Slack token and post a test message to the Slack channels')]
@@ -31,7 +31,7 @@ final readonly class SlackTestCommand
         'channel_not_found' => 'The bot sees no channel #%channel%: check the name (without #) or use the channel ID (C…, in the channel details); a private channel needs /invite @%bot% first.',
         'is_archived' => '#%channel% is archived: unarchive it or use another channel.',
         'invalid_auth' => 'Slack does not know the token: copy the Bot User OAuth Token (xoxb-…) from OAuth & Permissions into SLACK_DSN.',
-        'not_authed' => 'SLACK_DSN has no token: slack://xoxb-…@default?channel=agenttools.',
+        'not_authed' => 'SLACK_DSN has no token: slack://xoxb-…@default.',
         'token_revoked' => 'The token was revoked: reinstall the app and copy the new Bot User OAuth Token into SLACK_DSN.',
         'account_inactive' => 'The token was revoked: reinstall the app and copy the new Bot User OAuth Token into SLACK_DSN.',
         'missing_scope' => 'The app lacks the scope chat:write: add it under OAuth & Permissions → Bot Token Scopes and reinstall the app.',
@@ -40,6 +40,8 @@ final readonly class SlackTestCommand
     public function __construct(
         private SlackActivity $slackActivity,
         private HttpClientInterface $httpClient,
+        #[Autowire(env: 'SLACK_CHANNEL')]
+        private string $channel,
         #[Autowire(env: 'SLACK_ERRORS_CHANNEL')]
         private string $errorsChannel,
         #[Autowire(param: 'kernel.environment')]
@@ -60,12 +62,11 @@ final readonly class SlackTestCommand
         $dsn = new Dsn($this->dsn);
         $token = (string) $dsn->getUser();
         $host = 'default' === $dsn->getHost() ? 'slack.com' : $dsn->getHost();
-        $channel = (string) $dsn->getOption('channel', '');
 
         $io->definitionList(
             ['Token' => $this->masked($token)],
             ['Host' => $host],
-            ['Activity channel' => '' === $channel ? '(none: add ?channel=… to SLACK_DSN)' : '#'.$channel],
+            ['Activity channel' => '#'.$this->channel],
             ['Errors channel' => '#'.$this->errorsChannel],
         );
 
@@ -76,8 +77,8 @@ final readonly class SlackTestCommand
 
         $text = \sprintf(':white_check_mark: AgentTools (%s) can post here.', $this->environment);
         $posted = true;
-        foreach ([[$channel, null], [$this->errorsChannel, $this->errorsChannel]] as [$name, $recipient]) {
-            $posted = $this->post($io, $text, $name, $recipient, $bot) && $posted;
+        foreach ([$this->channel, $this->errorsChannel] as $channel) {
+            $posted = $this->post($io, $text, $channel, $bot) && $posted;
         }
 
         if (!$posted) {
@@ -123,10 +124,10 @@ final readonly class SlackTestCommand
         return $bot;
     }
 
-    private function post(SymfonyStyle $io, string $text, string $channel, ?string $recipient, string $bot): bool
+    private function post(SymfonyStyle $io, string $text, string $channel, string $bot): bool
     {
         try {
-            $this->slackActivity->sendNow($text, $recipient);
+            $this->slackActivity->sendNow($text, $channel);
         } catch (TransportExceptionInterface|MessengerException $exception) {
             $cause = $this->cause($exception);
             $error = $this->slackError($cause);

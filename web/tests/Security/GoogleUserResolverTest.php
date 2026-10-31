@@ -41,7 +41,7 @@ class GoogleUserResolverTest extends TestCase
         $this->chatter = $this->createMock(ChatterInterface::class);
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn('https://agenttools.test/admin/agents/1');
-        $this->slackActivity = new SlackActivity($this->chatter, $urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger());
+        $this->slackActivity = new SlackActivity($this->chatter, $urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger(), 'agenttools');
         $this->resolver = new GoogleUserResolver($this->userRepository, $this->entityManager, $this->slackActivity);
     }
 

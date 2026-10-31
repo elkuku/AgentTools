@@ -22,7 +22,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class SlackTestCommandTest extends TestCase
 {
-    private const string DSN = 'slack://xoxb-1234-5678-abcdefgh@default?channel=agenttools';
+    private const string DSN = 'slack://xoxb-1234-5678-abcdefgh@default';
 
     /** @var array<string, array<string, mixed>> Slack's answer to chat.postMessage per channel */
     private array $answers = [];
@@ -90,14 +90,15 @@ class SlackTestCommandTest extends TestCase
         });
 
         $slackActivity = new SlackActivity(
-            new Chatter(new SlackTransport('xoxb-1234-5678-abcdefgh', 'agenttools', $httpClient)),
+            new Chatter(new SlackTransport('xoxb-1234-5678-abcdefgh', null, $httpClient)),
             $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(AgentStatRepository::class),
             new NullLogger(),
+            'agenttools',
         );
 
         $application = new Application();
-        $application->addCommand(new SlackTestCommand($slackActivity, $httpClient, 'agenttools-errors', 'test', $dsn));
+        $application->addCommand(new SlackTestCommand($slackActivity, $httpClient, 'agenttools', 'agenttools-errors', 'test', $dsn));
 
         return new CommandTester($application->find('app:slack:test'));
     }

@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Repository\AgentStatRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Exception\ExceptionInterface as MessengerException;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * Posts the site's activity to Slack (SLACK_DSN's channel): new users, stats uploads and CSV
+ * Posts the site's activity to Slack (SLACK_CHANNEL): new users, stats uploads and CSV
  * imports. The messages are sent after the response (kernel.terminate), so Slack never slows a
  * request down; a failure is only logged as a warning, below the level SlackLogHandler posts.
  */
@@ -34,6 +35,8 @@ final class SlackActivity implements ResetInterface
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly AgentStatRepository $agentStatRepository,
         private readonly LoggerInterface $logger,
+        #[Autowire(env: 'SLACK_CHANNEL')]
+        private readonly string $channel,
     ) {
     }
 
@@ -72,13 +75,13 @@ final class SlackActivity implements ResetInterface
     }
 
     /**
-     * Sends a message right away, to SLACK_DSN's channel or [$channel] (app:slack:test).
+     * Sends a message right away, to SLACK_CHANNEL or [$channel] (app:slack:test).
      *
      * @throws TransportExceptionInterface|MessengerException
      */
     public function sendNow(string $text, ?string $channel = null): void
     {
-        $this->chatter->send(new ChatMessage($text, null === $channel ? null : new SlackOptions()->recipient($channel)));
+        $this->chatter->send($this->message($text, $channel ?? $this->channel));
     }
 
     #[AsEventListener(KernelEvents::TERMINATE)]
@@ -104,7 +107,12 @@ final class SlackActivity implements ResetInterface
 
     private function add(string $text): void
     {
-        $this->messages[] = new ChatMessage($text);
+        $this->messages[] = $this->message($text, $this->channel);
+    }
+
+    private function message(string $text, string $channel): ChatMessage
+    {
+        return new ChatMessage($text, new SlackOptions()->recipient($channel));
     }
 
     /** The agent name, linked to the admins' page of the user. */
