@@ -114,9 +114,9 @@ un viaje. Los viajes no pueden superponerse. Toca un evento para cambiarlo o eli
 2. La app sincroniza los banners que **publicaste** (con una misión de tu agente), toda tu lista de
    **completados** y tu lista de **pendientes**, y los guarda en tu cuenta.
 
-El mapa tiene un punto donde empieza cada banner: publicados, completados y pendientes, cada uno
-con su color. Los botones debajo del mapa muestran u ocultan cada lista. Las listas están
-plegadas; toca un encabezado para abrir una.
+El mapa tiene un punto donde empieza cada banner: completados, pendientes y publicados, cada uno
+con su color. Los botones debajo del mapa muestran u ocultan cada lista. Debajo están las listas
+en el mismo orden, la de completados abierta; toca un encabezado para plegar o abrir una.
 
 Toca un banner completado para indicar el día en que lo hiciste: así aparece en tu línea de tiempo.
 Los banners de eventos reciben el primer día del evento al sincronizarse.
@@ -135,7 +135,9 @@ sesión en Bannergress.
 
 ☰ → **Agentes** lista a los agentes que muestran su perfil, con facción y nivel. Toca uno para ver
 las partes de su perfil que eligió mostrar: sus estadísticas más recientes con medallas, sus
-medallas especiales, su historial de estadísticas con su línea de tiempo y sus banners.
+medallas especiales, su historial de estadísticas y sus banners. Como en **Mis estadísticas**,
+su línea de tiempo y sus banners aparecen resumidos: toca **Línea de tiempo** o **Banners** para
+abrirlos en una pantalla propia.
 
 Los administradores tienen además ☰ → **Administrar agentes**: cada usuario con lo que muestra.
 

@@ -70,8 +70,8 @@ La página informa de lo que importó, lo que omitió y lo que no reconoció.
 ![Mis banners](/screenshots/web/es/banners.webp){.shot-web}
 
 **Mis banners** muestra los banners que la app sincronizó desde Bannergress (solo la app puede
-sincronizarlos): un mapa con un punto donde empieza cada banner y las listas de banners publicados,
-completados y pendientes. Los botones debajo del mapa muestran u ocultan cada lista. En la lista de
+sincronizarlos): un mapa con un punto donde empieza cada banner y las listas de banners completados,
+pendientes y publicados. Los botones debajo del mapa muestran u ocultan cada lista. En la lista de
 completados, indica el día en que hiciste un banner para ponerlo en tu línea de tiempo.
 
 ## Agentes {#agents}
@@ -79,7 +79,8 @@ completados, indica el día en que hiciste un banner para ponerlo en tu línea d
 ![La lista de agentes](/screenshots/web/es/agents.webp){.shot-web}
 
 **Agentes** lista a los agentes que muestran su perfil. Haz clic en uno para ver las partes que
-muestra.
+muestra. Como en tus estadísticas de agente, su línea de tiempo y sus banners aparecen resumidos
+y tienen páginas propias.
 
 ![El perfil de un agente](/screenshots/web/es/agent-profile.webp){.shot-web}
 

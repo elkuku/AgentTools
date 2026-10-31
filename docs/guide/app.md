@@ -112,8 +112,9 @@ can't overlap. Tap an event to change or delete it.
 2. The app syncs the banners you **published** (with a mission by your agent), your whole **done**
    list and your **to-do** list, and saves them to your account.
 
-The map has a dot where each banner starts: published, done and to-do in their own colors. The
-buttons below the map show or hide each list. The lists are folded; tap a heading to open one.
+The map has a dot where each banner starts: done, to-do and published in their own colors. The
+buttons below the map show or hide each list. Below are the lists in the same order, the done one
+open; tap a heading to fold or open one.
 
 Tap a done banner to set the day you did it: then it's on your timeline. Event banners get the
 event's first day when they are synced.
@@ -131,7 +132,8 @@ Sync again whenever your lists change. Signing out of Google also signs out of B
 
 ☰ → **Agents** lists the agents who show their profile, with faction and level. Tap one to see
 the parts of their profile they chose to show: their latest stats with medals, their custom
-medals, their stats history with their timeline, and their banners.
+medals, their stats history and their banners. As on **My stats**, their timeline and their
+banners are summed up there: tap **Timeline** or **Banners** to open them on a screen of their own.
 
 Admins also have ☰ → **Admin agents**: every user with what they show.
 

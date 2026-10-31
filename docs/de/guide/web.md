@@ -72,7 +72,7 @@ Die Seite meldet, was sie importiert und übersprungen hat und was sie nicht erk
 
 **Meine Banner** zeigt die Banner, die die App von Bannergress synchronisiert hat (nur die App kann
 sie synchronisieren): eine Karte mit einem Punkt, wo jedes Banner beginnt, und die Listen der
-veröffentlichten, erledigten und zu erledigenden Banner. Die Schaltflächen unter der Karte blenden
+erledigten, zu erledigenden und veröffentlichten Banner. Die Schaltflächen unter der Karte blenden
 jede Liste ein oder aus. Trage in der Erledigt-Liste den Tag ein, an dem du ein Banner gemacht
 hast, um es auf deine Zeitleiste zu setzen.
 
@@ -81,7 +81,8 @@ hast, um es auf deine Zeitleiste zu setzen.
 ![Die Liste der Agenten](/screenshots/web/de/agents.webp){.shot-web}
 
 **Agenten** listet die Agenten, die ihr Profil zeigen. Klicke auf einen, um die Teile zu sehen, die
-er zeigt.
+er zeigt. Wie bei deinen Agentenstatistiken sind seine Zeitleiste und seine Banner dort
+zusammengefasst und haben eigene Seiten.
 
 ![Das Profil eines Agenten](/screenshots/web/de/agent-profile.webp){.shot-web}
 

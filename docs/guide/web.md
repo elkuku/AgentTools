@@ -67,7 +67,7 @@ The page reports what it imported, what it skipped and anything it didn't recogn
 ![My banners](/screenshots/web/banners.webp){.shot-web}
 
 **My banners** shows the banners the app synced from Bannergress (only the app can sync them): a
-map with a dot where each banner starts and the lists of published, done and to-do banners. The
+map with a dot where each banner starts and the lists of done, to-do and published banners. The
 buttons below the map show or hide each list. In the done list, set the day you did a banner to put
 it on your timeline.
 
@@ -75,7 +75,8 @@ it on your timeline.
 
 ![The agents list](/screenshots/web/agents.webp){.shot-web}
 
-**Agents** lists the agents who show their profile. Click one to see the parts they show.
+**Agents** lists the agents who show their profile. Click one to see the parts they show. As on
+your agent stats, their timeline and their banners are summed up there and have pages of their own.
 
 ![An agent's profile](/screenshots/web/agent-profile.webp){.shot-web}
 

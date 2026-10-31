@@ -120,9 +120,10 @@ oder zu löschen.
    Agenten), deine ganze **Erledigt**-Liste und deine **Zu-erledigen**-Liste und speichert sie in
    deinem Konto.
 
-Die Karte hat einen Punkt, wo jedes Banner beginnt: veröffentlichte, erledigte und zu erledigende
-in eigenen Farben. Die Schaltflächen unter der Karte blenden jede Liste ein oder aus. Die Listen
-sind eingeklappt; tippe auf eine Überschrift, um eine zu öffnen.
+Die Karte hat einen Punkt, wo jedes Banner beginnt: erledigte, zu erledigende und veröffentlichte
+in eigenen Farben. Die Schaltflächen unter der Karte blenden jede Liste ein oder aus. Darunter
+stehen die Listen in derselben Reihenfolge, die Erledigt-Liste geöffnet; tippe auf eine
+Überschrift, um eine ein- oder auszuklappen.
 
 Tippe auf ein erledigtes Banner, um den Tag einzutragen, an dem du es gemacht hast: Dann ist es auf
 deiner Zeitleiste. Event-Banner bekommen beim Synchronisieren den ersten Tag des Events.
@@ -141,7 +142,9 @@ auch von Bannergress ab.
 
 ☰ → **Agenten** listet die Agenten, die ihr Profil zeigen, mit Fraktion und Level. Tippe auf einen,
 um die Teile seines Profils zu sehen, die er zeigen will: seine neuesten Statistiken mit Medaillen,
-seine Sondermedaillen, seinen Statistikverlauf mit seiner Zeitleiste und seine Banner.
+seine Sondermedaillen, seinen Statistikverlauf und seine Banner. Wie bei **Meine Statistiken**
+sind seine Zeitleiste und seine Banner dort zusammengefasst: Tippe auf **Zeitleiste** oder
+**Banner**, um sie auf einem eigenen Bildschirm zu öffnen.
 
 Admins haben außerdem ☰ → **Agenten verwalten**: alle Benutzer und was sie zeigen.
 
