@@ -188,6 +188,7 @@
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/symfony/uid" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/webmozart/assert" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/willdurand/negotiation" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/twig/intl-extra" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
