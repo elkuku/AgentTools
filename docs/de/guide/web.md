@@ -13,7 +13,7 @@ Klicke auf **Über Google anmelden** und wähle dasselbe Google-Konto wie in der
 bringt dich die Website zu deinem Profil, damit du wählst, was andere Benutzer sehen.
 
 Die Navigationsleiste enthält deine Statistiken, **Meine Banner** und **Agenten**. Rechts: dein
-Profilbild mit dem Benutzermenü (Profil, **Statistiken importieren**, Abmelden), die Sprache
+Profilbild mit dem Benutzermenü (**Meine Statistiken**, **Meine Zeitleiste**, **Meine Banner**, Profil, **Statistiken importieren**, Abmelden), die Sprache
 (Englisch, Deutsch, Spanisch) und das helle oder dunkle Design.
 
 ## Startseite {#home}

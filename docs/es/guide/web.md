@@ -12,7 +12,7 @@ Haz clic en **Iniciar sesión con Google** y elige la misma cuenta de Google que
 primera vez, el sitio web te lleva a tu perfil para que elijas lo que ven otros usuarios.
 
 La barra de navegación tiene tus estadísticas, **Mis banners** y **Agentes**. A la derecha: tu foto
-de perfil con el menú de usuario (perfil, **Importar estadísticas**, cerrar sesión), el idioma
+de perfil con el menú de usuario (**Mis estadísticas**, **Mi línea de tiempo**, **Mis banners**, perfil, **Importar estadísticas**, cerrar sesión), el idioma
 (inglés, alemán, español) y el tema claro u oscuro.
 
 ## Inicio {#home}

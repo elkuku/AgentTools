@@ -18,7 +18,7 @@ Nach der Anmeldung fasst der Startbildschirm dein Konto zusammen:
 - **Agenten**: die Agenten, die ihr Profil zeigen.
 - **Aus Ingress teilen**: eine Erinnerung, wie du hochlädst.
 
-Oben öffnet dein Profilbild das Kontomenü (deine E-Mail und Rolle, **Meine Statistiken**,
+Oben öffnet dein Profilbild das Kontomenü (deine E-Mail und Rolle, **Meine Statistiken**, **Meine Zeitleiste**,
 **Meine Banner**, **Einstellungen**, **Abmelden**), und ☰ öffnet das Funktionsmenü mit
 **Agenten**. Zieh einen Bildschirm nach unten, um ihn neu zu laden.
 

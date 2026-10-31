@@ -16,7 +16,7 @@ Después de iniciar sesión, la pantalla de inicio resume tu cuenta:
 - **Agentes**: los agentes que muestran su perfil.
 - **Compartir desde Ingress**: un recordatorio de cómo subir.
 
-Arriba, tu foto de perfil abre el menú de la cuenta (tu correo y rol, **Mis estadísticas**,
+Arriba, tu foto de perfil abre el menú de la cuenta (tu correo y rol, **Mis estadísticas**, **Mi línea de tiempo**,
 **Mis banners**, **Ajustes**, **Cerrar sesión**), y ☰ abre el menú de funciones con **Agentes**.
 Desliza hacia abajo en una pantalla para recargarla.
 

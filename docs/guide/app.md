@@ -16,7 +16,7 @@ After signing in, the home screen sums up your account:
 - **Agents**: the agents who show their profile.
 - **Share from Ingress**: a reminder of how to upload.
 
-At the top, your profile picture opens the account menu (your email and role, **My stats**,
+At the top, your profile picture opens the account menu (your email and role, **My stats**, **My timeline**,
 **My banners**, **Settings**, **Sign out**), and ☰ opens the feature menu with **Agents**. Pull
 down on a screen to reload it.
 
