@@ -16,8 +16,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
+import com.elkuku.agenttools.data.AgentProfile
 import com.elkuku.agenttools.data.TimelineEvent
 
 /**
@@ -79,5 +81,37 @@ fun TimelineScreen(
             },
             onDismiss = close,
         )
+    }
+}
+
+/**
+ * An agent's timeline, from the agent's profile, read-only as web's /agents/{agentName}/timeline:
+ * the chart, the filters and every entry. Pull down to reload the agent.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AgentTimelineScreen(
+    state: UiState,
+    agent: AgentProfile,
+    onRefresh: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(painterResource(R.drawable.ic_bi_arrow_left), contentDescription = stringResource(R.string.back), modifier = Modifier.size(20.dp))
+                    }
+                },
+                title = { Text("${agent.summary.agentName} · ${stringResource(R.string.timeline)}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            )
+        },
+    ) { padding ->
+        RefreshableColumn(state, onRefresh, Modifier.padding(padding)) {
+            agent.history?.let { history ->
+                Timeline(history, agent.events.orEmpty(), banners = agent.doneBanners.orEmpty(), title = false)
+            }
+        }
     }
 }

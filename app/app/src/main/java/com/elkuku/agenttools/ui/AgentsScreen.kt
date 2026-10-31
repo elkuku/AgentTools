@@ -68,6 +68,7 @@ fun AgentsScreen(
     onRefresh: () -> Unit,
     onBack: () -> Unit,
     onOpenBannergress: () -> Unit = {},
+    onOpenTimeline: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -111,7 +112,7 @@ fun AgentsScreen(
                 }
 
                 when {
-                    agent != null -> AgentProfileView(agent, onOpenBannergress)
+                    agent != null -> AgentProfileView(agent, onOpenBannergress, onOpenTimeline)
                     users != null -> UserList(users, onOpenAgent)
                     agents != null -> AgentList(agents, onOpenAgent)
                 }
@@ -269,9 +270,12 @@ private fun RowScope.AgentHeader(
     }
 }
 
-/** What the agent shows: the stats with medals like the own ones, the custom medals and the history. */
+/**
+ * What the agent shows: the stats with medals like the own ones, the custom medals, the banners
+ * and the history, a summary of the timeline that [onOpenTimeline] opens, as on "My stats".
+ */
 @Composable
-private fun AgentProfileView(profile: AgentProfile, onOpenBannergress: () -> Unit) {
+private fun AgentProfileView(profile: AgentProfile, onOpenBannergress: () -> Unit, onOpenTimeline: () -> Unit) {
     val latest = profile.latest
     if (latest != null) {
         // The first import tells about the history: only with it
@@ -294,7 +298,7 @@ private fun AgentProfileView(profile: AgentProfile, onOpenBannergress: () -> Uni
 
     profile.history?.let { history ->
         HorizontalDivider()
-        Timeline(history, profile.events.orEmpty(), banners = profile.doneBanners.orEmpty())
+        TimelineSummary(history, profile.events.orEmpty(), profile.doneBanners.orEmpty(), onOpen = onOpenTimeline)
     }
 
     if (latest == null && profile.customMedals == null && profile.history == null && profile.bannergress == null) {

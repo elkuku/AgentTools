@@ -120,6 +120,8 @@ data class UiState(
     val bannergressOpen: Boolean = false,
     /** The Bannergress screen of the [agent] shown is open. */
     val agentBannergressOpen: Boolean = false,
+    /** The timeline screen of the [agent] shown is open. */
+    val agentTimelineOpen: Boolean = false,
 ) {
     /** Ask the user to choose what other users see of the profile. */
     val askVisibility: Boolean get() = session != null && !visibilityChosen && !visibilityDismissed
@@ -239,9 +241,15 @@ class MainViewModel(
 
     fun closeAgentBannergress() = _state.update { it.copy(agentBannergressOpen = false) }
 
+    fun openAgentTimeline() = _state.update { it.copy(agentTimelineOpen = true) }
+
+    fun closeAgentTimeline() = _state.update { it.copy(agentTimelineOpen = false) }
+
     /** The agents who show their profile, or with [admin] every user (admins only), loaded each time. */
     fun openAgents(context: Context, admin: Boolean = false) {
-        _state.update { it.copy(agentsOpen = true, adminAgents = admin, agents = null, users = null, agent = null, agentsStatus = null) }
+        _state.update {
+            it.copy(agentsOpen = true, adminAgents = admin, agents = null, users = null, agent = null, agentBannergressOpen = false, agentTimelineOpen = false, agentsStatus = null)
+        }
         launchBusy { loadAgents(context) }
     }
 
@@ -258,7 +266,7 @@ class MainViewModel(
     }
 
     /** Back from an agent to the list. */
-    fun closeAgent() = _state.update { it.copy(agent = null, agentBannergressOpen = false, agentsStatus = null) }
+    fun closeAgent() = _state.update { it.copy(agent = null, agentBannergressOpen = false, agentTimelineOpen = false, agentsStatus = null) }
 
     /** Reloads the agent shown, or the list. */
     fun refreshAgents(context: Context) {

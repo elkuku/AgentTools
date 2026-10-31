@@ -7,6 +7,8 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -20,6 +22,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.elkuku.agenttools.data.DoneBanner
 import java.time.Instant
 import java.time.LocalDate
@@ -128,8 +131,8 @@ fun BannergressScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     var dating by remember { mutableStateOf<DoneBanner?>(null) }
-    // As web's accordion: the published banners open
-    var open by rememberSaveable { mutableStateOf(setOf(Section.PUBLISHED)) }
+    // As web's accordion: done, to-do and published, the done banners open
+    var open by rememberSaveable { mutableStateOf(setOf(Section.DONE)) }
     val toggle = { section: Section -> open = if (section in open) open - section else open + section }
 
     Scaffold(
@@ -174,19 +177,11 @@ fun BannergressScreen(
             item {
                 BannerMap(
                     mapOf(
-                        BannerList.PUBLISHED to sync.publishedBanners,
                         BannerList.DONE to doneBanners.orEmpty().map { it.banner },
                         BannerList.TODO to sync.todoBanners,
+                        BannerList.PUBLISHED to sync.publishedBanners,
                     ),
                 )
-            }
-
-            item { SectionHeader(R.string.bannergress_published, sync.published, Section.PUBLISHED in open) { toggle(Section.PUBLISHED) } }
-            if (Section.PUBLISHED in open) {
-                if (sync.publishedBanners.isEmpty()) item { None(R.string.bannergress_published_none) }
-                items(sync.publishedBanners, key = { "published-${it.id}" }) { banner ->
-                    BannerRow(banner, modifier = Modifier.clickable { uriHandler.openUri(banner.url) })
-                }
             }
 
             item { SectionHeader(R.string.bannergress_done, sync.done, Section.DONE in open) { toggle(Section.DONE) } }
@@ -224,6 +219,14 @@ fun BannergressScreen(
                     BannerRow(banner, modifier = Modifier.clickable { uriHandler.openUri(banner.url) })
                 }
             }
+
+            item { SectionHeader(R.string.bannergress_published, sync.published, Section.PUBLISHED in open) { toggle(Section.PUBLISHED) } }
+            if (Section.PUBLISHED in open) {
+                if (sync.publishedBanners.isEmpty()) item { None(R.string.bannergress_published_none) }
+                items(sync.publishedBanners, key = { "published-${it.id}" }) { banner ->
+                    BannerRow(banner, modifier = Modifier.clickable { uriHandler.openUri(banner.url) })
+                }
+            }
         }
     }
 
@@ -246,7 +249,7 @@ fun BannergressScreen(
 
 private val SYNCED_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
-private enum class Section { PUBLISHED, DONE, TODO }
+private enum class Section { DONE, TODO, PUBLISHED }
 
 /** A section's title with its count; a tap folds or unfolds it. */
 @Composable
@@ -294,16 +297,29 @@ fun BannerRow(banner: BannergressBanner, modifier: Modifier = Modifier, doneAt: 
     }
 }
 
-/** A banner picture: six missions wide, so kept low, as on web. */
+/**
+ * A banner picture: six missions wide, so kept low, as on web. A loading animation until it is
+ * there (a banner opened on the timeline loads it then). Not a SubcomposeAsyncImage: the
+ * timeline's rows measure their content's intrinsic height, which subcomposition does not have.
+ */
 @Composable
 fun BannerPicture(url: String) {
-    AsyncImage(
-        model = url,
-        contentDescription = null,
-        contentScale = ContentScale.Fit,
-        alignment = Alignment.CenterStart,
-        modifier = Modifier.heightIn(max = 96.dp).clip(RoundedCornerShape(4.dp)),
-    )
+    var loading by remember(url) { mutableStateOf(true) }
+    Box {
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            alignment = Alignment.CenterStart,
+            onState = { loading = it is AsyncImagePainter.State.Loading || it is AsyncImagePainter.State.Empty },
+            modifier = Modifier.heightIn(max = 96.dp).clip(RoundedCornerShape(4.dp)),
+        )
+        if (loading) {
+            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            }
+        }
+    }
 }
 
 /** The day a banner was done: a date picker, with removing a day already set. */

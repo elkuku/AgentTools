@@ -50,9 +50,9 @@ import java.io.File
 
 /** The lists on the banners' map, in their legend's order: published, done, to-do. */
 enum class BannerList(val label: Int) {
-    PUBLISHED(R.string.bannergress_published),
     DONE(R.string.bannergress_done),
     TODO(R.string.bannergress_todo),
+    PUBLISHED(R.string.bannergress_published),
 }
 
 /** As web's map: the timeline's validated colors (AP, event, travel). */

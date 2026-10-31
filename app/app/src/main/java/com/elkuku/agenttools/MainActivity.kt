@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.elkuku.agenttools.ui.AgentTimelineScreen
 import com.elkuku.agenttools.ui.AgentsScreen
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.MainScreen
@@ -136,6 +137,14 @@ class MainActivity : ComponentActivity() {
                         doneBanners = agent.doneBanners,
                         onBack = viewModel::closeAgentBannergress,
                     )
+                } else if (state.agentsOpen && state.agentTimelineOpen && state.agent != null) {
+                    BackHandler(onBack = viewModel::closeAgentTimeline)
+                    AgentTimelineScreen(
+                        state = state,
+                        agent = state.agent!!,
+                        onRefresh = { viewModel.refreshAgents(activity) },
+                        onBack = viewModel::closeAgentTimeline,
+                    )
                 } else if (state.agentsOpen) {
                     // Back from an agent to the list, from the list to the home page
                     BackHandler(onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() })
@@ -147,6 +156,7 @@ class MainActivity : ComponentActivity() {
                         busy = state.busy,
                         onOpenAgent = { viewModel.openAgent(activity, it) },
                         onOpenBannergress = viewModel::openAgentBannergress,
+                        onOpenTimeline = viewModel::openAgentTimeline,
                         onRefresh = { viewModel.refreshAgents(activity) },
                         onBack = { if (state.agent != null) viewModel.closeAgent() else viewModel.closeAgents() },
                     )
