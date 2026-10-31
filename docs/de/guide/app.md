@@ -89,7 +89,7 @@ hochgeladen.
 <img src="/screenshots/app/de/timeline.webp" alt="Die Zeitleiste" class="shot-phone right">
 
 Die Zeitleiste (Meine Statistiken → **Zeitleiste**) erzählt deine Ingress-Geschichte, das Neueste
-zuerst:
+zuerst, mit einer Marke für jedes Jahr:
 
 - deine **Uploads** mit dem, was sich geändert hat: der erste Upload, neue Level, Rekursionen und
   Medaillen-Upgrades (Uploads, bei denen sich nur die AP geändert haben, werden ausgelassen);

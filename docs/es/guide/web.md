@@ -40,7 +40,7 @@ nivel.
 ![La línea de tiempo](/screenshots/web/es/timeline.webp){.shot-web}
 
 La línea de tiempo (**Estadísticas de agente → Línea de tiempo**) tiene tus subidas con lo que
-cambió, tus eventos y viajes y tus banners con fecha, lo más reciente primero, debajo de un gráfico
+cambió, tus eventos y viajes y tus banners con fecha, lo más reciente primero y por años, debajo de un gráfico
 de tus AP. Funciona como la [línea de tiempo de la app](/es/guide/app#timeline): los mismos filtros
 y un rango de fechas que acerca el gráfico.
 

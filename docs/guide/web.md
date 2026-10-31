@@ -38,7 +38,7 @@ Click a medal for its details: the stat behind it, your value and the value of e
 ![The timeline](/screenshots/web/timeline.webp){.shot-web}
 
 The timeline (**Agent stats → Timeline**) has your uploads with what changed, your events and
-travels and your dated banners, newest first, under a chart of your AP. It works like the
+travels and your dated banners, newest first and by year, under a chart of your AP. It works like the
 [app's timeline](/guide/app#timeline): the same filters, and a date range that zooms the chart.
 
 **Add event** opens a form for a new event: its day, an optional end day for a travel, and what

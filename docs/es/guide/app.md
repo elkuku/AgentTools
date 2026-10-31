@@ -85,7 +85,7 @@ Las capturas se leen en tu teléfono; solo se suben las medallas que guardas.
 <img src="/screenshots/app/es/timeline.webp" alt="La línea de tiempo" class="shot-phone right">
 
 La línea de tiempo (Mis estadísticas → **Línea de tiempo**) cuenta tu historia en Ingress, lo más
-reciente primero:
+reciente primero, con una etiqueta para cada año:
 
 - tus **subidas** con lo que cambió: la primera subida, nuevos niveles, recursiones y medallas
   mejoradas (se omiten las subidas en las que solo cambiaron los AP);

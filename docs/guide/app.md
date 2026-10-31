@@ -83,7 +83,7 @@ The screenshots are read on your phone; only the medals you save are uploaded.
 
 <img src="/screenshots/app/timeline.webp" alt="The timeline" class="shot-phone right">
 
-The timeline (My stats → **Timeline**) tells your Ingress story, newest first:
+The timeline (My stats → **Timeline**) tells your Ingress story, newest first, with a label for each year:
 
 - your **uploads** with what changed: the first upload, new levels, recursions and medal
   upgrades (uploads where only the AP changed are left out);

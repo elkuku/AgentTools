@@ -41,7 +41,7 @@ Stufe.
 ![Die Zeitleiste](/screenshots/web/de/timeline.webp){.shot-web}
 
 Die Zeitleiste (**Agentenstatistiken → Zeitleiste**) enthält deine Uploads mit dem, was sich
-geändert hat, deine Ereignisse und Reisen und deine datierten Banner, das Neueste zuerst, unter
+geändert hat, deine Ereignisse und Reisen und deine datierten Banner, das Neueste zuerst und nach Jahren, unter
 einem Diagramm deiner AP. Sie funktioniert wie die [Zeitleiste der App](/de/guide/app#timeline):
 dieselben Filter und ein Datumsbereich, der das Diagramm zoomt.
 
