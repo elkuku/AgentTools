@@ -100,6 +100,8 @@ nav:
     login: Anmelden
     logout: Abmelden
     logview: Logs
+    my_stats: Meine Statistiken
+    my_timeline: Meine Zeitleiste
     profile: Profil
     toggle_navigation: Navigation umschalten
 

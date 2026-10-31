@@ -47,6 +47,13 @@
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
+                        {# As the app's account menu #}
+                        <li><a class="dropdown-item" href="{{ path('app_agent_stat_index') }}"><i class="bi-bar-chart"></i> {{ 'nav.my_stats'|trans }}</a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_agent_stat_timeline') }}"><i class="bi-clock-history"></i> {{ 'nav.my_timeline'|trans }}</a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_banners') }}"><i class="bi-grid-3x3-gap"></i> {{ 'nav.banners'|trans }}</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi-person"></i> {{ 'nav.profile'|trans }}</a>
                         </li>
                         <li><a class="dropdown-item" href="{{ path('app_agent_stat_import') }}"><i class="bi-upload"></i> {{ 'nav.import_stats'|trans }}</a>

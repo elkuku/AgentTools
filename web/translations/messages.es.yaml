@@ -100,6 +100,8 @@ nav:
     login: Iniciar sesión
     logout: Cerrar sesión
     logview: Registros
+    my_stats: Mis estadísticas
+    my_timeline: Mi línea de tiempo
     profile: Perfil
     toggle_navigation: Mostrar navegación
 

@@ -101,6 +101,8 @@ nav:
     login: Login
     logout: Logout
     logview: Logview
+    my_stats: My stats
+    my_timeline: My timeline
     profile: Profile
     toggle_navigation: Toggle navigation
 

@@ -35,5 +35,11 @@ class UserAccessTest extends WebTestCase
         self::assertSelectorTextContains('h4', 'Welcome user');
         // No waiting for an administrator
         self::assertSelectorTextContains('nav', 'Agent stats');
+        // The user menu as the app's account menu: the own stats, timeline and banners first
+        self::assertSame(
+            ['/agent-stats', '/agent-stats/timeline', '/banners', '/profile', '/agent-stats/import', '/logout'],
+            $client->getCrawler()->filter('#dropdownMenuButton1 + .dropdown-menu a.dropdown-item')->each(static fn ($link): string => (string) $link->attr('href')),
+        );
+        self::assertSelectorTextContains('#dropdownMenuButton1 + .dropdown-menu', 'My timeline');
     }
 }
