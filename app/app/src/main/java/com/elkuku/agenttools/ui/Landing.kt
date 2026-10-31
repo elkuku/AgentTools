@@ -67,10 +67,10 @@ private val FEATURES = listOf(
     ),
 )
 
-/** The hexagon cyan of the app icon; a darker teal on light backgrounds, like the web landing page. */
-private val HEXAGON_CYAN = Color(0xFF59FBEA)
+/** The dark orange of the app icon's hexagon; a darker orange on light backgrounds, as the website's accent. */
+private val HEXAGON_ORANGE = Color(0xFFEA580C)
 
-private val HEXAGON_TEAL = Color(0xFF0E9E8F)
+private val HEXAGON_ORANGE_DARKER = Color(0xFFC2410C)
 
 /** What the app does, for users who are not signed in (the sign-in button is in the app bar). */
 @Composable
@@ -126,7 +126,7 @@ private fun FeatureCard(feature: Feature) {
             Icon(
                 painterResource(feature.icon),
                 contentDescription = null,
-                tint = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) HEXAGON_CYAN else HEXAGON_TEAL,
+                tint = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) HEXAGON_ORANGE else HEXAGON_ORANGE_DARKER,
                 modifier = Modifier.padding(4.dp).size(32.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
