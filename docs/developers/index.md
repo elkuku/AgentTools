@@ -137,20 +137,23 @@ shell (`/bin/bash`), otherwise Plesk's PHP isn't available. Production logs are 
 ## Slack notifications
 
 The web app posts to Slack: new users, stats uploads (with the AP gain) and CSV imports to an
-activity channel, and in production errors (the same one at most every 10 minutes; not 403, 404,
-405) and deprecations (each once a day) to an errors channel.
+activity channel (`SLACK_CHANNEL`), and errors (the same one at most every 10 minutes; not 403,
+404, 405) and deprecations (each once a day) to an errors channel (`SLACK_ERRORS_CHANNEL`). Production
+uses `#agenttools` and `#agenttools-errors`, dev `#agenttools-dev` and `#agenttools-dev-errors`
+(`web/.env.dev`); tests post nothing.
 
 1. At [api.slack.com/apps](https://api.slack.com/apps), create an app in your workspace, give its
    bot the scope `chat:write` (OAuth & Permissions) and install it. Copy the bot token (`xoxb-…`).
-2. Create the channels, e.g. `#agenttools` and `#agenttools-errors`, and invite the bot to both
-   (`/invite @AgentTools`).
-3. In `web/.env.local` on the server:
+2. Create the four channels and invite the bot to each (`/invite @AgentTools`).
+3. Put the token in `web/.env.local`, on the server and in your dev checkout:
    ```
-   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
-   SLACK_ERRORS_CHANNEL=agenttools-errors
+   SLACK_DSN=slack://xoxb-…@default
    ```
-   and deploy (`web/bin/deploy` dumps it into `.env.local.php`).
-4. Check it with `bin/console app:slack:test`, which posts to both channels.
+   and deploy (`web/bin/deploy` dumps it into `.env.local.php`). Other channels: set
+   `SLACK_CHANNEL` and `SLACK_ERRORS_CHANNEL` there too.
+4. Check it with `bin/console app:slack:test` (`-v` shows Slack's answers): it checks the token,
+   posts to both channels of the environment and says what to do for Slack's errors, e.g.
+   `not_in_channel`.
 
 Without `SLACK_DSN` (`null://null`, the default in dev and tests) nothing is posted. A Slack
 failure never breaks a request: activity is sent after the response, and failures only go to the

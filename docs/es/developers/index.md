@@ -142,20 +142,23 @@ sin chroot (`/bin/bash`); si no, el PHP de Plesk no está disponible. Los logs d
 ## Notificaciones de Slack {#slack-notifications}
 
 La app web publica en Slack: usuarios nuevos, subidas de stats (con la ganancia de AP) e
-importaciones CSV en un canal de actividad, y en producción errores (el mismo como mucho cada 10
-minutos; no 403, 404, 405) y deprecaciones (cada una una vez al día) en un canal de errores.
+importaciones CSV en un canal de actividad (`SLACK_CHANNEL`), y errores (el mismo como mucho cada 10
+minutos; no 403, 404, 405) y deprecaciones (cada una una vez al día) en un canal de errores
+(`SLACK_ERRORS_CHANNEL`). Producción usa `#agenttools` y `#agenttools-errors`, dev `#agenttools-dev`
+y `#agenttools-dev-errors` (`web/.env.dev`); los tests no publican nada.
 
 1. En [api.slack.com/apps](https://api.slack.com/apps), crea una app en tu workspace, dale a su bot
    el scope `chat:write` (OAuth & Permissions) e instálala. Copia el token del bot (`xoxb-…`).
-2. Crea los canales, p. ej. `#agenttools` y `#agenttools-errors`, e invita al bot a los dos
-   (`/invite @AgentTools`).
-3. En `web/.env.local` del servidor:
+2. Crea los cuatro canales e invita al bot a cada uno (`/invite @AgentTools`).
+3. Pon el token en `web/.env.local`, en el servidor y en tu checkout de desarrollo:
    ```
-   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
-   SLACK_ERRORS_CHANNEL=agenttools-errors
+   SLACK_DSN=slack://xoxb-…@default
    ```
-   y despliega (`web/bin/deploy` lo guarda en `.env.local.php`).
-4. Compruébalo con `bin/console app:slack:test`, que publica en los dos canales.
+   y despliega (`web/bin/deploy` lo guarda en `.env.local.php`). Otros canales: define también ahí
+   `SLACK_CHANNEL` y `SLACK_ERRORS_CHANNEL`.
+4. Compruébalo con `bin/console app:slack:test` (`-v` muestra las respuestas de Slack): comprueba el
+   token, publica en los dos canales del entorno y dice qué hacer con los errores de Slack, p. ej.
+   `not_in_channel`.
 
 Sin `SLACK_DSN` (`null://null`, el valor por defecto en dev y en los tests) no se publica nada. Un
 fallo de Slack nunca rompe una petición: la actividad se envía después de la respuesta y los fallos

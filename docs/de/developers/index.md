@@ -139,21 +139,24 @@ Produktionslogs liegen in `web/var/log/prod-*.log`.
 ## Slack-Benachrichtigungen {#slack-notifications}
 
 Die Web-App postet nach Slack: neue Benutzer, Stats-Uploads (mit dem AP-Zuwachs) und CSV-Importe
-in einen Aktivitätskanal und in der Produktion Fehler (derselbe höchstens alle 10 Minuten; nicht
-403, 404, 405) und Deprecations (jede einmal am Tag) in einen Fehlerkanal.
+in einen Aktivitätskanal (`SLACK_CHANNEL`) und Fehler (derselbe höchstens alle 10 Minuten; nicht
+403, 404, 405) und Deprecations (jede einmal am Tag) in einen Fehlerkanal (`SLACK_ERRORS_CHANNEL`).
+Die Produktion nutzt `#agenttools` und `#agenttools-errors`, dev `#agenttools-dev` und
+`#agenttools-dev-errors` (`web/.env.dev`); die Tests posten nichts.
 
 1. Auf [api.slack.com/apps](https://api.slack.com/apps) eine App im Workspace anlegen, ihrem Bot den
    Scope `chat:write` geben (OAuth & Permissions) und sie installieren. Das Bot-Token (`xoxb-…`)
    kopieren.
-2. Die Kanäle anlegen, z. B. `#agenttools` und `#agenttools-errors`, und den Bot in beide einladen
-   (`/invite @AgentTools`).
-3. In `web/.env.local` auf dem Server:
+2. Die vier Kanäle anlegen und den Bot in jeden einladen (`/invite @AgentTools`).
+3. Das Token in `web/.env.local` eintragen, auf dem Server und im Dev-Checkout:
    ```
-   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
-   SLACK_ERRORS_CHANNEL=agenttools-errors
+   SLACK_DSN=slack://xoxb-…@default
    ```
-   und deployen (`web/bin/deploy` schreibt es in `.env.local.php`).
-4. Mit `bin/console app:slack:test` prüfen, das in beide Kanäle postet.
+   und deployen (`web/bin/deploy` schreibt es in `.env.local.php`). Andere Kanäle: dort auch
+   `SLACK_CHANNEL` und `SLACK_ERRORS_CHANNEL` setzen.
+4. Mit `bin/console app:slack:test` prüfen (`-v` zeigt die Antworten von Slack): Es prüft das Token,
+   postet in beide Kanäle der Umgebung und sagt, was bei Fehlern von Slack zu tun ist, z. B.
+   `not_in_channel`.
 
 Ohne `SLACK_DSN` (`null://null`, der Standard in dev und in den Tests) wird nichts gepostet. Ein
 Slack-Fehler bricht nie eine Anfrage ab: Aktivitäten werden nach der Antwort gesendet, Fehler landen
