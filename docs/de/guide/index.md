@@ -8,10 +8,6 @@ AgentTools hat zwei Teile, die sich ein Konto teilen:
 
 Bei beiden meldest du dich mit deinem Google-Konto an.
 
-::: tip
-Die Screenshots in dieser Anleitung zeigen die englische Oberfläche.
-:::
-
 ## Die App installieren {#install-the-app}
 
 1. Lade die APK vom [neuesten Release](https://github.com/elkuku/AgentTools/releases/latest) auf
@@ -24,7 +20,7 @@ Release-App installiert wird: siehe [Downloads](/de/downloads).
 
 ## Anmelden {#sign-in}
 
-<img src="/screenshots/app/landing.webp" alt="Die App vor der Anmeldung" class="shot-phone right">
+<img src="/screenshots/app/de/landing.webp" alt="Die App vor der Anmeldung" class="shot-phone right">
 
 1. Öffne AgentTools, tippe oben auf **Anmelden** und wähle dein Google-Konto.
 2. Dein Konto wird sofort registriert; du kannst gleich Statistiken hochladen.

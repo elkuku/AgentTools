@@ -8,10 +8,6 @@ AgentTools tiene dos partes que comparten una cuenta:
 
 En ambos inicias sesión con tu cuenta de Google.
 
-::: tip
-Las capturas de pantalla de esta guía muestran la interfaz en inglés.
-:::
-
 ## Instalar la app {#install-the-app}
 
 1. Descarga el APK de la [última versión](https://github.com/elkuku/AgentTools/releases/latest) en
@@ -23,7 +19,7 @@ junto a la app normal: consulta [Descargas](/es/downloads).
 
 ## Iniciar sesión {#sign-in}
 
-<img src="/screenshots/app/landing.webp" alt="La app antes de iniciar sesión" class="shot-phone right">
+<img src="/screenshots/app/es/landing.webp" alt="La app antes de iniciar sesión" class="shot-phone right">
 
 1. Abre AgentTools, toca **Iniciar sesión** arriba y elige tu cuenta de Google.
 2. Tu cuenta se registra al instante; puedes subir estadísticas enseguida.

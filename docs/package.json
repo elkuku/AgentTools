@@ -6,7 +6,8 @@
     "dev": "vitepress dev",
     "build": "vitepress build",
     "preview": "vitepress preview",
-    "screenshots:web": "node scripts/web-screenshots.mjs"
+    "screenshots:web": "node scripts/web-screenshots.mjs",
+    "screenshots:app": "bash scripts/app-screenshots.sh"
   },
   "devDependencies": {
     "vitepress": "1.6.4"

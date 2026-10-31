@@ -6,9 +6,9 @@ de la app; el sitio web también puede importar estadísticas que guardaste en o
 
 ## Iniciar sesión {#sign-in}
 
-![La página de inicio de sesión](/screenshots/web/login.webp){.shot-web}
+![La página de inicio de sesión](/screenshots/web/es/login.webp){.shot-web}
 
-Haz clic en **Acceder con Google** y elige la misma cuenta de Google que en la app. La
+Haz clic en **Iniciar sesión con Google** y elige la misma cuenta de Google que en la app. La
 primera vez, el sitio web te lleva a tu perfil para que elijas lo que ven otros usuarios.
 
 La barra de navegación tiene tus estadísticas, **Mis banners** y **Agentes**. A la derecha: tu foto
@@ -17,14 +17,14 @@ de perfil con el menú de usuario (perfil, **Importar estadísticas**, cerrar se
 
 ## Inicio {#home}
 
-![La página de inicio](/screenshots/web/home.webp){.shot-web}
+![La página de inicio](/screenshots/web/es/home.webp){.shot-web}
 
 La página de inicio te da la bienvenida, enlaza tus estadísticas de agente y tiene el enlace de
 descarga de la app.
 
 ## Estadísticas de agente {#agent-stats}
 
-![Mis estadísticas de agente](/screenshots/web/my-stats.webp){.shot-web}
+![Mis estadísticas de agente](/screenshots/web/es/my-stats.webp){.shot-web}
 
 **Estadísticas de agente** muestra tu última subida como la app: agente, facción y nivel, meses de
 C.O.R.E, AP, cada medalla con su nivel, Dronenet y Kinetics, tus medallas especiales y resúmenes de
@@ -33,11 +33,11 @@ tus banners y de tu línea de tiempo.
 Haz clic en una medalla para ver sus detalles: la estadística detrás, tu valor y el valor de cada
 nivel.
 
-![Los detalles de una medalla](/screenshots/web/medal-details.webp){.shot-web}
+![Los detalles de una medalla](/screenshots/web/es/medal-details.webp){.shot-web}
 
 ## Línea de tiempo {#timeline}
 
-![La línea de tiempo](/screenshots/web/timeline.webp){.shot-web}
+![La línea de tiempo](/screenshots/web/es/timeline.webp){.shot-web}
 
 La línea de tiempo (**Estadísticas de agente → Línea de tiempo**) tiene tus subidas con lo que
 cambió, tus eventos y viajes y tus banners con fecha, lo más reciente primero, debajo de un gráfico
@@ -48,11 +48,11 @@ y un rango de fechas que acerca el gráfico.
 viaje y qué pasó. Los botones del lápiz y de la papelera cambian o eliminan un evento; en un
 banner, el lápiz cambia el día en que lo hiciste.
 
-![Añadir un evento](/screenshots/web/timeline-add-event.webp){.shot-web}
+![Añadir un evento](/screenshots/web/es/timeline-add-event.webp){.shot-web}
 
 ## Importar estadísticas {#import-stats}
 
-![Importar estadísticas](/screenshots/web/import.webp){.shot-web}
+![Importar estadísticas](/screenshots/web/es/import.webp){.shot-web}
 
 Menú de usuario → **Importar estadísticas** importa estadísticas que guardaste antes de AgentTools,
 p. ej. en 4e-website (allí: menú de la cuenta → **Migrate**):
@@ -67,7 +67,7 @@ La página informa de lo que importó, lo que omitió y lo que no reconoció.
 
 ## Mis banners {#my-banners}
 
-![Mis banners](/screenshots/web/banners.webp){.shot-web}
+![Mis banners](/screenshots/web/es/banners.webp){.shot-web}
 
 **Mis banners** muestra los banners que la app sincronizó desde Bannergress (solo la app puede
 sincronizarlos): un mapa con un punto donde empieza cada banner y las listas de banners publicados,
@@ -76,16 +76,16 @@ completados, indica el día en que hiciste un banner para ponerlo en tu línea d
 
 ## Agentes {#agents}
 
-![La lista de agentes](/screenshots/web/agents.webp){.shot-web}
+![La lista de agentes](/screenshots/web/es/agents.webp){.shot-web}
 
 **Agentes** lista a los agentes que muestran su perfil. Haz clic en uno para ver las partes que
 muestra.
 
-![El perfil de un agente](/screenshots/web/agent-profile.webp){.shot-web}
+![El perfil de un agente](/screenshots/web/es/agent-profile.webp){.shot-web}
 
 ## Perfil {#profile}
 
-![La página de perfil](/screenshots/web/profile.webp){.shot-web}
+![La página de perfil](/screenshots/web/es/profile.webp){.shot-web}
 
 El perfil (menú de usuario → **Perfil**) muestra tu identificador y tu nombre de agente y la
 visibilidad de cada parte de tu perfil; consulta [Privacidad](/es/guide/privacy). Los cambios aquí

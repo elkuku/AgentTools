@@ -77,16 +77,29 @@ Der GitHub-Pages-Workflow (`.github/workflows/symfony-pages.yml`) baut sie bei j
 master, der `docs/`, `web/` oder `app/` ändert, und fügt die Dev-APK (`/agenttools-dev.apk`) und die
 Testabdeckung des Webs (`/coverage/`) hinzu. Die Screenshots in `docs/public/screenshots/` zeigen
 die Demo-Agenten (`symfony console app:demo-agents`; die App mit einem Fake-Token als DemoFrog
-angemeldet), nie echte Benutzer.
+angemeldet), nie echte Benutzer. Jede Sprache hat ihre eigenen: Englisch in `app/` und `web/`,
+Deutsch und Spanisch in deren Ordnern `de/` und `es/`, die die deutschen und spanischen Seiten
+zeigen.
 
 Die Screenshots der Website nimmt ein Skript auf, während die Web-App in dev läuft und die
-Demo-Agenten angelegt sind: headless Chromium im dunklen Design und auf Englisch, als DemoFrog
-angemeldet, ohne die Teile, die es nur in dev gibt. Es braucht ein Chromium oder Chrome
+Demo-Agenten angelegt sind: headless Chromium im dunklen Design und in jeder Sprache, als
+DemoFrog angemeldet, ohne die Teile, die es nur in dev gibt. Es braucht ein Chromium oder Chrome
 (`CHROME`, Standard `chromium`; nicht Brave, das die Sprache des Browsers vor Websites verbirgt):
 
 ```shell
 cd docs
-CHROME=/path/to/chrome npm run screenshots:web   # optional: -- <URL der Web-App>
+CHROME=/path/to/chrome npm run screenshots:web   # optional: -- <URL der Web-App> [en de es]
+```
+
+Die Screenshots der App entstehen auf einem Handy über adb, in jeder Sprache. Das Skript braucht
+die Web-App auf `127.0.0.1:8001` mit Fake-Tokens und die Debug-App, damit als DemoFrog
+angemeldet; wie man das einrichtet, steht oben in `docs/scripts/app-screenshots.sh`. Echte
+Benutzer sind privat, solange es läuft, und ihre Einstellungen und die Sprache der App werden am
+Ende wiederhergestellt:
+
+```shell
+cd docs
+npm run screenshots:app   # optional: -- en de es
 ```
 
 ## Dev-App {#dev-app}

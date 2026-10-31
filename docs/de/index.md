@@ -47,10 +47,10 @@ features:
 ---
 
 <div class="screens">
-  <img src="/screenshots/app/home.webp" alt="Der Startbildschirm der App">
-  <img src="/screenshots/app/my-stats.webp" alt="Meine Statistiken mit Medaillen">
-  <img src="/screenshots/app/import-result.webp" alt="Was sich nach einem Upload geändert hat">
-  <img src="/screenshots/app/timeline.webp" alt="Die Zeitleiste">
+  <img src="/screenshots/app/de/home.webp" alt="Der Startbildschirm der App">
+  <img src="/screenshots/app/de/my-stats.webp" alt="Meine Statistiken mit Medaillen">
+  <img src="/screenshots/app/de/import-result.webp" alt="Was sich nach einem Upload geändert hat">
+  <img src="/screenshots/app/de/timeline.webp" alt="Die Zeitleiste">
 </div>
 
 <style>

@@ -78,16 +78,29 @@ El workflow de GitHub Pages (`.github/workflows/symfony-pages.yml`) lo genera en
 que cambia `docs/`, `web/` o `app/`, y añade el APK de desarrollo (`/agenttools-dev.apk`) y la
 cobertura de tests web (`/coverage/`). Las capturas de `docs/public/screenshots/` muestran los
 agentes de demostración (`symfony console app:demo-agents`; la app con sesión iniciada como
-DemoFrog con un token falso), nunca usuarios reales.
+DemoFrog con un token falso), nunca usuarios reales. Cada idioma tiene las suyas: inglés en
+`app/` y `web/`, alemán y español en sus carpetas `de/` y `es/`, que muestran las páginas en
+alemán y en español.
 
 Las capturas del sitio web las toma un script, con la app web en dev y los agentes de
-demostración añadidos: Chromium headless en el tema oscuro y en inglés, con sesión iniciada como
-DemoFrog, sin las partes que solo existen en dev. Necesita un Chromium o Chrome (`CHROME`, por
-defecto `chromium`; no Brave, que oculta el idioma del navegador a los sitios):
+demostración añadidos: Chromium headless en el tema oscuro y en cada idioma, con sesión iniciada
+como DemoFrog, sin las partes que solo existen en dev. Necesita un Chromium o Chrome (`CHROME`,
+por defecto `chromium`; no Brave, que oculta el idioma del navegador a los sitios):
 
 ```shell
 cd docs
-CHROME=/path/to/chrome npm run screenshots:web   # opcional: -- <URL de la app web>
+CHROME=/path/to/chrome npm run screenshots:web   # opcional: -- <URL de la app web> [en de es]
+```
+
+Las capturas de la app se toman en un teléfono por adb, en cada idioma. El script necesita la app
+web en `127.0.0.1:8001` con tokens falsos y la app de depuración con sesión iniciada con ellos
+como DemoFrog; cómo prepararlo está al principio de `docs/scripts/app-screenshots.sh`. Los
+usuarios reales son privados mientras se ejecuta, y sus ajustes y el idioma de la app se
+restauran al terminar:
+
+```shell
+cd docs
+npm run screenshots:app   # opcional: -- en de es
 ```
 
 ## App de desarrollo {#dev-app}

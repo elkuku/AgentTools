@@ -5,7 +5,7 @@ con tus medallas. Todo lo que muestra también está en el [sitio web](/es/guide
 
 ## Inicio {#home}
 
-<img src="/screenshots/app/home.webp" alt="Pantalla de inicio" class="shot-phone right">
+<img src="/screenshots/app/es/home.webp" alt="Pantalla de inicio" class="shot-phone right">
 
 Después de iniciar sesión, la pantalla de inicio resume tu cuenta:
 
@@ -33,7 +33,7 @@ de otro agente se rechazan.
 
 ### Mira qué cambió {#see-what-changed}
 
-<img src="/screenshots/app/import-result.webp" alt="Qué cambió después de una subida" class="shot-phone right">
+<img src="/screenshots/app/es/import-result.webp" alt="Qué cambió después de una subida" class="shot-phone right">
 
 Después de cada subida, la app muestra qué cambió desde la anterior:
 
@@ -51,9 +51,9 @@ Después de cada subida, la app muestra qué cambió desde la anterior:
 ## Mis estadísticas {#my-stats}
 
 <div class="shots">
-  <img src="/screenshots/app/my-stats.webp" alt="Mis estadísticas con medallas" class="shot-phone">
-  <img src="/screenshots/app/medal-details.webp" alt="Los detalles de una medalla" class="shot-phone">
-  <img src="/screenshots/app/my-stats-medals.webp" alt="Medallas especiales y resúmenes" class="shot-phone">
+  <img src="/screenshots/app/es/my-stats.webp" alt="Mis estadísticas con medallas" class="shot-phone">
+  <img src="/screenshots/app/es/medal-details.webp" alt="Los detalles de una medalla" class="shot-phone">
+  <img src="/screenshots/app/es/my-stats-medals.webp" alt="Medallas especiales y resúmenes" class="shot-phone">
 </div>
 
 **Mis estadísticas** muestra tu última subida como lo hace Ingress:
@@ -82,7 +82,7 @@ Las capturas se leen en tu teléfono; solo se suben las medallas que guardas.
 
 ## Línea de tiempo {#timeline}
 
-<img src="/screenshots/app/timeline.webp" alt="La línea de tiempo" class="shot-phone right">
+<img src="/screenshots/app/es/timeline.webp" alt="La línea de tiempo" class="shot-phone right">
 
 La línea de tiempo (Mis estadísticas → **Línea de tiempo**) cuenta tu historia en Ingress, lo más
 reciente primero:
@@ -106,7 +106,7 @@ un viaje. Los viajes no pueden superponerse. Toca un evento para cambiarlo o eli
 
 ## Banners {#banners}
 
-<img src="/screenshots/app/banners.webp" alt="Mis banners con el mapa" class="shot-phone right">
+<img src="/screenshots/app/es/banners.webp" alt="Mis banners con el mapa" class="shot-phone right">
 
 **Mis banners** muestra tus banners de [Bannergress](https://bannergress.com):
 
@@ -129,8 +129,8 @@ sesión en Bannergress.
 ## Agentes {#agents}
 
 <div class="shots">
-  <img src="/screenshots/app/agents.webp" alt="La lista de agentes" class="shot-phone">
-  <img src="/screenshots/app/agent-profile.webp" alt="El perfil de un agente" class="shot-phone">
+  <img src="/screenshots/app/es/agents.webp" alt="La lista de agentes" class="shot-phone">
+  <img src="/screenshots/app/es/agent-profile.webp" alt="El perfil de un agente" class="shot-phone">
 </div>
 
 ☰ → **Agentes** lista a los agentes que muestran su perfil, con facción y nivel. Toca uno para ver
@@ -141,7 +141,7 @@ Los administradores tienen además ☰ → **Administrar agentes**: cada usuario
 
 ## Ajustes {#settings}
 
-<img src="/screenshots/app/settings.webp" alt="Ajustes" class="shot-phone right">
+<img src="/screenshots/app/es/settings.webp" alt="Ajustes" class="shot-phone right">
 
 Los ajustes (menú de la cuenta → **Ajustes**) tienen:
 

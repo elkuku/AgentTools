@@ -6,7 +6,7 @@ zeigt sie mit deinen Medaillen. Alles, was sie zeigt, gibt es auch auf der
 
 ## Startbildschirm {#home}
 
-<img src="/screenshots/app/home.webp" alt="Startbildschirm" class="shot-phone right">
+<img src="/screenshots/app/de/home.webp" alt="Startbildschirm" class="shot-phone right">
 
 Nach der Anmeldung fasst der Startbildschirm dein Konto zusammen:
 
@@ -35,7 +35,7 @@ gespeichert werden, und Statistiken eines anderen Agenten werden abgelehnt.
 
 ### Sieh, was sich geändert hat {#see-what-changed}
 
-<img src="/screenshots/app/import-result.webp" alt="Was sich nach einem Upload geändert hat" class="shot-phone right">
+<img src="/screenshots/app/de/import-result.webp" alt="Was sich nach einem Upload geändert hat" class="shot-phone right">
 
 Nach jedem Upload zeigt die App, was sich seit dem vorherigen geändert hat:
 
@@ -53,9 +53,9 @@ Nach jedem Upload zeigt die App, was sich seit dem vorherigen geändert hat:
 ## Meine Statistiken {#my-stats}
 
 <div class="shots">
-  <img src="/screenshots/app/my-stats.webp" alt="Meine Statistiken mit Medaillen" class="shot-phone">
-  <img src="/screenshots/app/medal-details.webp" alt="Die Details einer Medaille" class="shot-phone">
-  <img src="/screenshots/app/my-stats-medals.webp" alt="Sondermedaillen und Zusammenfassungen" class="shot-phone">
+  <img src="/screenshots/app/de/my-stats.webp" alt="Meine Statistiken mit Medaillen" class="shot-phone">
+  <img src="/screenshots/app/de/medal-details.webp" alt="Die Details einer Medaille" class="shot-phone">
+  <img src="/screenshots/app/de/my-stats-medals.webp" alt="Sondermedaillen und Zusammenfassungen" class="shot-phone">
 </div>
 
 **Meine Statistiken** zeigt deinen neuesten Upload so, wie Ingress es tut:
@@ -86,7 +86,7 @@ hochgeladen.
 
 ## Zeitleiste {#timeline}
 
-<img src="/screenshots/app/timeline.webp" alt="Die Zeitleiste" class="shot-phone right">
+<img src="/screenshots/app/de/timeline.webp" alt="Die Zeitleiste" class="shot-phone right">
 
 Die Zeitleiste (Meine Statistiken → **Zeitleiste**) erzählt deine Ingress-Geschichte, das Neueste
 zuerst:
@@ -111,7 +111,7 @@ oder zu löschen.
 
 ## Banner {#banners}
 
-<img src="/screenshots/app/banners.webp" alt="Meine Banner mit der Karte" class="shot-phone right">
+<img src="/screenshots/app/de/banners.webp" alt="Meine Banner mit der Karte" class="shot-phone right">
 
 **Meine Banner** zeigt deine Banner von [Bannergress](https://bannergress.com):
 
@@ -135,8 +135,8 @@ auch von Bannergress ab.
 ## Agenten {#agents}
 
 <div class="shots">
-  <img src="/screenshots/app/agents.webp" alt="Die Liste der Agenten" class="shot-phone">
-  <img src="/screenshots/app/agent-profile.webp" alt="Das Profil eines Agenten" class="shot-phone">
+  <img src="/screenshots/app/de/agents.webp" alt="Die Liste der Agenten" class="shot-phone">
+  <img src="/screenshots/app/de/agent-profile.webp" alt="Das Profil eines Agenten" class="shot-phone">
 </div>
 
 ☰ → **Agenten** listet die Agenten, die ihr Profil zeigen, mit Fraktion und Level. Tippe auf einen,
@@ -147,7 +147,7 @@ Admins haben außerdem ☰ → **Agenten verwalten**: alle Benutzer und was sie 
 
 ## Einstellungen {#settings}
 
-<img src="/screenshots/app/settings.webp" alt="Einstellungen" class="shot-phone right">
+<img src="/screenshots/app/de/settings.webp" alt="Einstellungen" class="shot-phone right">
 
 Die Einstellungen (Kontomenü → **Einstellungen**) enthalten:
 
