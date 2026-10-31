@@ -2,6 +2,7 @@ package com.elkuku.agenttools.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -53,12 +55,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.AgentStatEntry
+import com.elkuku.agenttools.data.DoneBanner
 import com.elkuku.agenttools.data.LEVEL_NAMES
 import com.elkuku.agenttools.data.TimelineEvent
 import com.elkuku.agenttools.data.TimelineItem
 import com.elkuku.agenttools.data.TimelineKind
 import com.elkuku.agenttools.data.TravelEdge
-import com.elkuku.agenttools.data.DoneBanner
+import com.elkuku.agenttools.data.day
 import com.elkuku.agenttools.data.filtered
 import com.elkuku.agenttools.data.isInTravel
 import com.elkuku.agenttools.data.kind
@@ -181,6 +184,12 @@ fun Timeline(
     var openBanners by remember { mutableStateOf(emptySet<String>()) }
     Column {
         shown.forEachIndexed { index, item ->
+            // A year's label before its newest entry, as web's; in a travel over the new year with its line
+            val year = item.day.year
+            if (index == 0 || shown[index - 1].day.year != year) {
+                val inTravel = travels && ((item is TimelineItem.Event && item.edge == TravelEdge.START) || item.isInTravel(travelEvents))
+                YearRow(year, travelLine = TravelLine.THROUGH.takeIf { inTravel })
+            }
             // The travel line goes with the travels
             val travelLine = when {
                 !travels -> null
@@ -302,6 +311,43 @@ private fun DateRangeDialog(range: ClosedRange<LocalDate>?, onRange: (ClosedRang
 
 /** Where a row is on a travel's line beside the timeline: its end (newest first: above), in it, its start. */
 private enum class TravelLine { END, THROUGH, START }
+
+/**
+ * A year's label on the line (centered on it, as web's), before its newest entry; [travelLine] in
+ * a travel over the new year.
+ */
+@Composable
+private fun YearRow(year: Int, travelLine: TravelLine?) {
+    val line = MaterialTheme.colorScheme.outlineVariant
+    val travel = timelineColors().travel
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+            .drawBehind {
+                // As TimelineRow's: the timeline 12 dp left of its 36 dp column's end, the travel line left of it
+                drawLine(line, Offset(24.dp.toPx(), 0f), Offset(24.dp.toPx(), size.height + 8.dp.toPx()), strokeWidth = 2.dp.toPx())
+                if (travelLine != null) {
+                    drawLine(travel, Offset(6.dp.toPx(), 0f), Offset(6.dp.toPx(), size.height + 8.dp.toPx()), strokeWidth = 3.dp.toPx())
+                }
+            },
+    ) {
+        // The label's middle on the line, also when it is wider than the column
+        Box(Modifier.width(48.dp), contentAlignment = Alignment.Center) {
+            Text(
+                year.toString(),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier
+                    .wrapContentWidth(unbounded = true)
+                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                    .padding(horizontal = 10.dp, vertical = 3.dp),
+            )
+        }
+    }
+}
 
 /**
  * An entry next to the line, with its dot; the line ends at the [last] one. On the left of it the
