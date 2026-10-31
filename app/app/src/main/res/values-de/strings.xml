@@ -40,6 +40,7 @@
     <string name="sign_out">Abmelden</string>
     <string name="account">Konto</string>
     <string name="my_stats">Meine Statistiken</string>
+    <string name="my_timeline">Meine Zeitleiste</string>
     <string name="settings">Einstellungen</string>
     <string name="agents">Agenten</string>
     <string name="admin_agents">Agenten verwalten</string>

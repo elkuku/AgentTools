@@ -169,6 +169,7 @@ class MainActivity : ComponentActivity() {
                         onRefresh = { viewModel.refresh(activity) },
                         onOpenSettings = viewModel::openSettings,
                         onOpenStats = viewModel::openStats,
+                        onOpenTimeline = viewModel::openMyTimeline,
                         onOpenAgents = { viewModel.openAgents(activity) },
                         onOpenBanners = viewModel::openBannergress,
                         onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },

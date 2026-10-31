@@ -230,6 +230,9 @@ class MainViewModel(
 
     fun openTimeline() = _state.update { it.copy(timelineOpen = true) }
 
+    /** "My timeline" from the account menu: over "My stats", where back goes, as from there. */
+    fun openMyTimeline() = _state.update { it.copy(statsOpen = true, timelineOpen = true) }
+
     fun closeTimeline() = _state.update { it.copy(timelineOpen = false) }
 
     /** "My banners": from the stats, the home page or the menu; back goes where it came from. */
