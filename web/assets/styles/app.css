@@ -120,6 +120,26 @@ main > .container {
     color: transparent;
 }
 
+/* The sign-in page: a card with an orange top edge; the space of the Google button is kept
+   while its script loads */
+.login-card {
+    border-top: 4px solid var(--bs-primary);
+}
+
+.login-google {
+    min-height: 44px;
+}
+
+/* Google's button is a light page, also the dark button: with the dark theme's color scheme
+   the browser would paint a white box behind its frame */
+.login-google iframe {
+    color-scheme: light;
+}
+
+.login-dev {
+    border-style: dashed;
+}
+
 /* The orange accent; a darker orange on light backgrounds */
 .landing-accent {
     color: #c2410c;

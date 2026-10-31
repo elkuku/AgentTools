@@ -74,6 +74,10 @@ layout:
 
 login:
     title: Iniciar sesión
+    lead: Usa la misma cuenta de Google que en la app para Android.
+    privacy: Tu perfil sigue privado hasta que elijas lo que ven otros agentes.
+    no_app: '¿Todavía no tienes la app? <a href="%url%">Descárgala</a> y comparte tus estadísticas desde Ingress.'
+    dev: Inicio de sesión de desarrollo, sin Google
 
 medals:
     custom: Medallas especiales

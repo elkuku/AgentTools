@@ -55,7 +55,7 @@ class LocaleTest extends WebTestCase
         // The chosen language wins over the browser's
         $client->followRedirect();
         self::assertSelectorExists('html[lang="de"]');
-        self::assertSelectorTextContains('h2', 'Anmelden');
+        self::assertSelectorTextContains('.login-card h1', 'Anmelden');
         self::assertSelectorTextContains('#language-selector', 'de');
     }
 

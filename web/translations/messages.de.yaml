@@ -74,6 +74,10 @@ layout:
 
 login:
     title: Anmelden
+    lead: Verwende dasselbe Google-Konto wie in der Android-App.
+    privacy: Dein Profil bleibt privat, bis du wählst, was andere Agenten sehen.
+    no_app: 'Noch keine App? <a href="%url%">Lade sie herunter</a> und teile deine Statistiken aus Ingress.'
+    dev: Dev-Anmeldung, ohne Google
 
 medals:
     custom: Sondermedaillen
