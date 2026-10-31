@@ -65,6 +65,22 @@ final readonly class TimelineEntry
     }
 
     /**
+     * The number of entries of each kind, for the timeline's summary: a travel once, not its end
+     * and its start (the app's `TimelineSummary`).
+     *
+     * @param list<self> $entries
+     *
+     * @return array<string, int> by kind
+     */
+    public static function counts(array $entries): array
+    {
+        return \array_count_values(\array_map(
+            static fn (self $entry): string => $entry->kind(),
+            \array_filter($entries, static fn (self $entry): bool => self::TRAVEL_END !== $entry->travelEdge),
+        ));
+    }
+
+    /**
      * The first and the last day it covers (Y-m-d), for the filter: an end or a start of a
      * travel its day.
      *

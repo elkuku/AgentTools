@@ -71,6 +71,7 @@ home:
 
 layout:
     enable_javascript: Bitte aktiviere JavaScript!
+    loading: Wird geladen…
 
 login:
     title: Anmelden

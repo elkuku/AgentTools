@@ -41,9 +41,9 @@
         </div>
     {% endif %}
 
-    {% if timeline is not null %}
-        <h2 class="h5 mt-4" id="timeline">{{ 'timeline.title'|trans }}</h2>
-        {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
-        {{ include('agent_stat/_timeline.html.twig', {editable: false}) }}
+    {% if timelineCounts is not null %}
+        <div class="mt-4">
+            {{ include('agent_stat/_timeline_summary.html.twig', {url: path('app_agent_timeline', {agentName: agent.agentName})}) }}
+        </div>
     {% endif %}
 {% endblock %}

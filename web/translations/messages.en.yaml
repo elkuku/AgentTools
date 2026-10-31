@@ -72,6 +72,7 @@ home:
 
 layout:
     enable_javascript: Please activate JavaScript!
+    loading: Loading…
 
 login:
     title: Login

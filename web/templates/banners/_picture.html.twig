@@ -1,0 +1,11 @@
+{#
+    A banner picture with a loading animation until it is there (banner_picture_controller.js); on
+    the timeline it loads when the banner is opened. pictureUrl: string, class: the frame's spacing
+#}
+<span class="d-block banner-picture-frame {{ class|default('') }}" data-controller="banner-picture">
+    <span class="spinner-border spinner-border-sm text-secondary banner-picture-spinner" role="status">
+        <span class="visually-hidden">{{ 'layout.loading'|trans }}</span>
+    </span>
+    <img class="d-block rounded banner-picture" src="{{ pictureUrl }}" alt="" loading="lazy"
+         data-banner-picture-target="image" data-action="load->banner-picture#loaded error->banner-picture#loaded">
+</span>

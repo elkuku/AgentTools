@@ -71,6 +71,7 @@ home:
 
 layout:
     enable_javascript: ¡Activa JavaScript, por favor!
+    loading: Cargando…
 
 login:
     title: Iniciar sesión

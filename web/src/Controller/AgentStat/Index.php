@@ -43,14 +43,7 @@ final class Index extends BaseController
             'medals' => $latest instanceof AgentStat ? $medalChecker->medalLevels($latest) : [],
             'coreBadges' => $latest instanceof AgentStat ? $medalChecker->coreBadges($latest->getStats()['months_subscribed'] ?? 0) : [],
             'customMedals' => $medalChecker->customMedalTiers($this->getUser()->getCustomMedals()),
-            // A travel once, not its end and its start
-            'timelineCounts' => \array_count_values(\array_map(
-                static fn (TimelineEntry $entry): string => $entry->kind(),
-                \array_filter(
-                    $timelineBuilder->build($agentStats, $events, $doneBannerRepository->findDatedByOwner($this->getUser())),
-                    static fn (TimelineEntry $entry): bool => TimelineEntry::TRAVEL_END !== $entry->travelEdge,
-                ),
-            )),
+            'timelineCounts' => TimelineEntry::counts($timelineBuilder->build($agentStats, $events, $doneBannerRepository->findDatedByOwner($this->getUser()))),
             'bannergress' => Bannergress::fromStored($this->getUser()->getBannergress()),
         ]);
     }

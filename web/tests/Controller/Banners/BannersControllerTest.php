@@ -61,9 +61,11 @@ class BannersControllerTest extends WebTestCase
         self::assertSelectorTextContains('label[for="banner-map-filter-todo"]', 'To-do 0');
         self::assertPageTitleContains('My banners');
 
-        // Sections in an accordion: published (open), done and to-do
-        self::assertSame(['banners-published', 'banners-done', 'banners-todo'], $this->client->getCrawler()->filter('#banners .accordion-collapse')->each(static fn ($section): string => (string) $section->attr('id')));
-        self::assertSelectorExists('#banners-published.show');
+        // Sections in an accordion: done (open), to-do and published; the map's toggles in that order
+        self::assertSame(['banners-done', 'banners-todo', 'banners-published'], $this->client->getCrawler()->filter('#banners .accordion-collapse')->each(static fn ($section): string => (string) $section->attr('id')));
+        self::assertSelectorExists('#banners-done.show');
+        self::assertSelectorNotExists('#banners-published.show');
+        self::assertSame(['done', 'todo', 'published'], $this->client->getCrawler()->filter('#banner-map-legend input')->each(static fn ($input): string => (string) $input->attr('value')));
         self::assertSelectorExists('#bannergress-published-list a[href="https://bannergress.com/banner/mine-1"]');
         self::assertSelectorTextContains('#bannergress-published-list', '12 missions');
         self::assertSelectorExists('#bannergress-todo-list img[src="https://api.bannergress.com/bnrs/pictures/t1"]');
@@ -87,7 +89,9 @@ class BannersControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-entries .timeline-banner', 'Oct 18, 2026');
         // Collapsed: the title, and the picture when opened
         self::assertSelectorTextContains('#timeline-entries .timeline-banner details:not([open]) > summary', 'Quito old town');
-        self::assertSelectorExists('#timeline-entries .timeline-banner details > img.banner-picture[src="https://api.bannergress.com/bnrs/pictures/q1"]');
+        self::assertSelectorExists('#timeline-entries .timeline-banner details .banner-picture-frame > img.banner-picture[src="https://api.bannergress.com/bnrs/pictures/q1"]');
+        // A loading animation until the picture is there
+        self::assertSelectorExists('#timeline-entries .timeline-banner .banner-picture-frame[data-controller="banner-picture"] .banner-picture-spinner');
         self::assertSelectorExists('#timeline-entries .timeline-banner a.btn[href="/banners#done-banner-'.$banner->id.'"]');
         // The title without a link to Bannergress
         self::assertSelectorNotExists('#timeline-entries .timeline-banner a[href^="https://bannergress.com"]');

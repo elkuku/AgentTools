@@ -392,6 +392,30 @@ main > .container {
     max-height: 96px;
 }
 
+/* Until the picture is loaded: the loading animation in its place. The picture stays in the
+   layout (invisible): a lazy one would not load otherwise */
+.banner-picture-frame {
+    position: relative;
+}
+
+.banner-picture-frame:not(.banner-picture-loaded) {
+    min-height: 2.5rem;
+}
+
+.banner-picture-frame:not(.banner-picture-loaded) .banner-picture {
+    opacity: 0;
+}
+
+.banner-picture-spinner {
+    position: absolute;
+    top: .75rem;
+    left: 0;
+}
+
+.banner-picture-loaded .banner-picture-spinner {
+    display: none;
+}
+
 .timeline-badge {
     width: 32px;
     height: 32px;

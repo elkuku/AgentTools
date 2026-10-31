@@ -53,7 +53,7 @@
                     {% if banner.pictureUrl %}
                         <details class="flex-grow-1 timeline-banner-details">
                             <summary>{{ line }}</summary>
-                            <img class="d-block rounded mt-1 banner-picture" src="{{ banner.pictureUrl }}" alt="" loading="lazy">
+                            {{ include('banners/_picture.html.twig', {pictureUrl: banner.pictureUrl, class: 'mt-1'}) }}
                         </details>
                     {% else %}
                         <div class="flex-grow-1">{{ line }}</div>
