@@ -93,7 +93,9 @@ CHROME=/path/to/chrome npm run screenshots:web   # optional: -- <URL of the web 
 The app's screenshots are taken on a phone over adb, in each language. The script needs the web
 app on `127.0.0.1:8001` with fake tokens and the debug app signed in with them as DemoFrog; how
 to set that up is at the top of `docs/scripts/app-screenshots.sh`. Real users are private while
-it runs, and their settings and the app's language are restored when it ends:
+it runs, and their settings and the app's language are restored when it ends. A phone or the
+Pixel 6a emulator (`Pixel_6a_API_35`, the same screen) works; with both connected `ANDROID_SERIAL`
+picks one, and the script's top has the emulator's command (with 2 GB instead of its 6):
 
 ```shell
 cd docs

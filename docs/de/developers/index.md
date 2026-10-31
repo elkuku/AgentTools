@@ -95,7 +95,9 @@ Die Screenshots der App entstehen auf einem Handy über adb, in jeder Sprache. D
 die Web-App auf `127.0.0.1:8001` mit Fake-Tokens und die Debug-App, damit als DemoFrog
 angemeldet; wie man das einrichtet, steht oben in `docs/scripts/app-screenshots.sh`. Echte
 Benutzer sind privat, solange es läuft, und ihre Einstellungen und die Sprache der App werden am
-Ende wiederhergestellt:
+Ende wiederhergestellt. Ein Handy oder der Pixel-6a-Emulator (`Pixel_6a_API_35`, derselbe
+Bildschirm) geht; sind beide verbunden, wählt `ANDROID_SERIAL` eines, und oben im Skript steht der
+Befehl für den Emulator (mit 2 GB statt seiner 6):
 
 ```shell
 cd docs

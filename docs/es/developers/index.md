@@ -96,7 +96,9 @@ Las capturas de la app se toman en un teléfono por adb, en cada idioma. El scri
 web en `127.0.0.1:8001` con tokens falsos y la app de depuración con sesión iniciada con ellos
 como DemoFrog; cómo prepararlo está al principio de `docs/scripts/app-screenshots.sh`. Los
 usuarios reales son privados mientras se ejecuta, y sus ajustes y el idioma de la app se
-restauran al terminar:
+restauran al terminar. Sirve un teléfono o el emulador Pixel 6a (`Pixel_6a_API_35`, la misma
+pantalla); con ambos conectados, `ANDROID_SERIAL` elige uno, y al principio del script está el
+comando del emulador (con 2 GB en vez de sus 6):
 
 ```shell
 cd docs

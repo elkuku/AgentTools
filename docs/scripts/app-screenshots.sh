@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Takes the app's screenshots for the documentation on a phone, in English
+# Takes the app's screenshots for the documentation on a phone or an emulator, in English
 # (public/screenshots/app/), German (app/de/) and Spanish (app/es/): signed in as the demo agent
 # DemoFrog, cropped below the status bar and at half size, as WebP.
 #
@@ -13,13 +13,22 @@
 #     app/local.properties and its default server (not the live one) in its settings;
 #   - adb (ADB, else on the PATH or in ~/Android/Sdk), python3 with Pillow, the Symfony CLI.
 #
+# With a phone and an emulator connected, ANDROID_SERIAL picks one (adb devices), e.g. the
+# Pixel 6a emulator (the phone's screen). Its AVD asks for 6 GB, too much next to Gradle and the
+# web app without swap; with the host GPU the emulator crashed, and its clock is UTC:
+#   ~/Android/Sdk/emulator/emulator -avd Pixel_6a_API_35 -memory 2048 -no-snapshot-save \
+#       -gpu swiftshader_indirect -timezone America/Guayaquil
+#   ANDROID_SERIAL=emulator-5554 npm run screenshots:app
+# Its colors follow its wallpaper (dynamic colors), so they differ a little from the phone's.
+#
 # Real users stay out of the agents list: the script makes them private while it runs and
-# restores their settings when it ends. It also restores the app's language and the phone's
+# restores their settings when it ends. It also restores the app's language and the device's
 # stay-awake setting. The upload result is DemoFrog's newest upload, removed and shared again.
 #
 #   npm run screenshots:app [-- en de es]
 #
-# STATUS_BAR is the height of the phone's status bar in pixels (130 on a Pixel 6a).
+# The screenshots are cropped below the status bar, its height read from the device; STATUS_BAR
+# (pixels) sets it instead.
 
 set -euo pipefail
 
@@ -28,7 +37,6 @@ DOCS=$(dirname "$SCRIPTS")
 WEB=$(dirname "$DOCS")/web
 OUT=$DOCS/public/screenshots/app
 APP=com.elkuku.agenttools
-STATUS_BAR=${STATUS_BAR:-130}
 ADB=${ADB:-$(command -v adb || echo ~/Android/Sdk/platform-tools/adb)}
 TMP=$(mktemp -d)
 LANGUAGES=(en de es)
@@ -94,7 +102,16 @@ restart() {
 
 # --- Checks ---
 
-"$ADB" get-state >/dev/null 2>&1 || { echo "No phone: connect it with USB debugging" >&2; exit 1; }
+if ! "$ADB" get-state >/dev/null 2>&1; then
+    echo "No device, or several: connect one, or set ANDROID_SERIAL to one of \`adb devices\`" >&2
+    exit 1
+fi
+# The status bar's height, as Android lays it out: [0,0][width,height]; the largest, with the
+# camera cutout (a window without it may come first)
+STATUS_BAR=${STATUS_BAR:-$("$ADB" shell dumpsys window | grep -oE 'type=statusBars frame=\[0,0\]\[[0-9]+,[0-9]+\]' | grep -oE '[0-9]+\]$' | tr -d ']' | sort -n | tail -1)}
+[ -n "$STATUS_BAR" ] || { echo "The status bar's height is unknown: set STATUS_BAR" >&2; exit 1; }
+# The app's own language, restored at the end
+APP_LOCALES=$("$ADB" shell cmd locale get-app-locales $APP | grep -oE '\[.*\]' | tr -d '[] ')
 curl -sf -o /dev/null http://127.0.0.1:8001/api/docs || { echo "No web app on 127.0.0.1:8001 (see the top of this script)" >&2; exit 1; }
 "$ADB" reverse --list | grep -q 'tcp:8001' || "$ADB" reverse tcp:8001 tcp:8001 >/dev/null
 if "$ADB" shell run-as $APP cat shared_prefs/settings.xml 2>/dev/null | grep -q server_url; then
@@ -135,7 +152,7 @@ restore() {
     while read -r id parts; do
         sql "update system_user set visible_parts = '$parts' where id = $id" >/dev/null
     done < "$TMP/visible_parts"
-    "$ADB" shell cmd locale set-app-locales $APP --locales "" || true
+    "$ADB" shell cmd locale set-app-locales $APP --locales "$APP_LOCALES" || true
     "$ADB" shell svc power stayon false || true
     "$ADB" shell rm -f /data/local/tmp/agenttools-upload.tsv /sdcard/ui.xml || true
     rm -rf "$TMP"
