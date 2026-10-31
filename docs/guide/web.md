@@ -11,7 +11,7 @@ the website can also import stats you saved elsewhere.
 Click **Sign in with Google** and pick the same Google account as in the app. The first time, the
 website takes you to your profile to choose what other users see.
 
-The navigation bar has your stats, **My banners** and **Agents**. On the right: your profile
+The navigation bar has **Agents** (and **Admin** for admins). On the right: your profile
 picture with the user menu (**My stats**, **My timeline**, **My banners**, profile, **Import stats**, sign out), the language (English, German,
 Spanish) and the light or dark theme.
 
