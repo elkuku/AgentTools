@@ -135,3 +135,26 @@ Auf dem Server installiert `web/bin/deploy` die Composer-Abhängigkeiten, erzeug
 kompiliert die Assets und führt die Migrationen mit dem PHP von Plesk aus. Der SSH-Benutzer braucht
 eine Shell ohne chroot (`/bin/bash`), sonst ist das PHP von Plesk nicht verfügbar. Die
 Produktionslogs liegen in `web/var/log/prod-*.log`.
+
+## Slack-Benachrichtigungen {#slack-notifications}
+
+Die Web-App postet nach Slack: neue Benutzer, Stats-Uploads (mit dem AP-Zuwachs) und CSV-Importe
+in einen Aktivitätskanal und in der Produktion Fehler (derselbe höchstens alle 10 Minuten; nicht
+403, 404, 405) und Deprecations (jede einmal am Tag) in einen Fehlerkanal.
+
+1. Auf [api.slack.com/apps](https://api.slack.com/apps) eine App im Workspace anlegen, ihrem Bot den
+   Scope `chat:write` geben (OAuth & Permissions) und sie installieren. Das Bot-Token (`xoxb-…`)
+   kopieren.
+2. Die Kanäle anlegen, z. B. `#agenttools` und `#agenttools-errors`, und den Bot in beide einladen
+   (`/invite @AgentTools`).
+3. In `web/.env.local` auf dem Server:
+   ```
+   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
+   SLACK_ERRORS_CHANNEL=agenttools-errors
+   ```
+   und deployen (`web/bin/deploy` schreibt es in `.env.local.php`).
+4. Mit `bin/console app:slack:test` prüfen, das in beide Kanäle postet.
+
+Ohne `SLACK_DSN` (`null://null`, der Standard in dev und in den Tests) wird nichts gepostet. Ein
+Slack-Fehler bricht nie eine Anfrage ab: Aktivitäten werden nach der Antwort gesendet, Fehler landen
+nur im Log.

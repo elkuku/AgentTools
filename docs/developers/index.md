@@ -133,3 +133,25 @@ On the server, `web/bin/deploy` installs the Composer dependencies, dumps `.env.
 compiles the assets and runs the migrations with Plesk's PHP. The SSH user needs a non-chrooted
 shell (`/bin/bash`), otherwise Plesk's PHP isn't available. Production logs are in
 `web/var/log/prod-*.log`.
+
+## Slack notifications
+
+The web app posts to Slack: new users, stats uploads (with the AP gain) and CSV imports to an
+activity channel, and in production errors (the same one at most every 10 minutes; not 403, 404,
+405) and deprecations (each once a day) to an errors channel.
+
+1. At [api.slack.com/apps](https://api.slack.com/apps), create an app in your workspace, give its
+   bot the scope `chat:write` (OAuth & Permissions) and install it. Copy the bot token (`xoxb-…`).
+2. Create the channels, e.g. `#agenttools` and `#agenttools-errors`, and invite the bot to both
+   (`/invite @AgentTools`).
+3. In `web/.env.local` on the server:
+   ```
+   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
+   SLACK_ERRORS_CHANNEL=agenttools-errors
+   ```
+   and deploy (`web/bin/deploy` dumps it into `.env.local.php`).
+4. Check it with `bin/console app:slack:test`, which posts to both channels.
+
+Without `SLACK_DSN` (`null://null`, the default in dev and tests) nothing is posted. A Slack
+failure never breaks a request: activity is sent after the response, and failures only go to the
+log.

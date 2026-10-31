@@ -138,3 +138,25 @@ En el servidor, `web/bin/deploy` instala las dependencias de Composer, genera `.
 compila los assets y ejecuta las migraciones con el PHP de Plesk. El usuario SSH necesita una shell
 sin chroot (`/bin/bash`); si no, el PHP de Plesk no está disponible. Los logs de producción están en
 `web/var/log/prod-*.log`.
+
+## Notificaciones de Slack {#slack-notifications}
+
+La app web publica en Slack: usuarios nuevos, subidas de stats (con la ganancia de AP) e
+importaciones CSV en un canal de actividad, y en producción errores (el mismo como mucho cada 10
+minutos; no 403, 404, 405) y deprecaciones (cada una una vez al día) en un canal de errores.
+
+1. En [api.slack.com/apps](https://api.slack.com/apps), crea una app en tu workspace, dale a su bot
+   el scope `chat:write` (OAuth & Permissions) e instálala. Copia el token del bot (`xoxb-…`).
+2. Crea los canales, p. ej. `#agenttools` y `#agenttools-errors`, e invita al bot a los dos
+   (`/invite @AgentTools`).
+3. En `web/.env.local` del servidor:
+   ```
+   SLACK_DSN=slack://xoxb-…@default?channel=agenttools
+   SLACK_ERRORS_CHANNEL=agenttools-errors
+   ```
+   y despliega (`web/bin/deploy` lo guarda en `.env.local.php`).
+4. Compruébalo con `bin/console app:slack:test`, que publica en los dos canales.
+
+Sin `SLACK_DSN` (`null://null`, el valor por defecto en dev y en los tests) no se publica nada. Un
+fallo de Slack nunca rompe una petición: la actividad se envía después de la respuesta y los fallos
+solo van al log.
