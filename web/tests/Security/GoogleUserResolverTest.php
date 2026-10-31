@@ -6,6 +6,8 @@ namespace App\Tests\Security;
 
 use App\Entity\User;
 use App\Enum\UserRole;
+use App\Notifier\SlackActivity;
+use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\GoogleUserResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,6 +15,10 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\Notifier\ChatterInterface;
+use Symfony\Component\Notifier\Message\ChatMessage;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -22,13 +28,21 @@ class GoogleUserResolverTest extends TestCase
 
     private EntityManagerInterface&MockObject $entityManager;
 
+    private ChatterInterface&MockObject $chatter;
+
+    private SlackActivity $slackActivity;
+
     private GoogleUserResolver $resolver;
 
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->resolver = new GoogleUserResolver($this->userRepository, $this->entityManager);
+        $this->chatter = $this->createMock(ChatterInterface::class);
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('https://agenttools.test/admin/agents/1');
+        $this->slackActivity = new SlackActivity($this->chatter, $urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger());
+        $this->resolver = new GoogleUserResolver($this->userRepository, $this->entityManager, $this->slackActivity);
     }
 
     public function testIdentityReturnsGoogleIdAndEmail(): void
@@ -72,7 +86,10 @@ class GoogleUserResolverTest extends TestCase
         $this->entityManager->expects(self::never())->method('persist');
         $this->entityManager->expects(self::never())->method('flush');
 
+        $this->chatter->expects(self::never())->method('send');
+
         self::assertSame($existingUser, $this->resolver->resolve('gid-123', 'test@example.com'));
+        $this->slackActivity->send();
     }
 
     public function testResolveLinksExistingAccountByEmail(): void
@@ -88,7 +105,10 @@ class GoogleUserResolverTest extends TestCase
         $this->entityManager->expects(self::once())->method('persist');
         $this->entityManager->expects(self::once())->method('flush');
 
+        $this->chatter->expects(self::never())->method('send');
+
         $result = $this->resolver->resolve('gid-999', 'shared@example.com');
+        $this->slackActivity->send();
 
         self::assertSame($existingUser, $result);
         self::assertSame('gid-999', $result->getGoogleId());
@@ -101,7 +121,11 @@ class GoogleUserResolverTest extends TestCase
         $this->entityManager->expects(self::once())->method('persist');
         $this->entityManager->expects(self::once())->method('flush');
 
+        $this->chatter->expects(self::once())->method('send')
+            ->with(self::callback(static fn (ChatMessage $message): bool => ':wave: New user <https://agenttools.test/admin/agents/1|brand@new.com>' === $message->getSubject()));
+
         $result = $this->resolver->resolve('gid-999', 'brand@new.com');
+        $this->slackActivity->send();
 
         self::assertSame('brand@new.com', $result->getIdentifier());
         self::assertSame('gid-999', $result->getGoogleId());

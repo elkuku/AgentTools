@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Notifier\Event\MessageEvent;
 
 /**
  * The CSV import on /agent-stats/import, linked in the user menu.
@@ -58,6 +59,7 @@ class StatsImportControllerTest extends WebTestCase
 
         // The result with the stats
         self::assertResponseRedirects('/agent-stats');
+        self::assertSame([\sprintf(':inbox_tray: <http://localhost/admin/agents/%d|TestAgent> imported 1 stats upload', $this->user()->id)], $this->slackMessages());
         $crawler = $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Imported 1 stats, skipped 0 you already had.');
         self::assertSelectorTextContains('.alert-warning', 'One row was not imported:');
@@ -136,5 +138,18 @@ class StatsImportControllerTest extends WebTestCase
         self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
 
         return $entityManager;
+    }
+
+    /**
+     * What was posted to Slack in the last request.
+     *
+     * @return list<string>
+     */
+    private function slackMessages(): array
+    {
+        return \array_values(\array_map(
+            static fn (MessageEvent $event): string => $event->getMessage()->getSubject(),
+            \array_filter(self::getNotifierEvents(), static fn (MessageEvent $event): bool => !$event->isQueued()),
+        ));
     }
 }

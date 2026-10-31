@@ -2,6 +2,8 @@
 
 namespace App\Tests\Security;
 
+use App\Notifier\SlackActivity;
+use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\ApiTokenStore;
 use App\Security\GoogleIdentityAuthenticator;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Notifier\ChatterInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -40,7 +43,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
 
         $this->authenticator = new GoogleIdentityAuthenticator(
             $this->createStub(GoogleIdTokenVerifierInterface::class),
-            new GoogleUserResolver($this->userRepository, $this->entityManager),
+            new GoogleUserResolver($this->userRepository, $this->entityManager, new SlackActivity($this->createStub(ChatterInterface::class), $this->urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger())),
             $this->urlGenerator,
             new ApiTokenStore(false),
             new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
@@ -82,7 +85,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $verifier->method('verify')->willReturn(['sub' => 'gid-123', 'email_verified' => true]);
         $authenticator = new GoogleIdentityAuthenticator(
             $verifier,
-            new GoogleUserResolver($this->userRepository, $this->entityManager),
+            new GoogleUserResolver($this->userRepository, $this->entityManager, new SlackActivity($this->createStub(ChatterInterface::class), $this->urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger())),
             $this->urlGenerator,
             new ApiTokenStore(false),
             new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),
@@ -122,7 +125,7 @@ class GoogleIdentityAuthenticatorTest extends TestCase
         $verifier->method('verify')->willReturn(['sub' => 'gid-123', 'email' => 'victim@example.com', 'email_verified' => false]);
         $authenticator = new GoogleIdentityAuthenticator(
             $verifier,
-            new GoogleUserResolver($this->userRepository, $this->entityManager),
+            new GoogleUserResolver($this->userRepository, $this->entityManager, new SlackActivity($this->createStub(ChatterInterface::class), $this->urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger())),
             $this->urlGenerator,
             new ApiTokenStore(false),
             new AvatarUpdater(new MockHttpClient(), $this->entityManager, new NullLogger()),

@@ -11,6 +11,7 @@ use App\Import\AgentStatCsvImporter;
 use App\Import\CsvImportResult;
 use App\Import\CustomMedalsImportResult;
 use App\Import\CustomMedalsJsonImporter;
+use App\Notifier\SlackActivity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,7 @@ final class Import extends BaseController
         AgentStatCsvImporter $importer,
         CustomMedalsJsonImporter $medalsImporter,
         TranslatorInterface $translator,
+        SlackActivity $slackActivity,
     ): Response {
         $form = $this->createForm(StatsImportType::class);
         $form->handleRequest($request);
@@ -48,7 +50,9 @@ final class Import extends BaseController
         if ('json' === \strtolower($file->getClientOriginalExtension())) {
             $this->medalsImported($medalsImporter->import($this->getUser(), (string) \file_get_contents($file->getPathname())), $translator);
         } else {
-            $this->statsImported($this->importStats($importer, $file), $translator);
+            $result = $this->importStats($importer, $file);
+            $slackActivity->statsImported($this->getUser(), $result->imported);
+            $this->statsImported($result, $translator);
         }
 
         return $this->redirectToRoute('app_agent_stat_index', [], Response::HTTP_SEE_OTHER);

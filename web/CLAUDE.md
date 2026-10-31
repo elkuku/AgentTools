@@ -96,9 +96,13 @@ English, German and Spanish (`enabled_locales`). Texts are translation keys in `
 ### Database
 PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/DataFixtures/` create one regular user and one admin.
 
+### Slack
+`Notifier/SlackActivity` posts the site's activity to `SLACK_DSN`'s channel (Notifier, `symfony/slack-notifier`): a new user (`GoogleUserResolver`, not a linked account), a stats upload through the API (`AgentStatProcessor`, with the AP gain from `AgentStatRepository::findPrevious()`) and a CSV import as one message (`AgentStat/Import`); `app:demo-agents` posts nothing. The messages are sent on `kernel.terminate` / `console.terminate`; a failure is logged as a warning. In prod, `monolog.yaml` sends errors (fingers crossed, without 403/404/405, deduplicated for 10 minutes) and the `deprecation` channel (deduplicated for a day) to `Log/SlackLogHandler`, one message per batch to `SLACK_ERRORS_CHANNEL`; its failures go to PHP's `error_log`. `app:slack:test` posts to both channels. `SLACK_DSN` is `null://null` by default; tests read the messages with `getNotifierEvents()` (not queued ones).
+
 ### Custom Bundle
 `KuKuSFSystemToolsBundle` — provides system utility endpoints (about, log viewer).
 
 ## Environment Variables
 Credentials go in `.env.local` (gitignored):
 - `OAUTH_GOOGLE_ID` — the Google **Web** client ID: the login button's client and the audience of the API's ID tokens
+- `SLACK_DSN` — `slack://BOT_TOKEN@default?channel=agenttools` (a Slack app's bot token with `chat:write`); `SLACK_ERRORS_CHANNEL` (default `agenttools-errors`) — see Slack above

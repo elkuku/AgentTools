@@ -9,11 +9,12 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
 use App\Entity\User;
+use App\Notifier\SlackActivity;
 use App\Service\AgentStatService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * POST /api/agent-stats: saves the validated input for the current user.
+ * POST /api/agent-stats: saves the validated input for the current user and posts it to Slack.
  * A StatsAlreadyAddedException is a 409, an AgentNameException a 422 (see AgentStat's #[ApiResource]).
  *
  * @implements ProcessorInterface<AgentStatInput, AgentStat>
@@ -23,6 +24,7 @@ final readonly class AgentStatProcessor implements ProcessorInterface
     public function __construct(
         private AgentStatService $agentStatService,
         private Security $security,
+        private SlackActivity $slackActivity,
     ) {
     }
 
@@ -33,6 +35,9 @@ final readonly class AgentStatProcessor implements ProcessorInterface
             throw new \LogicException('The operation requires ROLE_USER.');
         }
 
-        return $this->agentStatService->create($user, $data);
+        $agentStat = $this->agentStatService->create($user, $data);
+        $this->slackActivity->statsUploaded($agentStat);
+
+        return $agentStat;
     }
 }

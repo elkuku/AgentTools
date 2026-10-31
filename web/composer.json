@@ -41,6 +41,7 @@
         "symfony/runtime": "*",
         "symfony/security-bundle": "*",
         "symfony/serializer": "*",
+        "symfony/slack-notifier": "*",
         "symfony/stimulus-bundle": "^v3.2.0",
         "symfony/string": "*",
         "symfony/translation": "*",
