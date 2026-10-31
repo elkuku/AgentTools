@@ -143,9 +143,9 @@ sin chroot (`/bin/bash`); si no, el PHP de Plesk no está disponible. Los logs d
 
 La app web publica en Slack: usuarios nuevos, subidas de stats (con la ganancia de AP) e
 importaciones CSV en un canal de actividad (`SLACK_CHANNEL`), y errores (el mismo como mucho cada 10
-minutos; no 403, 404, 405) y deprecaciones (cada una una vez al día) en un canal de errores
-(`SLACK_ERRORS_CHANNEL`). Producción usa `#agenttools` y `#agenttools-errors`, dev `#agenttools-dev`
-y `#agenttools-dev-errors` (`web/.env.dev`); los tests no publican nada.
+minutos; no 400, 403, 404, 405, 422) y deprecaciones (cada una una vez al día) en un canal de errores
+(`SLACK_ERRORS_CHANNEL`). Producción usa `#agenttools-uploads` y `#agenttools-errors`, dev `#agenttools-uploads-dev`
+y `#agenttools-errors-dev` (`web/.env.dev`); los tests no publican nada.
 
 1. En [api.slack.com/apps](https://api.slack.com/apps), crea una app en tu workspace, dale a su bot
    el scope `chat:write` (OAuth & Permissions) e instálala. Copia el token del bot (`xoxb-…`).

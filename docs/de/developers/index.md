@@ -140,9 +140,9 @@ Produktionslogs liegen in `web/var/log/prod-*.log`.
 
 Die Web-App postet nach Slack: neue Benutzer, Stats-Uploads (mit dem AP-Zuwachs) und CSV-Importe
 in einen Aktivitätskanal (`SLACK_CHANNEL`) und Fehler (derselbe höchstens alle 10 Minuten; nicht
-403, 404, 405) und Deprecations (jede einmal am Tag) in einen Fehlerkanal (`SLACK_ERRORS_CHANNEL`).
-Die Produktion nutzt `#agenttools` und `#agenttools-errors`, dev `#agenttools-dev` und
-`#agenttools-dev-errors` (`web/.env.dev`); die Tests posten nichts.
+400, 403, 404, 405, 422) und Deprecations (jede einmal am Tag) in einen Fehlerkanal (`SLACK_ERRORS_CHANNEL`).
+Die Produktion nutzt `#agenttools-uploads` und `#agenttools-errors`, dev `#agenttools-uploads-dev` und
+`#agenttools-errors-dev` (`web/.env.dev`); die Tests posten nichts.
 
 1. Auf [api.slack.com/apps](https://api.slack.com/apps) eine App im Workspace anlegen, ihrem Bot den
    Scope `chat:write` geben (OAuth & Permissions) und sie installieren. Das Bot-Token (`xoxb-…`)

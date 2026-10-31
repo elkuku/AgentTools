@@ -137,9 +137,9 @@ shell (`/bin/bash`), otherwise Plesk's PHP isn't available. Production logs are 
 ## Slack notifications
 
 The web app posts to Slack: new users, stats uploads (with the AP gain) and CSV imports to an
-activity channel (`SLACK_CHANNEL`), and errors (the same one at most every 10 minutes; not 403,
-404, 405) and deprecations (each once a day) to an errors channel (`SLACK_ERRORS_CHANNEL`). Production
-uses `#agenttools` and `#agenttools-errors`, dev `#agenttools-dev` and `#agenttools-dev-errors`
+activity channel (`SLACK_CHANNEL`), and errors (the same one at most every 10 minutes; not 400, 403,
+404, 405, 422) and deprecations (each once a day) to an errors channel (`SLACK_ERRORS_CHANNEL`). Production
+uses `#agenttools-uploads` and `#agenttools-errors`, dev `#agenttools-uploads-dev` and `#agenttools-errors-dev`
 (`web/.env.dev`); tests post nothing.
 
 1. At [api.slack.com/apps](https://api.slack.com/apps), create an app in your workspace, give its
