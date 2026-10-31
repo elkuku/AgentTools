@@ -8,7 +8,6 @@
 | [`app/`](https://github.com/elkuku/AgentTools/tree/master/app) | Android app (Kotlin, Jetpack Compose, minSdk 26, Credential Manager)     |
 | [`web/`](https://github.com/elkuku/AgentTools/tree/master/web) | Symfony 8 web app (PostgreSQL): agent stats API, stats pages, user admin |
 | [`docs/`](https://github.com/elkuku/AgentTools/tree/master/docs) | This documentation (VitePress), published to GitHub Pages |
-| [`PLAN.md`](https://github.com/elkuku/AgentTools/blob/master/PLAN.md) | Design decisions and build plan                                          |
 
 ## How it works
 
