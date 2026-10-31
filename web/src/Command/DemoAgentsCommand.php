@@ -44,12 +44,19 @@ final readonly class DemoAgentsCommand
     /** Has not chosen the visible parts yet: asked on sign-in. */
     private const string NOT_CHOSEN = 'DemoNew';
 
+    /** A travel's "days ago" for the newest New Year past (from 30 December, 5 days): over the new year. */
+    private const string NEW_YEAR = 'new year';
+
+    /** A travel's length for a weekend: Saturday and Sunday, from the Saturday on or before its day. */
+    private const string WEEKEND = 'weekend';
+
     /** Every visible part. */
     private const array ALL_PARTS = [ProfilePart::AGENT, ProfilePart::AVATAR, ProfilePart::LATEST_STATS, ProfilePart::STATS_HISTORY, ProfilePart::CUSTOM_MEDALS, ProfilePart::BANNERGRESS];
 
     /**
      * Agent name => faction, level, share of VETERAN, imports and the days between them, visible
-     * parts, picture, custom medals and timeline events (days ago, days long or null for one day, text).
+     * parts, picture, custom medals and timeline events (days ago or NEW_YEAR, days long, WEEKEND or null
+     * for one day, text). Travels cannot overlap.
      */
     private const array AGENTS = [
         // Plays for five years, an import every 45 days
@@ -58,20 +65,32 @@ final readonly class DemoAgentsCommand
             [
                 [1780, null, 'Installed Ingress'],
                 [1500, null, 'First Saturday Quito'],
-                [1320, 9, 'Travel to Galápagos'],
+                [1320, 16, 'Travel to Galápagos'],
+                // Over three months
+                [1150, 80, 'Backpacking South America'],
                 [1100, null, 'Anomaly Darsana, Bogotá'],
-                [860, 14, 'Travel to Germany'],
+                [860, 30, 'Travel to Germany'],
+                [780, self::WEEKEND, 'Weekend in Mindo'],
                 [700, null, 'Mission Day Cuenca'],
-                [520, 6, 'Road trip to Lima'],
+                [520, 10, 'Road trip to Lima'],
+                [430, self::WEEKEND, 'Weekend in Montañita'],
                 [365, null, 'Anomaly Orion, Medellín'],
-                [180, 21, 'Travel to Spain'],
+                [self::NEW_YEAR, 5, 'New Year in Baños'],
+                [250, self::WEEKEND, 'Weekend in Otavalo'],
+                [180, 45, 'Travel to Spain'],
                 [60, null, 'Recursion'],
-                [20, 4, 'Weekend in Guayaquil'],
+                [20, self::WEEKEND, 'Weekend in Guayaquil'],
             ]],
         // Two years, monthly
         'DemoKey' => ['Resistance', 14, 0.7, [24, 30], self::ALL_PARTS, true,
             ['anomaly' => ['apollo' => 'silver'], 'annual' => ['catalyst' => 2], 'event' => ['2026_summer_solstice' => 'bronze']],
-            [[690, null, 'Joined the Resistance'], [400, 10, 'Travel to Mexico'], [150, null, 'Anomaly Apollo'], [45, 3, 'Mission day weekend']]],
+            [
+                [690, null, 'Joined the Resistance'],
+                [400, 60, 'Road trip through Mexico'],
+                [200, self::WEEKEND, 'Weekend in Cuenca'],
+                [150, null, 'Anomaly Apollo'],
+                [45, self::WEEKEND, 'Mission day weekend'],
+            ]],
         'DemoOwl' => ['Enlightened', 12, 0.35, [10, 21], [ProfilePart::AGENT, ProfilePart::LATEST_STATS], false, [], [[100, null, 'A private note']]],
         'DemoFox' => ['Resistance', 10, 0.2, [8, 14], [ProfilePart::AGENT, ProfilePart::AVATAR, ProfilePart::STATS_HISTORY], true, [],
             [[80, null, 'First Saturday'], [30, 5, 'Holidays at the beach']]],
@@ -307,18 +326,67 @@ final readonly class DemoAgentsCommand
     }
 
     /**
-     * @param list<array{int, int|null, string}> $events days ago, days long (null: one day), text
+     * @param list<array{int|string, int|string|null, string}> $events days ago or NEW_YEAR, days long, WEEKEND or null (one day), text
      */
     private function addEvents(User $user, array $events): void
     {
-        foreach ($events as [$daysAgo, $days, $text]) {
-            $event = new TimelineEvent();
-            $event->owner = $user;
-            $event->date = new \DateTimeImmutable('today')->modify(\sprintf('-%d days', $daysAgo));
-            $event->endDate = null === $days ? null : $event->date->modify(\sprintf('+%d days', $days - 1));
-            $event->text = $text;
+        $today = new \DateTimeImmutable('today');
+        $added = [];
+        foreach (\array_filter($events, static fn (array $event): bool => self::NEW_YEAR !== $event[0]) as [$daysAgo, $days, $text]) {
+            $added[] = $this->relativeEvent($user, $today->modify(\sprintf('-%d days', (int) $daysAgo)), $days, $text);
+        }
+
+        // After the others: travels cannot overlap, and those move with today
+        foreach (\array_filter($events, static fn (array $event): bool => self::NEW_YEAR === $event[0]) as [, $days, $text]) {
+            $added[] = $this->newYearTravel($user, (int) ($days ?? 1), $text, $added, $today);
+        }
+
+        foreach ($added as $event) {
             $this->entityManager->persist($event);
         }
+    }
+
+    /** An event on [$date], [$days] long (null: one day), a WEEKEND from the Saturday on or before it. */
+    private function relativeEvent(User $user, \DateTimeImmutable $date, int|string|null $days, string $text): TimelineEvent
+    {
+        if (self::WEEKEND === $days) {
+            $date = 'Sat' === $date->format('D') ? $date : $date->modify('last saturday');
+            $days = 2;
+        }
+
+        return $this->event($user, $date, null === $days ? null : $date->modify(\sprintf('+%d days', (int) $days - 1)), $text);
+    }
+
+    /**
+     * A travel from 30 December over the new year: the newest that is over and does not overlap
+     * one of the [$events].
+     *
+     * @param list<TimelineEvent> $events
+     */
+    private function newYearTravel(User $user, int $days, string $text, array $events, \DateTimeImmutable $today): TimelineEvent
+    {
+        for ($year = (int) $today->format('Y') - 1;; --$year) {
+            $start = new \DateTimeImmutable($year.'-12-30');
+            $end = $start->modify(\sprintf('+%d days', $days - 1));
+            $overlaps = \array_filter(
+                $events,
+                static fn (TimelineEvent $event): bool => $event->endDate instanceof \DateTimeImmutable && $event->date <= $end && $event->endDate >= $start,
+            );
+            if ($end < $today && [] === $overlaps) {
+                return $this->event($user, $start, $end, $text);
+            }
+        }
+    }
+
+    private function event(User $user, \DateTimeImmutable $date, ?\DateTimeImmutable $endDate, string $text): TimelineEvent
+    {
+        $event = new TimelineEvent();
+        $event->owner = $user;
+        $event->date = $date;
+        $event->endDate = $endDate;
+        $event->text = $text;
+
+        return $event;
     }
 
     /** A 100 px picture with the initials on the faction color, as the stored Google pictures. */

@@ -320,6 +320,27 @@ main > .container {
     border-bottom-left-radius: 6px;
 }
 
+/* A year's label on the timeline, before its newest entry: on the line, as the app's */
+.timeline-year {
+    position: relative;
+    padding-bottom: .75rem;
+}
+
+.timeline-year-label {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    /* Centered on the line */
+    left: calc(-1.25rem - 1px);
+    transform: translateX(-50%);
+    padding: .1rem .6rem;
+    border: 2px solid var(--bs-secondary-color);
+    border-radius: 1rem;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-emphasis-color);
+    font-weight: 700;
+}
+
 /* Without the travels, no line */
 .timeline-no-travels .timeline-in-travel::after {
     display: none;

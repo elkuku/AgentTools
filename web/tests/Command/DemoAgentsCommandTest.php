@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Command;
 
+use App\Entity\TimelineEvent;
 use App\Enum\ProfilePart;
 use App\Repository\AgentStatRepository;
 use App\Repository\DoneBannerRepository;
@@ -57,8 +58,34 @@ class DemoAgentsCommandTest extends KernelTestCase
         self::assertSame(16, $stats[0]->level);
         // Timeline events, some over several days
         $events = $this->events()->findByOwner($frog);
-        self::assertCount(11, $events);
+        self::assertCount(16, $events);
+        // Weekends, Saturday and Sunday, and travels over several months
+        $weekends = \array_filter($events, static fn (TimelineEvent $event): bool => \str_starts_with($event->text, 'Weekend in'));
+        self::assertCount(4, $weekends);
+        foreach ($weekends as $weekend) {
+            self::assertSame('Sat', $weekend->date?->format('D'));
+            self::assertSame('Sun', $weekend->endDate?->format('D'));
+        }
+
+        $long = \array_filter($events, static function (TimelineEvent $event): bool {
+            $end = $event->endDate;
+
+            return $end instanceof \DateTimeImmutable && $event->date instanceof \DateTimeImmutable && $event->date->diff($end)->days >= 44;
+        });
+        self::assertCount(2, $long);
         self::assertNotEmpty(\array_filter($events, static fn ($event): bool => null !== $event->endDate));
+        // One over the new year, in the past
+        $newYear = \array_values(\array_filter($events, static function (TimelineEvent $event): bool {
+            $end = $event->endDate;
+
+            return $end instanceof \DateTimeImmutable && $event->date?->format('Y') !== $end->format('Y');
+        }));
+        self::assertCount(1, $newYear);
+        $end = $newYear[0]->endDate;
+        self::assertInstanceOf(\DateTimeImmutable::class, $end);
+        self::assertSame('12-30', $newYear[0]->date?->format('m-d'));
+        self::assertSame('01-03', $end->format('m-d'));
+        self::assertLessThan(new \DateTimeImmutable('today'), $end);
         self::assertNull($this->users()->findOneByAgentName('DemoNew')?->getVisibilityChosenAt());
     }
 

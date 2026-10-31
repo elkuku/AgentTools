@@ -168,10 +168,11 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorExists('#timeline-chart');
         // The timeline: the event at the end of its day, then the uploads, newest first
         self::assertCount(2, $crawler->filter('#timeline-entries .timeline-upload'));
-        self::assertSelectorTextContains('#timeline-entries li:nth-child(1).timeline-event', 'Anomaly in Quito');
-        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'Oct 20, 2026');
-        self::assertSelectorTextContains('#timeline-entries li:nth-child(2)', 'New level 16');
-        self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'First upload');
+        self::assertSelectorTextSame('#timeline-entries li:nth-child(1).timeline-year', '2026');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(2).timeline-event', 'Anomaly in Quito');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'Oct 20, 2026');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'New level 16');
+        self::assertSelectorTextContains('#timeline-entries li:nth-child(4)', 'First upload');
         // Filters as the app's: medals, new level, by kind and days
         self::assertSelectorExists('#timeline-filters input#timeline-filter-travel[value="travel"]');
         self::assertSelectorNotExists('#timeline-filters input[value="upload"]');
@@ -265,6 +266,26 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('#timeline-entries', 'Oct 21, 2026');
     }
 
+    public function testTheTimelineHasALabelPerYear(): void
+    {
+        $agent = $this->user('agent');
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY]);
+        $this->createAgentStat($agent, '2025-12-30 15:35:56', 15);
+        $this->createAgentStat($agent, '2026-01-02 15:35:56', 16);
+        $this->createEvent($agent, '2025-12-31', 'New year in Quito', '2026-01-01');
+
+        $this->client->loginUser($this->user('admin'));
+        $crawler = $this->client->request(Request::METHOD_GET, '/agents/TestAgent/timeline');
+
+        // Newest first, each before its newest entry
+        self::assertSame(['2026', '2025'], $crawler->filter('#timeline-entries .timeline-year')->each(static fn ($year): string => $year->text()));
+        self::assertSelectorExists('#timeline-entries li:first-child.timeline-year[data-year="2026"]');
+        self::assertSelectorExists('#timeline-entries .timeline-year[data-year="2025"] + li.timeline-travel-start');
+        // In the travel over the new year: the travel's line goes on beside the label
+        self::assertSelectorExists('#timeline-entries .timeline-year[data-year="2025"].timeline-in-travel');
+        self::assertSelectorNotExists('#timeline-entries .timeline-year[data-year="2026"].timeline-in-travel');
+    }
+
     public function testTheAgentSeesTheOwnPageAsOthersDo(): void
     {
         $this->show('agent', [ProfilePart::AGENT]);
@@ -298,11 +319,12 @@ class AgentControllerTest extends WebTestCase
         $this->entityManager()->flush();
     }
 
-    private function createEvent(User $owner, string $date, string $text): void
+    private function createEvent(User $owner, string $date, string $text, ?string $endDate = null): void
     {
         $event = new TimelineEvent();
         $event->owner = $owner;
         $event->date = new \DateTimeImmutable($date);
+        $event->endDate = null === $endDate ? null : new \DateTimeImmutable($endDate);
         $event->text = $text;
         $this->entityManager()->persist($event);
         $this->entityManager()->flush();

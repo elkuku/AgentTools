@@ -1,5 +1,5 @@
 {#
-    Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline:
+    Stats uploads and custom events, newest first (App\Timeline\TimelineBuilder), as the app's timeline, with a label per year:
     uploads only for what changed besides the AP (TimelineEntry::isListed(); the AP is in the chart). Each with its day in the
     page's language (medium: Oct 22, 2026 / 22.10.2026), without the time.
     The entries have no links (only the edit and delete buttons of the own timeline).
@@ -36,7 +36,14 @@
     </div>
 {% endif %}
 <ol class="timeline list-unstyled" id="timeline-entries">
+    {% set year = null %}
     {% for entry in listed %}
+        {# A year's label before its newest entry; in a travel over the new year with the travel's line #}
+        {% if entry.date|date('Y') != year %}
+            {% set year = entry.date|date('Y') %}
+            <li class="timeline-year{{ entry.inTravel or entry.travelEdge == 'start' ? ' timeline-in-travel' }}"
+                data-timeline-filter-target="year" data-year="{{ year }}"><span class="timeline-year-label">{{ year }}</span></li>
+        {% endif %}
         {% if entry.banner %}
             {% set banner = entry.banner %}
             <li class="timeline-entry timeline-banner{{ entry.inTravel ? ' timeline-in-travel' }}" id="timeline-banner-{{ banner.id }}"
