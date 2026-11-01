@@ -287,4 +287,12 @@
     <string name="my_banners_counts">Publicados: %1$d · Completados: %2$d · Pendientes: %3$d</string>
     <string name="bannergress_map">Dónde empiezan tus banners</string>
     <string name="bannergress_map_partial">Los banners sincronizados antes del mapa aún no tienen punto de inicio: sincroniza de nuevo.</string>
+
+    <!-- Links -->
+    <string name="links">Enlaces</string>
+    <string name="links_title">Enlaces de Ingress</string>
+    <string name="links_intro">Sitios útiles para agentes de Ingress. La lista está en el repositorio de AgentTools en GitHub: cualquiera puede proponer un enlace con un pull request, y cada enlace se comprueba una vez al día.</string>
+    <string name="links_empty">Todavía no hay enlaces.</string>
+    <string name="links_suggest">Proponer un enlace</string>
+    <string name="links_saved_list">Se muestra la lista guardada. %1$s</string>
 </resources>

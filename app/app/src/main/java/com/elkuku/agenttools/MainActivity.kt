@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.elkuku.agenttools.ui.AgentTimelineScreen
 import com.elkuku.agenttools.ui.AgentsScreen
 import com.elkuku.agenttools.ui.AppBuild
+import com.elkuku.agenttools.ui.LinksScreen
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
 import com.elkuku.agenttools.ui.BannergressActions
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
                     app.statsApi,
                     scanMedals = { screenshots -> withContext(Dispatchers.Default) { app.medalScanner.scan(screenshots) } },
                     bannergress = app.bannergress,
+                    linkCache = app.linkCache,
                 )
             }
         }
@@ -64,7 +66,16 @@ class MainActivity : ComponentActivity() {
                 val serverUrl by serverSettings.url.collectAsStateWithLifecycle()
                 val activity = this@MainActivity
 
-                if (state.settingsOpen) {
+                if (state.linksOpen) {
+                    BackHandler(onBack = viewModel::closeLinks)
+                    LinksScreen(
+                        sections = state.links,
+                        status = state.linksStatus,
+                        loading = state.linksLoading,
+                        onRefresh = viewModel::refreshLinks,
+                        onBack = viewModel::closeLinks,
+                    )
+                } else if (state.settingsOpen) {
                     BackHandler(onBack = viewModel::closeSettings)
                     SettingsScreen(
                         profile = ProfileSetting(
@@ -172,6 +183,7 @@ class MainActivity : ComponentActivity() {
                         onOpenTimeline = viewModel::openMyTimeline,
                         onOpenAgents = { viewModel.openAgents(activity) },
                         onOpenBanners = viewModel::openBannergress,
+                        onOpenLinks = viewModel::openLinks,
                         onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },
                         onChooseVisibility = viewModel::chooseVisibility,
                         onDismissVisibility = viewModel::dismissVisibility,

@@ -40,6 +40,9 @@ private val MergePatchJson = ContentType("application", "merge-patch+json")
 private data class CreatedResponse(val id: Int, val createdAt: String)
 
 @Serializable
+private data class LinkListResponse(val sections: List<LinkSection> = emptyList())
+
+@Serializable
 private data class Problem(val detail: String = "")
 
 @Serializable
@@ -208,6 +211,9 @@ interface StatsApi {
 
     /** `DELETE /api/timeline-events/{id}`. */
     suspend fun deleteTimelineEvent(idToken: String, id: Int): TimelineEventResult
+
+    /** `GET /api/links`: the Ingress link list, for everyone (no sign-in). */
+    suspend fun links(): LinkListResult
 }
 
 /** [baseUrl] is read on every request: debug and dev builds can change the server on the settings screen. */
@@ -228,6 +234,8 @@ class KtorStatsApi(
     private val timelineEventsUrl get() = "${baseUrl().trimEnd('/')}/api/timeline-events"
 
     private val doneBannersUrl get() = "${baseUrl().trimEnd('/')}/api/done-banners"
+
+    private val linksUrl get() = "${baseUrl().trimEnd('/')}/api/links"
 
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -605,6 +613,22 @@ class KtorStatsApi(
     }
 
     fun close() = client.close()
+
+    override suspend fun links(): LinkListResult {
+        val response = try {
+            client.get(linksUrl) { accept(LdJson) }
+        } catch (e: IOException) {
+            return LinkListResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<LinkListResponse>()
+                ?.let { LinkListResult.Success(it.sections) }
+                ?: LinkListResult.Failure(uiText(R.string.error_unexpected_response))
+
+            else -> LinkListResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
 
     private fun networkError(e: IOException) = uiText(R.string.error_network, e.message ?: e::class.simpleName.orEmpty())
 

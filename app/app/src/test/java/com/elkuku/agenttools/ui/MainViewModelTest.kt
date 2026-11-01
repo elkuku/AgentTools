@@ -25,6 +25,10 @@ import com.elkuku.agenttools.data.AgentsResult
 import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
+import com.elkuku.agenttools.data.Link
+import com.elkuku.agenttools.data.LinkListCache
+import com.elkuku.agenttools.data.LinkListResult
+import com.elkuku.agenttools.data.LinkSection
 import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
@@ -85,6 +89,84 @@ class MainViewModelTest {
 
     @After
     fun tearDown() = Dispatchers.resetMain()
+
+    private val official = listOf(LinkSection("Official", listOf(Link("Ingress", "https://ingress.com", "The official site."))))
+
+    private val tools = listOf(LinkSection("Tools", listOf(Link("IITC-CE", "https://iitc.app"))))
+
+    @Test
+    fun linksLoadWithoutASignInAndAreSaved() {
+        val cache = FakeLinkListCache()
+        api.links = LinkListResult.Success(official)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, linkCache = cache)
+
+        viewModel.openLinks()
+
+        assertTrue(viewModel.state.value.linksOpen)
+        assertEquals(official, viewModel.state.value.links)
+        assertNull(viewModel.state.value.linksStatus)
+        assertFalse(viewModel.state.value.linksLoading)
+        assertEquals(official, cache.sections)
+    }
+
+    @Test
+    fun linksShowTheSavedListWhileLoading() {
+        api.links = LinkListResult.Success(tools)
+        val gate = CompletableDeferred<Unit>()
+        api.loadGate = gate
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, linkCache = FakeLinkListCache(official))
+
+        viewModel.openLinks()
+
+        assertEquals(official, viewModel.state.value.links)
+        assertTrue(viewModel.state.value.linksLoading)
+
+        gate.complete(Unit)
+
+        assertEquals(tools, viewModel.state.value.links)
+        assertFalse(viewModel.state.value.linksLoading)
+    }
+
+    @Test
+    fun linksOfflineKeepTheSavedListAndSayWhy() {
+        val offline = uiText(R.string.error_network, "timeout")
+        api.links = LinkListResult.Failure(offline)
+        val cache = FakeLinkListCache(official)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, linkCache = cache)
+
+        viewModel.openLinks()
+
+        assertEquals(official, viewModel.state.value.links)
+        assertEquals(Status(uiText(R.string.links_saved_list, offline), false), viewModel.state.value.linksStatus)
+        assertEquals(official, cache.sections)
+    }
+
+    @Test
+    fun linksOfflineWithoutASavedListShowTheError() {
+        val offline = uiText(R.string.error_network, "timeout")
+        api.links = LinkListResult.Failure(offline)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, linkCache = FakeLinkListCache())
+
+        viewModel.openLinks()
+
+        assertNull(viewModel.state.value.links)
+        assertEquals(Status(offline, true), viewModel.state.value.linksStatus)
+    }
+
+    @Test
+    fun linksCloseAndASharedStatsUploadClosesThem() {
+        val viewModel = viewModel()
+        viewModel.openLinks()
+        viewModel.closeLinks()
+
+        assertFalse(viewModel.state.value.linksOpen)
+
+        viewModel.openLinks()
+        viewModel.onShared(context, "not stats")
+
+        assertFalse(viewModel.state.value.linksOpen)
+        assertTrue(viewModel.state.value.statsOpen)
+    }
 
     @Test
     fun signInLoadsStats() {
@@ -1120,6 +1202,24 @@ class MainViewModelTest {
             eventFailure?.let { return it }
             serverEvents.removeAll { it.id == id }
             return TimelineEventResult.Success(null)
+        }
+
+        /** What `GET /api/links` answers. */
+        var links: LinkListResult = LinkListResult.Success(emptyList())
+        var linksRequests = 0
+
+        override suspend fun links(): LinkListResult {
+            linksRequests++
+            loadGate?.await()
+            return links
+        }
+    }
+
+    private class FakeLinkListCache(var sections: List<LinkSection>? = null) : LinkListCache {
+        override fun read() = sections
+
+        override fun write(sections: List<LinkSection>) {
+            this.sections = sections
         }
     }
 }

@@ -600,4 +600,37 @@ class KtorStatsApiTest {
             KtorStatsApi("http://server", offline).saveCustomMedals("t", emptyList()),
         )
     }
+
+    @Test
+    fun linksLoadWithoutASignIn() = runTest {
+        val engine = MockEngine { req ->
+            assertEquals(HttpMethod.Get, req.method)
+            assertEquals("http://server/api/links", req.url.toString())
+            assertEquals(null, req.headers[HttpHeaders.Authorization])
+            respond(
+                """{"@context": "/api/contexts/LinkList", "@id": "/api/links", "@type": "LinkList", "sections": [
+                    {"@type": "LinkSection", "title": "Official", "links": [
+                        {"@type": "Link", "title": "Ingress", "url": "https://ingress.com", "description": "The official site."},
+                        {"@type": "Link", "title": "Intel Map", "url": "https://intel.ingress.com", "description": null}]}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders,
+            )
+        }
+
+        assertEquals(
+            LinkListResult.Success(
+                listOf(LinkSection("Official", listOf(Link("Ingress", "https://ingress.com", "The official site."), Link("Intel Map", "https://intel.ingress.com")))),
+            ),
+            KtorStatsApi("http://server", engine).links(),
+        )
+    }
+
+    @Test
+    fun linksMapServerAndNetworkErrors() = runTest {
+        val failing = MockEngine { respond("", HttpStatusCode.ServiceUnavailable) }
+        val offline = MockEngine { throw IOException("timeout") }
+
+        assertEquals(LinkListResult.Failure(uiText(R.string.error_server, 503)), KtorStatsApi("http://server", failing).links())
+        assertEquals(LinkListResult.Failure(uiText(R.string.error_network, "timeout")), KtorStatsApi("http://server", offline).links())
+    }
 }

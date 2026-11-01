@@ -29,6 +29,9 @@ import com.elkuku.agenttools.data.AgentsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.ImportResult
+import com.elkuku.agenttools.data.LinkListCache
+import com.elkuku.agenttools.data.LinkListResult
+import com.elkuku.agenttools.data.LinkSection
 import com.elkuku.agenttools.data.MeResult
 import com.elkuku.agenttools.data.ProfilePart
 import com.elkuku.agenttools.data.SaveResult
@@ -126,6 +129,14 @@ data class UiState(
     val agentBannergressOpen: Boolean = false,
     /** The timeline screen of the [agent] shown is open. */
     val agentTimelineOpen: Boolean = false,
+    /** The Ingress link list is shown, over any other screen. */
+    val linksOpen: Boolean = false,
+    /** The link list: the saved one until loaded; null without either. */
+    val links: List<LinkSection>? = null,
+    /** The link list is loading (it does not need a sign-in, so not [busy]). */
+    val linksLoading: Boolean = false,
+    /** Why the link list could not be loaded. */
+    val linksStatus: Status? = null,
 ) {
     /** Ask the user to choose what other users see of the profile. */
     val askVisibility: Boolean get() = session != null && !visibilityChosen && !visibilityDismissed
@@ -140,6 +151,7 @@ class MainViewModel(
     private val api: StatsApi,
     private val scanMedals: suspend (List<ArgbImage>) -> List<RecognizedMedal>,
     private val bannergress: BannergressConnector? = null,
+    private val linkCache: LinkListCache? = null,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
 
@@ -212,7 +224,7 @@ class MainViewModel(
      */
     fun onShared(context: Context, text: String) {
         // The result of a share shows on the stats screen
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, timelineOpen = false) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, statsOpen = true, timelineOpen = false) }
         val stats = parseIngressStats(text)
         if (stats == null) {
             _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
@@ -305,6 +317,42 @@ class MainViewModel(
         }
     }
 
+    /** The link list: the saved one right away, then loaded again (signed in or not). */
+    fun openLinks() {
+        _state.update { it.copy(linksOpen = true, links = it.links ?: linkCache?.read(), linksStatus = null) }
+        refreshLinks()
+    }
+
+    fun closeLinks() = _state.update { it.copy(linksOpen = false, linksStatus = null) }
+
+    fun refreshLinks() {
+        if (_state.value.linksLoading) return
+        _state.update { it.copy(linksLoading = true) }
+        viewModelScope.launch {
+            try {
+                when (val result = api.links()) {
+                    is LinkListResult.Success -> {
+                        linkCache?.write(result.sections)
+                        _state.update { it.copy(links = result.sections, linksStatus = null) }
+                    }
+
+                    // Offline the saved list stays, with why it is not the latest
+                    is LinkListResult.Failure -> _state.update {
+                        it.copy(
+                            linksStatus = if (it.links != null) {
+                                Status(uiText(R.string.links_saved_list, result.message), false)
+                            } else {
+                                Status(result.message, true)
+                            },
+                        )
+                    }
+                }
+            } finally {
+                _state.update { it.copy(linksLoading = false) }
+            }
+        }
+    }
+
     fun closeSettings() = _state.update { it.copy(settingsOpen = false, visibilityStatus = null) }
 
     /** Saves the parts of the profile other users see; without [ProfilePart.AGENT] the server keeps none. */
@@ -340,7 +388,7 @@ class MainViewModel(
      * Ingress shows only the highest tier, so a lower one is a wrong match.
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, statsOpen = true, timelineOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, statsOpen = true, timelineOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
         val recognized = withProgress(uiText(R.string.looking_for_custom_medals)) { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })

@@ -7,12 +7,15 @@ import com.elkuku.agenttools.auth.BannergressConnector
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.createGoogleAuth
 import com.elkuku.agenttools.data.BannergressApi
+import com.elkuku.agenttools.data.FileLinkListCache
+import com.elkuku.agenttools.data.LinkListCache
 import com.elkuku.agenttools.data.KtorStatsApi
 import com.elkuku.agenttools.data.ServerSettings
 import com.elkuku.agenttools.data.SharedPreferencesStore
 import com.elkuku.agenttools.data.StatsApi
 import com.elkuku.agenttools.scan.MedalScanner
 import com.elkuku.agenttools.scan.loadMedalScanner
+import java.io.File
 
 class AgentToolsApplication : Application() {
     val googleAuth: GoogleAuth by lazy { createGoogleAuth() }
@@ -30,6 +33,9 @@ class AgentToolsApplication : Application() {
     val bannergress: BannergressConnector by lazy {
         BannergressAccount(BannergressAuth(SharedPreferencesStore(getSharedPreferences("bannergress", MODE_PRIVATE))), BannergressApi())
     }
+
+    /** The last link list loaded, shown right away and offline. */
+    val linkCache: LinkListCache by lazy { FileLinkListCache(File(filesDir, "links.json")) }
 
     /** Decodes the medal images on first use: get it off the main thread. */
     val medalScanner: MedalScanner by lazy { loadMedalScanner(this) }

@@ -135,11 +135,12 @@ internal fun rememberAvatar(avatar: String?): ImageBitmap? = remember(avatar) {
 }
 
 /**
- * The app's features, next to the account menu: the agents, for admins ([onOpenAdminAgents]) every
- * user with the privacy settings, and what comes next.
+ * The app's features, next to the account menu, as web's navbar: the agents (signed in,
+ * [onOpenAgents]), the links (signed in or not) and for admins ([onOpenAdminAgents]) every user
+ * with the privacy settings.
  */
 @Composable
-fun FeatureMenu(onOpenAgents: () -> Unit, onOpenAdminAgents: (() -> Unit)? = null) {
+fun FeatureMenu(onOpenAgents: (() -> Unit)?, onOpenLinks: () -> Unit, onOpenAdminAgents: (() -> Unit)? = null) {
     var expanded by remember { mutableStateOf(false) }
 
     Box {
@@ -147,9 +148,15 @@ fun FeatureMenu(onOpenAgents: () -> Unit, onOpenAdminAgents: (() -> Unit)? = nul
             Icon(painterResource(R.drawable.ic_bi_list), contentDescription = stringResource(R.string.menu), modifier = Modifier.size(24.dp))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            MenuItem(R.drawable.ic_bi_people, stringResource(R.string.agents)) {
+            onOpenAgents?.let { open ->
+                MenuItem(R.drawable.ic_bi_people, stringResource(R.string.agents)) {
+                    expanded = false
+                    open()
+                }
+            }
+            MenuItem(R.drawable.ic_bi_link_45deg, stringResource(R.string.links)) {
                 expanded = false
-                onOpenAgents()
+                onOpenLinks()
             }
             onOpenAdminAgents?.let { open ->
                 MenuItem(R.drawable.ic_bi_person_gear, stringResource(R.string.admin_agents)) {
