@@ -36,7 +36,7 @@ class UserAccessTest extends WebTestCase
         // No waiting for an administrator
         self::assertSelectorTextContains('.navbar-nav', 'Agents');
         // The own pages are only in the user menu
-        self::assertSame(['/agents'], $client->getCrawler()->filter('.navbar-nav a.nav-link')->each(static fn ($link): string => (string) $link->attr('href')));
+        self::assertSame(['/agents', '/links'], $client->getCrawler()->filter('.navbar-nav a.nav-link')->each(static fn ($link): string => (string) $link->attr('href')));
         // The user menu as the app's account menu: the own stats, timeline and banners first
         self::assertSame(
             ['/agent-stats', '/agent-stats/timeline', '/banners', '/profile', '/agent-stats/import', '/logout'],

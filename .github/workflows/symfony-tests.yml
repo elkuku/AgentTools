@@ -3,10 +3,12 @@ on:
     push:
         paths:
             - 'web/**'
+            - 'docs/links.md'
             - '.github/workflows/symfony-tests.yml'
     pull_request:
         paths:
             - 'web/**'
+            - 'docs/links.md'
             - '.github/workflows/symfony-tests.yml'
 jobs:
     php-unit-and-functional-tests:

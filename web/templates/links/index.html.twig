@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{#
+    The Ingress link list of docs/links.md, as the app's Links screen: a card per section.
+    linkList: App\ApiResource\LinkList, suggestUrl: where to edit the list on GitHub
+#}
+
+{% block title %}{{ 'links.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'links.title'|trans }}</h1>
+    <p class="text-body-secondary">{{ 'links.intro'|trans }}</p>
+
+    {% for section in linkList.sections %}
+        <div class="card mb-3">
+            <h2 class="card-header h5">{{ section.title }}</h2>
+            <div class="list-group list-group-flush">
+                {% for link in section.links %}
+                    <a class="list-group-item list-group-item-action" href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">{{ link.title }}</div>
+                                {% if link.description %}
+                                    <div class="small text-body-secondary">{{ link.description }}</div>
+                                {% endif %}
+                            </div>
+                            <i class="bi-box-arrow-up-right ms-2 text-body-secondary flex-shrink-0" aria-hidden="true"></i>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>{{ 'links.empty'|trans }}</p>
+    {% endfor %}
+
+    <a class="btn btn-outline-secondary" href="{{ suggestUrl }}" target="_blank" rel="noopener noreferrer">
+        <i class="bi-github" aria-hidden="true"></i> {{ 'links.suggest'|trans }}
+    </a>
+{% endblock %}

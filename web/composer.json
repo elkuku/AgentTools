@@ -15,6 +15,7 @@
         "elkuku/kuku-sf-system-tools-bundle": "*",
         "elkuku/symfony-utils": "^0.4",
         "google/apiclient": "^2.15",
+        "league/commonmark": "^2.7",
         "nelmio/cors-bundle": "^2.6",
         "php-cs-fixer/shim": "^3.88",
         "phpdocumentor/reflection-docblock": "^6.0",

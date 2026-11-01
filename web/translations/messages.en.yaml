@@ -98,6 +98,7 @@ nav:
     agent_stats: Agent stats
     agents: Agents
     language: Language
+    links: Links
     login: Login
     logout: Logout
     logview: Logview
@@ -263,3 +264,9 @@ bannergress:
     map: Where your banners start
     map_partial: 'Banners synced before the map have no start point yet: sync again in the app.'
     none: 'Not synced yet: in the app, open Banners in your stats, sign in to Bannergress and sync.'
+
+links:
+    title: Ingress links
+    intro: 'Useful sites for Ingress agents. The list is in the AgentTools repository on GitHub: anyone can suggest a link with a pull request, and every link is checked once a day.'
+    empty: There are no links yet.
+    suggest: Suggest a link
