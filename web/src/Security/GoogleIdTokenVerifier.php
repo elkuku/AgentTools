@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Google\Client;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -13,6 +14,8 @@ final readonly class GoogleIdTokenVerifier implements GoogleIdTokenVerifierInter
 {
     public function __construct(
         #[Autowire(env: 'OAUTH_GOOGLE_ID')] private string $oauthGoogleId,
+        // Google's signing certificates, else every API request downloads them again
+        #[Autowire(service: 'cache.app')] private CacheItemPoolInterface $cache,
     ) {
     }
 
@@ -20,9 +23,10 @@ final readonly class GoogleIdTokenVerifier implements GoogleIdTokenVerifierInter
     public function verify(string $idToken): ?array
     {
         try {
-            $payload = new Client(['client_id' => $this->oauthGoogleId])
-                ->verifyIdToken($idToken);
-        } catch (\UnexpectedValueException|\LogicException) {
+            $client = new Client(['client_id' => $this->oauthGoogleId]);
+            $client->setCache($this->cache);
+            $payload = $client->verifyIdToken($idToken);
+        } catch (\UnexpectedValueException|\LogicException|\OutOfBoundsException) {
             return null;
         }
 

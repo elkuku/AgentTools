@@ -36,9 +36,10 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 #[Entity(repositoryClass: AgentStatRepository::class)]
 #[UniqueConstraint(name: 'agent_stat_owner_datetime', columns: ['owner_id', 'datetime'])]
 #[ApiResource(
-    description: "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, newest first.",
+    description: "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, all of them, newest first.",
     operations: [
-        new GetCollection(security: "is_granted('ROLE_USER')"),
+        // All of them at once: the app needs the whole history, and a page per request made it wait
+        new GetCollection(paginationEnabled: false, security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('".AgentStatVoter::VIEW."', object)"),
         new Post(
             exceptionToStatus: [StatsAlreadyAddedException::class => 409, AgentNameException::class => 422],

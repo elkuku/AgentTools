@@ -226,7 +226,7 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame(1000, $list[1]['ap']);
     }
 
-    public function testListLinksTheNextPage(): void
+    public function testListHasAllStatsOnOnePage(): void
     {
         for ($minute = 0; $minute <= 30; ++$minute) {
             $this->postJson(['datetime' => \sprintf('2026-10-19 10:%02d:00', $minute)] + self::STATS);
@@ -237,17 +237,8 @@ class AgentStatApiTest extends WebTestCase
         $json = $this->responseJson();
         self::assertSame(31, $json['totalItems']);
         self::assertIsArray($json['member']);
-        self::assertCount(30, $json['member']);
-        self::assertIsArray($json['view']);
-        self::assertSame('/api/agent-stats?page=2', $json['view']['next']);
-
-        $this->get('/api/agent-stats?page=2');
-
-        $json = $this->responseJson();
-        self::assertIsArray($json['member']);
-        self::assertCount(1, $json['member']);
-        self::assertIsArray($json['view']);
-        self::assertArrayNotHasKey('next', $json['view']);
+        self::assertCount(31, $json['member']);
+        self::assertArrayNotHasKey('view', $json);
     }
 
     public function testListRequiresToken(): void
@@ -331,7 +322,7 @@ class AgentStatApiTest extends WebTestCase
         self::assertIsString($json['info']['description']);
         self::assertStringNotContainsString('<', $json['info']['description']);
         self::assertContains(
-            ['name' => 'AgentStat', 'description' => "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, newest first."],
+            ['name' => 'AgentStat', 'description' => "Ingress all-time agent stats, with the column names of 4e-website's agent_stat table. Lists only your own, all of them, newest first."],
             $json['tags'],
         );
     }
