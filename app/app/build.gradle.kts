@@ -21,8 +21,8 @@ android {
         applicationId = "com.elkuku.agenttools"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "0.4.0"
 
         // Debug builds offer it on the settings screen next to their default server
         buildConfigField("String", "LIVE_SERVER_BASE_URL", "\"${localProperty("server.baseUrl.release")}\"")
