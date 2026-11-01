@@ -21,7 +21,7 @@ Unbekannte Google-Konten werden bei ihrer ersten Anfrage als Benutzer registrier
 |---|---|---|
 | `GET` | `/api/me` | Der angemeldete Benutzer: ID, Kennung, Rolle, Agentenname, Avatar, Sondermedaillen, sichtbare Teile, Bannergress-Synchronisierung. |
 | `PATCH` | `/api/me` | JSON Merge Patch (`application/merge-patch+json`) von Agentenname, Sondermedaillen, sichtbaren Teilen und Bannergress-Synchronisierung. |
-| `GET` | `/api/agent-stats` | Die eigenen Statistiken des Benutzers, die neuesten zuerst, seitenweise. |
+| `GET` | `/api/agent-stats` | Die eigenen Statistiken des Benutzers, alle, die neuesten zuerst. |
 | `GET` | `/api/agent-stats/{id}` | Eine der Statistiken des Benutzers. |
 | `POST` | `/api/agent-stats` | Statistiken speichern (`201`; `409` für dasselbe Datum mit derselben Uhrzeit; `422` für Statistiken eines anderen Agenten). |
 | `GET`, `POST` | `/api/timeline-events` | Die eigenen Zeitleisten-Ereignisse des Benutzers; eines hinzufügen. |

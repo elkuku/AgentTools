@@ -21,7 +21,7 @@ son `application/problem+json` con un `detail`, incluido el `401` de un token au
 |---|---|---|
 | `GET` | `/api/me` | El usuario con sesión iniciada: ID, identificador, rol, nombre de agente, avatar, medallas especiales, partes visibles, sincronización con Bannergress. |
 | `PATCH` | `/api/me` | JSON merge patch (`application/merge-patch+json`) del nombre de agente, las medallas especiales, las partes visibles y la sincronización con Bannergress. |
-| `GET` | `/api/agent-stats` | Las estadísticas propias del usuario, las más recientes primero, paginadas. |
+| `GET` | `/api/agent-stats` | Las estadísticas propias del usuario, todas, las más recientes primero. |
 | `GET` | `/api/agent-stats/{id}` | Una de las estadísticas del usuario. |
 | `POST` | `/api/agent-stats` | Guardar estadísticas (`201`; `409` para la misma fecha y hora; `422` para estadísticas de otro agente). |
 | `GET`, `POST` | `/api/timeline-events` | Los eventos propios de la línea de tiempo del usuario; añadir uno. |

@@ -21,7 +21,7 @@ Unknown Google accounts are registered as users on their first request. Errors a
 |---|---|---|
 | `GET` | `/api/me` | The signed-in user: id, identifier, role, agent name, avatar, custom medals, visible parts, Bannergress sync. |
 | `PATCH` | `/api/me` | JSON merge patch (`application/merge-patch+json`) of the agent name, custom medals, visible parts and Bannergress sync. |
-| `GET` | `/api/agent-stats` | The user's own stats, newest first, paginated. |
+| `GET` | `/api/agent-stats` | The user's own stats, all of them, newest first. |
 | `GET` | `/api/agent-stats/{id}` | One of the user's stats. |
 | `POST` | `/api/agent-stats` | Save stats (`201`; `409` for the same date and time; `422` for another agent's stats). |
 | `GET`, `POST` | `/api/timeline-events` | The user's own timeline events; add one. |
