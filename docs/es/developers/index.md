@@ -145,7 +145,7 @@ La app web publica en Slack: usuarios nuevos, subidas de stats (con la ganancia 
 importaciones CSV en un canal de actividad (`SLACK_CHANNEL`), y errores (el mismo como mucho cada 10
 minutos; no 400, 403, 404, 405, 422) y deprecaciones (cada una una vez al día) en un canal de errores
 (`SLACK_ERRORS_CHANNEL`). Producción usa `#agenttools-uploads` y `#agenttools-errors`, dev `#agenttools-uploads-dev`
-y `#agenttools-errors-dev` (`web/.env.dev`); los tests no publican nada.
+y `#agenttools-errors-dev` (`web/.env.dev`); los tests no publican nada. Los mismos mensajes van también a [Telegram](#telegram-notifications).
 
 1. En [api.slack.com/apps](https://api.slack.com/apps), crea una app en tu workspace, dale a su bot
    el scope `chat:write` (OAuth & Permissions) e instálala. Copia el token del bot (`xoxb-…`).
@@ -163,3 +163,29 @@ y `#agenttools-errors-dev` (`web/.env.dev`); los tests no publican nada.
 Sin `SLACK_DSN` (`null://null`, el valor por defecto en dev y en los tests) no se publica nada. Un
 fallo de Slack nunca rompe una petición: la actividad se envía después de la respuesta y los fallos
 solo van al log.
+
+## Notificaciones de Telegram {#telegram-notifications}
+
+Los mismos mensajes van también a Telegram: la actividad al chat `TELEGRAM_CHAT_ID`, los errores y
+las deprecaciones a `TELEGRAM_ERRORS_CHAT_ID`. Un ID de chat vacío (el valor por defecto) deja fuera
+a Telegram, igual que un canal de Slack vacío deja fuera a Slack.
+
+1. En Telegram, pide a [@BotFather](https://t.me/BotFather) un bot nuevo (`/newbot`) y copia su
+   token (`123456789:AA…`).
+2. Crea, por entorno, un grupo o canal para la actividad y otro para los errores, y añade el bot a
+   cada uno (en un canal como administrador que puede publicar mensajes). Envía un mensaje en cada
+   uno.
+3. Pon el token en `web/.env.local`, en el servidor y en tu checkout de desarrollo:
+   ```
+   TELEGRAM_DSN=telegram://123456789:AA…@default
+   ```
+4. Ejecuta `bin/console app:telegram:test`: comprueba el token y, mientras falte un ID de chat,
+   lista los chats de los que el bot ha visto mensajes (`--chats` los lista siempre; Telegram los
+   guarda un día). Pon sus IDs en `web/.env.local` (el de un grupo empieza por `-`, el de un canal
+   o supergrupo por `-100`):
+   ```
+   TELEGRAM_CHAT_ID=-100…
+   TELEGRAM_ERRORS_CHAT_ID=-100…
+   ```
+   y ejecútalo otra vez: publica en los dos chats y dice qué hacer con los errores de Telegram, p.
+   ej. `chat not found` (`-v` muestra las respuestas de Telegram). Después despliega.

@@ -140,7 +140,7 @@ The web app posts to Slack: new users, stats uploads (with the AP gain) and CSV 
 activity channel (`SLACK_CHANNEL`), and errors (the same one at most every 10 minutes; not 400, 403,
 404, 405, 422) and deprecations (each once a day) to an errors channel (`SLACK_ERRORS_CHANNEL`). Production
 uses `#agenttools-uploads` and `#agenttools-errors`, dev `#agenttools-uploads-dev` and `#agenttools-errors-dev`
-(`web/.env.dev`); tests post nothing.
+(`web/.env.dev`); tests post nothing. The same messages also go to [Telegram](#telegram-notifications).
 
 1. At [api.slack.com/apps](https://api.slack.com/apps), create an app in your workspace, give its
    bot the scope `chat:write` (OAuth & Permissions) and install it. Copy the bot token (`xoxb-…`).
@@ -158,3 +158,28 @@ uses `#agenttools-uploads` and `#agenttools-errors`, dev `#agenttools-uploads-de
 Without `SLACK_DSN` (`null://null`, the default in dev and tests) nothing is posted. A Slack
 failure never breaks a request: activity is sent after the response, and failures only go to the
 log.
+
+## Telegram notifications {#telegram-notifications}
+
+The same messages also go to Telegram: activity to the chat `TELEGRAM_CHAT_ID`, errors and
+deprecations to `TELEGRAM_ERRORS_CHAT_ID`. A chat ID that is empty (the default) leaves Telegram out,
+as an empty Slack channel leaves Slack out.
+
+1. In Telegram, ask [@BotFather](https://t.me/BotFather) for a new bot (`/newbot`) and copy its
+   token (`123456789:AA…`).
+2. Create a group or channel for the activity and one for the errors, per environment, and add the
+   bot to each (in a channel as an administrator that may post messages). Send a message in each.
+3. Put the token in `web/.env.local`, on the server and in your dev checkout:
+   ```
+   TELEGRAM_DSN=telegram://123456789:AA…@default
+   ```
+4. Run `bin/console app:telegram:test`: it checks the token and, while a chat ID is missing, lists
+   the chats the bot has seen messages from (`--chats` lists them anyway; Telegram keeps them for a
+   day). Put their IDs in `web/.env.local` (a group's starts with `-`, a channel's or supergroup's
+   with `-100`):
+   ```
+   TELEGRAM_CHAT_ID=-100…
+   TELEGRAM_ERRORS_CHAT_ID=-100…
+   ```
+   and run it again: it posts to both chats and says what to do for Telegram's errors, e.g.
+   `chat not found` (`-v` shows Telegram's answers). Then deploy.
