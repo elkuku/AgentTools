@@ -1,8 +1,7 @@
 # AgentTools
 
 Save your Ingress agent stats and medals and see them in one place: share them from Ingress with
-the AgentTools Android app, and see them in the app and on
-[agent-tools.elkuku.dev](https://agent-tools.elkuku.dev).
+the AgentTools Android app, and see them in the app and on the web.
 
 ## 📖 [Read the documentation](https://elkuku.github.io/AgentTools/)
 
