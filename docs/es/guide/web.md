@@ -11,7 +11,7 @@ de la app; el sitio web también puede importar estadísticas que guardaste en o
 Haz clic en **Iniciar sesión con Google** y elige la misma cuenta de Google que en la app. La
 primera vez, el sitio web te lleva a tu perfil para que elijas lo que ven otros usuarios.
 
-La barra de navegación tiene **Agentes** (y **Admin** para los administradores). A la derecha: tu foto
+La barra de navegación tiene **Agentes**, **Enlaces** (también sin sesión) y **Admin** para los administradores. A la derecha: tu foto
 de perfil con el menú de usuario (**Mis estadísticas**, **Mi línea de tiempo**, **Mis banners**, perfil, **Importar estadísticas**, cerrar sesión), el idioma
 (inglés, alemán, español) y el tema claro u oscuro.
 
@@ -83,6 +83,17 @@ muestra. Como en tus estadísticas de agente, su línea de tiempo y sus banners 
 y tienen páginas propias.
 
 ![El perfil de un agente](/screenshots/web/es/agent-profile.webp){.shot-web}
+
+## Enlaces {#links}
+
+**Enlaces** en la barra de navegación (sin iniciar sesión) muestra sitios
+útiles para agentes de Ingress por secciones. Un enlace se abre en una pestaña nueva. La app tiene
+la misma lista.
+
+La lista es [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) en el
+repositorio: **Proponer un enlace** la abre en GitHub, donde cualquiera puede proponer un cambio
+con un pull request. Cada enlace se comprueba una vez al día; mira también la
+[lista en este sitio](/es/links).
 
 ## Perfil {#profile}
 

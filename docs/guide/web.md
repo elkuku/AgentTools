@@ -11,7 +11,7 @@ the website can also import stats you saved elsewhere.
 Click **Sign in with Google** and pick the same Google account as in the app. The first time, the
 website takes you to your profile to choose what other users see.
 
-The navigation bar has **Agents** (and **Admin** for admins). On the right: your profile
+The navigation bar has **Agents**, **Links** (also signed out) and **Admin** for admins. On the right: your profile
 picture with the user menu (**My stats**, **My timeline**, **My banners**, profile, **Import stats**, sign out), the language (English, German,
 Spanish) and the light or dark theme.
 
@@ -79,6 +79,15 @@ it on your timeline.
 your agent stats, their timeline and their banners are summed up there and have pages of their own.
 
 ![An agent's profile](/screenshots/web/agent-profile.webp){.shot-web}
+
+## Links
+
+**Links** in the navigation bar (no sign-in needed) lists useful sites for
+Ingress agents by section. A link opens in a new tab. The app has the same list.
+
+The list is [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) in the
+repository: **Suggest a link** opens it on GitHub, where anyone can propose a change with a pull
+request. Every link is checked once a day; see also the [list on this site](/links).
 
 ## Profile
 

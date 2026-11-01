@@ -17,7 +17,8 @@ After signing in, the home screen sums up your account:
 - **Share from Ingress**: a reminder of how to upload.
 
 At the top, your profile picture opens the account menu (your email and role, **My stats**, **My timeline**,
-**My banners**, **Settings**, **Sign out**), and ☰ opens the feature menu with **Agents**. Pull
+**My banners**, **Settings**, **Sign out**), and ☰ opens the feature menu with **Agents** and
+**Links** (signed out, ☰ has **Links** next to **Sign in**). Pull
 down on a screen to reload it.
 
 <div style="clear: both"></div>
@@ -136,6 +137,16 @@ medals, their stats history and their banners. As on **My stats**, their timelin
 banners are summed up there: tap **Timeline** or **Banners** to open them on a screen of their own.
 
 Admins also have ☰ → **Admin agents**: every user with what they show.
+
+## Links
+
+☰ → **Links** lists useful sites for Ingress agents by
+section, also without signing in; tap one to open it in the browser. It is the same list as on the
+[website](/guide/web#links), [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md)
+in the repository: **Suggest a link** opens it on GitHub.
+
+The app keeps the last list it loaded: it shows right away and offline, and is loaded again each
+time you open it or pull down. Offline before the first load there is no list yet.
 
 ## Settings
 

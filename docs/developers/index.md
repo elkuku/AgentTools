@@ -102,6 +102,26 @@ cd docs
 npm run screenshots:app   # optional: -- en de es
 ```
 
+## The link list
+
+The Ingress link list of the website (`/links`), the app (☰ → **Links**) and this site
+([Links](/links)) is one Markdown file, `docs/links.md`, changed with pull requests. Between
+`<!-- #region list -->` and `<!-- #endregion list -->` it has only `## ` sections (in English)
+with entries `- [Title](https://…) — Description` (the description is optional, https only); the
+German and Spanish pages include that part.
+
+- The web app reads the file from its checkout (the deploy has the whole repository), so a merged
+  change is live after the next deploy. `LinkList/LinkListParser` reads it with league/commonmark
+  (cached until the file changes) for `/links` and `GET /api/links`.
+- The app loads `GET /api/links` and keeps the last list in its files (`links.json`) for offline.
+- `LinkListFileTest` fails on an entry in another format; the Symfony tests run on pull requests
+  that change the file.
+- `.github/workflows/links.yml` checks every link with [lychee](https://lychee.cli.rs) once a day
+  (config in `.github/lychee.toml`: retries, 403 and 429 count as working). A link that fails two
+  runs in a row goes into one issue with the label `broken-links`, updated each day and closed
+  when all links work again. A pull request that changes the list fails on a broken link.
+  Telegram (`t.me`) answers even for a channel that is gone, so the check cannot find those.
+
 ## Dev app
 
 The GitHub Pages workflow also builds the `dev` build type of the latest master and puts it on the

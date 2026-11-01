@@ -6,7 +6,7 @@ Admins finden einen Token für deren Schaltfläche **Authorize** auf ihrer Profi
 
 ## Authentifizierung {#authentication}
 
-Jede Anfrage braucht einen Google-ID-Token, der für den Web-OAuth-Client ausgestellt ist:
+Jede Anfrage außer `GET /api/links` braucht einen Google-ID-Token, der für den Web-OAuth-Client ausgestellt ist:
 
 ```http
 Authorization: Bearer <Google ID token>
@@ -31,6 +31,7 @@ Unbekannte Google-Konten werden bei ihrer ersten Anfrage als Benutzer registrier
 | `GET` | `/api/agents` | Die Agenten, die ihr Profil zeigen. |
 | `GET` | `/api/agents/{agentName}` | Ein Agent mit den Teilen, die er zeigt (`404`, wenn privat). |
 | `GET` | `/api/users` | Admins: alle Benutzer und was sie zeigen. |
+| `GET` | `/api/links` | Die [Linkliste](./#the-link-list): Abschnitte mit ihren Links (title, url, description). Ohne Token; eine Stunde gecacht. |
 
 ## Statistiken speichern {#saving-stats}
 

@@ -1,0 +1,104 @@
+name: Link check
+
+# Checks every link of docs/links.md (the Ingress link list of the website and the app) once a day.
+# A link that fails two runs in a row goes into one issue (label broken-links), updated each day and
+# closed when all links work again; a single failure is often a flaky site. Pull requests that
+# change the list fail on a broken link instead.
+on:
+    schedule:
+        - cron: '17 5 * * *'
+    workflow_dispatch:
+    pull_request:
+        paths:
+            - 'docs/links.md'
+            - '.github/lychee.toml'
+            - '.github/workflows/links.yml'
+
+permissions:
+    contents: read
+    issues: write
+
+concurrency:
+    group: link-check-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    links:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+
+            # The links that failed the run before
+            - name: Restore the last failures
+              if: github.event_name != 'pull_request'
+              uses: actions/cache/restore@v6
+              with:
+                  path: link-check
+                  key: link-check-${{ github.run_id }}
+                  restore-keys: link-check-
+
+            - name: Check the links
+              uses: lycheeverse/lychee-action@v2
+              with:
+                  args: --config .github/lychee.toml --no-progress docs/links.md
+                  format: json
+                  output: lychee/out.json
+                  fail: false
+                  jobSummary: false
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: List the failures
+              run: |
+                  mkdir -p link-check
+                  touch link-check/failures.tsv
+                  # url<TAB>status of every failed link
+                  jq -r '[(.fail_map // {}), (.error_map // {})] | map(.[]?[]?) | unique_by(.url) | .[]
+                      | [.url, (.status.text // (.status | tostring))] | @tsv' lychee/out.json > failures.tsv
+                  echo "Failed now:" && cat failures.tsv
+                  echo "Failed the run before:" && cat link-check/failures.tsv
+                  # Broken: failed now and the run before
+                  awk -F '\t' 'NR == FNR { before[$1] = 1; next } $1 in before' link-check/failures.tsv failures.tsv > broken.tsv
+                  cp failures.tsv link-check/failures.tsv
+
+            - name: Fail the pull request on a broken link
+              if: github.event_name == 'pull_request'
+              run: |
+                  if [ -s failures.tsv ]; then
+                      echo "::error::Broken links in docs/links.md:"
+                      cat failures.tsv
+                      exit 1
+                  fi
+
+            - name: Save the failures
+              if: github.event_name != 'pull_request'
+              uses: actions/cache/save@v6
+              with:
+                  path: link-check
+                  key: link-check-${{ github.run_id }}
+
+            - name: Open, update or close the issue
+              if: github.event_name != 'pull_request'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+              run: |
+                  issue=$(gh issue list --label broken-links --state open --json number --jq '.[0].number // empty')
+                  if [ -s broken.tsv ]; then
+                      {
+                          echo "These links in [docs/links.md]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/docs/links.md) failed the daily link check two runs in a row:"
+                          echo
+                          echo "| Link | Status |"
+                          echo "|---|---|"
+                          awk -F '\t' '{ printf "| %s | %s |\n", $1, $2 }' broken.tsv
+                          echo
+                          echo "Fix or remove them with a pull request. [The last run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) · updated by .github/workflows/links.yml"
+                      } > issue.md
+                      if [ -n "$issue" ]; then
+                          gh issue edit "$issue" --body-file issue.md
+                      else
+                          gh label create broken-links --color d73a4a --description 'docs/links.md has broken links' --force
+                          gh issue create --title 'Broken links in the link list' --label broken-links --body-file issue.md
+                      fi
+                  elif [ -n "$issue" ]; then
+                      gh issue close "$issue" --comment "All links work again ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))."
+                  fi

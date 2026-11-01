@@ -6,7 +6,7 @@ a token for their **Authorize** button on their profile page.
 
 ## Authentication
 
-Every request needs a Google ID token issued for the Web OAuth client:
+Every request except `GET /api/links` needs a Google ID token issued for the Web OAuth client:
 
 ```http
 Authorization: Bearer <Google ID token>
@@ -31,6 +31,7 @@ Unknown Google accounts are registered as users on their first request. Errors a
 | `GET` | `/api/agents` | The agents who show their profile. |
 | `GET` | `/api/agents/{agentName}` | One agent with the parts they show (`404` if private). |
 | `GET` | `/api/users` | Admins: every user with what they show. |
+| `GET` | `/api/links` | The [link list](./#the-link-list): sections with their links (title, url, description). No token needed; cached for an hour. |
 
 ## Saving stats
 

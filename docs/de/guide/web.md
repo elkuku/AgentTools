@@ -12,7 +12,7 @@ hast.
 Klicke auf **Über Google anmelden** und wähle dasselbe Google-Konto wie in der App. Beim ersten Mal
 bringt dich die Website zu deinem Profil, damit du wählst, was andere Benutzer sehen.
 
-Die Navigationsleiste enthält **Agenten** (und **Admin** für Admins). Rechts: dein
+Die Navigationsleiste enthält **Agenten**, **Links** (auch abgemeldet) und **Admin** für Admins. Rechts: dein
 Profilbild mit dem Benutzermenü (**Meine Statistiken**, **Meine Zeitleiste**, **Meine Banner**, Profil, **Statistiken importieren**, Abmelden), die Sprache
 (Englisch, Deutsch, Spanisch) und das helle oder dunkle Design.
 
@@ -85,6 +85,17 @@ er zeigt. Wie bei deinen Agentenstatistiken sind seine Zeitleiste und seine Bann
 zusammengefasst und haben eigene Seiten.
 
 ![Das Profil eines Agenten](/screenshots/web/de/agent-profile.webp){.shot-web}
+
+## Links {#links}
+
+**Links** in der Navigationsleiste (ohne Anmeldung) listet nützliche Seiten
+für Ingress-Agenten nach Abschnitten. Ein Link öffnet sich in einem neuen Tab. Die App hat dieselbe
+Liste.
+
+Die Liste ist [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) im
+Repository: **Link vorschlagen** öffnet sie auf GitHub, wo jeder mit einem Pull-Request eine
+Änderung vorschlagen kann. Jeder Link wird einmal am Tag geprüft; siehe auch die
+[Liste auf dieser Seite](/de/links).
 
 ## Profil {#profile}
 

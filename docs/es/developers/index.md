@@ -105,6 +105,28 @@ cd docs
 npm run screenshots:app   # opcional: -- en de es
 ```
 
+## La lista de enlaces {#the-link-list}
+
+La lista de enlaces de Ingress del sitio web (`/links`), de la app (☰ → **Enlaces**) y de este
+sitio ([Enlaces](/es/links)) es un archivo Markdown, `docs/links.md`, que se cambia con pull
+requests. Entre `<!-- #region list -->` y `<!-- #endregion list -->` solo tiene secciones `## `
+(en inglés) con entradas `- [Título](https://…) — Descripción` (la descripción es opcional, solo
+https); las páginas en alemán y español incluyen esa parte.
+
+- La app web lee el archivo de su checkout (el despliegue tiene todo el repositorio), así que un
+  cambio fusionado está en línea tras el siguiente despliegue. `LinkList/LinkListParser` lo lee con
+  league/commonmark (en caché hasta que cambia el archivo) para `/links` y `GET /api/links`.
+- La app carga `GET /api/links` y guarda la última lista en sus archivos (`links.json`) para usarla
+  sin conexión.
+- `LinkListFileTest` falla con una entrada en otro formato; los tests de Symfony se ejecutan en los
+  pull requests que cambian el archivo.
+- `.github/workflows/links.yml` comprueba cada enlace una vez al día con
+  [lychee](https://lychee.cli.rs) (configuración en `.github/lychee.toml`: reintentos, 403 y 429
+  cuentan como accesibles). Un enlace que falla dos ejecuciones seguidas va a un issue con la
+  etiqueta `broken-links`, que se actualiza cada día y se cierra cuando todos los enlaces vuelven a
+  funcionar. Un pull request que cambia la lista falla con un enlace roto. Telegram (`t.me`)
+  responde incluso para un canal que ya no existe, así que la comprobación no los detecta.
+
 ## App de desarrollo {#dev-app}
 
 El workflow de GitHub Pages también compila el tipo de compilación `dev` del último master y lo

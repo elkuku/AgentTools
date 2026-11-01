@@ -5,6 +5,7 @@ function themeConfig(prefix: string, t: {
   guide: string
   developers: string
   downloads: string
+  links: string
   website: string
   gettingStarted: string
   app: string
@@ -19,6 +20,7 @@ function themeConfig(prefix: string, t: {
       { text: t.guide, link: `${prefix}/guide/`, activeMatch: `${prefix}/guide/` },
       { text: t.developers, link: `${prefix}/developers/`, activeMatch: `${prefix}/developers/` },
       { text: t.downloads, link: `${prefix}/downloads` },
+      { text: t.links, link: `${prefix}/links` },
       { text: t.website, link: 'https://agent-tools.elkuku.dev' },
     ],
 
@@ -71,6 +73,7 @@ export default defineConfig({
           guide: 'Guide',
           developers: 'Developers',
           downloads: 'Downloads',
+          links: 'Links',
           website: 'Website',
           gettingStarted: 'Getting started',
           app: 'The Android app',
@@ -92,6 +95,7 @@ export default defineConfig({
           guide: 'Anleitung',
           developers: 'Entwickler',
           downloads: 'Downloads',
+          links: 'Links',
           website: 'Website',
           gettingStarted: 'Erste Schritte',
           app: 'Die Android-App',
@@ -133,6 +137,7 @@ export default defineConfig({
           guide: 'Guía',
           developers: 'Desarrolladores',
           downloads: 'Descargas',
+          links: 'Enlaces',
           website: 'Sitio web',
           gettingStarted: 'Primeros pasos',
           app: 'La app para Android',

@@ -20,7 +20,7 @@ Nach der Anmeldung fasst der Startbildschirm dein Konto zusammen:
 
 Oben öffnet dein Profilbild das Kontomenü (deine E-Mail und Rolle, **Meine Statistiken**, **Meine Zeitleiste**,
 **Meine Banner**, **Einstellungen**, **Abmelden**), und ☰ öffnet das Funktionsmenü mit
-**Agenten**. Zieh einen Bildschirm nach unten, um ihn neu zu laden.
+**Agenten** und **Links** (abgemeldet hat ☰ **Links** neben **Anmelden**). Zieh einen Bildschirm nach unten, um ihn neu zu laden.
 
 <div style="clear: both"></div>
 
@@ -147,6 +147,17 @@ sind seine Zeitleiste und seine Banner dort zusammengefasst: Tippe auf **Zeitlei
 **Banner**, um sie auf einem eigenen Bildschirm zu öffnen.
 
 Admins haben außerdem ☰ → **Agenten verwalten**: alle Benutzer und was sie zeigen.
+
+## Links {#links}
+
+☰ → **Links** listet nützliche Seiten für Ingress-Agenten nach
+Abschnitten, auch ohne Anmeldung; tippe auf einen Link, um ihn im Browser zu öffnen. Es ist dieselbe
+Liste wie auf der [Website](/de/guide/web#links),
+[docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) im Repository:
+**Link vorschlagen** öffnet sie auf GitHub.
+
+Die App behält die zuletzt geladene Liste: Sie erscheint sofort und offline und wird bei jedem
+Öffnen oder Herunterziehen neu geladen. Offline vor dem ersten Laden gibt es noch keine Liste.
 
 ## Einstellungen {#settings}
 

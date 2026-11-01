@@ -17,7 +17,8 @@ Después de iniciar sesión, la pantalla de inicio resume tu cuenta:
 - **Compartir desde Ingress**: un recordatorio de cómo subir.
 
 Arriba, tu foto de perfil abre el menú de la cuenta (tu correo y rol, **Mis estadísticas**, **Mi línea de tiempo**,
-**Mis banners**, **Ajustes**, **Cerrar sesión**), y ☰ abre el menú de funciones con **Agentes**.
+**Mis banners**, **Ajustes**, **Cerrar sesión**), y ☰ abre el menú de funciones con **Agentes** y
+**Enlaces** (sin sesión, ☰ tiene **Enlaces** junto a **Iniciar sesión**).
 Desliza hacia abajo en una pantalla para recargarla.
 
 <div style="clear: both"></div>
@@ -140,6 +141,18 @@ su línea de tiempo y sus banners aparecen resumidos: toca **Línea de tiempo** 
 abrirlos en una pantalla propia.
 
 Los administradores tienen además ☰ → **Administrar agentes**: cada usuario con lo que muestra.
+
+## Enlaces {#links}
+
+☰ → **Enlaces** muestra sitios útiles para agentes de
+Ingress por secciones, también sin iniciar sesión; toca uno para abrirlo en el navegador. Es la
+misma lista que en el [sitio web](/es/guide/web#links),
+[docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) en el repositorio:
+**Proponer un enlace** la abre en GitHub.
+
+La app guarda la última lista que cargó: aparece al instante y sin conexión, y se carga de nuevo
+cada vez que la abres o deslizas hacia abajo. Sin conexión antes de la primera carga todavía no hay
+lista.
 
 ## Ajustes {#settings}
 
