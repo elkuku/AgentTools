@@ -39,7 +39,8 @@ data class TimelineChartData(
     data class YTick(val y: Float, val value: Double, val label: String)
 
     /** The first day of a month. */
-    data class XTick(val x: Float, val month: LocalDate)
+    /** A month's start; with ticks a year or more apart only the year is shown, as web's. */
+    data class XTick(val x: Float, val month: LocalDate, val yearOnly: Boolean = false)
 }
 
 /** As web's `TimelineChart::MAX_DOTS`. */
@@ -96,10 +97,10 @@ private fun chart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, da
     val firstMonth = LocalDate.ofEpochDay(floor(start).toLong()).withDayOfMonth(1).plusMonths(1)
     val lastDay = LocalDate.ofEpochDay(floor(end).toLong())
     val months = (lastDay.year - firstMonth.year) * 12 + lastDay.monthValue - firstMonth.monthValue + 1
-    val every = listOf(1, 2, 3, 6, 12).firstOrNull { months / it.toDouble() <= 6 } ?: 12
-    // On months that divide by the step: January, April, July and October for 3
+    val every = listOf(1, 2, 3, 6, 12, 24, 60, 120).firstOrNull { months / it.toDouble() <= 6 } ?: 120
+    // On months that divide by the step, counted from year 0: January, April, July and October for 3, even years for 24
     var month = firstMonth
-    while ((month.monthValue - 1) % every != 0) month = month.plusMonths(1)
+    while ((month.year * 12 + month.monthValue - 1) % every != 0) month = month.plusMonths(1)
 
     return TimelineChartData(
         points = entries.sortedBy { it.datetime }.map { TimelineChartData.Point(x(it.day()), y((it["ap"] ?: 0).toDouble()), it) },
@@ -112,7 +113,7 @@ private fun chart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, da
         // No AP axis without uploads (e.g. zoomed to the days of a travel only), as web's
         yTicks = generateSequence(low) { it + step }.takeWhile { entries.isNotEmpty() && it <= high + step / 2 }.map { TimelineChartData.YTick(y(it), it, compactNumber(it, step)) }.toList(),
         xTicks = generateSequence(month) { it.plusMonths(every.toLong()) }.takeWhile { !it.isAfter(lastDay) }
-            .map { TimelineChartData.XTick(x(it.toEpochDay().toDouble()), it) }.toList(),
+            .map { TimelineChartData.XTick(x(it.toEpochDay().toDouble()), it, yearOnly = every >= 12) }.toList(),
     )
 }
 

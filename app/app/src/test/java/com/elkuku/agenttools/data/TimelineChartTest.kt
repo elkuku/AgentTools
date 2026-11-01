@@ -32,6 +32,21 @@ class TimelineChartTest {
     }
 
     @Test
+    fun ticksAYearOrMoreApartShowTheYear() {
+        // As web's: eight years of uploads would be 9 yearly ticks, too many for the phone's width
+        val years = timelineChart(listOf(entry("2018-11-19 12:00:00", 1000), entry("2026-10-24 12:00:00", 2500)), emptyList())!!
+        assertEquals(listOf(2020, 2022, 2024, 2026), years.xTicks.map { it.month.year })
+        assertTrue(years.xTicks.all { it.yearOnly && it.month.monthValue == 1 })
+
+        val yearly = timelineChart(listOf(entry("2023-03-01 12:00:00", 1000), entry("2026-10-01 12:00:00", 2500)), emptyList())!!
+        assertEquals(listOf(2024, 2025, 2026), yearly.xTicks.map { it.month.year })
+        assertTrue(yearly.xTicks.all { it.yearOnly })
+
+        val months = timelineChart(listOf(entry("2026-01-10 12:00:00", 1000), entry("2026-10-01 12:00:00", 2500)), emptyList())!!
+        assertTrue(months.xTicks.none { it.yearOnly })
+    }
+
+    @Test
     fun eventsAreFlagsAndTravelsBands() {
         val flag = TimelineEvent(1, "2026-09-05", "First Saturday")
         val travel = TimelineEvent(2, "2026-09-20", "Travel to Cuenca", endDate = "2026-10-02")

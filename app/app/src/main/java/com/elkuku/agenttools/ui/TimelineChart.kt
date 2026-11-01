@@ -82,6 +82,7 @@ fun TimelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, ra
     val labelStyle = MaterialTheme.typography.labelSmall
     val measurer = rememberTextMeasurer()
     val monthFormat = DateTimeFormatter.ofPattern("MMM yyyy", LocalConfiguration.current.locales[0])
+    val yearFormat = DateTimeFormatter.ofPattern("yyyy")
     var selected by remember(chart) { mutableStateOf<Any?>(null) }
     val description = stringResource(R.string.timeline_chart)
 
@@ -134,7 +135,7 @@ fun TimelineChart(entries: List<AgentStatEntry>, events: List<TimelineEvent>, ra
             drawLine(axis, Offset(left, bottom), Offset(right, bottom), strokeWidth = 1.dp.toPx())
             chart.xTicks.forEach { tick ->
                 drawLine(axis, Offset(px(tick.x), bottom), Offset(px(tick.x), bottom + 4.dp.toPx()), strokeWidth = 1.dp.toPx())
-                val label = measurer.measure(tick.month.format(monthFormat), labelStyle.copy(color = axis))
+                val label = measurer.measure(tick.month.format(if (tick.yearOnly) yearFormat else monthFormat), labelStyle.copy(color = axis))
                 val x = (px(tick.x) - label.size.width / 2).coerceIn(0f, size.width - label.size.width)
                 drawText(label, topLeft = Offset(x, bottom + 6.dp.toPx()))
             }
