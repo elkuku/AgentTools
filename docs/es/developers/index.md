@@ -166,26 +166,26 @@ solo van al log.
 
 ## Notificaciones de Telegram {#telegram-notifications}
 
-Los mismos mensajes van también a Telegram: la actividad al chat `TELEGRAM_CHAT_ID`, los errores y
-las deprecaciones a `TELEGRAM_ERRORS_CHAT_ID`. Un ID de chat vacío (el valor por defecto) deja fuera
-a Telegram, igual que un canal de Slack vacío deja fuera a Slack.
+Los mismos mensajes van también a Telegram, a través del bot @IngressAgentToolsBot: la actividad a un
+canal (`TELEGRAM_CHAT_ID`), los errores y las deprecaciones a otro (`TELEGRAM_ERRORS_CHAT_ID`).
+Producción usa los canales «AgentTools Uploads» y «AgentTools Errors» (`web/.env`), dev
+«AgentTools Uploads DEV» y «AgentTools Errors DEV» (`web/.env.dev`); las imágenes están en
+`images/telegram/`. Un ID de chat vacío deja fuera a Telegram, igual que un canal de Slack vacío deja
+fuera a Slack.
 
 1. En Telegram, pide a [@BotFather](https://t.me/BotFather) un bot nuevo (`/newbot`) y copia su
    token (`123456789:AA…`).
-2. Crea, por entorno, un grupo o canal para la actividad y otro para los errores, y añade el bot a
-   cada uno (en un canal como administrador que puede publicar mensajes). Envía un mensaje en cada
-   uno.
+2. Crea los cuatro canales y añade el bot a cada uno como administrador que puede publicar mensajes.
 3. Pon el token en `web/.env.local`, en el servidor y en tu checkout de desarrollo:
    ```
    TELEGRAM_DSN=telegram://123456789:AA…@default
    ```
-4. Ejecuta `bin/console app:telegram:test`: comprueba el token y, mientras falte un ID de chat,
-   lista los chats de los que el bot ha visto mensajes (`--chats` los lista siempre; Telegram los
-   guarda un día). Pon sus IDs en `web/.env.local` (el de un grupo empieza por `-`, el de un canal
-   o supergrupo por `-100`):
-   ```
-   TELEGRAM_CHAT_ID=-100…
-   TELEGRAM_ERRORS_CHAT_ID=-100…
-   ```
-   y ejecútalo otra vez: publica en los dos chats y dice qué hacer con los errores de Telegram, p.
-   ej. `chat not found` (`-v` muestra las respuestas de Telegram). Después despliega.
+   y despliega.
+4. Compruébalo con `bin/console app:telegram:test` (`-v` muestra las respuestas de Telegram):
+   comprueba el token, publica en los dos chats del entorno y dice qué hacer con los errores de
+   Telegram, p. ej. `chat not found`.
+
+Otros chats: `app:telegram:test --chats` lista los chats de los que el bot ha visto mensajes
+(Telegram los guarda un día, así que envía antes un mensaje en un chat nuevo); define sus IDs como
+`TELEGRAM_CHAT_ID` y `TELEGRAM_ERRORS_CHAT_ID` en `web/.env.local`. El ID de un grupo empieza por
+`-`, el de un canal o supergrupo por `-100`.
