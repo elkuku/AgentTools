@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Log;
 
-use App\Log\SlackLogHandler;
+use App\Log\ChatLogHandler;
+use App\Notifier\ChatSender;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
@@ -17,26 +18,26 @@ use Symfony\Component\Notifier\Message\MessageInterface;
 use Symfony\Component\Notifier\Message\SentMessage;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class SlackLogHandlerTest extends TestCase
+class ChatLogHandlerTest extends TestCase
 {
-    /** @var list<ChatMessage> */
+    /** @var array<string, ChatMessage> by transport */
     private array $sent = [];
 
     private RequestStack $requestStack;
 
-    private SlackLogHandler $handler;
+    private ChatLogHandler $handler;
 
     protected function setUp(): void
     {
         $chatter = $this->createStub(ChatterInterface::class);
         $chatter->method('send')->willReturnCallback(function (MessageInterface $message): ?SentMessage {
             self::assertInstanceOf(ChatMessage::class, $message);
-            $this->sent[] = $message;
+            $this->sent[(string) $message->getTransport()] = $message;
 
             return null;
         });
         $this->requestStack = new RequestStack();
-        $this->handler = new SlackLogHandler($chatter, $this->requestStack, 'agenttools-errors');
+        $this->handler = new ChatLogHandler(new ChatSender($chatter, 'agenttools', 'agenttools-errors', '-1001', '-1002'), $this->requestStack);
     }
 
     public function testPostsErrorsAndDeprecationsOfABatchInOneMessage(): void
@@ -50,13 +51,23 @@ class SlackLogHandlerTest extends TestCase
             $this->record(Level::Info, 'User Deprecated: old() is deprecated', 'deprecation'),
         ]);
 
-        self::assertCount(1, $this->sent);
-        self::assertSame('agenttools-errors', $this->sent[0]->getRecipientId());
-        $lines = \explode("\n", $this->sent[0]->getSubject());
-        self::assertSame(':rotating_light: *CRITICAL* request: Uncaught PHP Exception &lt;RuntimeException&gt;', $lines[0]);
-        self::assertMatchesRegularExpression('/^`RuntimeException` at .+SlackLogHandlerTest\.php:\d+$/', $lines[1]);
-        self::assertSame(':warning: *INFO* deprecation: User Deprecated: old() is deprecated', $lines[2]);
+        self::assertSame([ChatSender::SLACK, ChatSender::TELEGRAM], \array_keys($this->sent));
+
+        $slack = $this->sent[ChatSender::SLACK];
+        self::assertSame('agenttools-errors', $slack->getRecipientId());
+        $lines = \explode("\n", $slack->getSubject());
+        self::assertSame('🚨 *CRITICAL* request: Uncaught PHP Exception &lt;RuntimeException&gt;', $lines[0]);
+        self::assertMatchesRegularExpression('/^`RuntimeException` at .+ChatLogHandlerTest\.php:\d+$/', $lines[1]);
+        self::assertSame('⚠️ *INFO* deprecation: User Deprecated: old() is deprecated', $lines[2]);
         self::assertSame('GET https://agenttools.test/agent-stats?x=%3C1%3E', $lines[3]);
+        self::assertCount(4, $lines);
+
+        $telegram = $this->sent[ChatSender::TELEGRAM];
+        self::assertSame('-1002', $telegram->getRecipientId());
+        $lines = \explode("\n", $telegram->getSubject());
+        self::assertSame('🚨 <b>CRITICAL</b> request: Uncaught PHP Exception &lt;RuntimeException&gt;', $lines[0]);
+        self::assertMatchesRegularExpression('/^<code>RuntimeException<\/code> at .+ChatLogHandlerTest\.php:\d+$/', $lines[1]);
+        self::assertSame('⚠️ <b>INFO</b> deprecation: User Deprecated: old() is deprecated', $lines[2]);
         self::assertCount(4, $lines);
     }
 
@@ -71,22 +82,24 @@ class SlackLogHandlerTest extends TestCase
     {
         $this->handler->handle($this->record(Level::Error, 'Command failed', 'console'));
 
-        self::assertSame(":rotating_light: *ERROR* console: Command failed\nconsole", $this->sent[0]->getSubject());
+        self::assertSame("🚨 *ERROR* console: Command failed\nconsole", $this->sent[ChatSender::SLACK]->getSubject());
     }
 
     public function testCutsLongMessages(): void
     {
         $this->handler->handle($this->record(Level::Error, \str_repeat('x', 5000)));
 
-        self::assertSame(3001, \mb_strlen($this->sent[0]->getSubject()));
-        self::assertStringEndsWith('…', $this->sent[0]->getSubject());
+        // 3000 (Slack) and 4000 (Telegram) visible characters, the markup and …
+        self::assertSame(3003, \mb_strlen($this->sent[ChatSender::SLACK]->getSubject()));
+        self::assertStringEndsWith('x…', $this->sent[ChatSender::SLACK]->getSubject());
+        self::assertSame(4008, \mb_strlen($this->sent[ChatSender::TELEGRAM]->getSubject()));
     }
 
     public function testAFailureDoesNotThrow(): void
     {
         $chatter = $this->createStub(ChatterInterface::class);
         $chatter->method('send')->willThrowException(new TransportException('Slack is down', $this->createStub(ResponseInterface::class)));
-        $handler = new SlackLogHandler($chatter, new RequestStack(), 'agenttools-errors');
+        $handler = new ChatLogHandler(new ChatSender($chatter, 'agenttools', 'agenttools-errors', '', ''), new RequestStack());
 
         $errorLog = \ini_set('error_log', '/dev/null');
         try {

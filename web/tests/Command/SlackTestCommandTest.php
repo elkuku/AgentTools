@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Command;
 
 use App\Command\SlackTestCommand;
-use App\Notifier\SlackActivity;
-use App\Repository\AgentStatRepository;
+use App\Notifier\ChatSender;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,7 +15,6 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\Notifier\Bridge\Slack\SlackTransport;
 use Symfony\Component\Notifier\Chatter;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class SlackTestCommandTest extends TestCase
@@ -89,16 +86,10 @@ class SlackTestCommandTest extends TestCase
             return new JsonMockResponse($this->answers[$channel] ?? ['ok' => true, 'channel' => 'C1', 'ts' => '1.2']);
         });
 
-        $slackActivity = new SlackActivity(
-            new Chatter(new SlackTransport('xoxb-1234-5678-abcdefgh', null, $httpClient)),
-            $this->createStub(UrlGeneratorInterface::class),
-            $this->createStub(AgentStatRepository::class),
-            new NullLogger(),
-            'agenttools',
-        );
+        $chatSender = new ChatSender(new Chatter(new SlackTransport('xoxb-1234-5678-abcdefgh', null, $httpClient)), 'agenttools', 'agenttools-errors', '', '');
 
         $application = new Application();
-        $application->addCommand(new SlackTestCommand($slackActivity, $httpClient, 'agenttools', 'agenttools-errors', 'test', $dsn));
+        $application->addCommand(new SlackTestCommand($chatSender, $httpClient, 'agenttools', 'agenttools-errors', 'test', $dsn));
 
         return new CommandTester($application->find('app:slack:test'));
     }

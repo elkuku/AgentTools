@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use App\Entity\User;
+use App\Notifier\ChatSender;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\FakeGoogleIdTokenVerifier;
@@ -116,17 +117,18 @@ class AgentStatApiTest extends WebTestCase
         self::assertSame(274, $stat->epoch);
         self::assertSame(4710, $stat->reclaimer);
         self::assertNull($stat->recon);
-        self::assertSame([\sprintf(':bar_chart: <http://localhost/admin/agents/%d|TestAgent> uploaded stats: level 16, AP 243,517,130 (first upload)', $stat->owner->id)], $this->slackMessages());
+        self::assertSame([\sprintf('📊 <http://localhost/admin/agents/%d|TestAgent> uploaded stats: level 16, AP 243,517,130 (first upload)', $stat->owner->id)], $this->chatMessages());
+        self::assertSame([\sprintf('📊 <a href="http://localhost/admin/agents/%d">TestAgent</a> uploaded stats: level 16, AP 243,517,130 (first upload)', $stat->owner->id)], $this->chatMessages(ChatSender::TELEGRAM));
     }
 
-    public function testPostsTheApGainToSlack(): void
+    public function testPostsTheApGainToTheChats(): void
     {
         $this->postJson(self::STATS);
         $this->postJson(['datetime' => '2026-10-20 10:00:00', 'ap' => 244_000_000] + self::STATS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-        self::assertCount(1, $this->slackMessages());
-        self::assertStringEndsWith('uploaded stats: level 16, AP 244,000,000 (+482,870)', $this->slackMessages()[0]);
+        self::assertCount(1, $this->chatMessages());
+        self::assertStringEndsWith('uploaded stats: level 16, AP 244,000,000 (+482,870)', $this->chatMessages()[0]);
     }
 
     public function testFirstUploadSetsTheAgentName(): void
@@ -197,7 +199,7 @@ class AgentStatApiTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
         self::assertSame('Stat entry already added!', $this->responseJson()['detail']);
         self::assertCount(1, $this->agentStatRepository()->findAll());
-        self::assertSame([], $this->slackMessages());
+        self::assertSame([], $this->chatMessages());
     }
 
     public function testListsOwnStatsNewestFirst(): void
@@ -295,11 +297,11 @@ class AgentStatApiTest extends WebTestCase
         $user = $this->userRepository()->findOneBy(['identifier' => self::NEW_GOOGLE_ID.'@example.com']);
         self::assertNotNull($user);
         self::assertSame(self::NEW_GOOGLE_ID, $user->getGoogleId());
-        self::assertSame([\sprintf(':wave: New user <http://localhost/admin/agents/%d|%s@example.com>', $user->id, self::NEW_GOOGLE_ID)], $this->slackMessages());
+        self::assertSame([\sprintf('👋 New user <http://localhost/admin/agents/%d|%s@example.com>', $user->id, self::NEW_GOOGLE_ID)], $this->chatMessages());
 
         // Once
         $this->get('/api/me', self::NEW_GOOGLE_ID);
-        self::assertSame([], $this->slackMessages());
+        self::assertSame([], $this->chatMessages());
 
         // They upload stats right away
         $this->postJson(['nickname' => 'NewAgent'] + self::STATS, self::NEW_GOOGLE_ID);
@@ -434,15 +436,15 @@ class AgentStatApiTest extends WebTestCase
     }
 
     /**
-     * What was posted to Slack in the last request.
+     * What was posted to Slack (or Telegram) in the last request.
      *
      * @return list<string>
      */
-    private function slackMessages(): array
+    private function chatMessages(string $transport = ChatSender::SLACK): array
     {
         return \array_values(\array_map(
             static fn (MessageEvent $event): string => $event->getMessage()->getSubject(),
-            \array_filter(self::getNotifierEvents(), static fn (MessageEvent $event): bool => !$event->isQueued()),
+            \array_filter(self::getNotifierEvents(), static fn (MessageEvent $event): bool => !$event->isQueued() && $transport === $event->getMessage()->getTransport()),
         ));
     }
 }

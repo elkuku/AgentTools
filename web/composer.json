@@ -44,6 +44,7 @@
         "symfony/slack-notifier": "*",
         "symfony/stimulus-bundle": "^v3.2.0",
         "symfony/string": "*",
+        "symfony/telegram-notifier": "8.*",
         "symfony/translation": "*",
         "symfony/twig-bundle": "*",
         "symfony/ux-icons": "^v3.2.0",

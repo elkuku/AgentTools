@@ -6,7 +6,8 @@ namespace App\Tests\Security;
 
 use App\Entity\User;
 use App\Enum\UserRole;
-use App\Notifier\SlackActivity;
+use App\Notifier\ChatActivity;
+use App\Notifier\ChatSender;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Security\GoogleUserResolver;
@@ -30,7 +31,7 @@ class GoogleUserResolverTest extends TestCase
 
     private ChatterInterface&MockObject $chatter;
 
-    private SlackActivity $slackActivity;
+    private ChatActivity $chatActivity;
 
     private GoogleUserResolver $resolver;
 
@@ -41,8 +42,8 @@ class GoogleUserResolverTest extends TestCase
         $this->chatter = $this->createMock(ChatterInterface::class);
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn('https://agenttools.test/admin/agents/1');
-        $this->slackActivity = new SlackActivity($this->chatter, $urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger(), 'agenttools');
-        $this->resolver = new GoogleUserResolver($this->userRepository, $this->entityManager, $this->slackActivity);
+        $this->chatActivity = new ChatActivity(new ChatSender($this->chatter, 'agenttools', 'agenttools-errors', '', ''), $urlGenerator, $this->createStub(AgentStatRepository::class), new NullLogger());
+        $this->resolver = new GoogleUserResolver($this->userRepository, $this->entityManager, $this->chatActivity);
     }
 
     public function testIdentityReturnsGoogleIdAndEmail(): void
@@ -89,7 +90,7 @@ class GoogleUserResolverTest extends TestCase
         $this->chatter->expects(self::never())->method('send');
 
         self::assertSame($existingUser, $this->resolver->resolve('gid-123', 'test@example.com'));
-        $this->slackActivity->send();
+        $this->chatActivity->send();
     }
 
     public function testResolveLinksExistingAccountByEmail(): void
@@ -108,7 +109,7 @@ class GoogleUserResolverTest extends TestCase
         $this->chatter->expects(self::never())->method('send');
 
         $result = $this->resolver->resolve('gid-999', 'shared@example.com');
-        $this->slackActivity->send();
+        $this->chatActivity->send();
 
         self::assertSame($existingUser, $result);
         self::assertSame('gid-999', $result->getGoogleId());
@@ -122,10 +123,10 @@ class GoogleUserResolverTest extends TestCase
         $this->entityManager->expects(self::once())->method('flush');
 
         $this->chatter->expects(self::once())->method('send')
-            ->with(self::callback(static fn (ChatMessage $message): bool => ':wave: New user <https://agenttools.test/admin/agents/1|brand@new.com>' === $message->getSubject()));
+            ->with(self::callback(static fn (ChatMessage $message): bool => '👋 New user <https://agenttools.test/admin/agents/1|brand@new.com>' === $message->getSubject()));
 
         $result = $this->resolver->resolve('gid-999', 'brand@new.com');
-        $this->slackActivity->send();
+        $this->chatActivity->send();
 
         self::assertSame('brand@new.com', $result->getIdentifier());
         self::assertSame('gid-999', $result->getGoogleId());

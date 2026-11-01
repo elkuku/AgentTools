@@ -356,6 +356,15 @@
             "assets/stimulus_bootstrap.js"
         ]
     },
+    "symfony/telegram-notifier": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "a3b62351bdaf9af180ffaf8a9c5ae0df70886abe"
+        }
+    },
     "symfony/translation": {
         "version": "7.3",
         "recipe": {

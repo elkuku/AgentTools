@@ -9,12 +9,12 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Dto\AgentStatInput;
 use App\Entity\AgentStat;
 use App\Entity\User;
-use App\Notifier\SlackActivity;
+use App\Notifier\ChatActivity;
 use App\Service\AgentStatService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * POST /api/agent-stats: saves the validated input for the current user and posts it to Slack.
+ * POST /api/agent-stats: saves the validated input for the current user and posts it to Slack and Telegram.
  * A StatsAlreadyAddedException is a 409, an AgentNameException a 422 (see AgentStat's #[ApiResource]).
  *
  * @implements ProcessorInterface<AgentStatInput, AgentStat>
@@ -24,7 +24,7 @@ final readonly class AgentStatProcessor implements ProcessorInterface
     public function __construct(
         private AgentStatService $agentStatService,
         private Security $security,
-        private SlackActivity $slackActivity,
+        private ChatActivity $chatActivity,
     ) {
     }
 
@@ -36,7 +36,7 @@ final readonly class AgentStatProcessor implements ProcessorInterface
         }
 
         $agentStat = $this->agentStatService->create($user, $data);
-        $this->slackActivity->statsUploaded($agentStat);
+        $this->chatActivity->statsUploaded($agentStat);
 
         return $agentStat;
     }

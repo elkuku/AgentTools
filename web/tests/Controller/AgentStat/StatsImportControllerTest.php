@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller\AgentStat;
 
 use App\Entity\User;
+use App\Notifier\ChatSender;
 use App\Repository\AgentStatRepository;
 use App\Repository\UserRepository;
 use App\Tests\Import\AgentStatCsvImporterTest;
@@ -59,7 +60,7 @@ class StatsImportControllerTest extends WebTestCase
 
         // The result with the stats
         self::assertResponseRedirects('/agent-stats');
-        self::assertSame([\sprintf(':inbox_tray: <http://localhost/admin/agents/%d|TestAgent> imported 1 stats upload', $this->user()->id)], $this->slackMessages());
+        self::assertSame([\sprintf('📥 <http://localhost/admin/agents/%d|TestAgent> imported 1 stats upload', $this->user()->id)], $this->chatMessages());
         $crawler = $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Imported 1 stats, skipped 0 you already had.');
         self::assertSelectorTextContains('.alert-warning', 'One row was not imported:');
@@ -141,15 +142,15 @@ class StatsImportControllerTest extends WebTestCase
     }
 
     /**
-     * What was posted to Slack in the last request.
+     * What was posted to Slack (or Telegram) in the last request.
      *
      * @return list<string>
      */
-    private function slackMessages(): array
+    private function chatMessages(string $transport = ChatSender::SLACK): array
     {
         return \array_values(\array_map(
             static fn (MessageEvent $event): string => $event->getMessage()->getSubject(),
-            \array_filter(self::getNotifierEvents(), static fn (MessageEvent $event): bool => !$event->isQueued()),
+            \array_filter(self::getNotifierEvents(), static fn (MessageEvent $event): bool => !$event->isQueued() && $transport === $event->getMessage()->getTransport()),
         ));
     }
 }

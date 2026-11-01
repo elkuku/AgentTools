@@ -5,36 +5,36 @@ monolog:
 when@dev:
     monolog:
         handlers:
-            # Errors and deprecations to Slack, also in prod
-            <<: &slack_handlers
-                # Errors to Slack (SLACK_ERRORS_CHANNEL, App\Log\SlackLogHandler), the same error at most every 10 minutes
-                slack_errors:
+            # Errors and deprecations to Slack and Telegram, also in prod
+            <<: &chat_handlers
+                # Errors to the chats (SLACK_ERRORS_CHANNEL, TELEGRAM_ERRORS_CHAT_ID, App\Log\ChatLogHandler), the same error at most every 10 minutes
+                chat_errors:
                     type: fingers_crossed
                     action_level: error
-                    handler: slack_errors_deduplicated
+                    handler: chat_errors_deduplicated
                     # Client errors: bad input, no access, unknown page
                     excluded_http_codes: [400, 403, 404, 405, 422]
                     channels: ["!deprecation", "!event"]
                     buffer_size: 50
-                slack_errors_deduplicated:
+                chat_errors_deduplicated:
                     type: deduplication
-                    handler: slack
+                    handler: chat
                     # The message with its {placeholders} filled in: compared and posted
                     process_psr_3_messages: true
                     time: 600
-                    store: "%kernel.logs_dir%/%kernel.environment%.slack-errors.dedup"
-                # Each deprecation to Slack once a day
-                slack_deprecations:
+                    store: "%kernel.logs_dir%/%kernel.environment%.chat-errors.dedup"
+                # Each deprecation to the chats once a day
+                chat_deprecations:
                     type: deduplication
                     channels: [deprecation]
-                    handler: slack
+                    handler: chat
                     process_psr_3_messages: true
                     deduplication_level: info
                     time: 86400
-                    store: "%kernel.logs_dir%/%kernel.environment%.slack-deprecations.dedup"
-                slack:
+                    store: "%kernel.logs_dir%/%kernel.environment%.chat-deprecations.dedup"
+                chat:
                     type: service
-                    id: App\Log\SlackLogHandler
+                    id: App\Log\ChatLogHandler
                     nested: true
             main:
                 type: stream
@@ -89,4 +89,4 @@ when@prod:
                 channels: [deprecation]
                 path: "%kernel.logs_dir%/%kernel.environment%.deprecations.json"
                 formatter: monolog.formatter.json
-            <<: *slack_handlers
+            <<: *chat_handlers

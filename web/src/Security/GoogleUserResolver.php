@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\User;
-use App\Notifier\SlackActivity;
+use App\Notifier\ChatActivity;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -18,7 +18,7 @@ final readonly class GoogleUserResolver
     public function __construct(
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-        private SlackActivity $slackActivity,
+        private ChatActivity $chatActivity,
     ) {
     }
 
@@ -50,7 +50,7 @@ final readonly class GoogleUserResolver
 
     /**
      * The user with this Google ID; else links the account with this email to it, or registers a
-     * new user (ROLE_USER), posted to Slack.
+     * new user (ROLE_USER), posted to Slack and Telegram.
      */
     public function resolve(string $googleId, string $email): User
     {
@@ -70,7 +70,7 @@ final readonly class GoogleUserResolver
         $this->entityManager->flush();
 
         if ($registered) {
-            $this->slackActivity->userRegistered($user);
+            $this->chatActivity->userRegistered($user);
         }
 
         return $user;

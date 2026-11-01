@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Notifier\SlackActivity;
+use App\Notifier\ChatSender;
+use App\Notifier\ChatText;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Exception\ExceptionInterface as MessengerException;
-use Symfony\Component\Messenger\Exception\WrappedExceptionsInterface;
 use Symfony\Component\Notifier\Exception\TransportException;
 use Symfony\Component\Notifier\Exception\TransportExceptionInterface;
 use Symfony\Component\Notifier\Transport\Dsn;
@@ -25,6 +25,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[AsCommand(name: 'app:slack:test', description: 'Check the Slack token and post a test message to the Slack channels')]
 final readonly class SlackTestCommand
 {
+    use ChatTestHelpers;
+
     /** What to do for Slack's error codes; %bot% and %channel% are replaced. */
     private const array HINTS = [
         'not_in_channel' => 'The bot is not in #%channel%: in Slack, type /invite @%bot% in #%channel%. (Or give the app the scope chat:write.public and reinstall it, for public channels.)',
@@ -38,7 +40,7 @@ final readonly class SlackTestCommand
     ];
 
     public function __construct(
-        private SlackActivity $slackActivity,
+        private ChatSender $chatSender,
         private HttpClientInterface $httpClient,
         #[Autowire(env: 'SLACK_CHANNEL')]
         private string $channel,
@@ -75,7 +77,7 @@ final readonly class SlackTestCommand
             return Command::FAILURE;
         }
 
-        $text = \sprintf(':white_check_mark: AgentTools (%s) can post here.', $this->environment);
+        $text = new ChatText(\sprintf('✅ AgentTools (%s) can post here.', $this->environment));
         $posted = true;
         foreach ([$this->channel, $this->errorsChannel] as $channel) {
             $posted = $this->post($io, $text, $channel, $bot) && $posted;
@@ -124,10 +126,10 @@ final readonly class SlackTestCommand
         return $bot;
     }
 
-    private function post(SymfonyStyle $io, string $text, string $channel, string $bot): bool
+    private function post(SymfonyStyle $io, ChatText $text, string $channel, string $bot): bool
     {
         try {
-            $this->slackActivity->sendNow($text, $channel);
+            $this->chatSender->sendTo(ChatSender::SLACK, $channel, $text);
         } catch (TransportExceptionInterface|MessengerException $exception) {
             $cause = $this->cause($exception);
             $error = $this->slackError($cause);
@@ -154,18 +156,6 @@ final readonly class SlackTestCommand
         }
     }
 
-    /** The transport's exception, also when the message bus wrapped it. */
-    private function cause(\Throwable $exception): \Throwable
-    {
-        if ($exception instanceof WrappedExceptionsInterface) {
-            foreach ($exception->getWrappedExceptions(recursive: true) as $wrapped) {
-                return $wrapped;
-            }
-        }
-
-        return $exception;
-    }
-
     /** Slack's error code, e.g. not_in_channel. */
     private function slackError(\Throwable $exception): ?string
     {
@@ -180,10 +170,5 @@ final readonly class SlackTestCommand
         }
 
         return \is_string($error) ? $error : null;
-    }
-
-    private function masked(string $token): string
-    {
-        return \strlen($token) > 12 ? \substr($token, 0, 9).'…'.\substr($token, -4) : '(too short: '.\strlen($token).' characters)';
     }
 }
