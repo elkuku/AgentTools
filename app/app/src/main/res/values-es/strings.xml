@@ -212,6 +212,8 @@
     <string name="no_custom_medals_found">No se encontraron medallas especiales. Comparte capturas de las medallas de tu perfil de agente de Ingress.</string>
     <string name="looking_for_custom_medals">Buscando medallas especiales…</string>
     <string name="saving_agent_stats">Guardando estadísticas de agente…</string>
+    <string name="signing_in">Iniciando sesión…</string>
+    <string name="loading_your_stats">Cargando tus estadísticas…</string>
     <string name="agent_stats_saved">Estadísticas de agente guardadas.</string>
     <string name="stats_of_other_agent">Estas estadísticas son del agente %1$s, tu nombre de agente es %2$s.</string>
     <plurals name="saving_custom_medals">

@@ -39,6 +39,7 @@ import com.elkuku.agenttools.data.VisibilityResult
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
 import com.elkuku.agenttools.uiText
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,6 +91,25 @@ class MainViewModelTest {
         val viewModel = signedIn()
 
         assertEquals(session, viewModel.state.value.session)
+        assertEquals(listOf(entry), viewModel.state.value.entries)
+    }
+
+    @Test
+    fun signInShowsThatTheStatsAreLoading() {
+        auth.interactiveSession = session
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        val gate = CompletableDeferred<Unit>()
+        api.loadGate = gate
+        val viewModel = viewModel()
+
+        viewModel.signIn(context)
+
+        assertEquals(uiText(R.string.loading_your_stats), viewModel.state.value.progress)
+        assertNull(viewModel.state.value.entries)
+
+        gate.complete(Unit)
+
+        assertNull(viewModel.state.value.progress)
         assertEquals(listOf(entry), viewModel.state.value.entries)
     }
 
@@ -567,6 +587,25 @@ class MainViewModelTest {
     }
 
     @Test
+    fun loadsAtTheSameTimeRefreshTheTokenOnce() {
+        val viewModel = signedIn()
+        val refreshed = session.copy(idToken = "token-2")
+        auth.silentSessions += refreshed
+        api.expiredToken = "token-1"
+        api.lists += AgentStatsResult.Success(listOf(entry))
+        val gate = CompletableDeferred<Unit>()
+        api.loadGate = gate
+
+        viewModel.refresh(context)
+        gate.complete(Unit)
+
+        assertEquals(1, auth.silentCalls)
+        assertEquals(listOf("token-1", "token-1", "token-2"), api.listTokens)
+        assertEquals(refreshed, viewModel.state.value.session)
+        assertNull(viewModel.state.value.status)
+    }
+
+    @Test
     fun unauthorizedWithoutRefreshSignsOut() {
         val viewModel = signedIn()
         api.lists += AgentStatsResult.Unauthorized(UiText.Plain("Unknown user."))
@@ -968,7 +1007,22 @@ class MainViewModelTest {
         /** What `GET /api/me` answers; null for an agent "TestAgent" with the [serverMedals]. */
         var me: MeResult? = null
 
-        override suspend fun me(idToken: String): MeResult = me ?: MeResult.Success(UserRole.USER, "TestAgent", serverMedals)
+        /** Loads wait for it, to see what shows meanwhile and that they run at the same time. */
+        var loadGate: CompletableDeferred<Unit>? = null
+
+        /** Loads with this token answer "unauthorized". */
+        var expiredToken: String? = null
+
+        /** Waits for the [loadGate]; false with the [expiredToken]. */
+        private suspend fun authorized(idToken: String): Boolean {
+            loadGate?.await()
+            return idToken != expiredToken
+        }
+
+        override suspend fun me(idToken: String): MeResult {
+            if (!authorized(idToken)) return MeResult.Unauthorized(UiText.Plain("Expired."))
+            return me ?: MeResult.Success(UserRole.USER, "TestAgent", serverMedals)
+        }
 
         /** What `PATCH /api/me` with the visible parts answers; null for success. */
         var visibilityResult: VisibilityResult? = null
@@ -986,6 +1040,7 @@ class MainViewModelTest {
 
         override suspend fun list(idToken: String): AgentStatsResult {
             listTokens += idToken
+            if (!authorized(idToken)) return AgentStatsResult.Unauthorized(UiText.Plain("Expired."))
             return lists.removeFirst()
         }
 
@@ -1025,7 +1080,10 @@ class MainViewModelTest {
         val serverEvents = mutableListOf<TimelineEvent>()
         var eventFailure: TimelineEventResult? = null
 
-        override suspend fun timelineEvents(idToken: String): TimelineEventsResult = TimelineEventsResult.Success(serverEvents.toList())
+        override suspend fun timelineEvents(idToken: String): TimelineEventsResult {
+            if (!authorized(idToken)) return TimelineEventsResult.Unauthorized(UiText.Plain("Expired."))
+            return TimelineEventsResult.Success(serverEvents.toList())
+        }
 
         override suspend fun saveTimelineEvent(idToken: String, event: TimelineEvent): TimelineEventResult {
             eventFailure?.let { return it }
@@ -1040,7 +1098,10 @@ class MainViewModelTest {
         /** The done list on the "server". */
         val serverDoneBanners = mutableListOf<DoneBanner>()
 
-        override suspend fun doneBanners(idToken: String): DoneBannersResult = DoneBannersResult.Success(serverDoneBanners.toList())
+        override suspend fun doneBanners(idToken: String): DoneBannersResult {
+            if (!authorized(idToken)) return DoneBannersResult.Unauthorized(UiText.Plain("Expired."))
+            return DoneBannersResult.Success(serverDoneBanners.toList())
+        }
 
         override suspend fun saveDoneAt(idToken: String, id: Int, doneAt: String?): DoneBannerResult {
             val saved = serverDoneBanners.single { it.id == id }.copy(doneAt = doneAt)

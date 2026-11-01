@@ -205,6 +205,8 @@
     <string name="no_custom_medals_found">Keine Sondermedaillen gefunden. Teile Screenshots der Medaillen in deinem Ingress-Agentenprofil.</string>
     <string name="looking_for_custom_medals">Suche nach Sondermedaillen…</string>
     <string name="saving_agent_stats">Agentenstatistiken werden gespeichert…</string>
+    <string name="signing_in">Anmeldung läuft…</string>
+    <string name="loading_your_stats">Deine Statistiken werden geladen…</string>
     <string name="agent_stats_saved">Agentenstatistiken gespeichert.</string>
     <string name="stats_of_other_agent">Diese Statistiken sind von Agent %1$s, dein Agentenname ist %2$s.</string>
     <plurals name="saving_custom_medals">

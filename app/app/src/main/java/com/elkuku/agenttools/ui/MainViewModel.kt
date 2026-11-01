@@ -42,11 +42,15 @@ import com.elkuku.agenttools.data.mergeCustomMedals
 import com.elkuku.agenttools.data.parseIngressStats
 import com.elkuku.agenttools.scan.ArgbImage
 import com.elkuku.agenttools.scan.RecognizedMedal
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -138,6 +142,8 @@ class MainViewModel(
     private val bannergress: BannergressConnector? = null,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
+
+    private val tokenRefresh = Mutex()
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     init {
@@ -148,9 +154,9 @@ class MainViewModel(
 
     fun signIn(context: Context) = launchBusy {
         try {
-            val session = auth.signIn(context)
+            val session = withProgress(uiText(R.string.signing_in)) { auth.signIn(context) }
             signedIn(session)
-            savePendingOrLoad(context)
+            withProgress(uiText(R.string.loading_your_stats)) { savePendingOrLoad(context) }
         } catch (e: AuthException) {
             _state.update { it.copy(status = if (e.cancelled) null else Status(e.text, true)) }
         }
@@ -195,8 +201,7 @@ class MainViewModel(
         _state.update { it.copy(status = null) }
         launchBusy {
             // E.g. the agent name or the custom medals changed on another device
-            loadRole(context)
-            loadStats(context)
+            loadRoleAndStats(context)
             savePendingMedals(context)
         }
     }
@@ -371,9 +376,20 @@ class MainViewModel(
 
     /** Loads the account, then saves stats and custom medals shared before sign-in, or just loads the stats. */
     private suspend fun savePendingOrLoad(context: Context) {
-        loadRole(context)
-        savePendingStatsOrLoad(context)
+        if (_state.value.pending == null) {
+            loadRoleAndStats(context)
+        } else {
+            // Saving the stats checks them against the agent name of the account
+            loadRole(context)
+            savePendingStatsOrLoad(context)
+        }
         savePendingMedals(context)
+    }
+
+    /** The account and the stats at the same time: each is a request of its own. */
+    private suspend fun loadRoleAndStats(context: Context) = coroutineScope {
+        launch { loadRole(context) }
+        launch { loadStats(context) }
     }
 
     /**
@@ -471,8 +487,16 @@ class MainViewModel(
         }
     }
 
-    private suspend fun loadStats(context: Context) {
-        when (val result = withToken(context, { it is AgentStatsResult.Unauthorized }) { api.list(it) }) {
+    /** The stats, the timeline events and the done banners, loaded at the same time. */
+    private suspend fun loadStats(context: Context) = coroutineScope {
+        val stats = async { withToken(context, { it is AgentStatsResult.Unauthorized }) { api.list(it) } }
+        val events = async { withToken(context, { it is TimelineEventsResult.Unauthorized }) { api.timelineEvents(it) } }
+        val banners = async { withToken(context, { it is DoneBannersResult.Unauthorized }) { api.doneBanners(it) } }
+        showStats(stats.await(), events.await(), banners.await())
+    }
+
+    private fun showStats(stats: AgentStatsResult?, events: TimelineEventsResult?, banners: DoneBannersResult?) {
+        when (val result = stats) {
             is AgentStatsResult.Success -> _state.update { it.copy(entries = result.entries) }
             is AgentStatsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is AgentStatsResult.Unauthorized -> {
@@ -483,7 +507,7 @@ class MainViewModel(
         }
 
         // With the stats: they make the timeline together
-        when (val result = withToken(context, { it is TimelineEventsResult.Unauthorized }) { api.timelineEvents(it) }) {
+        when (val result = events) {
             is TimelineEventsResult.Success -> _state.update { it.copy(timelineEvents = result.events) }
             is TimelineEventsResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is TimelineEventsResult.Unauthorized -> {
@@ -493,12 +517,15 @@ class MainViewModel(
             null -> return
         }
 
-        loadDoneBanners(context)
+        showDoneBanners(banners)
     }
 
+    private suspend fun loadDoneBanners(context: Context) =
+        showDoneBanners(withToken(context, { it is DoneBannersResult.Unauthorized }) { api.doneBanners(it) })
+
     /** The Bannergress done list: the banners with a day are on the timeline. */
-    private suspend fun loadDoneBanners(context: Context) {
-        when (val result = withToken(context, { it is DoneBannersResult.Unauthorized }) { api.doneBanners(it) }) {
+    private fun showDoneBanners(result: DoneBannersResult?) {
+        when (result) {
             is DoneBannersResult.Success -> _state.update { it.copy(doneBanners = result.banners) }
             is DoneBannersResult.Failure -> _state.update { it.copy(status = Status(result.message, true)) }
             is DoneBannersResult.Unauthorized -> signedOutBy(result.message)
@@ -633,8 +660,12 @@ class MainViewModel(
         val result = call(session.idToken)
         if (!isUnauthorized(result)) return result
 
-        val refreshed = auth.signInSilently(context) ?: return result
-        _state.update { it.copy(session = refreshed) }
+        // Calls at the same time get one fresh token
+        val refreshed = tokenRefresh.withLock {
+            val current = _state.value.session ?: return result
+            if (current.idToken != session.idToken) return@withLock current
+            auth.signInSilently(context)?.also { fresh -> _state.update { it.copy(session = fresh) } }
+        } ?: return result
 
         return call(refreshed.idToken)
     }
@@ -677,13 +708,14 @@ class MainViewModel(
         )
     }
 
-    /** Runs [block] with the loading animation and [progress] shown. */
+    /** Runs [block] with the loading animation and [progress] shown, then shows the earlier progress again. */
     private suspend fun <T> withProgress(progress: UiText, block: suspend () -> T): T {
+        val earlier = _state.value.progress
         _state.update { it.copy(progress = progress) }
         try {
             return block()
         } finally {
-            _state.update { it.copy(progress = null) }
+            _state.update { it.copy(progress = earlier) }
         }
     }
 

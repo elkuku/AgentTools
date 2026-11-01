@@ -208,6 +208,8 @@
     <string name="no_custom_medals_found">No custom medals found. Share screenshots of the medals in your Ingress agent profile.</string>
     <string name="looking_for_custom_medals">Looking for custom medals…</string>
     <string name="saving_agent_stats">Saving agent stats…</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="loading_your_stats">Loading your stats…</string>
     <string name="agent_stats_saved">Agent stats saved.</string>
     <string name="stats_of_other_agent">These stats are for agent %1$s, your agent name is %2$s.</string>
     <plurals name="saving_custom_medals">
