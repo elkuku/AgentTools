@@ -47,6 +47,19 @@ class TimelineChartTest extends TestCase
         ], [], 'de')->xTicks ?? [], 'label'));
     }
 
+    public function testTicksAYearOrMoreApartShowTheYear(): void
+    {
+        // Eight years of uploads: every second year, not 9 "Jan 2019"s running into each other
+        self::assertSame(['2020', '2022', '2024', '2026'], \array_column(TimelineChart::build([
+            $this->stat('2018-11-19 12:00:00', 1000),
+            $this->stat('2026-10-24 12:00:00', 2500),
+        ], [], 'de')->xTicks ?? [], 'label'));
+        self::assertSame(['2024', '2025', '2026'], \array_column(TimelineChart::build([
+            $this->stat('2023-03-01 12:00:00', 1000),
+            $this->stat('2026-10-01 12:00:00', 2500),
+        ], [], 'en')->xTicks ?? [], 'label'));
+    }
+
     public function testEventsAreFlagsAndTravelsBands(): void
     {
         $chart = TimelineChart::build(

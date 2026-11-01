@@ -269,8 +269,9 @@ final readonly class TimelineChart
     }
 
     /**
-     * A tick at the start of every month, or of every 2, 3, 6 or 12 months for at most 6 ticks;
-     * the month in the language of the page, with the year ("Sept. 26" would read as a day).
+     * A tick at the start of every month, or of every 2, 3, 6, 12, 24, 60 or 120 months for at most 6
+     * ticks; the month in the language of the page, with the year ("Sept. 26" would read as a day), or
+     * only the year with ticks a year or more apart.
      *
      * @param \Closure(float): float $x
      *
@@ -283,18 +284,18 @@ final readonly class TimelineChart
         $months = (((int) $last->format('Y')) - ((int) $first->format('Y'))) * 12 + ((int) $last->format('n')) - ((int) $first->format('n')) + 1;
 
         $every = 1;
-        foreach ([1, 2, 3, 6, 12] as $every) {
+        foreach ([1, 2, 3, 6, 12, 24, 60, 120] as $every) {
             if ($months / $every <= 6) {
                 break;
             }
         }
 
-        // On months that divide by the step: January, April, July and October for 3
-        while (0 !== ((int) $first->format('n') - 1) % $every) {
+        // On months that divide by the step, counted from year 0: January, April, July and October for 3, even years for 24
+        while (0 !== (((int) $first->format('Y')) * 12 + ((int) $first->format('n')) - 1) % $every) {
             $first = $first->modify('+1 month');
         }
 
-        $format = new \IntlDateFormatter($locale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'UTC', null, 'MMM yyyy');
+        $format = new \IntlDateFormatter($locale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'UTC', null, $every >= 12 ? 'yyyy' : 'MMM yyyy');
         $ticks = [];
         for ($month = $first; $month <= $last; $month = $month->modify('+'.$every.' months')) {
             $ticks[] = ['x' => $x($month->getTimestamp() / 86400), 'label' => (string) $format->format($month)];
