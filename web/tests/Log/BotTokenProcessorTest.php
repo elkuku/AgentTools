@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class BotTokenProcessorTest extends TestCase
 {
-    private const string URL = 'https://api.telegram.org/bot123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw/sendMessage';
+    private const string URL = 'https://api.telegram.org/bot123:not-a-real_token/sendMessage';
 
     public function testMasksTheTokenInMessageContextAndExtra(): void
     {
