@@ -1,6 +1,12 @@
 package com.elkuku.agenttools.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import com.elkuku.agenttools.data.otherStats
+import com.elkuku.agenttools.data.StatGroup
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -106,42 +112,106 @@ fun ImportResultView(
                 }
             }
 
-            val stats = result.diff.filterKeys { it != "ap" }.toList()
+            // The medals: with the next tier, or only the gain (two in a row)
+            val medals = result.diff.filterKeys { it != "ap" && medalFor(it) != null }.toList()
             if (showNext) {
-                stats.forEach { (column, increase) ->
+                medals.forEach { (column, increase) ->
                     HorizontalDivider()
                     DiffRow(column, increase, result.entry)
                 }
-            } else if (stats.isNotEmpty()) {
+            } else if (medals.isNotEmpty()) {
                 HorizontalDivider()
-                stats.chunked(2).forEach { pair ->
+                medals.chunked(2).forEach { pair ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         pair.forEach { (column, increase) -> Gain(column, increase, result.entry, Modifier.weight(1f)) }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
+
+            // The other stats as text, by group as the stats' Dronenet and Kinetics
+            val others = result.otherStats()
+            if (others.isNotEmpty()) {
+                HorizontalDivider()
+                others.forEach { (group, stats) -> OtherStats(group, stats) }
+            }
         }
     }
 }
 
-/** One stat: its medal (or name) at the new value and its increase. */
+/** A stat with a medal: its badge at the new value (a padlock below bronze) and its increase. */
 @Composable
 private fun Gain(column: String, increase: Long, entry: AgentStatEntry, modifier: Modifier = Modifier) {
-    val medal = medalFor(column)
+    val medal = medalFor(column) ?: return
     val value = entry[column] ?: 0
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier) {
-        val level = medal?.level(value) ?: 0
-        val badge = medal?.let { medalBadge(column, level) }
-        if (medal != null && badge != null) {
+        val level = medal.level(value)
+        val badge = medalBadge(column, level)
+        if (badge != null) {
             Badge(badge, "${medal.name}: ${LEVEL_NAMES[level - 1]}", count = medal.onyxCount(value).takeIf { it > 1 })
         } else {
-            Text(medal?.name ?: column.replace('_', ' ').replaceFirstChar(Char::uppercase), modifier = Modifier.weight(1f, fill = false))
+            Badge(
+                R.drawable.ico_padlock,
+                "${medal.name}: ${stringResource(R.string.locked)}",
+                modifier = Modifier.alpha(0.6f),
+                // As the stats' locked medals: in the text color for dark mode
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
         }
         Plus(increase)
     }
 }
+
+/** A group of stats without a medal: its icon and name, then each stat's name and increase. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun OtherStats(group: StatGroup, stats: List<Pair<String, Long>>) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        when (group) {
+            StatGroup.DRONENET -> R.drawable.ico_drone
+            StatGroup.KINETICS -> R.drawable.ico_kinetic_capsule
+            StatGroup.CORE -> R.drawable.unique_badge_core
+            StatGroup.OTHER -> null
+        }?.let { Image(painterResource(it), contentDescription = null, modifier = Modifier.height(24.dp)) }
+        Text(stringResource(GROUP_NAMES.getValue(group)), style = MaterialTheme.typography.titleSmall)
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        stats.forEach { (column, increase) ->
+            val unit = group.columns[column].orEmpty()
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(STAT_NAMES[column]?.let { stringResource(it) } ?: column.replace('_', ' ').replaceFirstChar(Char::uppercase))
+                Text(
+                    "+ ${increase.formatted()}${if (unit.isEmpty()) "" else " $unit"}",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+        }
+    }
+}
+
+private val GROUP_NAMES = mapOf(
+    StatGroup.DRONENET to R.string.stat_group_dronenet,
+    StatGroup.KINETICS to R.string.stat_group_kinetics,
+    StatGroup.CORE to R.string.stat_group_core,
+    StatGroup.OTHER to R.string.stat_group_other,
+)
+
+private val STAT_NAMES = mapOf(
+    "drone_portals_visited" to R.string.stat_drone_portals_visited,
+    "drone_forced_recalls" to R.string.stat_drone_forced_recalls,
+    "drone_flight_distance" to R.string.stat_drone_flight_distance,
+    "drones_returned" to R.string.stat_drones_returned,
+    "kinetic_capsules_completed" to R.string.stat_kinetic_capsules_completed,
+    "months_subscribed" to R.string.stat_months_subscribed,
+    "portals_discovered" to R.string.stat_portals_discovered,
+    "longest_link" to R.string.stat_longest_link,
+    "largest_field" to R.string.stat_largest_field,
+    "current_challenge" to R.string.stat_current_challenge,
+)
 
 /** One stat: its medal and increase, then the next medal level and what is missing for it. */
 @Composable
@@ -152,7 +222,6 @@ private fun DiffRow(column: String, increase: Long, entry: AgentStatEntry) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Gain(column, increase, entry, Modifier.weight(1f))
 
-        // Stats without a medal (drones, kinetic capsules, ...) have no next level
         if (medal != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

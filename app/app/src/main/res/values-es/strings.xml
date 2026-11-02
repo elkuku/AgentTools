@@ -307,4 +307,18 @@
         <item quantity="many">%1$d días</item>
         <item quantity="other">%1$d días</item>
     </plurals>
+    <string name="stat_group_dronenet">Dronenet</string>
+    <string name="stat_group_kinetics">Kinetics</string>
+    <string name="stat_group_core">C.O.R.E</string>
+    <string name="stat_group_other">Más estadísticas</string>
+    <string name="stat_drone_portals_visited">Portales visitados</string>
+    <string name="stat_drone_forced_recalls">Retiradas forzadas</string>
+    <string name="stat_drone_flight_distance">Vuelo</string>
+    <string name="stat_drones_returned">Drones devueltos</string>
+    <string name="stat_kinetic_capsules_completed">Cápsulas completadas</string>
+    <string name="stat_months_subscribed">Meses</string>
+    <string name="stat_portals_discovered">Portales descubiertos</string>
+    <string name="stat_longest_link">Enlace más largo</string>
+    <string name="stat_largest_field">Campo más grande</string>
+    <string name="stat_current_challenge">Desafío actual</string>
 </resources>

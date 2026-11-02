@@ -95,4 +95,31 @@ class ImportResultTest {
         assertEquals(before, result.previous)
         assertEquals(1000L, result.diff["ap"])
     }
+
+    @Test
+    fun theStatsWithoutAMedalAreGroupedApartFromTheMedals() {
+        val before = entry(
+            1, "2026-10-01 10:00:00",
+            "ap" to 1000L, "level" to 15L, "explorer" to 990L, "recursions" to 0L, "months_subscribed" to 23L,
+            "drone_flight_distance" to 10L, "drone_portals_visited" to 5L, "kinetic_capsules_completed" to 1L, "longest_link" to 1L, "future_stat" to 0L,
+        )
+        val after = entry(
+            2, "2026-10-11 10:00:00",
+            "ap" to 2000L, "level" to 16L, "explorer" to 1000L, "recursions" to 1L, "months_subscribed" to 24L,
+            "drone_flight_distance" to 15L, "drone_portals_visited" to 7L, "kinetic_capsules_completed" to 3L, "longest_link" to 4L, "future_stat" to 2L,
+        )
+
+        // AP, level and recursions are highlighted, explorer is a medal
+        assertEquals(
+            mapOf(
+                StatGroup.DRONENET to listOf("drone_portals_visited" to 2L, "drone_flight_distance" to 5L),
+                StatGroup.KINETICS to listOf("kinetic_capsules_completed" to 2L),
+                StatGroup.CORE to listOf("months_subscribed" to 1L),
+                // Unknown stats last
+                StatGroup.OTHER to listOf("longest_link" to 3L, "future_stat" to 2L),
+            ),
+            computeImportResult(after, before).otherStats(),
+        )
+        assertEquals("km", statGroup("drone_flight_distance").columns["drone_flight_distance"])
+    }
 }

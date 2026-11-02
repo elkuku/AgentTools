@@ -28,6 +28,30 @@ private val MEDALS_BY_COLUMN = MEDALS.associateBy { it.column }
 /** The medal for an agent_stat column; null for columns without one (drones, level, ...). */
 fun medalFor(column: String): Medal? = MEDALS_BY_COLUMN[column]
 
+/**
+ * The stats without a medal by group, in order, with their unit, as web's StatsDiffRow::GROUPS:
+ * text apart from the medals in the import result. Others go to [OTHER].
+ */
+enum class StatGroup(val columns: Map<String, String>) {
+    DRONENET(mapOf("drone_portals_visited" to "", "drone_forced_recalls" to "", "drone_flight_distance" to "km", "drones_returned" to "")),
+    KINETICS(mapOf("kinetic_capsules_completed" to "")),
+    CORE(mapOf("months_subscribed" to "")),
+    OTHER(mapOf("portals_discovered" to "", "longest_link" to "km", "largest_field" to "MUs", "current_challenge" to "")),
+}
+
+/** Shown above the medals: the AP's gain, the new level, the new recursion. */
+val HIGHLIGHTED_STATS = setOf("ap", "level", "recursions")
+
+/** A stat without a medal's group (unknown ones: other). */
+fun statGroup(column: String): StatGroup = StatGroup.entries.firstOrNull { column in it.columns } ?: StatGroup.OTHER
+
+/** The increases of the stats without a medal by group in [StatGroup]'s order, each in its group's, without the highlighted. */
+fun ImportResult.otherStats(): Map<StatGroup, List<Pair<String, Long>>> =
+    diff.filterKeys { medalFor(it) == null && it !in HIGHLIGHTED_STATS }.toList()
+        .groupBy { statGroup(it.first) }
+        .toSortedMap()
+        .mapValues { (group, stats) -> stats.sortedBy { group.columns.keys.indexOf(it.first).let { index -> if (index < 0) Int.MAX_VALUE else index } } }
+
 /** The import result for [entry] against the newest entry before it in [entries] (any order). */
 fun importResultFor(entry: AgentStatEntry, entries: List<AgentStatEntry>): ImportResult =
     computeImportResult(entry, entries.filter { it.datetime < entry.datetime }.maxByOrNull { it.datetime })
