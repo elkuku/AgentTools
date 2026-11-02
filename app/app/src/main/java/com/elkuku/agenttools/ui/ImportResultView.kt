@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -27,20 +28,32 @@ import com.elkuku.agenttools.data.computeImportResult
 import com.elkuku.agenttools.data.medalFor
 import com.elkuku.agenttools.ui.theme.AgentToolsTheme
 
-/** What changed with the saved stats, laid out like 4e-website's import result. */
+/**
+ * What changed with the saved stats, laid out like 4e-website's import result; with [title] and
+ * [subtitle] (the timeline's comparison) instead of "Changes since", without [onDismiss] no close
+ * button. Without [showNext] only the gains, two in a row (as web's comparison), not what is
+ * missing for the next tier.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ImportResultView(result: ImportResult, onDismiss: () -> Unit) {
+fun ImportResultView(
+    result: ImportResult,
+    onDismiss: (() -> Unit)?,
+    title: String? = null,
+    subtitle: String? = null,
+    showNext: Boolean = true,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    result.previous?.let { stringResource(R.string.changes_since, it.datetime) } ?: stringResource(R.string.first_import_title),
+                    title ?: result.previous?.let { stringResource(R.string.changes_since, it.datetime) } ?: stringResource(R.string.first_import_title),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+                onDismiss?.let { TextButton(onClick = it) { Text(stringResource(R.string.close)) } }
             }
+            subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
 
             if (result.isFirstImport) {
                 Text(stringResource(R.string.next_import_hint))
@@ -85,18 +98,48 @@ fun ImportResultView(result: ImportResult, onDismiss: () -> Unit) {
                 Text(stringResource(R.string.no_stat_went_up))
             }
 
-            result.diff.forEach { (column, increase) ->
+            result.diff["ap"]?.let { increase ->
                 HorizontalDivider()
-                if (column == "ap") {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("AP:", style = MaterialTheme.typography.titleMedium)
-                        Plus(increase)
-                    }
-                } else {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("AP:", style = MaterialTheme.typography.titleMedium)
+                    Plus(increase)
+                }
+            }
+
+            val stats = result.diff.filterKeys { it != "ap" }.toList()
+            if (showNext) {
+                stats.forEach { (column, increase) ->
+                    HorizontalDivider()
                     DiffRow(column, increase, result.entry)
+                }
+            } else if (stats.isNotEmpty()) {
+                HorizontalDivider()
+                stats.chunked(2).forEach { pair ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        pair.forEach { (column, increase) -> Gain(column, increase, result.entry, Modifier.weight(1f)) }
+                        if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
+    }
+}
+
+/** One stat: its medal (or name) at the new value and its increase. */
+@Composable
+private fun Gain(column: String, increase: Long, entry: AgentStatEntry, modifier: Modifier = Modifier) {
+    val medal = medalFor(column)
+    val value = entry[column] ?: 0
+
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier) {
+        val level = medal?.level(value) ?: 0
+        val badge = medal?.let { medalBadge(column, level) }
+        if (medal != null && badge != null) {
+            Badge(badge, "${medal.name}: ${LEVEL_NAMES[level - 1]}", count = medal.onyxCount(value).takeIf { it > 1 })
+        } else {
+            Text(medal?.name ?: column.replace('_', ' ').replaceFirstChar(Char::uppercase), modifier = Modifier.weight(1f, fill = false))
+        }
+        Plus(increase)
     }
 }
 
@@ -107,20 +150,7 @@ private fun DiffRow(column: String, increase: Long, entry: AgentStatEntry) {
     val value = entry[column] ?: 0
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.weight(1f),
-        ) {
-            val level = medal?.level(value) ?: 0
-            val badge = medal?.let { medalBadge(column, level) }
-            if (medal != null && badge != null) {
-                Badge(badge, "${medal.name}: ${LEVEL_NAMES[level - 1]}", count = medal.onyxCount(value).takeIf { it > 1 })
-            } else {
-                Text(medal?.name ?: column.replace('_', ' ').replaceFirstChar(Char::uppercase))
-            }
-            Plus(increase)
-        }
+        Gain(column, increase, entry, Modifier.weight(1f))
 
         // Stats without a medal (drones, kinetic capsules, ...) have no next level
         if (medal != null) {
@@ -149,7 +179,7 @@ private fun Highlight(text: String) =
 
 @Composable
 private fun Plus(value: Long) =
-    Text("+ ${value.formatted()}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+    Text("+ ${value.formatted()}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
 
 @Composable
 private fun Minus(value: Long) =

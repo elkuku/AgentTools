@@ -23,8 +23,8 @@ import com.elkuku.agenttools.data.AgentProfile
 import com.elkuku.agenttools.data.TimelineEvent
 
 /**
- * The user's timeline, from "My stats": the chart, the filters and every entry; events are added
- * and edited here, a banner opens the Bannergress screen.
+ * The user's timeline, from "My stats": the chart, the comparison of two uploads, the filters and
+ * every entry; events are added and edited here, a banner opens the Bannergress screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +60,7 @@ fun TimelineScreen(
                     onAddEvent = { editing = TimelineEvent(date = "", text = "") },
                     onOpenBanners = onOpenBannergress,
                     title = false,
+                    compare = true,
                 )
             }
         }

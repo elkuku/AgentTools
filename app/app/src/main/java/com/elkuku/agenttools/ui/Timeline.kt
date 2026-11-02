@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -68,6 +74,7 @@ import com.elkuku.agenttools.data.kind
 import com.elkuku.agenttools.data.medalFor
 import com.elkuku.agenttools.data.overlappingTravel
 import com.elkuku.agenttools.data.timeline
+import com.elkuku.agenttools.data.uploadDays
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -108,7 +115,10 @@ fun TimelineSummary(entries: List<AgentStatEntry>, events: List<TimelineEvent>, 
  * The stats uploads with what changed, the custom [events] and the Bannergress [banners] done
  * with a day, newest first, as web's timeline. With [onEditEvent] (the own timeline) an event
  * opens for editing, [onAddEvent] adds one, [onOpenBanners] opens the Bannergress screen.
- * Without [title] (on its own screen, which has it) only the add button.
+ * Without [title] (on its own screen, which has it) only the add button. Below the chart, as
+ * web's, the days (a calendar with the days with an upload) zoom the chart and filter the list;
+ * with [compare] (the own timeline) a toggle shows what changed between two uploads instead
+ * ([StatsComparison]).
  */
 @Composable
 fun Timeline(
@@ -119,6 +129,7 @@ fun Timeline(
     onAddEvent: (() -> Unit)? = null,
     onOpenBanners: (() -> Unit)? = null,
     title: Boolean = true,
+    compare: Boolean = false,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (title) {
@@ -141,6 +152,30 @@ fun Timeline(
 
     TimelineChart(entries, events, range)
 
+    // The comparison instead of the list, with the uploads chosen on a day with several
+    var comparing by rememberSaveable { mutableStateOf(false) }
+    var fromId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var toId by rememberSaveable { mutableStateOf<Int?>(null) }
+    val days = remember(entries) { uploadDays(entries) }
+    RangeRow(
+        range,
+        days.keys,
+        onRange = {
+            from = it?.start?.toString()
+            to = it?.endInclusive?.toString()
+            fromId = null
+            toId = null
+        },
+        comparing = (comparing to { shown: Boolean -> comparing = shown }).takeIf { compare },
+    )
+    if (compare && comparing) {
+        StatsComparison(entries, days, range, fromId to toId) { start, end ->
+            fromId = start
+            toId = end
+        }
+        return
+    }
+
     val items = remember(entries, events, banners) { timeline(entries, events, banners) }
     if (items.isEmpty()) {
         Text(stringResource(R.string.no_stats), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -160,11 +195,6 @@ fun Timeline(
         travels = travels to { travels = it },
         // Only for those who have them
         banners = (bannersShown to { shown: Boolean -> bannersShown = shown }).takeIf { items.any { it is TimelineItem.Banner } },
-        range = range,
-        onRange = {
-            from = it?.start?.toString()
-            to = it?.endInclusive?.toString()
-        },
     )
 
     val kinds = buildSet {
@@ -222,10 +252,7 @@ fun Timeline(
     }
 }
 
-/**
- * A chip for the uploads with medals and with a new level and per kind of event (on/off and its
- * setter), and the days shown (null: all), chosen with a date range picker.
- */
+/** A chip for the uploads with medals and with a new level and per kind of event (on/off and its setter). */
 @Composable
 private fun TimelineFilters(
     medals: Pair<Boolean, (Boolean) -> Unit>,
@@ -233,10 +260,7 @@ private fun TimelineFilters(
     events: Pair<Boolean, (Boolean) -> Unit>,
     travels: Pair<Boolean, (Boolean) -> Unit>,
     banners: Pair<Boolean, (Boolean) -> Unit>?,
-    range: ClosedRange<LocalDate>?,
-    onRange: (ClosedRange<LocalDate>?) -> Unit,
 ) {
-    var choosingRange by remember { mutableStateOf(false) }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             // The uploads with a medal at a higher tier, with a new level (those with a milestone are always there)
@@ -254,17 +278,65 @@ private fun TimelineFilters(
                 leadingIcon = { Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(14.dp)) },
             )
         }
+    }
+}
+
+/**
+ * The days shown (null: all), chosen in a calendar with only [days] (those with an upload), and
+ * with [comparing] (the own timeline: shown and its setter) the toggle between the list and the
+ * comparison, as web's row below the chart.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun RangeRow(
+    range: ClosedRange<LocalDate>?,
+    days: Set<LocalDate>,
+    onRange: (ClosedRange<LocalDate>?) -> Unit,
+    comparing: Pair<Boolean, (Boolean) -> Unit>?,
+) {
+    var choosingRange by remember { mutableStateOf(false) }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
         FilterChip(
             selected = range != null,
             onClick = { choosingRange = true },
+            leadingIcon = { Icon(painterResource(R.drawable.ic_bi_calendar3), contentDescription = null, modifier = Modifier.size(14.dp)) },
             // The days in the app's language, as the list's
-            label = { Text(range?.let { "${localDate(it.start.toString())} – ${localDate(it.endInclusive.toString())}" } ?: stringResource(R.string.timeline_filter_all_dates)) },
+            label = {
+                Text(
+                    range?.let {
+                        if (it.start == it.endInclusive) localDate(it.start.toString()) else "${localDate(it.start.toString())} – ${localDate(it.endInclusive.toString())}"
+                    } ?: stringResource(R.string.timeline_filter_all_dates),
+                )
+            },
         )
+        comparing?.let { (shown, onShown) ->
+            SingleChoiceSegmentedButtonRow {
+                listOf(false to R.string.timeline, true to R.string.compare_short).forEachIndexed { index, (value, label) ->
+                    SegmentedButton(
+                        selected = shown == value,
+                        onClick = { onShown(value) },
+                        shape = SegmentedButtonDefaults.itemShape(index, 2),
+                        icon = {
+                            Icon(
+                                painterResource(if (value) R.drawable.ic_bi_arrow_left_right else R.drawable.ic_bi_list_ul),
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                            )
+                        },
+                    ) { Text(stringResource(label), maxLines = 1) }
+                }
+            }
+        }
     }
 
     if (choosingRange) {
         DateRangeDialog(
             range,
+            days,
             onRange = {
                 onRange(it)
                 choosingRange = false
@@ -274,15 +346,29 @@ private fun TimelineFilters(
     }
 }
 
-/** Picks the first and the last day; [onRange] gets null for all days. A single day is from and to. */
+/**
+ * Picks the first and the last day, only [days] (with an upload; none: every day); [onRange] gets
+ * null for all days. A single day is from and to.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DateRangeDialog(range: ClosedRange<LocalDate>?, onRange: (ClosedRange<LocalDate>?) -> Unit, onDismiss: () -> Unit) {
+private fun DateRangeDialog(range: ClosedRange<LocalDate>?, days: Set<LocalDate>, onRange: (ClosedRange<LocalDate>?) -> Unit, onDismiss: () -> Unit) {
     val millis = { date: LocalDate -> date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli() }
     val date = { millis: Long -> Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate() }
+    val years = remember(days) { days.map { it.year }.toSet() }
     val state = rememberDateRangePickerState(
         initialSelectedStartDateMillis = range?.start?.let(millis),
         initialSelectedEndDateMillis = range?.endInclusive?.let(millis),
+        // The latest upload's month
+        initialDisplayedMonthMillis = (range?.endInclusive ?: days.maxOrNull())?.let(millis),
+        yearRange = if (years.isEmpty()) DatePickerDefaults.YearRange else years.min()..years.max(),
+        selectableDates = remember(days) {
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) = days.isEmpty() || date(utcTimeMillis) in days
+
+                override fun isSelectableYear(year: Int) = years.isEmpty() || year in years
+            }
+        },
     )
 
     DatePickerDialog(

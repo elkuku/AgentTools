@@ -286,4 +286,15 @@
     <string name="links_empty">There are no links yet.</string>
     <string name="links_suggest">Suggest a link</string>
     <string name="links_saved_list">Showing the saved list. %1$s</string>
+    <string name="compare_short">Compare</string>
+    <string name="compare_from">From</string>
+    <string name="compare_to">To</string>
+    <string name="compare_changes">Changes from %1$s to %2$s</string>
+    <string name="compare_same">Pick two different uploads.</string>
+    <string name="compare_need_two">You need at least two stats uploads to compare them.</string>
+    <string name="compare_same_day">the same day</string>
+    <plurals name="compare_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
 </resources>

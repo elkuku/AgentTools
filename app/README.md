@@ -144,6 +144,12 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   (`TimelineEventDialog`; `POST` / `PATCH` / `DELETE /api/timeline-events`); an agent's profile shows
   them read-only with the history (`GET /api/agents/{agentName}` `events`).
   The list shows each day in the app's language without the time (`localDate`, `FormatStyle.MEDIUM`, as web's).
+  Below the chart (`RangeRow`, as web's) the date range chip opens a `DateRangePicker` where only the days with an upload are
+  selectable (`data/StatsComparison.kt` `uploadDays`); on the own timeline (`Timeline(compare = true)`) a segmented
+  toggle shows instead of the filters and the list what changed between two uploads (`ui/StatsComparison.kt`,
+  `comparedUploads`: the first upload of the range's first day and the last of its last day, all dates: the first and the
+  latest; times as chips on a day with several uploads, a dropdown for more than 4, seconds where two share a minute,
+  the earlier one first), shown with `ImportResultView(showNext = false)`: only the gains, two in a row.
   Events with an `endDate` last several days (a travel): on the list its end and its start
   (`TimelineItem.Event.edge`, each with its day, as web's), with a line beside the timeline
   through the entries in it (`isInTravel`); travels cannot overlap (`overlappingTravel`, checked

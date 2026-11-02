@@ -283,4 +283,15 @@
     <string name="links_empty">Noch keine Links.</string>
     <string name="links_suggest">Link vorschlagen</string>
     <string name="links_saved_list">Die gespeicherte Liste wird angezeigt. %1$s</string>
+    <string name="compare_short">Vergleichen</string>
+    <string name="compare_from">Von</string>
+    <string name="compare_to">Bis</string>
+    <string name="compare_changes">Änderungen von %1$s bis %2$s</string>
+    <string name="compare_same">Wähle zwei verschiedene Uploads.</string>
+    <string name="compare_need_two">Zum Vergleichen brauchst du mindestens zwei Uploads.</string>
+    <string name="compare_same_day">am selben Tag</string>
+    <plurals name="compare_days">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
 </resources>

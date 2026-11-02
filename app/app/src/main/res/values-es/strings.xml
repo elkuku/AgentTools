@@ -295,4 +295,16 @@
     <string name="links_empty">Todavía no hay enlaces.</string>
     <string name="links_suggest">Proponer un enlace</string>
     <string name="links_saved_list">Se muestra la lista guardada. %1$s</string>
+    <string name="compare_short">Comparar</string>
+    <string name="compare_from">Desde</string>
+    <string name="compare_to">Hasta</string>
+    <string name="compare_changes">Cambios del %1$s al %2$s</string>
+    <string name="compare_same">Elige dos subidas distintas.</string>
+    <string name="compare_need_two">Necesitas al menos dos subidas de estadísticas para compararlas.</string>
+    <string name="compare_same_day">el mismo día</string>
+    <plurals name="compare_days">
+        <item quantity="one">%1$d día</item>
+        <item quantity="many">%1$d días</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
 </resources>
