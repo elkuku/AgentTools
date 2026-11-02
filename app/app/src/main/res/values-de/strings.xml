@@ -146,6 +146,7 @@
     <string name="timeline_filter_none">Keine Einträge passen zu den Filtern.</string>
 
     <!-- Custom medals -->
+    <string name="medal_group_season">Anomalie-Saison</string>
     <string name="medal_group_anomaly">Anomalie</string>
     <string name="medal_group_annual">Jährlich</string>
     <string name="medal_group_event">Event</string>

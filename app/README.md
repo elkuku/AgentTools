@@ -105,7 +105,8 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   in `assets/custom_medals`), with the lists ported to `web/src/Medal/MedalChecker.php`: keep both
   in sync, and don't move or rename the image folders without changing web's `asset_mapper.yaml`.
 - Custom medals (anomaly, annual and event medals; `data/CustomMedals.kt`, from 4e-website's
-  `MedalChecker::$customMedals`): screenshots of the Ingress medal grid shared with the app
+  `MedalChecker::$customMedals`; the anomaly seasons are stored under anomaly but shown in their own
+  section, `CustomMedal.section`, as web's): screenshots of the Ingress medal grid shared with the app
   (`image/*`, one or several) are scanned on the device by `scan/MedalScanner.kt`.
   `scan/MedalGrid.kt` finds the honeycomb grid and cuts out each medal; each one is compared with
   4e-website's images in `assets/custom_medals` (150 px **lossless** WebP — lossy compression

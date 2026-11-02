@@ -150,6 +150,7 @@
     <string name="timeline_filter_none">Ninguna entrada coincide con los filtros.</string>
 
     <!-- Custom medals -->
+    <string name="medal_group_season">Temporadas de anomalías</string>
     <string name="medal_group_anomaly">Anomalías</string>
     <string name="medal_group_annual">Anuales</string>
     <string name="medal_group_event">Eventos</string>

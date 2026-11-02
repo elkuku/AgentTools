@@ -24,6 +24,9 @@ data class CustomMedal(
 
     /** "" for a medal without tiers. */
     val tierOrNone: List<String> get() = tiers.ifEmpty { listOf("") }
+
+    /** Where it is shown: "season" for an anomaly season ([ANOMALY_SEASONS]), else its group. */
+    val section: String get() = if (group == "anomaly" && key in ANOMALY_SEASONS) "season" else group
 }
 
 /** An agent's custom medal at one tier ("" for a medal without tiers). */
@@ -38,6 +41,15 @@ fun tierLabel(tier: String): String = if (tier == "black") "Onyx" else tier.repl
 
 /** The custom medal groups in 4e's order. */
 val CUSTOM_MEDAL_GROUPS = listOf("anomaly", "annual", "event")
+
+/**
+ * The anomaly medals of an anomaly season ("Anomaly Season" in their description), shown apart
+ * from the XM anomalies as in the Ingress profile (and 4e-website, web); stored under anomaly.
+ */
+val ANOMALY_SEASONS = setOf("cygnus", "apollo", "orion", "plus_gamma", "plus_beta", "plus_delta", "plus_theta")
+
+/** How the custom medals are shown: the anomaly seasons first ([CustomMedal.section]). */
+val CUSTOM_MEDAL_SECTIONS = listOf("season", "anomaly", "annual", "event")
 
 /**
  * 4e-website's custom medals in its order, with the titles from its badgeinfos.json.

@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
-import com.elkuku.agenttools.data.CUSTOM_MEDAL_GROUPS
+import com.elkuku.agenttools.data.CUSTOM_MEDAL_SECTIONS
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.tierLabel
 import com.elkuku.agenttools.scan.CUSTOM_MEDAL_ASSETS
@@ -60,8 +60,9 @@ fun CustomMedals(
         return
     }
 
-    val byGroup = medals.groupBy { it.medal.group }
-    CUSTOM_MEDAL_GROUPS.forEach { group ->
+    // The anomaly seasons apart from the anomalies, as in the Ingress profile
+    val byGroup = medals.groupBy { it.medal.section }
+    CUSTOM_MEDAL_SECTIONS.forEach { group ->
         val inGroup = byGroup[group] ?: return@forEach
         Text(stringResource(customMedalGroupLabel(group)), style = MaterialTheme.typography.labelLarge)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -182,9 +183,10 @@ fun CustomMedalBadge(medal: CustomMedalTier, modifier: Modifier = Modifier, size
     }
 }
 
-/** The heading of a custom medal group (anomaly, annual, event), as web's `medals.group.*`. */
+/** The heading of a custom medal section (season, anomaly, annual, event), as web's `medals.group.*`. */
 @StringRes
 private fun customMedalGroupLabel(group: String): Int = when (group) {
+    "season" -> R.string.medal_group_season
     "anomaly" -> R.string.medal_group_anomaly
     "annual" -> R.string.medal_group_annual
     else -> R.string.medal_group_event

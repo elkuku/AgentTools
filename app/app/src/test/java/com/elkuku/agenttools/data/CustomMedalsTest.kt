@@ -71,4 +71,16 @@ class CustomMedalsTest {
             merged,
         )
     }
+
+    @Test
+    fun theAnomalySeasonsAreShownApartButStoredUnderAnomaly() {
+        assertEquals("season", orion.section)
+        assertEquals("anomaly", echo.section)
+        assertEquals("anomaly", customMedal("anomaly", "orion_onsite")!!.section)
+        assertEquals("event", customMedal("event", "orion")!!.section)
+        // Every season is a custom anomaly medal
+        ANOMALY_SEASONS.forEach { assertTrue(it, customMedal("anomaly", it) != null) }
+        // Still stored under anomaly
+        assertEquals("gold", customMedalsToJson(listOf(CustomMedalTier(orion, "gold")))["anomaly"]!!.jsonObject["orion"].toString().trim('"'))
+    }
 }
