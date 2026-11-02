@@ -85,6 +85,7 @@ medals:
     custom_none: Noch keine Sondermedaillen.
     locked: gesperrt
     group:
+        season: Anomalie-Saison
         anomaly: Anomalie
         annual: Jährlich
         event: Event

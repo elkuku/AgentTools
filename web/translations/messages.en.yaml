@@ -86,6 +86,7 @@ medals:
     custom_none: No custom medals yet.
     locked: locked
     group:
+        season: Anomaly season
         anomaly: Anomaly
         annual: Annual
         event: Event

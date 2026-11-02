@@ -23,6 +23,12 @@ final readonly class CustomMedal
     }
 
     /** The image for [$tier] ("" for none), as MedalChecker::getBadgeName. */
+    /** Where it is shown: "season" for an anomaly season (MedalChecker::ANOMALY_SEASONS), else its group. */
+    public function section(): string
+    {
+        return 'anomaly' === $this->group && \in_array($this->key, MedalChecker::ANOMALY_SEASONS, true) ? 'season' : $this->group;
+    }
+
     public function image(string $tier): string
     {
         $suffix = '' === $tier ? '' : '_'.$tier;

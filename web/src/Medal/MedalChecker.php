@@ -16,6 +16,16 @@ final class MedalChecker
     /** The custom medal groups in 4e's order. */
     public const array CUSTOM_MEDAL_GROUPS = ['anomaly', 'annual', 'event'];
 
+    /**
+     * The anomaly medals of an anomaly season ("Anomaly Season" in their description, as
+     * 4e-website's): shown apart from the XM anomalies as in the Ingress profile, stored under
+     * anomaly.
+     */
+    public const array ANOMALY_SEASONS = ['cygnus', 'apollo', 'orion', 'plus_gamma', 'plus_beta', 'plus_delta', 'plus_theta'];
+
+    /** How the custom medals are shown: the anomaly seasons first (CustomMedal::section()). */
+    public const array CUSTOM_MEDAL_SECTIONS = ['season', 'anomaly', 'annual', 'event'];
+
     /** C.O.R.E subscription badges by the months they need (0: the plain C.O.R.E badge). */
     public const array CORE_BADGES = [
         0 => 'badges/unique_badge_core.webp',
@@ -202,8 +212,9 @@ final class MedalChecker
     }
 
     /**
-     * Stored custom medals (User::$customMedals) by group in 4e's order, the medals in its order.
-     * Annual medals are stored as level 1 (bronze) to 5 (onyx). Unknown medals are left out.
+     * Stored custom medals (User::$customMedals) by section (CUSTOM_MEDAL_SECTIONS: the anomaly
+     * seasons apart from the anomalies, as Ingress' profile), the medals in 4e's order. Annual
+     * medals are stored as level 1 (bronze) to 5 (onyx). Unknown medals are left out.
      *
      * @param array<string, array<string, int|string>> $stored
      *
@@ -219,12 +230,12 @@ final class MedalChecker
             }
 
             if (null !== $tier) {
-                $groups[$medal->group][] = new CustomMedalTier($medal, $tier);
+                $groups[$medal->section()][] = new CustomMedalTier($medal, $tier);
             }
         }
 
         $sorted = [];
-        foreach (self::CUSTOM_MEDAL_GROUPS as $group) {
+        foreach (self::CUSTOM_MEDAL_SECTIONS as $group) {
             if (isset($groups[$group])) {
                 $sorted[$group] = $groups[$group];
             }

@@ -72,9 +72,10 @@ class MedalCheckerTest extends TestCase
             'anomaly' => ['echo' => '', 'orion' => 'platinum', 'no_such_medal' => 'gold'],
         ]);
 
-        self::assertSame(['anomaly', 'annual', 'event'], \array_keys($tiers));
-        // orion comes before echo in 4e's list
-        self::assertSame(['Orion (Platinum)', 'Echo'], \array_map(static fn ($tier): string => $tier->label(), $tiers['anomaly']));
+        // The anomaly seasons apart, first
+        self::assertSame(['season', 'anomaly', 'annual', 'event'], \array_keys($tiers));
+        self::assertSame(['Orion (Platinum)'], \array_map(static fn ($tier): string => $tier->label(), $tiers['season']));
+        self::assertSame(['Echo'], \array_map(static fn ($tier): string => $tier->label(), $tiers['anomaly']));
         // An annual level outside 1 to 5 is left out
         self::assertCount(1, $tiers['annual']);
         self::assertSame('custom_medals/badge_voyager_black.webp', $tiers['annual'][0]->image());
