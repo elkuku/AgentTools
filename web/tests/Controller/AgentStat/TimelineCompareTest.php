@@ -77,6 +77,10 @@ class TimelineCompareTest extends WebTestCase
         self::assertSelectorTextContains('.comparison-row[data-column="explorer"]', '+ 1,700');
         self::assertSelectorTextNotContains('#comparison', '- ');
         self::assertSelectorExists('.comparison-row[data-column="explorer"] img[data-tooltip="Explorer"][data-tooltip-body="Gold · 2,600"]');
+        // Only medals in the grid, the level is highlighted above
+        self::assertSelectorExists('#comparison-medals .comparison-row[data-column="explorer"]');
+        self::assertSelectorNotExists('#comparison-medals .comparison-row[data-column="level"]');
+        self::assertSelectorNotExists('.comparison-row[data-column="level"]');
 
         // Two of one day, the other way round
         $this->client->request(Request::METHOD_GET, \sprintf('/agent-stats/timeline?compare=1&compareFrom=%d&compareTo=%d', $evening->id, $morning->id));

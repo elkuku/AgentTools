@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Medal\MedalChecker;
 use App\Medal\MedalLevel;
 use App\Stats\StatsComparer;
+use App\Stats\StatsComparison;
 use App\Stats\StatsDiffRow;
 use PHPUnit\Framework\TestCase;
 
@@ -43,10 +44,36 @@ class StatsComparerTest extends TestCase
         // At the newer upload's tier
         self::assertSame('Gold', $rows['explorer']->levelName());
         self::assertSame(2, $rows['trekker']->onyxCount());
+        // The medals apart from the text stats, by group; AP, level and recursions on their own
+        self::assertSame(['explorer', 'trekker', 'maverick'], \array_map(static fn (StatsDiffRow $row): string => $row->column, $comparison->medalRows()));
+        self::assertSame(['core' => ['months_subscribed']], \array_map(static fn (array $rows): array => \array_map(static fn (StatsDiffRow $row): string => $row->column, $rows), $comparison->otherRows()));
+        self::assertSame(4000, $comparison->ap()?->increase);
         // No medal
         self::assertNull($rows['level']->badge());
         self::assertSame('Level', $rows['level']->name());
         self::assertSame('Months subscribed', $rows['months_subscribed']->name());
+    }
+
+    public function testTheTextStatsByGroupInTheirOrder(): void
+    {
+        $rows = [
+            new StatsDiffRow('longest_link', 3),
+            new StatsDiffRow('drones_returned', 1),
+            new StatsDiffRow('future_stat', 2),
+            new StatsDiffRow('drone_flight_distance', 5),
+            new StatsDiffRow('kinetic_capsules_completed', 4),
+            new StatsDiffRow('level', 1),
+        ];
+        $stat = $this->stat('2026-10-01 10:00:00', ap: 1000, level: 7);
+        $comparison = new StatsComparison($stat, $stat, $rows, [], [], null, null, []);
+
+        self::assertSame(
+            ['dronenet' => ['drone_flight_distance', 'drones_returned'], 'kinetics' => ['kinetic_capsules_completed'], 'other' => ['longest_link', 'future_stat']],
+            \array_map(static fn (array $group): array => \array_map(static fn (StatsDiffRow $row): string => $row->column, $group), $comparison->otherRows()),
+        );
+        self::assertSame('km', $rows[3]->unit());
+        self::assertSame('', $rows[2]->unit());
+        self::assertSame([], $comparison->medalRows());
     }
 
     public function testNothingWentUp(): void

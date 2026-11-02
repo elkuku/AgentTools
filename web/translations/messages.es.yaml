@@ -180,6 +180,22 @@ stats_compare:
     nothing: Ninguna estadística subió.
     same: Elige dos subidas distintas.
     need_two: Necesitas al menos dos subidas de estadísticas para compararlas.
+    group:
+        dronenet: Dronenet
+        kinetics: Kinetics
+        core: C.O.R.E
+        other: Más estadísticas
+    stat:
+        drone_portals_visited: Portales visitados
+        drone_forced_recalls: Retiradas forzadas
+        drone_flight_distance: Vuelo
+        drones_returned: Drones devueltos
+        kinetic_capsules_completed: Cápsulas completadas
+        months_subscribed: Meses
+        portals_discovered: Portales descubiertos
+        longest_link: Enlace más largo
+        largest_field: Campo más grande
+        current_challenge: Desafío actual
 
 stats_import:
     title: 'Importar estadísticas desde un archivo'

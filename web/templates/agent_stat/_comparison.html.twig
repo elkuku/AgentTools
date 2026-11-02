@@ -48,33 +48,49 @@
             <div><img class="medal-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum" data-tooltip="Simulacrum" data-tooltip-body="{{ 'timeline.recursion'|trans({'%recursions%': comparison.recursions}) }}"></div>
         {% endif %}
 
-        {% for row in comparison.rows|filter(row => row.column == 'ap') %}
+        {% if comparison.ap %}
             <hr class="my-1">
             <div class="d-flex align-items-center gap-2 comparison-row" data-column="ap">
                 <span class="fs-5">AP:</span>
-                <span class="fw-bold text-primary text-nowrap">+ {{ row.increase|number_format }}</span>
+                <span class="fw-bold text-primary text-nowrap">+ {{ comparison.ap.increase|number_format }}</span>
             </div>
-        {% endfor %}
+        {% endif %}
 
-        {% set stats = comparison.rows|filter(row => row.column != 'ap') %}
-        {% if stats %}
+        {% if comparison.medalRows %}
             <hr class="my-1">
-            {# Only the gain: a grid, two in a row on a phone, as the app's #}
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2">
-                {% for row in stats %}
+            {# Only the medals, with the gain: a grid, two in a row on a phone, as the app's #}
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2" id="comparison-medals">
+                {% for row in comparison.medalRows %}
                     <div class="col d-flex align-items-center gap-2 comparison-row" data-column="{{ row.column }}">
-                        {% if row.badge %}
-                            <img class="medal-badge" src="{{ asset(row.badge) }}" alt="{{ row.name }}: {{ row.levelName }}"
-                                 data-tooltip="{{ row.name }}" data-tooltip-body="{{ row.levelName }}{{ row.onyxCount > 1 ? ' × ' ~ row.onyxCount }} · {{ row.value|number_format }}">
-                            {% if row.onyxCount > 1 %}<span class="medal-count">X {{ row.onyxCount }}</span>{% endif %}
-                        {% else %}
-                            <span>{{ row.name }}</span>
-                        {% endif %}
+                        {# Below bronze: the padlock, as on the stats #}
+                        <img class="medal-badge{{ row.badge ? '' : ' medal-locked' }}" src="{{ asset(row.badge ?? 'badges/ico_padlock.webp') }}" alt="{{ row.name }}: {{ row.levelName }}"
+                             data-tooltip="{{ row.name }}" data-tooltip-body="{{ row.levelName }}{{ row.onyxCount > 1 ? ' × ' ~ row.onyxCount }} · {{ row.value|number_format }}">
+                        {% if row.onyxCount > 1 %}<span class="medal-count">X {{ row.onyxCount }}</span>{% endif %}
                         <span class="fw-bold text-primary text-nowrap">+ {{ row.increase|number_format }}</span>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
+
+        {# The stats without a medal as text, by group as on the stats card #}
+        {% set icons = {dronenet: 'badges/ico_drone.webp', kinetics: 'badges/ico_kinetic_capsule.webp', core: 'badges/unique_badge_core.webp'} %}
+        {% for group, rows in comparison.otherRows %}
+            {% if loop.first %}<hr class="my-1">{% endif %}
+            <div class="comparison-group" id="comparison-{{ group }}">
+                <h4 class="h6 d-flex align-items-center gap-2 mb-1">
+                    {% if icons[group] is defined %}<img src="{{ asset(icons[group]) }}" alt="" height="24">{% endif %}
+                    {{ ('stats_compare.group.' ~ group)|trans }}
+                </h4>
+                <ul class="list-inline mb-1">
+                    {% for row in rows %}
+                        <li class="list-inline-item me-3 comparison-row" data-column="{{ row.column }}">
+                            {{ ('stats_compare.stat.' ~ row.column)|trans|replace({('stats_compare.stat.' ~ row.column): row.name}) }}
+                            <span class="fw-bold text-primary text-nowrap">+ {{ row.increase|number_format }}{{ row.unit ? ' ' ~ row.unit }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
 
         {% if not comparison.rows %}
             <div id="comparison-nothing">{{ 'stats_compare.nothing'|trans }}</div>

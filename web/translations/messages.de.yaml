@@ -180,6 +180,22 @@ stats_compare:
     nothing: Keine Statistik ist gestiegen.
     same: Wähle zwei verschiedene Uploads.
     need_two: Zum Vergleichen brauchst du mindestens zwei Uploads.
+    group:
+        dronenet: Dronenet
+        kinetics: Kinetics
+        core: C.O.R.E
+        other: Weitere Statistiken
+    stat:
+        drone_portals_visited: Besuchte Portale
+        drone_forced_recalls: Erzwungene Rückrufe
+        drone_flight_distance: Flug
+        drones_returned: Zurückgekehrte Drohnen
+        kinetic_capsules_completed: Abgeschlossene Kapseln
+        months_subscribed: Monate
+        portals_discovered: Entdeckte Portale
+        longest_link: Längster Link
+        largest_field: Größtes Feld
+        current_challenge: Aktuelle Herausforderung
 
 stats_import:
     title: 'Statistiken aus einer Datei importieren'

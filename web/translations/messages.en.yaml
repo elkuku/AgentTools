@@ -181,6 +181,22 @@ stats_compare:
     nothing: No stat went up.
     same: Pick two different uploads.
     need_two: You need at least two stats uploads to compare them.
+    group:
+        dronenet: Dronenet
+        kinetics: Kinetics
+        core: C.O.R.E
+        other: More stats
+    stat:
+        drone_portals_visited: Portals visited
+        drone_forced_recalls: Forced recalls
+        drone_flight_distance: Flight
+        drones_returned: Drones returned
+        kinetic_capsules_completed: Capsules completed
+        months_subscribed: Months
+        portals_discovered: Portals discovered
+        longest_link: Longest link
+        largest_field: Largest field
+        current_challenge: Current challenge
 
 stats_import:
     title: 'Import stats from a file'
