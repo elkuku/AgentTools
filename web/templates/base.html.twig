@@ -21,7 +21,8 @@
         {% endblock %}
     {% endblock %}
 </head>
-<body class="d-flex flex-column h-100">
+<body class="d-flex flex-column h-100" data-controller="tooltip"
+      data-action="pointerover->tooltip#show pointerout->tooltip#hide focusin->tooltip#show focusout->tooltip#hide click->tooltip#hide scroll@window->tooltip#hide">
 
 <header>
     {% include '_/_nav_bar.html.twig' %}
@@ -39,5 +40,10 @@
 
 {% include ('_/_footer.html.twig') %}
 
+    {# The styled tooltip of the elements with data-tooltip (tooltip_controller.js), as the chart's #}
+    <div class="chart-tooltip app-tooltip" role="tooltip" hidden data-tooltip-target="tooltip">
+        <div class="chart-tooltip-heading" data-tooltip-target="heading"></div>
+        <div class="chart-tooltip-body" data-tooltip-target="body"></div>
+    </div>
 </body>
 </html>

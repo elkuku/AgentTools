@@ -3,10 +3,58 @@
     uploads only for what changed besides the AP (TimelineEntry::isListed(); the AP is in the chart). Each with its day in the
     page's language (medium: Oct 22, 2026 / 22.10.2026), without the time.
     The entries have no links (only the edit and delete buttons of the own timeline).
-    timeline: list<TimelineEntry>, editable: bool (the own timeline: edit and delete events, change a banner's day)
+    timeline: list<TimelineEntry>, editable: bool (the own timeline: edit and delete events, change a banner's day),
+    compare: bool (the own timeline: what changed between two uploads instead of the list), chart: TimelineChart|null,
+    uploadDays: array<string, list<array{id: int, time: string}>> (ComparisonChoice::uploadDays())
+    Below the chart the date range (a calendar with the days with an upload) zooms the chart and filters the list or picks
+    the uploads to compare, with their times on a day with several.
 #}
-<div data-controller="timeline-filter">
 {% set listed = timeline|filter(e => e.listed) %}
+<div data-controller="timeline-filter"
+     data-timeline-filter-days-value="{{ uploadDays|json_encode }}"
+     data-timeline-filter-locale-value="{{ app.request.locale }}"
+     {%- if compare ?? false %} data-timeline-filter-compare-url-value="{{ path('app_agent_stat_timeline') }}"{% endif %}>
+    {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="timeline-range">
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary timeline-range-button" id="timeline-range-button"
+                    data-timeline-filter-target="rangeButton" data-action="timeline-filter#openCalendar">
+                <i class="bi-calendar3"></i>
+                <span data-timeline-filter-target="rangeLabel">{{ 'timeline.filter.all_dates'|trans }}</span>
+            </button>
+            <button type="button" class="btn btn-outline-primary" id="timeline-range-clear" hidden
+                    title="{{ 'timeline.filter.all_dates'|trans }}" aria-label="{{ 'timeline.filter.all_dates'|trans }}"
+                    data-timeline-filter-target="clear" data-action="timeline-filter#clear"><i class="bi-x-lg"></i></button>
+        </div>
+        {# flatpickr's input; the button shows the range #}
+        <input type="text" class="visually-hidden" tabindex="-1" aria-hidden="true" data-timeline-filter-target="calendar">
+        {# The times of a day with several uploads, when comparing #}
+        {% for end in ['from', 'to'] %}
+            <div class="d-flex align-items-center gap-1 timeline-times" id="timeline-times-{{ end }}" hidden data-timeline-filter-target="{{ end }}Times">
+                <span class="small text-body-secondary">{{ ('timeline.filter.' ~ end)|trans }}</span>
+                <div data-timeline-filter-target="{{ end }}TimeButtons"></div>
+            </div>
+        {% endfor %}
+        {% if compare ?? false %}
+            <div class="btn-group ms-auto" role="group" aria-label="{{ 'timeline.title'|trans }}" id="timeline-view">
+                <input type="radio" class="btn-check" name="timeline-view" id="timeline-view-list" value="list" checked autocomplete="off"
+                       data-action="timeline-filter#view">
+                <label class="btn btn-outline-secondary" for="timeline-view-list"><i class="bi-list-ul"></i> {{ 'timeline.title'|trans }}</label>
+                <input type="radio" class="btn-check" name="timeline-view" id="timeline-view-compare" value="compare" autocomplete="off"
+                       data-action="timeline-filter#view">
+                <label class="btn btn-outline-secondary" for="timeline-view-compare"><i class="bi-arrow-left-right"></i> {{ 'stats_compare.title'|trans }}</label>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if compare ?? false %}
+        <div class="card mb-3" id="compare" hidden data-timeline-filter-target="compare">
+            <div class="card-body" data-timeline-filter-target="compareContent"></div>
+        </div>
+    {% endif %}
+
+<div data-timeline-filter-target="list">
 {% if listed is not empty %}
     {# Filters in one row, as the app's: uploads with medals or a new level (milestones always), each kind of event, the days #}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="timeline-filters">
@@ -24,15 +72,6 @@
                 <i class="{{ icon }}"></i> {{ ('timeline.filter.' ~ kind)|trans }}
             </label>
         {% endfor %}
-        {# Both days included; an empty one: no limit #}
-        <div class="input-group input-group-sm w-auto">
-            <label class="input-group-text" for="timeline-filter-from">{{ 'timeline.filter.from'|trans }}</label>
-            <input type="date" class="form-control" id="timeline-filter-from"
-                   data-timeline-filter-target="from" data-action="timeline-filter#apply">
-            <label class="input-group-text" for="timeline-filter-to">{{ 'timeline.filter.to'|trans }}</label>
-            <input type="date" class="form-control" id="timeline-filter-to"
-                   data-timeline-filter-target="to" data-action="timeline-filter#apply">
-        </div>
     </div>
 {% endif %}
 <ol class="timeline list-unstyled" id="timeline-entries">
@@ -114,15 +153,15 @@
                 {% endif %}
                 {% if entry.recursions %}
                     <div class="d-flex align-items-center gap-1">
-                        <img class="timeline-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="" title="Simulacrum">
-                        {{ 'timeline.recursion'|trans({'%count%': entry.recursions}) }}
+                        <img class="timeline-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum" data-tooltip="Simulacrum">
+                        {{ 'timeline.recursion'|trans({'%recursions%': entry.recursions}) }}
                     </div>
                 {% endif %}
                 {% if entry.medalUps %}
                     <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
                         {% for medal in entry.medalUps %}
                             <img class="timeline-badge" src="{{ asset(medal.badge) }}"
-                                 alt="{{ medal.medal.name }}: {{ medal.levelName }}" title="{{ medal.medal.name }}: {{ medal.levelName }}">
+                                 alt="{{ medal.medal.name }}: {{ medal.levelName }}" data-tooltip="{{ medal.medal.name }}" data-tooltip-body="{{ medal.levelName }}">
                         {% endfor %}
                     </div>
                 {% endif %}
@@ -133,4 +172,5 @@
     {% endfor %}
     <li class="text-body-secondary" id="timeline-filter-empty" data-timeline-filter-target="empty" hidden>{{ 'timeline.filter.none'|trans }}</li>
 </ol>
+</div>
 </div>

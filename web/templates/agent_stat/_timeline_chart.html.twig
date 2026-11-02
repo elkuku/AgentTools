@@ -1,10 +1,12 @@
 {#
     The timeline as a chart (App\Timeline\TimelineChart): AP over time, events as flags, events over
-    several days (travels) as bands. Every mark has a tooltip; the list below has the details.
+    several days (travels) as bands. Every mark has a tooltip (chart_tooltip_controller.js: the data-tip-*
+    attributes, also on keyboard focus); the list below has the details.
     chart: TimelineChart
 #}
 {% set C = 'App\\Timeline\\TimelineChart' %}
-<figure class="timeline-chart mb-3{{ chart.dense ? ' dense' }}" id="timeline-chart">
+<figure class="timeline-chart mb-3{{ chart.dense ? ' dense' }}" id="timeline-chart" data-controller="chart-tooltip"
+        data-action="pointerover->chart-tooltip#show pointermove->chart-tooltip#move pointerout->chart-tooltip#hide focusin->chart-tooltip#show focusout->chart-tooltip#hide">
     <svg viewBox="0 0 {{ constant(C ~ '::WIDTH') }} {{ constant(C ~ '::HEIGHT') }}" role="img"
          aria-label="{{ 'timeline.chart.label'|trans }}" preserveAspectRatio="xMidYMid meet">
         {% set left = constant(C ~ '::LEFT') %}
@@ -14,8 +16,8 @@
 
         {# Travels behind everything, over the whole height #}
         {% for band in chart.bands %}
-            <g class="chart-band">
-                <title>{{ band.title }}</title>
+            <g class="chart-band" tabindex="0" aria-label="{{ band.title }}" data-tip-kind="travel"
+               data-tip-heading="{{ band.date|format_date('medium') }} – {{ band.endDate|format_date('medium') }}" data-tip-body="{{ band.text }}">
                 <rect x="{{ band.x }}" y="{{ top }}" width="{{ band.width }}" height="{{ bottom - top }}" class="chart-band-fill"/>
                 <rect x="{{ band.x }}" y="{{ top - 6 }}" width="{{ band.width }}" height="4" rx="2" class="chart-band-edge"/>
                 {% if band.width > 60 %}
@@ -35,8 +37,8 @@
         <line x1="{{ left }}" x2="{{ right }}" y1="{{ bottom }}" y2="{{ bottom }}" class="chart-baseline"/>
 
         {% for flag in chart.flags %}
-            <g class="chart-flag">
-                <title>{{ flag.title }}</title>
+            <g class="chart-flag" tabindex="0" aria-label="{{ flag.title }}" data-tip-kind="event"
+               data-tip-heading="{{ flag.date|format_date('medium') }}" data-tip-body="{{ flag.text }}">
                 <line x1="{{ flag.x }}" x2="{{ flag.x }}" y1="{{ top - 10 }}" y2="{{ bottom }}" class="chart-flag-rule"/>
                 <path d="M{{ flag.x }},{{ top - 18 }} l10,4 l-10,4 z" class="chart-flag-mark"/>
                 {# A bigger target than the mark #}
@@ -48,13 +50,20 @@
             <path d="{{ chart.path }}" class="chart-line"/>
         {% endif %}
         {% for point in chart.points %}
-            <g class="chart-point">
-                <title>{{ point.title }}</title>
+            <g class="chart-point" tabindex="0" aria-label="{{ point.title }}" data-tip-kind="ap"
+               data-tip-heading="{{ point.datetime|format_datetime('medium', 'short') }}"
+               data-tip-body="{{ point.level ? 'L' ~ point.level ~ ' · ' }}{{ point.ap|number_format }} AP"
+               {%- if point.gain is not null %} data-tip-extra="{{ point.gain < 0 ? '−' : '+' }} {{ point.gain|abs|number_format }} AP"{% endif %}>
                 <circle cx="{{ point.x }}" cy="{{ point.y }}" r="5" class="chart-dot"/>
                 <circle cx="{{ point.x }}" cy="{{ point.y }}" r="12" class="chart-hit"/>
             </g>
         {% endfor %}
     </svg>
+    <div class="chart-tooltip" role="tooltip" hidden data-chart-tooltip-target="tooltip">
+        <div class="chart-tooltip-heading"><span class="chart-tooltip-key" data-chart-tooltip-target="key"></span><span data-chart-tooltip-target="heading"></span></div>
+        <div class="chart-tooltip-body" data-chart-tooltip-target="body"></div>
+        <div class="chart-tooltip-extra" data-chart-tooltip-target="extra"></div>
+    </div>
     <figcaption class="d-flex flex-wrap gap-3 small text-body-secondary">
         <span><span class="chart-key chart-key-ap"></span> {{ 'timeline.chart.ap'|trans }}</span>
         <span><i class="bi-flag-fill timeline-event-icon"></i> {{ 'timeline.chart.event'|trans }}</span>

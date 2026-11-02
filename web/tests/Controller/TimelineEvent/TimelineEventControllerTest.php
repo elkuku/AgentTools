@@ -76,8 +76,9 @@ class TimelineEventControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-event-'.$event->id.'.timeline-travel-start', 'Sep 20, 2026 · Start of the travel');
         self::assertSelectorExists('#timeline-event-'.$event->id.'.timeline-travel-start i.bi-airplane-fill');
         self::assertSelectorTextContains('#timeline-event-'.$event->id.'-end', 'Travel to Cuenca');
-        // A band on the chart, with its dates and text as the tooltip
-        self::assertSelectorTextContains('#timeline-chart .chart-band title', '2026-09-20 – 2026-10-02: Travel to Cuenca');
+        // A band on the chart, with its dates and text as the tooltip (and its accessible name)
+        self::assertSelectorExists('#timeline-chart .chart-band[aria-label="2026-09-20 – 2026-10-02: Travel to Cuenca"]');
+        self::assertSelectorExists('#timeline-chart .chart-band[data-tip-kind="travel"][data-tip-heading="Sep 20, 2026 – Oct 2, 2026"]');
     }
 
     public function testTheEndDateIsNotBeforeTheDate(): void

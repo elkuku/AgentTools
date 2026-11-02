@@ -541,3 +541,221 @@ main > .container {
     background: var(--timeline-travel);
     opacity: .5;
 }
+
+/*
+ * The timeline's date range calendar (flatpickr, timeline_filter_controller.js) in the site's colors and
+ * theme: only the days with an upload can be picked, they are marked with a dot (another color for several). With html: flatpickr's
+ * own stylesheet loads after this one.
+ */
+html .flatpickr-calendar {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    box-shadow: var(--bs-box-shadow);
+    border-radius: var(--bs-border-radius-lg);
+    font-family: inherit;
+}
+
+html .flatpickr-calendar.arrowTop::before,
+html .flatpickr-calendar.arrowTop::after {
+    border-bottom-color: var(--bs-border-color);
+}
+
+html .flatpickr-calendar.arrowBottom::before,
+html .flatpickr-calendar.arrowBottom::after {
+    border-top-color: var(--bs-border-color);
+}
+
+html .flatpickr-months .flatpickr-month,
+html .flatpickr-current-month .flatpickr-monthDropdown-months,
+html .flatpickr-current-month input.cur-year,
+html .flatpickr-weekday,
+html .flatpickr-months .flatpickr-prev-month,
+html .flatpickr-months .flatpickr-next-month {
+    color: var(--bs-body-color);
+    fill: var(--bs-body-color);
+    background: transparent;
+}
+
+html span.flatpickr-weekday {
+    color: var(--bs-secondary-color);
+}
+
+/* The month list (a native select): its options in the theme's colors, flatpickr's are transparent */
+html .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+html .flatpickr-current-month input.cur-year:hover,
+html .flatpickr-current-month .numInputWrapper:hover {
+    background: var(--bs-secondary-bg);
+}
+
+html .flatpickr-current-month .numInputWrapper span.arrowUp::after {
+    border-bottom-color: var(--bs-body-color);
+}
+
+html .flatpickr-current-month .numInputWrapper span.arrowDown::after {
+    border-top-color: var(--bs-body-color);
+}
+
+html .flatpickr-months .flatpickr-prev-month:hover svg,
+html .flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--bs-primary);
+}
+
+html .flatpickr-day {
+    color: var(--bs-body-color);
+    border-radius: var(--bs-border-radius);
+}
+
+/* Days without an upload and of the months around: only their number dimmed, so a range's tint stays even */
+html .flatpickr-day.flatpickr-disabled,
+html .flatpickr-day.flatpickr-disabled:hover,
+html [aria-disabled="true"].flatpickr-day,
+html .flatpickr-day.prevMonthDay,
+html .flatpickr-day.nextMonthDay {
+    color: color-mix(in srgb, var(--bs-secondary-color) 55%, transparent);
+}
+
+html .flatpickr-day:not(.flatpickr-disabled):hover,
+html .flatpickr-day.inRange,
+html .flatpickr-day.prevMonthDay.inRange,
+html .flatpickr-day.nextMonthDay.inRange {
+    background: color-mix(in srgb, var(--bs-primary) 18%, transparent);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+html .flatpickr-day.today {
+    border-color: var(--bs-border-color);
+}
+
+html .flatpickr-day.selected,
+html .flatpickr-day.startRange,
+html .flatpickr-day.endRange,
+html .flatpickr-day.selected:hover,
+html .flatpickr-day.startRange:hover,
+html .flatpickr-day.endRange:hover {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+}
+
+/* Enabled for flatpickr (a range spans them), but not clickable */
+html [aria-disabled="true"].flatpickr-day {
+    pointer-events: none;
+}
+
+html .flatpickr-day.timeline-upload-day {
+    font-weight: 600;
+    position: relative;
+}
+
+/* A dot under the days with an upload */
+html .flatpickr-day.timeline-upload-day::after {
+    content: "";
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--timeline-ap);
+}
+
+/* A day with several uploads: a dot in the travel color, there are times to pick */
+html .flatpickr-day.timeline-uploads-day::after {
+    background: var(--timeline-travel);
+}
+
+html .flatpickr-day.timeline-upload-day.selected::after,
+html .flatpickr-day.timeline-upload-day.startRange::after,
+html .flatpickr-day.timeline-upload-day.endRange::after {
+    background: #fff;
+}
+
+/* The times of a day with many uploads */
+.timeline-time-select {
+    width: auto;
+}
+
+/* The times of a day with several uploads: hidden overrides .d-flex */
+.timeline-times[hidden] {
+    display: none !important;
+}
+
+/* The timeline chart's tooltip (chart_tooltip_controller.js): a small card in the theme's colors */
+.timeline-chart {
+    position: relative;
+}
+
+.chart-tooltip {
+    position: absolute;
+    z-index: 10;
+    max-width: min(18rem, 100%);
+    padding: .375rem .625rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow-sm);
+    font-size: .875rem;
+    line-height: 1.35;
+    pointer-events: none;
+}
+
+.chart-tooltip-heading {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    font-weight: 600;
+}
+
+.chart-tooltip-key {
+    flex: none;
+    width: .625rem;
+    height: .625rem;
+    border-radius: 50%;
+}
+
+.chart-tooltip-key-ap {
+    background: var(--timeline-ap);
+}
+
+.chart-tooltip-key-event {
+    background: var(--timeline-event);
+    border-radius: 2px;
+}
+
+.chart-tooltip-key-travel {
+    background: var(--timeline-travel);
+    border-radius: 2px;
+}
+
+/* An event's text keeps its lines */
+.chart-tooltip-body {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.chart-tooltip-extra {
+    color: var(--bs-success-text-emphasis);
+    font-weight: 600;
+}
+
+/* The mark with the keyboard's focus, as on hover */
+.timeline-chart g:focus {
+    outline: none;
+}
+
+.timeline-chart g:focus-visible .chart-dot {
+    r: 7;
+}
+
+/* The site's tooltips (tooltip_controller.js) look like the chart's, over everything */
+.app-tooltip {
+    position: fixed;
+    z-index: 1090;
+}

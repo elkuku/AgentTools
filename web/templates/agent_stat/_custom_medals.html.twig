@@ -8,7 +8,8 @@
         <div class="d-flex flex-wrap gap-2">
             {% for medal in medals %}
                 {% set id = 'custom-medal-' ~ group ~ '-' ~ medal.medal.key %}
-                <button type="button" class="medal-button" data-bs-toggle="modal" data-bs-target="#{{ id }}" title="{{ medal.label }}">
+                <button type="button" class="medal-button" data-bs-toggle="modal" data-bs-target="#{{ id }}" aria-label="{{ medal.label }}"
+                        data-tooltip="{{ medal.medal.title }}"{% if medal.tierName %} data-tooltip-body="{{ medal.tierName }}"{% endif %}>
                     <img class="medal-badge" src="{{ asset(medal.image) }}" alt="{{ medal.label }}">
                 </button>
                 <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}-title" aria-hidden="true">

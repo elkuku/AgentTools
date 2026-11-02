@@ -1,0 +1,83 @@
+{#
+    What changed between two uploads, laid out like the app's import result (ImportResultView), only
+    the gain: not what is missing for the next tier.
+    comparison: StatsComparison
+#}
+<div id="comparison">
+    <div class="vstack gap-2">
+        <h3 class="h6 mb-0">{{ 'stats_compare.changes'|trans({
+            '%from%': comparison.from.datetime|format_datetime('medium', 'short'),
+            '%to%': comparison.to.datetime|format_datetime('medium', 'short'),
+        }) }}</h3>
+        <div class="small text-body-secondary" id="comparison-days">{{ 'stats_compare.days'|trans({'%count%': comparison.days}) }}</div>
+
+        {% if comparison.newLevel %}
+            <div class="fw-bold text-primary" id="comparison-level">{{ 'timeline.new_level'|trans({'%level%': comparison.newLevel}) }}</div>
+        {% endif %}
+
+        {% if comparison.medalUps %}
+            <div class="fw-bold text-primary">{{ 'stats_compare.medal_upgrades'|trans }}</div>
+            <div class="d-flex flex-wrap gap-1" id="comparison-medal-ups">
+                {% for medal in comparison.medalUps %}
+                    <img class="medal-badge" src="{{ asset(medal.badge) }}" alt="{{ medal.medal.name }}: {{ medal.levelName }}" data-tooltip="{{ medal.medal.name }}" data-tooltip-body="{{ medal.levelName }}">
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if comparison.medalDoubles %}
+            <div class="fw-bold text-primary">{{ 'stats_compare.onyx_again'|trans }}</div>
+            <div class="d-flex flex-wrap align-items-center gap-1" id="comparison-onyx">
+                {% for medal in comparison.medalDoubles %}
+                    <img class="medal-badge" src="{{ asset(medal.badge) }}" alt="{{ medal.medal.name }}: Onyx" data-tooltip="{{ medal.medal.name }}" data-tooltip-body="Onyx × {{ medal.onyxCount }}">
+                    <span class="medal-count me-2">X {{ medal.onyxCount }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if comparison.coreBadges %}
+            <div class="fw-bold text-primary">{{ 'stats.core_subscriptions'|trans }}</div>
+            <div class="d-flex gap-1">
+                {% for badge in comparison.coreBadges %}
+                    <img class="medal-badge" src="{{ asset(badge) }}" alt="C.O.R.E" data-tooltip="C.O.R.E">
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if comparison.recursions %}
+            <div class="fw-bold text-primary">{{ 'timeline.recursion'|trans({'%recursions%': comparison.recursions}) }}</div>
+            <div><img class="medal-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum" data-tooltip="Simulacrum" data-tooltip-body="{{ 'timeline.recursion'|trans({'%recursions%': comparison.recursions}) }}"></div>
+        {% endif %}
+
+        {% for row in comparison.rows|filter(row => row.column == 'ap') %}
+            <hr class="my-1">
+            <div class="d-flex align-items-center gap-2 comparison-row" data-column="ap">
+                <span class="fs-5">AP:</span>
+                <span class="fw-bold text-primary text-nowrap">+ {{ row.increase|number_format }}</span>
+            </div>
+        {% endfor %}
+
+        {% set stats = comparison.rows|filter(row => row.column != 'ap') %}
+        {% if stats %}
+            <hr class="my-1">
+            {# Only the gain: a grid, two in a row on a phone, as the app's #}
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2">
+                {% for row in stats %}
+                    <div class="col d-flex align-items-center gap-2 comparison-row" data-column="{{ row.column }}">
+                        {% if row.badge %}
+                            <img class="medal-badge" src="{{ asset(row.badge) }}" alt="{{ row.name }}: {{ row.levelName }}"
+                                 data-tooltip="{{ row.name }}" data-tooltip-body="{{ row.levelName }}{{ row.onyxCount > 1 ? ' × ' ~ row.onyxCount }} · {{ row.value|number_format }}">
+                            {% if row.onyxCount > 1 %}<span class="medal-count">X {{ row.onyxCount }}</span>{% endif %}
+                        {% else %}
+                            <span>{{ row.name }}</span>
+                        {% endif %}
+                        <span class="fw-bold text-primary text-nowrap">+ {{ row.increase|number_format }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not comparison.rows %}
+            <div id="comparison-nothing">{{ 'stats_compare.nothing'|trans }}</div>
+        {% endif %}
+    </div>
+</div>

@@ -1,6 +1,6 @@
 {#
     An agent's timeline, read-only: the chart with the date filter and the entries.
-    agent: User, timeline: list<TimelineEntry>, chart: TimelineChart|null
+    agent: User, timeline: list<TimelineEntry>, chart: TimelineChart|null, uploadDays: the days with an upload
 #}
 {% extends 'base.html.twig' %}
 
@@ -11,6 +11,5 @@
         <a href="{{ path('app_agent_show', {agentName: agent.agentName}) }}">{{ agent.agentName }}</a> &middot; {{ 'timeline.title'|trans }}
     </h1>
 
-    {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
     {{ include('agent_stat/_timeline.html.twig', {editable: false}) }}
 {% endblock %}

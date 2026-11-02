@@ -11,6 +11,8 @@ use App\Form\TimelineEventType;
 use App\Repository\AgentStatRepository;
 use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
+use App\Stats\ComparisonChoice;
+use App\Stats\StatsComparer;
 use App\Timeline\TimelineBuilder;
 use App\Timeline\TimelineChart;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +25,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * The user's timeline, as the app's timeline screen: the chart, a form for a new event and every
  * import, custom event and Bannergress banner done with a day. With from and to (Y-m-d) the chart
- * is zoomed to those days; with chart=1 only the chart, for the date filter.
+ * is zoomed to those days; with chart=1 only the chart, for the date filter. Instead of the list the
+ * page shows what changed between two uploads (compareFrom, compareTo: their ids, picked in the
+ * browser from the date range); compare=1 renders only that, for timeline_filter_controller.js.
  */
 #[Route('/agent-stats/timeline', name: 'app_agent_stat_timeline', methods: ['GET', 'POST'])]
 #[IsGranted(UserRole::USER->value)]
@@ -36,12 +40,19 @@ final class Timeline extends BaseController
         TimelineBuilder $timelineBuilder,
         DoneBannerRepository $doneBannerRepository,
         EntityManagerInterface $entityManager,
+        StatsComparer $statsComparer,
         #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => TimelineChart::DAY])]
         ?string $from = null,
         #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => TimelineChart::DAY])]
         ?string $to = null,
         #[MapQueryParameter]
         bool $chart = false,
+        #[MapQueryParameter]
+        ?int $compareFrom = null,
+        #[MapQueryParameter]
+        ?int $compareTo = null,
+        #[MapQueryParameter]
+        bool $compare = false,
     ): Response {
         $event = new TimelineEvent();
         $event->date = new \DateTimeImmutable('today');
@@ -60,6 +71,15 @@ final class Timeline extends BaseController
         }
 
         $agentStats = $agentStatRepository->findByOwner($this->getUser());
+        if ($compare) {
+            $choice = ComparisonChoice::choose($agentStats, $compareFrom, $compareTo);
+
+            return $this->render('agent_stat/_compare.html.twig', [
+                'comparison' => $choice instanceof ComparisonChoice && $choice->from !== $choice->to ? $statsComparer->compare($choice->from, $choice->to) : null,
+                'enough' => $choice instanceof ComparisonChoice,
+            ]);
+        }
+
         $events = $timelineEventRepository->findByOwner($this->getUser());
         $timelineChart = TimelineChart::build($agentStats, $events, $request->getLocale(), TimelineChart::date($from), TimelineChart::date($to));
 
@@ -71,6 +91,7 @@ final class Timeline extends BaseController
             'timeline' => $timelineBuilder->build($agentStats, $events, $doneBannerRepository->findDatedByOwner($this->getUser())),
             'chart' => $timelineChart,
             'eventForm' => $form,
+            'uploadDays' => ComparisonChoice::uploadDays($agentStats),
         ]);
     }
 }

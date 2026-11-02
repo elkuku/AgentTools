@@ -12,6 +12,7 @@ use App\Repository\AgentStatRepository;
 use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
 use App\Repository\UserRepository;
+use App\Stats\ComparisonChoice;
 use App\Timeline\TimelineBuilder;
 use App\Timeline\TimelineChart;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,6 +66,7 @@ final class Timeline extends BaseController
             'agent' => $agent,
             'timeline' => $timelineBuilder->build($stats, $events, $banners),
             'chart' => $timelineChart,
+            'uploadDays' => ComparisonChoice::uploadDays($stats),
         ]);
     }
 }

@@ -19,7 +19,8 @@
         {% endif %}
         {% set recursions = stats.recursions ?? 0 %}
         {% if recursions > 0 %}
-            <img class="medal-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum" title="Simulacrum">
+            <img class="medal-badge" src="{{ asset('badges/unique_badge_simulacrum.webp') }}" alt="Simulacrum"
+                 data-tooltip="Simulacrum" data-tooltip-body="{{ 'timeline.recursion'|trans({'%recursions%': recursions}) }}">
             {% if recursions > 1 %}<span class="medal-count">X {{ recursions }}</span>{% endif %}
         {% endif %}
     </div>
@@ -32,7 +33,8 @@
     {% if months > 0 %}
         <div class="d-flex flex-wrap align-items-center gap-1 mt-2" id="core-badges">
             {% for badge in coreBadges %}
-                <img class="medal-badge" src="{{ asset(badge) }}" alt="{{ 'stats.core_subscriptions'|trans }}" title="{{ 'stats.core_subscriptions'|trans }}">
+                <img class="medal-badge" src="{{ asset(badge) }}" alt="{{ 'stats.core_subscriptions'|trans }}"
+                     data-tooltip="{{ 'stats.core_subscriptions'|trans }}" data-tooltip-body="{{ 'stats.core_months'|trans({'%count%': months}) }}">
                 {% if loop.first %}<span class="fw-bold me-1">{{ 'stats.core_months'|trans({'%count%': months}) }}</span>{% endif %}
             {% endfor %}
         </div>
@@ -45,7 +47,8 @@
     <div class="d-flex flex-wrap gap-2" id="medals">
         {% for medal in medals %}
             <button type="button" class="medal-button d-flex align-items-center" data-bs-toggle="modal"
-                    data-bs-target="#medal-{{ medal.medal.column }}" title="{{ medal.medal.name }}: {{ medal.levelName }}">
+                    data-bs-target="#medal-{{ medal.medal.column }}" aria-label="{{ medal.medal.name }}: {{ medal.levelName }}"
+                    data-tooltip="{{ medal.medal.name }}" data-tooltip-body="{{ medal.levelName }}{{ medal.onyxCount > 1 ? ' × ' ~ medal.onyxCount }} · {{ (medal.value ?? 0)|number_format }}">
                 {% if medal.badge %}
                     <img class="medal-badge" src="{{ asset(medal.badge) }}" alt="{{ medal.medal.name }}: {{ medal.levelName }}">
                     {% if medal.onyxCount > 1 %}<span class="medal-count">X {{ medal.onyxCount }}</span>{% endif %}

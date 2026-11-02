@@ -173,11 +173,13 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'Oct 20, 2026');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(3)', 'New level 16');
         self::assertSelectorTextContains('#timeline-entries li:nth-child(4)', 'First upload');
-        // Filters as the app's: medals, new level, by kind and days
+        // Filters as the app's: medals, new level, by kind; the days in a calendar of the upload days, no comparison
         self::assertSelectorExists('#timeline-filters input#timeline-filter-travel[value="travel"]');
         self::assertSelectorNotExists('#timeline-filters input[value="upload"]');
-        self::assertSelectorExists('#timeline-filters input#timeline-filter-from[type="date"]');
-        self::assertSelectorExists('#timeline-filters input#timeline-filter-to[type="date"]');
+        self::assertSelectorExists('#timeline-range #timeline-range-button');
+        self::assertSame(['2026-10-19', '2026-10-20'], \array_keys((array) \json_decode((string) $crawler->filter('[data-controller="timeline-filter"]')->attr('data-timeline-filter-days-value'), true)));
+        self::assertSelectorNotExists('#timeline-view');
+        self::assertSelectorNotExists('#compare');
         self::assertSelectorExists('#timeline-entries li.timeline-event[data-kind="event"][data-from="2026-10-20"][data-to="2026-10-20"]');
         // The first upload always, the new level with its filter
         self::assertSelectorExists('#timeline-entries li.timeline-upload[data-milestone]');

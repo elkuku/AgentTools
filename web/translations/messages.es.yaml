@@ -171,6 +171,16 @@ stats:
     mine: Mis estadísticas de agente
     none: Todavía no hay estadísticas.
 
+stats_compare:
+    title: Comparar estadísticas
+    changes: 'Cambios del %from% al %to%'
+    days: '{0} el mismo día|{1} 1 día|]1,Inf[ %count% días'
+    medal_upgrades: Medallas mejoradas
+    onyx_again: Ónix otra vez
+    nothing: Ninguna estadística subió.
+    same: Elige dos subidas distintas.
+    need_two: Necesitas al menos dos subidas de estadísticas para compararlas.
+
 stats_import:
     title: 'Importar estadísticas desde un archivo'
     intro: 'Importa lo que guardaste en 4e-website: allí abre el menú de la cuenta, <strong>Migrate</strong>, luego <strong>Export CSV</strong> para tus estadísticas y <strong>Export custom medals</strong> para tus medallas de anomalías, anuales y de eventos, y sube cada archivo aquí. Las estadísticas que ya tienes se omiten y solo se importan las de tu agente; una medalla especial que ya tienes conserva el nivel más alto.'
@@ -192,6 +202,7 @@ theme:
 
 timeline:
     filter:
+        all_dates: Todo el período
         medals: Medallas
         new_level: Nuevo nivel
         upload: Subidas
@@ -212,7 +223,7 @@ timeline:
         end: Fin del viaje
     first_upload: Primera subida
     new_level: Nuevo nivel %level%
-    recursion: 'Recursión: %count%'
+    recursion: 'Recursión: %recursions%'
     event:
         add: Añadir evento
         date: Fecha

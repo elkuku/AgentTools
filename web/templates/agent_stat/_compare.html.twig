@@ -1,0 +1,12 @@
+{#
+    What changed between the two uploads the timeline's date range picks (timeline_filter_controller.js
+    loads the page with compare=1, which renders only this).
+    comparison: StatsComparison|null (null: the same upload twice), enough: bool (at least two uploads)
+#}
+{% if not enough %}
+    <p class="text-body-secondary mb-0" id="compare-none">{{ 'stats_compare.need_two'|trans }}</p>
+{% elseif comparison %}
+    {{ include('agent_stat/_comparison.html.twig') }}
+{% else %}
+    <p class="text-body-secondary mb-0" id="compare-same">{{ 'stats_compare.same'|trans }}</p>
+{% endif %}

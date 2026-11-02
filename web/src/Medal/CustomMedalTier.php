@@ -22,11 +22,15 @@ final readonly class CustomMedalTier
 
     public function label(): string
     {
-        if ('' === $this->tier) {
-            return $this->medal->title;
-        }
+        $tier = $this->tierName();
 
+        return null === $tier ? $this->medal->title : \sprintf('%s (%s)', $this->medal->title, $tier);
+    }
+
+    /** The tier's name; null for a medal without tiers. */
+    public function tierName(): ?string
+    {
         // "black" is onyx, as everywhere else
-        return \sprintf('%s (%s)', $this->medal->title, Medal::TIERS[$this->tier] ?? \ucfirst($this->tier));
+        return '' === $this->tier ? null : Medal::TIERS[$this->tier] ?? \ucfirst($this->tier);
     }
 }

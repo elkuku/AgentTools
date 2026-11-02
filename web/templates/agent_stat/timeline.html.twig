@@ -14,7 +14,6 @@
         </div>
     </div>
 
-    {{ include('agent_stat/_timeline_chart_frame.html.twig') }}
 
     {# Opens again with the errors of a submitted form #}
     <div class="modal fade" id="timeline-add" tabindex="-1" aria-labelledby="timeline-add-title" aria-hidden="true"
@@ -41,5 +40,5 @@
             </div>
         </div>
     </div>
-    {{ include('agent_stat/_timeline.html.twig', {editable: true}) }}
+    {{ include('agent_stat/_timeline.html.twig', {editable: true, compare: true}) }}
 {% endblock %}

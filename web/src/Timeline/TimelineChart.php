@@ -34,11 +34,13 @@ final readonly class TimelineChart
     public const int MAX_DOTS = 20;
 
     /**
-     * @param list<array{x: float, y: float, title: string}>                    $points the uploads, oldest first
-     * @param list<array{x: float, title: string}>                              $flags  single-day events
-     * @param list<array{x: float, width: float, title: string, label: string}> $bands  events over several days
-     * @param list<array{y: float, label: string}>                              $yTicks
-     * @param list<array{x: float, label: string}>                              $xTicks
+     * The marks have a title (their accessible name) and what their tooltip shows.
+     *
+     * @param list<array{x: float, y: float, title: string, datetime: \DateTimeImmutable, level: int|null, ap: int, gain: int|null}>                 $points the uploads, oldest first; gain: AP since the one before
+     * @param list<array{x: float, title: string, date: \DateTimeImmutable, text: string}>                                                           $flags  single-day events
+     * @param list<array{x: float, width: float, title: string, label: string, date: \DateTimeImmutable, endDate: \DateTimeImmutable, text: string}> $bands  events over several days
+     * @param list<array{y: float, label: string}>                                                                                                   $yTicks
+     * @param list<array{x: float, label: string}>                                                                                                   $xTicks
      */
     public function __construct(
         public array $points,
@@ -76,6 +78,7 @@ final readonly class TimelineChart
         $first = $from instanceof \DateTimeImmutable ? self::day($from->setTime(0, 0)) : null;
         // To the end of the last day
         $last = $to instanceof \DateTimeImmutable ? self::day($to->setTime(0, 0)) + 1 : null;
+        $gains = self::gains($stats);
         $stats = \array_values(\array_filter($stats, static fn (AgentStat $stat): bool => self::within(self::day($stat->datetime), self::day($stat->datetime), $first, $last)));
         $events = \array_values(\array_filter($events, static fn (TimelineEvent $event): bool => self::within(
             self::day(self::startOf($event)),
@@ -103,6 +106,10 @@ final readonly class TimelineChart
             'x' => $x(self::day($stat->datetime)),
             'y' => $y($stat->ap),
             'title' => \sprintf('%s · L%s · %s AP', $stat->datetime->format('Y-m-d H:i'), $stat->level ?? '–', \number_format($stat->ap)),
+            'datetime' => $stat->datetime,
+            'level' => $stat->level,
+            'ap' => $stat->ap,
+            'gain' => $gains[\spl_object_id($stat)] ?? null,
         ], $sorted);
 
         // No AP axis without uploads (e.g. zoomed to the days of a travel only)
@@ -139,6 +146,28 @@ final readonly class TimelineChart
     private static function day(\DateTimeImmutable $date): float
     {
         return $date->getTimestamp() / 86400;
+    }
+
+    /**
+     * The AP each upload gained since the one before it (also before a zoomed chart's days), by
+     * spl_object_id; none for the first.
+     *
+     * @param list<AgentStat> $stats any order
+     *
+     * @return array<int, int>
+     */
+    private static function gains(array $stats): array
+    {
+        \usort($stats, static fn (AgentStat $a, AgentStat $b): int => $a->datetime <=> $b->datetime);
+
+        $gains = [];
+        foreach ($stats as $index => $stat) {
+            if ($index > 0) {
+                $gains[\spl_object_id($stat)] = $stat->ap - $stats[$index - 1]->ap;
+            }
+        }
+
+        return $gains;
     }
 
     private static function startOf(TimelineEvent $event): \DateTimeImmutable
@@ -184,13 +213,13 @@ final readonly class TimelineChart
      *
      * @param \Closure(float): float $x
      *
-     * @return array{x: float, title: string}
+     * @return array{x: float, title: string, date: \DateTimeImmutable, text: string}
      */
     private static function flag(TimelineEvent $event, \Closure $x): array
     {
         $date = self::startOf($event);
 
-        return ['x' => $x(self::day($date) + 0.5), 'title' => $date->format('Y-m-d').': '.$event->text];
+        return ['x' => $x(self::day($date) + 0.5), 'title' => $date->format('Y-m-d').': '.$event->text, 'date' => $date, 'text' => $event->text];
     }
 
     /**
@@ -198,7 +227,7 @@ final readonly class TimelineChart
      *
      * @param \Closure(float): float $x
      *
-     * @return array{x: float, width: float, title: string, label: string}
+     * @return array{x: float, width: float, title: string, label: string, date: \DateTimeImmutable, endDate: \DateTimeImmutable, text: string}
      */
     private static function band(TimelineEvent $event, \Closure $x): array
     {
@@ -214,6 +243,9 @@ final readonly class TimelineChart
             'title' => \sprintf('%s – %s: %s', $date->format('Y-m-d'), $endDate->format('Y-m-d'), $event->text),
             // The first line
             'label' => \mb_strimwidth(\strtok($event->text, "\n") ?: '', 0, 40, '…'),
+            'date' => $date,
+            'endDate' => $endDate,
+            'text' => $event->text,
         ];
     }
 

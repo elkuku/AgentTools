@@ -172,6 +172,16 @@ stats:
     mine: My agent stats
     none: No stats yet.
 
+stats_compare:
+    title: Compare stats
+    changes: 'Changes from %from% to %to%'
+    days: '{0} the same day|{1} 1 day|]1,Inf[ %count% days'
+    medal_upgrades: Medal upgrades
+    onyx_again: Onyx again
+    nothing: No stat went up.
+    same: Pick two different uploads.
+    need_two: You need at least two stats uploads to compare them.
+
 stats_import:
     title: 'Import stats from a file'
     intro: 'Import what you saved on 4e-website: there, open the account menu, <strong>Migrate</strong>, then <strong>Export CSV</strong> for your stats and <strong>Export custom medals</strong> for your anomaly, annual and event medals, and upload each file here. Stats you already have are skipped, and only stats of your agent are imported; a custom medal you already have keeps the higher tier.'
@@ -193,6 +203,7 @@ theme:
 
 timeline:
     filter:
+        all_dates: All dates
         medals: Medals
         new_level: New level
         upload: Uploads
@@ -213,7 +224,7 @@ timeline:
         end: End of the travel
     first_upload: First upload
     new_level: New level %level%
-    recursion: 'Recursion: %count%'
+    recursion: 'Recursion: %recursions%'
     event:
         add: Add event
         date: Date
