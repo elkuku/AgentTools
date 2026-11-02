@@ -45,6 +45,7 @@ val CUSTOM_MEDAL_GROUPS = listOf("anomaly", "annual", "event")
  */
 val CUSTOM_MEDALS = listOf(
     // anomaly
+    CustomMedal("anomaly", "cygnus", "Cygnus", listOf("bronze", "silver", "gold")),
     CustomMedal("anomaly", "apollo_onsite", "Apollo (On-site)"),
     CustomMedal("anomaly", "apollo", "Apollo", listOf("bronze", "silver", "gold")),
     CustomMedal("anomaly", "orion_onsite", "Orion (On-site)"),
@@ -100,6 +101,8 @@ val CUSTOM_MEDALS = listOf(
     CustomMedal("annual", "vanguard", "Vanguard", listOf("bronze", "silver", "gold", "platinum", "black")),
     CustomMedal("annual", "innovator", "Innovator", listOf("bronze", "silver", "gold", "platinum", "black")),
     // event
+    CustomMedal("event", "cygnus", "Cygnus: Global Battles", listOf("bronze", "silver", "gold")),
+    CustomMedal("event", "apollo", "Apollo: Global Op", listOf("bronze", "silver", "gold")),
     CustomMedal("event", "2026_summer_solstice", "Summer Solstice 2026", listOf("bronze", "silver")),
     CustomMedal("event", "orion", "Orion: Global Op", listOf("bronze", "silver", "gold")),
     CustomMedal("event", "plus_gamma", "+Gamma: Global Op", listOf("bronze", "silver", "gold")),
