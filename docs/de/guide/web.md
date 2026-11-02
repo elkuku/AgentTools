@@ -69,7 +69,9 @@ gespeichert hast, z. B. auf der 4e-website (dort: Kontomenü → **Migrate**):
 - **Sondermedaillen als JSON** (**Export custom medals**): mit deinen zusammengeführt; eine
   Medaille, die du schon hast, behält die höhere Stufe.
 
-Die Seite meldet, was sie importiert und übersprungen hat und was sie nicht erkannt hat.
+Eine Statistikdatei wird Stück für Stück mit einem Fortschrittsbalken importiert, damit auch eine
+Datei mit Uploads aus Jahren nicht in eine Zeitüberschreitung läuft. Danach meldet die Seite, was sie
+importiert und übersprungen hat und was sie nicht erkannt hat.
 
 ## Meine Banner {#my-banners}
 

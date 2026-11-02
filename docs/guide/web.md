@@ -65,7 +65,9 @@ User menu → **Import stats** imports stats you saved before AgentTools, e.g. o
 - **Custom medals as JSON** (**Export custom medals**): merged with yours; a medal you already have
   keeps the higher tier.
 
-The page reports what it imported, what it skipped and anything it didn't recognize.
+A stats file is imported a part at a time with a progress bar, so even a file with years of uploads
+doesn't time out. The page then reports what it imported, what it skipped and anything it didn't
+recognize.
 
 ## My banners
 

@@ -68,7 +68,9 @@ p. ej. en 4e-website (allí: menú de la cuenta → **Migrate**):
 - **Medallas especiales en JSON** (**Export custom medals**): se combinan con las tuyas; una medalla
   que ya tienes conserva el nivel más alto.
 
-La página informa de lo que importó, lo que omitió y lo que no reconoció.
+Un archivo de estadísticas se importa por partes con una barra de progreso, para que ni un archivo
+con años de subidas agote el tiempo de espera. Luego la página informa de lo que importó, lo que
+omitió y lo que no reconoció.
 
 ## Mis banners {#my-banners}
 
