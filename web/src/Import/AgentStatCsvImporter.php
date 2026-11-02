@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Exception\AgentNameException;
 use App\Exception\StatsAlreadyAddedException;
 use App\Service\AgentStatService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
@@ -20,6 +21,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * (AgentStatInput, validated, AgentStatService): stats already imported are skipped, invalid
  * rows and stats of another agent are reported. Columns AgentTools does not know are ignored;
  * rows without nickname or faction (4e-website's before May 2020) get them from the file.
+ *
+ * A part of the rows ($offset, $limit) for CsvImportJob, which imports a big file in several
+ * requests. The saved stats are detached: else every row's flush checks all the rows before it.
  */
 final readonly class AgentStatCsvImporter
 {
@@ -30,13 +34,16 @@ final readonly class AgentStatCsvImporter
         private DenormalizerInterface $denormalizer,
         private ValidatorInterface $validator,
         private AgentStatService $agentStatService,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
     /**
+     * The rows from $offset (0: the first after the header), at most $limit of them (null: all).
+     *
      * @param resource $csv
      */
-    public function import(User $owner, $csv): CsvImportResult
+    public function import(User $owner, $csv, int $offset = 0, ?int $limit = null): CsvImportResult
     {
         $result = new CsvImportResult();
 
@@ -58,8 +65,10 @@ final readonly class AgentStatCsvImporter
             }
         }
 
+        $result->rows = \count($rows);
+        // From the whole file: the same for every part
         $defaults = $this->defaults($owner, $columns, $rows);
-        foreach ($rows as $number => $row) {
+        foreach (\array_slice($rows, $offset, $limit, true) as $number => $row) {
             $this->importRow($owner, $columns, $row, $number, $defaults, $result);
         }
 
@@ -132,7 +141,7 @@ final readonly class AgentStatCsvImporter
         }
 
         try {
-            $this->agentStatService->create($owner, $input);
+            $this->entityManager->detach($this->agentStatService->create($owner, $input));
             ++$result->imported;
         } catch (StatsAlreadyAddedException) {
             ++$result->skipped;

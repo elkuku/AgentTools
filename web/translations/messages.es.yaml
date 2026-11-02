@@ -187,6 +187,9 @@ stats_import:
     file: Archivo
     file_help: 'Las estadísticas en CSV (una fila de encabezado con los nombres de columna: datetime, nickname, faction, ap, …) o las medallas especiales en JSON.'
     submit: 'Importar'
+    uploading: 'Subiendo el archivo…'
+    progress: 'Importando las estadísticas…'
+    failed: 'La importación se detuvo (%error%). Las estadísticas importadas hasta entonces están guardadas; importa el archivo de nuevo para el resto.'
     done: 'Se importaron %imported% estadísticas, se omitieron %skipped% que ya tenías.'
     errors: '{1} Una fila no se importó:|]1,Inf[ %count% filas no se importaron:'
     medals_done: 'Medallas especiales: %added% añadidas, %upgraded% con un nivel más alto, %kept% que ya tenías.'

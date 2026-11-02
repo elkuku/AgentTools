@@ -188,6 +188,9 @@ stats_import:
     file: File
     file_help: 'The stats as CSV (a header row with the column names: datetime, nickname, faction, ap, …) or the custom medals as JSON.'
     submit: 'Import'
+    uploading: 'Uploading the file…'
+    progress: 'Importing the stats…'
+    failed: 'The import stopped (%error%). The stats imported until then are saved; import the file again for the rest.'
     done: 'Imported %imported% stats, skipped %skipped% you already had.'
     errors: '{1} One row was not imported:|]1,Inf[ %count% rows were not imported:'
     medals_done: 'Custom medals: %added% added, %upgraded% at a higher tier, %kept% you already had.'

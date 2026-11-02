@@ -55,6 +55,10 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_banners_done_at' => [
                 'statusCodes' => ['POST' => 404],
             ],
+            // An import's id is 32 hex digits
+            'app_agent_stat_import_next' => [
+                'params' => ['{import}' => '0123456789abcdef0123456789abcdef'],
+            ],
             'app_locale' => [
                 'params' => ['{locale}' => 'de'],
                 'statusCodes' => ['GET' => 302],

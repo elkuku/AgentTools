@@ -71,6 +71,28 @@ class AgentStatCsvImporterTest extends KernelTestCase
         self::assertSame(2, $again->skipped);
     }
 
+    public function testImportsAPartOfTheRows(): void
+    {
+        $rows = [self::HEADER];
+        foreach (['01', '02', '03', '04', '05'] as $day) {
+            $rows[] = self::row(['datetime' => '2022-01-'.$day.' 18:00:00', 'ap' => 15_000_000, 'level' => 8, 'faction' => 'Enlightened', 'nickname' => 'TestAgent']);
+        }
+
+        // An empty line does not count
+        \array_splice($rows, 3, 0, ['']);
+        $csv = self::csv(...$rows);
+
+        // The second and the third row, counting all of them
+        $result = $this->importer()->import($this->user(), $csv, 1, 2);
+        self::assertSame(5, $result->rows);
+        self::assertSame(2, $result->imported);
+        self::assertSame(['2022-01-03', '2022-01-02'], \array_map(static fn ($stat): string => $stat->datetime->format('Y-m-d'), $this->stats()->findByOwner($this->user())));
+
+        // Nothing after the last
+        \rewind($csv);
+        self::assertSame(0, $this->importer()->import($this->user(), $csv, 5, 2)->imported);
+    }
+
     public function testReportsTheRowsItCannotImport(): void
     {
         $csv = self::csv(

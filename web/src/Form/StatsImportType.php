@@ -7,6 +7,7 @@ namespace App\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotNull;
 
@@ -27,5 +28,11 @@ class StatsImportType extends AbstractType
                 new File(maxSize: '5M', extensions: ['csv', 'txt', 'json']),
             ],
         ]);
+    }
+
+    /** A JSON file is custom medals, anything else stats. */
+    public static function isMedals(UploadedFile $file): bool
+    {
+        return 'json' === \strtolower($file->getClientOriginalExtension());
     }
 }

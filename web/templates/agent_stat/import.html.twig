@@ -7,9 +7,26 @@
 
     <p class="text-body-secondary">{{ 'stats_import.intro'|trans|raw }}</p>
 
-    {{ form_start(form) }}
-        {{ form_row(form.file) }}
-        <button class="btn btn-primary">{{ 'stats_import.submit'|trans }}</button>
-        <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}">{{ 'stats.mine'|trans }}</a>
-    {{ form_end(form) }}
+    {# With JavaScript a CSV file is imported in parts with a progress bar (stats_import_controller.js) #}
+    <div data-controller="stats-import" data-stats-import-start-url-value="{{ path('app_agent_stat_import_start') }}"
+         data-stats-import-progress-value="{{ 'stats_import.progress'|trans }}"
+         data-stats-import-failed-value="{{ 'stats_import.failed'|trans }}">
+        {{ form_start(form, {attr: {'data-stats-import-target': 'form', 'data-action': 'stats-import#submit'}}) }}
+            {{ form_row(form.file) }}
+            <button class="btn btn-primary" data-stats-import-target="submit">{{ 'stats_import.submit'|trans }}</button>
+            <a class="btn btn-outline-secondary" href="{{ path('app_agent_stat_index') }}">{{ 'stats.mine'|trans }}</a>
+        {{ form_end(form) }}
+
+        <div class="mt-4" id="stats-import-progress" hidden data-stats-import-target="progress">
+            <div class="d-flex justify-content-between small mb-1">
+                <span data-stats-import-target="label">{{ 'stats_import.uploading'|trans }}</span>
+                <span class="text-body-secondary" data-stats-import-target="count"></span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="{{ 'stats_import.title'|trans }}" aria-valuemin="0" aria-valuemax="100"
+                 aria-valuenow="0" data-stats-import-target="bar">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="alert alert-danger mt-3" hidden data-stats-import-target="error"></div>
+    </div>
 {% endblock %}

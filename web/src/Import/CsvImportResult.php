@@ -9,6 +9,9 @@ namespace App\Import;
  */
 final class CsvImportResult
 {
+    /** The file's rows with values (without the header and empty lines). */
+    public int $rows = 0;
+
     public int $imported = 0;
 
     /** Stats with a datetime that was already imported. */
