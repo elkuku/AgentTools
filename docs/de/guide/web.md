@@ -43,7 +43,12 @@ Stufe.
 Die Zeitleiste (**Agentenstatistiken → Zeitleiste**) enthält deine Uploads mit dem, was sich
 geändert hat, deine Ereignisse und Reisen und deine datierten Banner, das Neueste zuerst und nach Jahren, unter
 einem Diagramm deiner AP. Sie funktioniert wie die [Zeitleiste der App](/de/guide/app#timeline):
-dieselben Filter und ein Datumsbereich, der das Diagramm zoomt.
+dieselben Filter und unter dem Diagramm ein Datumsbereich aus einem Kalender (nur Tage mit einem
+Upload, mit einem Punkt markiert; eine zweite Farbe für Tage mit mehreren), der das Diagramm zoomt.
+**Statistiken vergleichen** daneben zeigt statt der Liste, was du zwischen zwei Uploads erreicht
+hast, wie in der [App](/de/guide/app#compare-stats), mit der Uhrzeit zur Wahl an einem Tag mit
+mehreren Uploads. Bereich und Ansicht stehen in der Adresse der Seite, du kannst sie also teilen
+oder als Lesezeichen speichern. Fahre über das Diagramm oder eine Medaille für ihre Details.
 
 **Ereignis hinzufügen** öffnet ein Formular für ein neues Ereignis: seinen Tag, einen optionalen
 Endtag für eine Reise und was passiert ist. Die Stift- und Papierkorb-Schaltflächen ändern oder

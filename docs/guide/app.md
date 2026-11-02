@@ -95,8 +95,17 @@ The timeline (My stats → **Timeline**) tells your Ingress story, newest first,
 The chart above it shows your AP over time, with a flag for each event and a band for each travel.
 Tap a mark for its details.
 
-The filters below the chart show or hide medal upgrades, new levels, events, travels and banners.
-**All dates** picks a date range; the chart zooms to it.
+Below the chart, **All dates** picks a date range in a calendar where only the days with an upload
+can be chosen; the chart zooms to it. The filters show or hide medal upgrades, new levels, events,
+travels and banners.
+
+### Compare stats
+
+**Compare** next to the date range shows, instead of the list, what you gained between two
+uploads: new level, medal upgrades, Onyx again, C.O.R.E, recursions and every stat that went up.
+It compares the first upload of the range's first day with the last upload of its last day; with
+all dates, your first upload with your latest. On a day with several uploads you pick the time
+(a list for more than four); the earlier upload is always the start.
 
 **Add event** adds an event with its day and text. Give it an end date to make it a travel. Travels
 can't overlap. Tap an event to change or delete it.

@@ -39,7 +39,12 @@ Click a medal for its details: the stat behind it, your value and the value of e
 
 The timeline (**Agent stats → Timeline**) has your uploads with what changed, your events and
 travels and your dated banners, newest first and by year, under a chart of your AP. It works like the
-[app's timeline](/guide/app#timeline): the same filters, and a date range that zooms the chart.
+[app's timeline](/guide/app#timeline): the same filters, and below the chart a date range picked in
+a calendar (only the days with an upload, marked with a dot; a second color for days with several)
+that zooms the chart. **Compare stats** next to it shows, instead of the list, what you gained
+between two uploads, as the [app's](/guide/app#compare-stats), with the time to pick on a day with
+several uploads. The range and the view are in the page's address, so you can share or bookmark
+them. Hover over the chart or a medal for its details.
 
 **Add event** opens a form for a new event: its day, an optional end day for a travel, and what
 happened. The pencil and bin buttons change or delete an event; on a banner, the pencil changes the

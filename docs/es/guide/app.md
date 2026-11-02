@@ -97,8 +97,17 @@ reciente primero, con una etiqueta para cada año:
 El gráfico de arriba muestra tus AP a lo largo del tiempo, con una bandera para cada evento y una
 franja para cada viaje. Toca una marca para ver sus detalles.
 
-Los filtros debajo del gráfico muestran u ocultan medallas mejoradas, nuevos niveles, eventos,
-viajes y banners. **Todo el período** elige un rango de fechas; el gráfico se acerca a él.
+Debajo del gráfico, **Todo el período** elige un rango de fechas en un calendario donde solo se
+pueden elegir los días con una subida; el gráfico se acerca a él. Los filtros muestran u ocultan
+medallas mejoradas, nuevos niveles, eventos, viajes y banners.
+
+### Comparar estadísticas {#compare-stats}
+
+**Comparar**, junto al rango de fechas, muestra en lugar de la lista lo que ganaste entre dos
+subidas: nuevo nivel, medallas mejoradas, ónix otra vez, C.O.R.E, recursiones y cada estadística
+que subió. Compara la primera subida del primer día del rango con la última de su último día; con
+todo el período, tu primera subida con la más reciente. En un día con varias subidas eliges la hora
+(una lista si hay más de cuatro); la subida más antigua es siempre el inicio.
 
 **Añadir evento** añade un evento con su día y su texto. Ponle una fecha de fin para convertirlo en
 un viaje. Los viajes no pueden superponerse. Toca un evento para cambiarlo o eliminarlo.

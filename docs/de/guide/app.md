@@ -100,8 +100,18 @@ zuerst, mit einer Marke für jedes Jahr:
 Das Diagramm darüber zeigt deine AP im Zeitverlauf, mit einer Fahne für jedes Ereignis und einem
 Band für jede Reise. Tippe auf eine Markierung für ihre Details.
 
-Die Filter unter dem Diagramm blenden Medaillen-Upgrades, neue Level, Ereignisse, Reisen und Banner
-ein oder aus. **Gesamter Zeitraum** wählt einen Datumsbereich; das Diagramm zoomt darauf.
+Unter dem Diagramm wählt **Gesamter Zeitraum** einen Datumsbereich in einem Kalender, in dem nur
+Tage mit einem Upload wählbar sind; das Diagramm zoomt darauf. Die Filter blenden
+Medaillen-Upgrades, neue Level, Ereignisse, Reisen und Banner ein oder aus.
+
+### Statistiken vergleichen {#compare-stats}
+
+**Vergleichen** neben dem Datumsbereich zeigt statt der Liste, was du zwischen zwei Uploads
+erreicht hast: neues Level, Medaillen-Upgrades, wieder Onyx, C.O.R.E, Rekursionen und jede
+gestiegene Statistik. Verglichen wird der erste Upload am ersten Tag des Bereichs mit dem letzten
+an seinem letzten Tag; ohne Bereich dein erster Upload mit deinem neuesten. An einem Tag mit
+mehreren Uploads wählst du die Uhrzeit (eine Liste bei mehr als vier); der frühere Upload ist immer
+der Anfang.
 
 **Ereignis hinzufügen** legt ein Ereignis mit Tag und Text an. Gib ihm ein Enddatum, um daraus eine
 Reise zu machen. Reisen dürfen sich nicht überschneiden. Tippe auf ein Ereignis, um es zu ändern

@@ -42,7 +42,12 @@ nivel.
 La línea de tiempo (**Estadísticas de agente → Línea de tiempo**) tiene tus subidas con lo que
 cambió, tus eventos y viajes y tus banners con fecha, lo más reciente primero y por años, debajo de un gráfico
 de tus AP. Funciona como la [línea de tiempo de la app](/es/guide/app#timeline): los mismos filtros
-y un rango de fechas que acerca el gráfico.
+y, debajo del gráfico, un rango de fechas elegido en un calendario (solo los días con una subida,
+marcados con un punto; otro color para los días con varias) que acerca el gráfico. **Comparar
+estadísticas**, a su lado, muestra en lugar de la lista lo que ganaste entre dos subidas, como en la
+[app](/es/guide/app#compare-stats), con la hora a elegir en un día con varias subidas. El rango y la
+vista están en la dirección de la página, así que puedes compartirlos o guardarlos como marcador.
+Pasa el ratón sobre el gráfico o una medalla para ver sus detalles.
 
 **Añadir evento** abre un formulario para un evento nuevo: su día, un día de fin opcional para un
 viaje y qué pasó. Los botones del lápiz y de la papelera cambian o eliminan un evento; en un
