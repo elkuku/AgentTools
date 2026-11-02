@@ -71,6 +71,7 @@ final class MedalChecker
     public function customMedals(): array
     {
         return [
+            new CustomMedal('anomaly', 'cygnus', 'Cygnus', ['bronze', 'silver', 'gold']),
             new CustomMedal('anomaly', 'apollo_onsite', 'Apollo (On-site)'),
             new CustomMedal('anomaly', 'apollo', 'Apollo', ['bronze', 'silver', 'gold']),
             new CustomMedal('anomaly', 'orion_onsite', 'Orion (On-site)'),
@@ -124,6 +125,8 @@ final class MedalChecker
             new CustomMedal('annual', 'luminary', 'Luminary', ['bronze', 'silver', 'gold', 'platinum', 'black']),
             new CustomMedal('annual', 'vanguard', 'Vanguard', ['bronze', 'silver', 'gold', 'platinum', 'black']),
             new CustomMedal('annual', 'innovator', 'Innovator', ['bronze', 'silver', 'gold', 'platinum', 'black']),
+            new CustomMedal('event', 'cygnus', 'Cygnus: Global Battles', ['bronze', 'silver', 'gold']),
+            new CustomMedal('event', 'apollo', 'Apollo: Global Op', ['bronze', 'silver', 'gold']),
             new CustomMedal('event', '2026_summer_solstice', 'Summer Solstice 2026', ['bronze', 'silver']),
             new CustomMedal('event', 'orion', 'Orion: Global Op', ['bronze', 'silver', 'gold']),
             new CustomMedal('event', 'plus_gamma', '+Gamma: Global Op', ['bronze', 'silver', 'gold']),
