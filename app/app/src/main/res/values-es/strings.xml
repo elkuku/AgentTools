@@ -289,6 +289,29 @@
     <string name="bannergress_map">Dónde empiezan tus banners</string>
     <string name="bannergress_map_partial">Los banners sincronizados antes del mapa aún no tienen punto de inicio: sincroniza de nuevo.</string>
 
+    <!-- Events -->
+    <string name="events">Eventos</string>
+    <string name="events_title">Eventos de Ingress</string>
+    <string name="events_intro">Anomalías XM, Mission Days y otros eventos en todo el mundo, recopilados de las noticias de ingress.com. Elige un día para ver solo sus eventos.</string>
+    <string name="events_this_month">Todos los eventos del mes</string>
+    <string name="events_empty">No hay eventos.</string>
+    <string name="events_previous_month">Mes anterior</string>
+    <string name="events_next_month">Mes siguiente</string>
+    <string name="events_today">Hoy</string>
+    <string name="events_expected">Previsto</string>
+    <string name="events_updated">Último cambio: %1$s</string>
+    <plurals name="events_count">
+        <item quantity="one">%1$d evento</item>
+        <item quantity="many">%1$d eventos</item>
+        <item quantity="other">%1$d eventos</item>
+    </plurals>
+    <string name="event_type_anomaly">Anomalía XM</string>
+    <string name="event_type_mission_day">Mission Day</string>
+    <string name="event_type_first_saturday">First Saturday</string>
+    <string name="event_type_second_sunday">Second Sunday</string>
+    <string name="event_type_shard">Evento de Shards</string>
+    <string name="event_type_global">Evento global</string>
+
     <!-- Links -->
     <string name="links">Enlaces</string>
     <string name="links_title">Enlaces de Ingress</string>

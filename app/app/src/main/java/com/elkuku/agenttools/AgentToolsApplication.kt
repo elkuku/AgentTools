@@ -7,7 +7,9 @@ import com.elkuku.agenttools.auth.BannergressConnector
 import com.elkuku.agenttools.auth.GoogleAuth
 import com.elkuku.agenttools.auth.createGoogleAuth
 import com.elkuku.agenttools.data.BannergressApi
+import com.elkuku.agenttools.data.FileIngressEventCache
 import com.elkuku.agenttools.data.FileLinkListCache
+import com.elkuku.agenttools.data.IngressEventCache
 import com.elkuku.agenttools.data.LinkListCache
 import com.elkuku.agenttools.data.KtorStatsApi
 import com.elkuku.agenttools.data.ServerSettings
@@ -36,6 +38,9 @@ class AgentToolsApplication : Application() {
 
     /** The last link list loaded, shown right away and offline. */
     val linkCache: LinkListCache by lazy { FileLinkListCache(File(filesDir, "links.json")) }
+
+    /** The last events loaded, shown right away and offline. */
+    val eventCache: IngressEventCache by lazy { FileIngressEventCache(File(filesDir, "events.json")) }
 
     /** Decodes the medal images on first use: get it off the main thread. */
     val medalScanner: MedalScanner by lazy { loadMedalScanner(this) }

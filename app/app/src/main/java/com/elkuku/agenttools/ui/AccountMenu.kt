@@ -136,11 +136,11 @@ internal fun rememberAvatar(avatar: String?): ImageBitmap? = remember(avatar) {
 
 /**
  * The app's features, next to the account menu, as web's navbar: the agents (signed in,
- * [onOpenAgents]), the links (signed in or not) and for admins ([onOpenAdminAgents]) every user
+ * [onOpenAgents]), the events and links (signed in or not) and for admins ([onOpenAdminAgents]) every user
  * with the privacy settings.
  */
 @Composable
-fun FeatureMenu(onOpenAgents: (() -> Unit)?, onOpenLinks: () -> Unit, onOpenAdminAgents: (() -> Unit)? = null) {
+fun FeatureMenu(onOpenAgents: (() -> Unit)?, onOpenEvents: () -> Unit, onOpenLinks: () -> Unit, onOpenAdminAgents: (() -> Unit)? = null) {
     var expanded by remember { mutableStateOf(false) }
 
     Box {
@@ -153,6 +153,10 @@ fun FeatureMenu(onOpenAgents: (() -> Unit)?, onOpenLinks: () -> Unit, onOpenAdmi
                     expanded = false
                     open()
                 }
+            }
+            MenuItem(R.drawable.ic_bi_calendar3, stringResource(R.string.events)) {
+                expanded = false
+                onOpenEvents()
             }
             MenuItem(R.drawable.ic_bi_link_45deg, stringResource(R.string.links)) {
                 expanded = false

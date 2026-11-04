@@ -214,6 +214,9 @@ interface StatsApi {
 
     /** `GET /api/links`: the Ingress link list, for everyone (no sign-in). */
     suspend fun links(): LinkListResult
+
+    /** `GET /api/events`: the Ingress events, for everyone (no sign-in). */
+    suspend fun events(): IngressEventListResult
 }
 
 /** [baseUrl] is read on every request: debug and dev builds can change the server on the settings screen. */
@@ -236,6 +239,7 @@ class KtorStatsApi(
     private val doneBannersUrl get() = "${baseUrl().trimEnd('/')}/api/done-banners"
 
     private val linksUrl get() = "${baseUrl().trimEnd('/')}/api/links"
+    private val eventsUrl get() = "${baseUrl().trimEnd('/')}/api/events"
 
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -627,6 +631,22 @@ class KtorStatsApi(
                 ?: LinkListResult.Failure(uiText(R.string.error_unexpected_response))
 
             else -> LinkListResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun events(): IngressEventListResult {
+        val response = try {
+            client.get(eventsUrl) { accept(LdJson) }
+        } catch (e: IOException) {
+            return IngressEventListResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<IngressEventList>()
+                ?.let(IngressEventListResult::Success)
+                ?: IngressEventListResult.Failure(uiText(R.string.error_unexpected_response))
+
+            else -> IngressEventListResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 

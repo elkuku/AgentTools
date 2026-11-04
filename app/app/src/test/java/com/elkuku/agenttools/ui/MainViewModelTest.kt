@@ -26,6 +26,10 @@ import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.Link
+import com.elkuku.agenttools.data.IngressEvent
+import com.elkuku.agenttools.data.IngressEventCache
+import com.elkuku.agenttools.data.IngressEventList
+import com.elkuku.agenttools.data.IngressEventListResult
 import com.elkuku.agenttools.data.LinkListCache
 import com.elkuku.agenttools.data.LinkListResult
 import com.elkuku.agenttools.data.LinkSection
@@ -93,6 +97,57 @@ class MainViewModelTest {
     private val official = listOf(LinkSection("Official", listOf(Link("Ingress", "https://ingress.com", "The official site."))))
 
     private val tools = listOf(LinkSection("Tools", listOf(Link("IITC-CE", "https://iitc.app"))))
+
+    private val zhuhai = IngressEventList(listOf(IngressEvent("mission_day", "Mission Day", "2026-11-07", "2026-11-07", location = "Zhuhai, China")))
+
+    private class FakeEventCache(var list: IngressEventList? = null) : IngressEventCache {
+        override fun read() = list
+
+        override fun write(list: IngressEventList) {
+            this.list = list
+        }
+    }
+
+    @Test
+    fun eventsLoadWithoutASignInAndAreSaved() {
+        val cache = FakeEventCache()
+        api.events = IngressEventListResult.Success(zhuhai)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, eventCache = cache)
+
+        viewModel.openEvents()
+
+        assertTrue(viewModel.state.value.eventsOpen)
+        assertEquals(zhuhai, viewModel.state.value.events)
+        assertNull(viewModel.state.value.eventsStatus)
+        assertFalse(viewModel.state.value.eventsLoading)
+        assertEquals(zhuhai, cache.list)
+
+        viewModel.closeEvents()
+
+        assertFalse(viewModel.state.value.eventsOpen)
+    }
+
+    @Test
+    fun eventsKeepTheSavedListWhenOffline() {
+        api.events = IngressEventListResult.Failure(UiText.Plain("Offline"))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, eventCache = FakeEventCache(zhuhai))
+
+        viewModel.openEvents()
+
+        assertEquals(zhuhai, viewModel.state.value.events)
+        assertFalse(viewModel.state.value.eventsStatus!!.isError)
+    }
+
+    @Test
+    fun eventsWithoutASavedListShowTheError() {
+        api.events = IngressEventListResult.Failure(UiText.Plain("Offline"))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() })
+
+        viewModel.openEvents()
+
+        assertNull(viewModel.state.value.events)
+        assertTrue(viewModel.state.value.eventsStatus!!.isError)
+    }
 
     @Test
     fun linksLoadWithoutASignInAndAreSaved() {
@@ -1205,6 +1260,10 @@ class MainViewModelTest {
         }
 
         /** What `GET /api/links` answers. */
+        var events: IngressEventListResult = IngressEventListResult.Success(IngressEventList())
+
+        override suspend fun events(): IngressEventListResult = events
+
         var links: LinkListResult = LinkListResult.Success(emptyList())
         var linksRequests = 0
 

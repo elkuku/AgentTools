@@ -84,7 +84,7 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `ui/MainScreen.kt` — the main screen: app bar with sign-in, or the account menu
   (`ui/AccountMenu.kt`, like web's: the Google profile picture from `GET /api/me` `avatar`, a
   `data:` URI, opens the email and role, Settings and Sign out) next to the feature menu (☰,
-  `FeatureMenu` in `ui/AccountMenu.kt`: Agents, Links (also signed out); new features go
+  `FeatureMenu` in `ui/AccountMenu.kt`: Agents, Events and Links (also signed out); new features go
   there), status messages, the
   stats; pull down to reload. `ui/AgentsScreen.kt` (☰ → Agents): the agents who show their
   profile (`GET /api/agents`), tap one for the parts it shows (`GET /api/agents/{agentName}`,
@@ -92,6 +92,10 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   user with what they show (`GET /api/users`), one row each with an icon per part, as web's
   `/admin/agents`. The stats header has the faction logo and the level in the faction color
   (`res/drawable-nodpi/logo_enl|res.webp`, rendered from 4e-website's SVGs, as in web).
+- `ui/EventsScreen.kt` (☰ → Events; no sign-in): the calendar of Ingress events from
+  `GET /api/events` (`data/IngressEvents.kt`, the month grid as web's `EventCalendar`), with the
+  month's or the picked day's events under it, as web's `/events`; the last list is kept in
+  `files/events.json` (`FileIngressEventCache`).
 - `ui/LinksScreen.kt` (☰ → Links; no sign-in): the Ingress link list of
   `docs/links.md` from `GET /api/links` (`data/LinkList.kt`), a card per section as web's
   `/links`; the last list is kept in `files/links.json` (`FileLinkListCache`) and shows right
