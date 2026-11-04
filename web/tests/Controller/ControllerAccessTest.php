@@ -36,6 +36,13 @@ class ControllerAccessTest extends ControllerBaseTest
             'app_events' => [
                 'statusCodes' => ['GET' => 200],
             ],
+            'app_history' => [
+                'params' => ['{slug}' => 'anomalies'],
+                'statusCodes' => ['GET' => 200],
+            ],
+            'app_history_attend' => [
+                'params' => ['{slug}' => 'anomalies'],
+            ],
             'app_links' => [
                 'statusCodes' => ['GET' => 200],
             ],

@@ -99,6 +99,7 @@ nav:
     agents: Agentes
     language: Idioma
     events: Eventos
+    history: Historia
     links: Enlaces
     login: Iniciar sesión
     logout: Cerrar sesión
@@ -314,6 +315,18 @@ events:
         second_sunday: Second Sunday
         shard: Evento de Shards
         global: Evento global
+
+history:
+    attend: Marcar como asistido
+    attend_hint: 'Marca los eventos a los que asististe: se añaden a tu cronología.'
+    attend_sign_in: Inicia sesión para marcar los eventos a los que asististe.
+    attended: Asistí
+    title: Historia
+    intro: 'Anomalías XM y Mission Days de años anteriores, con sus medallas y países. Los documentos están en inglés.'
+    anomalies: Anomalías XM
+    mission-days: Mission Days
+    years: Años
+    empty: Todavía no hay nada.
 
 links:
     title: Enlaces de Ingress

@@ -100,6 +100,7 @@ nav:
     agents: Agents
     language: Language
     events: Events
+    history: History
     links: Links
     login: Login
     logout: Logout
@@ -315,6 +316,18 @@ events:
         second_sunday: Second Sunday
         shard: Shard event
         global: Global event
+
+history:
+    attend: Mark as attended
+    attend_hint: 'Mark the events you attended: they are added to your timeline.'
+    attend_sign_in: Sign in to mark the events you attended.
+    attended: Attended
+    title: History
+    intro: 'XM Anomalies and Mission Days of past years, with their medals and countries. The documents are in English.'
+    anomalies: XM Anomalies
+    mission-days: Mission Days
+    years: Years
+    empty: Nothing here yet.
 
 links:
     title: Ingress links

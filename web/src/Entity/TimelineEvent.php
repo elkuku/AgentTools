@@ -21,6 +21,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
@@ -31,6 +32,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * A custom event on the user's timeline (e.g. an anomaly or a mission day), with the stats
  * uploads; with an end date it lasts from [date] to [endDate] (e.g. a travel; travels cannot overlap). Others see the events with the stats history (ProfilePart::STATS_HISTORY).
  *
+ * An event added by marking a history row as attended has its historyKey; deleting it removes the mark.
+ *
  * API: the user's own events, newest first (OwnerExtension); the owner adds, changes and deletes them.
  */
 #[Entity(repositoryClass: TimelineEventRepository::class)]
@@ -39,7 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(paginationEnabled: false, security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('".TimelineEventVoter::EDIT."', object)"),
-        new Post(security: "is_granted('ROLE_USER')", processor: TimelineEventProcessor::class),
+        new Post(denormalizationContext: ['groups' => [self::WRITE, self::CREATE]], security: "is_granted('ROLE_USER')", processor: TimelineEventProcessor::class),
         new Patch(security: "is_granted('".TimelineEventVoter::EDIT."', object)"),
         new Delete(security: "is_granted('".TimelineEventVoter::EDIT."', object)"),
     ],
@@ -48,11 +51,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     order: ['date' => 'DESC', 'id' => 'DESC'],
 )]
 #[NoOverlappingTravel]
+#[UniqueConstraint(name: 'timeline_event_owner_history_key', columns: ['owner_id', 'history_key'])]
 class TimelineEvent
 {
     public const string READ = 'timeline_event:read';
 
     public const string WRITE = 'timeline_event:write';
+
+    /** Only set when adding an event: the attended history row stays linked. */
+    public const string CREATE = 'timeline_event:create';
 
     public const string DATE_FORMAT = 'Y-m-d';
 
@@ -81,6 +88,12 @@ class TimelineEvent
     #[Groups([self::READ, self::WRITE])]
     #[Assert\NotBlank(normalizer: 'trim'), Assert\Length(max: 500)]
     public string $text = '';
+
+    /** The history row attended (HistoryAttendance::$key), null for an event the user wrote. */
+    #[Column(length: 255, nullable: true)]
+    #[Groups([self::READ, self::CREATE])]
+    #[Assert\Length(max: 255)]
+    public ?string $historyKey = null;
 
     #[Column(type: Types::DATETIME_IMMUTABLE)]
     #[Ignore]

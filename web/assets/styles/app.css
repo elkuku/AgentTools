@@ -362,6 +362,24 @@ a.event-day:hover {
 .event-shard { background: var(--event-shard); }
 .event-global { background: var(--event-global); }
 
+/* The history documents (history/index.html.twig); the years' links stop below the fixed navbar */
+.history [id^="year-"],
+.history [id^="attend-"] {
+    scroll-margin-top: 4.5rem;
+}
+
+.history-medal {
+    object-fit: contain;
+}
+
+.history-series .history-medal {
+    margin-right: .5rem;
+}
+
+.history-table td:first-child {
+    white-space: nowrap;
+}
+
 /* The timeline of stats uploads and custom events (agent_stat/_timeline.html.twig) */
 .timeline {
     border-left: 2px solid var(--bs-border-color);

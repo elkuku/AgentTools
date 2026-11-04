@@ -76,6 +76,27 @@ class TimelineEventApiTest extends WebTestCase
         self::assertSame([], $this->request(Request::METHOD_GET, '/api/timeline-events')['member']);
     }
 
+    public function testAHistoryRowIsAttendedOnce(): void
+    {
+        $payload = ['date' => '2026-05-16', 'text' => 'Orion Anomaly: Prague, Czechia', 'historyKey' => 'anomalies:2026-05-16:Prague, Czechia'];
+
+        $first = $this->request(Request::METHOD_POST, '/api/timeline-events', self::GOOGLE_ID, $payload);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        self::assertSame($payload['historyKey'], $first['historyKey']);
+
+        $second = $this->request(Request::METHOD_POST, '/api/timeline-events', self::GOOGLE_ID, $payload);
+
+        self::assertSame($first['id'], $second['id']);
+
+        // Only set when adding: an edit keeps the link
+        $changed = $this->request(Request::METHOD_PATCH, '/api/timeline-events/'.$first['id'], self::GOOGLE_ID, ['text' => 'Prague', 'historyKey' => 'other']);
+
+        self::assertSame($payload['historyKey'], $changed['historyKey']);
+
+        $this->request(Request::METHOD_DELETE, '/api/timeline-events/'.$first['id']);
+    }
+
     public function testListsOnlyOwnEventsNewestFirst(): void
     {
         $this->createEvent($this->user('agent'), '2026-10-20', 'Older');

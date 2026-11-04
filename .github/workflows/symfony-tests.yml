@@ -4,11 +4,13 @@ on:
         paths:
             - 'web/**'
             - 'docs/links.md'
+            - 'docs/events/**'
             - '.github/workflows/symfony-tests.yml'
     pull_request:
         paths:
             - 'web/**'
             - 'docs/links.md'
+            - 'docs/events/**'
             - '.github/workflows/symfony-tests.yml'
 jobs:
     php-unit-and-functional-tests:

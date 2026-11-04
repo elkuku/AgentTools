@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{#
+    The XM Anomalies and Mission Days of past years: a tab per document of docs/events/.
+    document: App\History\HistoryDocument, slug: the document shown, slugs: all documents,
+    attended: the rows the user attended by key, null when signed out, today: Y-m-d
+#}
+
+{% block title %}{{ 'history.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'history.title'|trans }}</h1>
+    <p class="text-body-secondary">
+        {{ 'history.intro'|trans }}
+        {{ (attended is null ? 'history.attend_sign_in' : 'history.attend_hint')|trans }}
+    </p>
+
+    <ul class="nav nav-tabs mb-3">
+        {% for tab in slugs %}
+            <li class="nav-item">
+                <a class="nav-link{{ tab == slug ? ' active' }}" {% if tab == slug %}aria-current="page"{% endif %} href="{{ path('app_history', {slug: tab}) }}">{{ ('history.' ~ tab)|trans }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if document.years %}
+        <nav class="mb-3" aria-label="{{ 'history.years'|trans }}">
+            {% for year in document.years %}
+                <a class="btn btn-outline-secondary btn-sm mb-1" href="#year-{{ year }}">{{ year }}</a>
+            {% endfor %}
+        </nav>
+    {% endif %}
+
+    <div class="history" lang="en">
+        {% for block in document.blocks %}
+            {% if block.type == 'heading' %}
+                {% set tag = 'h' ~ block.level %}
+                {% set text = block.inlines|map(inline => inline.text)|join %}
+                <{{ tag }} class="{{ block.level == 2 ? 'h4 mt-4' : 'h5 mt-3 history-series' }}" {% if text matches '/^\\d{4}$/' %}id="year-{{ text }}"{% endif %}>{% include 'history/_inlines.html.twig' with {inlines: block.inlines} only %}</{{ tag }}>
+            {% elseif block.type == 'paragraph' %}
+                <p>{% include 'history/_inlines.html.twig' with {inlines: block.inlines} only %}</p>
+            {% elseif block.type == 'list' %}
+                <ul>
+                    {% for item in block.items %}
+                        <li>{% include 'history/_inlines.html.twig' with {inlines: item} only %}</li>
+                    {% endfor %}
+                </ul>
+            {% elseif block.type == 'table' %}
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm align-middle history-table">
+                        <thead>
+                            <tr>
+                                {% for cell in block.headers %}
+                                    <th scope="col">{% include 'history/_inlines.html.twig' with {inlines: cell} only %}</th>
+                                {% endfor %}
+                                {% if block.attendance and attended is not null %}
+                                    <th scope="col"><span class="visually-hidden">{{ 'history.attended'|trans }}</span></th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in block.rows %}
+                                {% set attendance = block.attendance[loop.index0] ?? null %}
+                                <tr {% if attendance %}id="{{ attendance.anchor }}"{% endif %}>
+                                    {% for cell in row %}
+                                        <td>{% include 'history/_inlines.html.twig' with {inlines: cell} only %}</td>
+                                    {% endfor %}
+                                    {% if block.attendance and attended is not null %}
+                                        <td class="text-end">
+                                            {% if attendance and attendance.date <= today %}
+                                                {% set marked = attended[attendance.key] is defined %}
+                                                <form method="post" action="{{ path('app_history_attend', {slug: slug}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('history-attend') }}">
+                                                    <input type="hidden" name="key" value="{{ attendance.key }}">
+                                                    <button class="btn btn-sm {{ marked ? 'btn-success' : 'btn-outline-secondary' }}" aria-pressed="{{ marked ? 'true' : 'false' }}"
+                                                            aria-label="{{ 'history.attended'|trans }}: {{ attendance.text }}" title="{{ (marked ? 'history.attended' : 'history.attend')|trans }}">
+                                                        <i class="{{ marked ? 'bi-check-lg' : 'bi-plus-lg' }}" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% else %}
+            <p>{{ 'history.empty'|trans }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

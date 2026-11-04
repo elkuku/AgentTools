@@ -27,6 +27,24 @@ class TimelineEventRepository extends ServiceEntityRepository
         return $this->findBy(['owner' => $owner], ['date' => 'DESC', 'id' => 'DESC']);
     }
 
+    public function findByHistoryKey(User $owner, string $key): ?TimelineEvent
+    {
+        return $this->findOneBy(['owner' => $owner, 'historyKey' => $key]);
+    }
+
+    /**
+     * The history rows the owner attended.
+     *
+     * @return list<string>
+     */
+    public function findHistoryKeys(User $owner): array
+    {
+        return \array_values(\array_filter(\array_map(
+            static fn (TimelineEvent $event): ?string => $event->historyKey,
+            $this->findBy(['owner' => $owner]),
+        ), static fn (?string $key): bool => null !== $key));
+    }
+
     /**
      * The owner's first travel (an event with an end date) on any day from $date to $endDate
      * (both included), other than $event: travels cannot overlap.

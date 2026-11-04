@@ -1,0 +1,12 @@
+{# A block's text: plain, bold, links and medal images. inlines: list of App\History\HistoryInline #}
+{% for inline in inlines %}
+    {%- if inline.medal -%}
+        <img class="history-medal" src="{{ asset('custom_medals/' ~ inline.medal ~ '.webp') }}" alt="{{ inline.text }}" title="{{ inline.text }}" width="48" height="48" loading="lazy">
+    {%- elseif inline.url -%}
+        <a href="{{ inline.url }}" target="_blank" rel="noopener noreferrer">{{ inline.text }}</a>
+    {%- elseif inline.bold -%}
+        <strong>{{ inline.text }}</strong>
+    {%- else -%}
+        {{ inline.text }}
+    {%- endif -%}
+{% endfor %}
