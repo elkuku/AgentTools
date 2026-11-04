@@ -101,8 +101,7 @@ Liste.
 
 Die Liste ist [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) im
 Repository: **Link vorschlagen** öffnet sie auf GitHub, wo jeder mit einem Pull-Request eine
-Änderung vorschlagen kann. Jeder Link wird einmal am Tag geprüft; siehe auch die
-[Liste auf dieser Seite](/de/links).
+Änderung vorschlagen kann. Jeder Link wird einmal am Tag geprüft.
 
 ## Profil {#profile}
 

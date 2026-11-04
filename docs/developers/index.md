@@ -123,8 +123,9 @@ calendar. The list is one generated file, published on GitHub Pages as
 
 ## The history
 
-[`docs/events/anomalies.md`](/events/anomalies) and [`mission-days.md`](/events/mission-days) list
-past events. The website shows them at `/history` and the app (☰ → **History**) through
+[`docs/events/anomalies.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/anomalies.md)
+and [`mission-days.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/mission-days.md)
+list past events. They are not published on this site. The website shows them at `/history` and the app (☰ → **History**) through
 `GET /api/history/{slug}`: `HistoryParser` reads the Markdown into blocks, so keep to headings, paragraphs, lists, tables, bold text, https links and medal images.
 Medals are images from the app's `custom_medals` assets, and country flags are emoji.
 `HistoryFileTest` fails on anything else, and on a medal without an image.
@@ -136,11 +137,10 @@ place: changing either in a document leaves the event on the timeline, without i
 
 ## The link list
 
-The Ingress link list of the website (`/links`), the app (☰ → **Links**) and this site
-([Links](/links)) is one Markdown file, `docs/links.md`, changed with pull requests. Between
+The Ingress link list of the website (`/links`) and the app (☰ → **Links**) is one Markdown file,
+`docs/links.md`, changed with pull requests, and not published on this site. Between
 `<!-- #region list -->` and `<!-- #endregion list -->` it has only `## ` sections (in English)
-with entries `- [Title](https://…) — Description` (the description is optional, https only); the
-German and Spanish pages include that part.
+with entries `- [Title](https://…) — Description` (the description is optional, https only).
 
 - The web app reads the file from its checkout (the deploy has the whole repository), so a merged
   change is live after the next deploy. `LinkList/LinkListParser` reads it with league/commonmark

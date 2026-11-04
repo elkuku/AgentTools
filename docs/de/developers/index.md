@@ -106,11 +106,11 @@ npm run screenshots:app   # optional: -- en de es
 
 ## Die Linkliste {#the-link-list}
 
-Die Ingress-Linkliste der Website (`/links`), der App (☰ → **Links**) und dieser Seite
-([Links](/de/links)) ist eine Markdown-Datei, `docs/links.md`, die per Pull-Request geändert wird.
+Die Ingress-Linkliste der Website (`/links`) und der App (☰ → **Links**) ist eine Markdown-Datei,
+`docs/links.md`, die per Pull-Request geändert und nicht auf dieser Seite veröffentlicht wird.
 Zwischen `<!-- #region list -->` und `<!-- #endregion list -->` hat sie nur `## `-Abschnitte (auf
 Englisch) mit Einträgen `- [Titel](https://…) — Beschreibung` (die Beschreibung ist optional, nur
-https); die deutsche und die spanische Seite binden diesen Teil ein.
+https).
 
 - Die Web-App liest die Datei aus ihrem Checkout (das Deployment hat das ganze Repository), eine
   gemergte Änderung ist also nach dem nächsten Deployment live. `LinkList/LinkListParser` liest

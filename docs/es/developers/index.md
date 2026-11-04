@@ -107,11 +107,10 @@ npm run screenshots:app   # opcional: -- en de es
 
 ## La lista de enlaces {#the-link-list}
 
-La lista de enlaces de Ingress del sitio web (`/links`), de la app (☰ → **Enlaces**) y de este
-sitio ([Enlaces](/es/links)) es un archivo Markdown, `docs/links.md`, que se cambia con pull
-requests. Entre `<!-- #region list -->` y `<!-- #endregion list -->` solo tiene secciones `## `
-(en inglés) con entradas `- [Título](https://…) — Descripción` (la descripción es opcional, solo
-https); las páginas en alemán y español incluyen esa parte.
+La lista de enlaces de Ingress del sitio web (`/links`) y de la app (☰ → **Enlaces**) es un
+archivo Markdown, `docs/links.md`, que se cambia con pull requests y no se publica en este sitio.
+Entre `<!-- #region list -->` y `<!-- #endregion list -->` solo tiene secciones `## ` (en inglés)
+con entradas `- [Título](https://…) — Descripción` (la descripción es opcional, solo https).
 
 - La app web lee el archivo de su checkout (el despliegue tiene todo el repositorio), así que un
   cambio fusionado está en línea tras el siguiente despliegue. `LinkList/LinkListParser` lo lee con

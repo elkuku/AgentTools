@@ -5,8 +5,6 @@ function themeConfig(prefix: string, t: {
   guide: string
   developers: string
   downloads: string
-  links: string
-  history: string
   website: string
   gettingStarted: string
   app: string
@@ -21,8 +19,6 @@ function themeConfig(prefix: string, t: {
       { text: t.guide, link: `${prefix}/guide/`, activeMatch: `${prefix}/guide/` },
       { text: t.developers, link: `${prefix}/developers/`, activeMatch: `${prefix}/developers/` },
       { text: t.downloads, link: `${prefix}/downloads` },
-      { text: t.history, link: '/events/anomalies', activeMatch: '/events/' },
-      { text: t.links, link: `${prefix}/links` },
       { text: t.website, link: 'https://agent-tools.elkuku.dev' },
     ],
 
@@ -61,6 +57,8 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   head: [['link', { rel: 'icon', href: '/AgentTools/favicon.ico' }]],
+  // In the repository for the website and the app, not published here
+  srcExclude: ['links.md', 'events/**'],
   // Files the Pages workflow adds after the build
   ignoreDeadLinks: [/^\/agenttools-dev\.apk$/, /^\/coverage\//],
 
@@ -75,8 +73,6 @@ export default defineConfig({
           guide: 'Guide',
           developers: 'Developers',
           downloads: 'Downloads',
-          links: 'Links',
-          history: 'History',
           website: 'Website',
           gettingStarted: 'Getting started',
           app: 'The Android app',
@@ -98,8 +94,6 @@ export default defineConfig({
           guide: 'Anleitung',
           developers: 'Entwickler',
           downloads: 'Downloads',
-          links: 'Links',
-          history: 'Geschichte',
           website: 'Website',
           gettingStarted: 'Erste Schritte',
           app: 'Die Android-App',
@@ -141,8 +135,6 @@ export default defineConfig({
           guide: 'Guía',
           developers: 'Desarrolladores',
           downloads: 'Descargas',
-          links: 'Enlaces',
-          history: 'Historia',
           website: 'Sitio web',
           gettingStarted: 'Primeros pasos',
           app: 'La app para Android',

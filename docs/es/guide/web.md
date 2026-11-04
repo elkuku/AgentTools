@@ -99,8 +99,7 @@ la misma lista.
 
 La lista es [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) en el
 repositorio: **Proponer un enlace** la abre en GitHub, donde cualquiera puede proponer un cambio
-con un pull request. Cada enlace se comprueba una vez al día; mira también la
-[lista en este sitio](/es/links).
+con un pull request. Cada enlace se comprueba una vez al día.
 
 ## Perfil {#profile}
 

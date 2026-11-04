@@ -94,7 +94,7 @@ Ingress agents by section. A link opens in a new tab. The app has the same list.
 
 The list is [docs/links.md](https://github.com/elkuku/AgentTools/blob/master/docs/links.md) in the
 repository: **Suggest a link** opens it on GitHub, where anyone can propose a change with a pull
-request. Every link is checked once a day; see also the [list on this site](/links).
+request. Every link is checked once a day.
 
 ## Profile
 
