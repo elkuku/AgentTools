@@ -102,6 +102,25 @@ cd docs
 npm run screenshots:app   # optional: -- en de es
 ```
 
+## The event calendar
+
+The website (`/events`) and the app (☰ → **Events**) show the Ingress events worldwide as a month
+calendar. The list is one generated file, published on GitHub Pages as
+[`ingress-events.json`](https://elkuku.github.io/AgentTools/ingress-events.json):
+
+- `symfony console app:events:fetch` reads the quarterly schedules, Mission Day lists and season
+  overviews on [ingress.com/news](https://ingress.com/news) and writes the file. If a page fails,
+  the file stays as it is; if nothing changed, it is not touched. Entries without a real date
+  ("Early May") are reported as warnings.
+- `.github/workflows/symfony-pages.yml` runs it every day. The site is only built again when the
+  list changed. When ingress.com fails, the published list stays and the run fails.
+- The website loads the published file (`INGRESS_EVENTS_URL`) and keeps it for an hour, so new
+  events need no commit or deploy. When GitHub Pages cannot be reached, it keeps the last list it
+  loaded, else the committed `web/data/ingress-events.json`.
+- First Saturdays and Second Sundays that no page lists are worked out from the calendar and marked
+  as expected (`confirmed: false`).
+- The app loads `GET /api/events` from the website and keeps the last list in its files (`events.json`) for offline.
+
 ## The link list
 
 The Ingress link list of the website (`/links`), the app (☰ → **Links**) and this site
