@@ -28,3 +28,8 @@ when@test:
             class: App\Security\FakeGoogleIdTokenVerifier
 
         App\Tests\Fake\GooglePictureResponses: ~
+
+        # Not the file app:events:fetch changes, which would break tests when a date moves
+        App\IngressEvents\IngressEventFile:
+            arguments:
+                $file: '%kernel.project_dir%/tests/fixtures/ingress-events.json'

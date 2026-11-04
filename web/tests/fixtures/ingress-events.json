@@ -1,0 +1,101 @@
+{
+    "generatedAt": "2026-11-04T12:00:00+00:00",
+    "events": [
+        {
+            "type": "anomaly",
+            "title": "XM Anomaly",
+            "start": "2026-02-28",
+            "end": "2026-02-28",
+            "startsAt": null,
+            "endsAt": null,
+            "location": "Charlotte, NC, USA",
+            "url": "https://maps.app.goo.gl/gv3h43ckWPm3nRw69",
+            "source": "https://ingress.com/news/2026-q1-events",
+            "confirmed": true
+        },
+        {
+            "type": "anomaly",
+            "title": "XM Anomaly",
+            "start": "2026-02-28",
+            "end": "2026-02-28",
+            "startsAt": null,
+            "endsAt": null,
+            "location": "Lisbon, Portugal",
+            "url": "https://maps.app.goo.gl/UUo7SusMUeJWVKSR7",
+            "source": "https://ingress.com/news/2026-q1-events",
+            "confirmed": true
+        },
+        {
+            "type": "global",
+            "title": "Día de los Muertos",
+            "start": "2026-10-12",
+            "end": "2026-11-11",
+            "startsAt": "2026-10-12T18:00:00Z",
+            "endsAt": "2026-11-11T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-cygnus",
+            "confirmed": true
+        },
+        {
+            "type": "global",
+            "title": "Leonids: Through the Ages",
+            "start": "2026-11-05",
+            "end": "2026-11-30",
+            "startsAt": "2026-11-05T18:00:00Z",
+            "endsAt": "2026-11-30T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-cygnus",
+            "confirmed": true
+        },
+        {
+            "type": "mission_day",
+            "title": "Mission Day",
+            "start": "2026-11-07",
+            "end": "2026-11-07",
+            "startsAt": null,
+            "endsAt": null,
+            "location": "Zhuhai, China",
+            "url": "https://t.me/ZhuhaiMD",
+            "source": "https://ingress.com/news/2026-q4-md",
+            "confirmed": true
+        },
+        {
+            "type": "first_saturday",
+            "title": "Cygnus First Saturdays",
+            "start": "2026-11-07",
+            "end": "2026-11-07",
+            "startsAt": null,
+            "endsAt": null,
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-cygnus",
+            "confirmed": true
+        },
+        {
+            "type": "mission_day",
+            "title": "Mission Day",
+            "start": "2026-11-21",
+            "end": "2026-11-21",
+            "startsAt": null,
+            "endsAt": null,
+            "location": "Putrajaya, Malaysia",
+            "url": "https://t.me/MDMalaysia",
+            "source": "https://ingress.com/news/2026-q4-md",
+            "confirmed": true
+        },
+        {
+            "type": "shard",
+            "title": "Shard Storm",
+            "start": "2026-11-21",
+            "end": "2026-11-21",
+            "startsAt": null,
+            "endsAt": null,
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-cygnus",
+            "confirmed": true
+        }
+    ]
+}

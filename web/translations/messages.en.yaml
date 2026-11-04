@@ -99,6 +99,7 @@ nav:
     agent_stats: Agent stats
     agents: Agents
     language: Language
+    events: Events
     links: Links
     login: Login
     logout: Logout
@@ -295,6 +296,25 @@ bannergress:
     map: Where your banners start
     map_partial: 'Banners synced before the map have no start point yet: sync again in the app.'
     none: 'Not synced yet: in the app, open Banners in your stats, sign in to Bannergress and sync.'
+
+events:
+    title: Ingress events
+    intro: 'XM Anomalies, Mission Days and other events worldwide, gathered from the news on ingress.com. Pick a day to see only its events.'
+    this_month: All events of the month
+    empty: No events.
+    previous_month: Previous month
+    next_month: Next month
+    today: Today
+    count: '%count% event|%count% events'
+    expected: Expected
+    updated: 'Last change: %date%'
+    type:
+        anomaly: XM Anomaly
+        mission_day: Mission Day
+        first_saturday: First Saturday
+        second_sunday: Second Sunday
+        shard: Shard event
+        global: Global event
 
 links:
     title: Ingress links

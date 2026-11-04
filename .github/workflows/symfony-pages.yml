@@ -8,6 +8,10 @@ on:
             - 'web/**'
             - 'app/**'
             - '.github/workflows/symfony-pages.yml'
+    # The Ingress events; the site is only built again when they changed
+    schedule:
+        - cron: '43 4 * * *'
+    workflow_dispatch:
 
 permissions:
     contents: read
@@ -18,8 +22,78 @@ concurrency:
     group: pages
     cancel-in-progress: false
 
+env:
+    EVENTS_URL: https://elkuku.github.io/AgentTools/ingress-events.json
+
 jobs:
+    # Publishes web's app:events:fetch as ingress-events.json, which the website reads. When
+    # ingress.com fails, the published list stays and the "events-failed" job fails the run.
+    events:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: web
+        outputs:
+            changed: ${{ steps.compare.outputs.changed }}
+            failed: ${{ steps.fetch.outcome == 'failure' }}
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: none
+                  extensions: mbstring, xml, ctype, iconv, intl, dom, filter, json
+
+            - name: Install dependencies
+              uses: php-actions/composer@v6
+              with:
+                  working_dir: web
+
+            # Starting from it keeps its date when nothing changed
+            - name: Get the published list
+              run: |
+                  mkdir -p "$RUNNER_TEMP/events"
+                  curl -fsSL "$EVENTS_URL" -o "$RUNNER_TEMP/events/ingress-events.json" || cp data/ingress-events.json "$RUNNER_TEMP/events/ingress-events.json"
+                  cp "$RUNNER_TEMP/events/ingress-events.json" "$RUNNER_TEMP/published.json"
+
+            - name: Gather the events
+              id: fetch
+              continue-on-error: true
+              shell: bash
+              run: bin/console app:events:fetch --no-ansi --output="$RUNNER_TEMP/events/ingress-events.json" | tee -a "$GITHUB_STEP_SUMMARY"
+
+            - name: Compare with the published list
+              id: compare
+              run: |
+                  if cmp -s "$RUNNER_TEMP/published.json" "$RUNNER_TEMP/events/ingress-events.json"; then
+                      echo "changed=false" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "changed=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Keep the list for the build
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ingress-events
+                  path: ${{ runner.temp }}/events/ingress-events.json
+
+    # A job of its own: a failed "events" would also stop the build of a push
+    events-failed:
+        needs: events
+        if: needs.events.outputs.failed == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Report it
+              run: |
+                  echo "::error::The Ingress events could not be gathered, the published list stays. See the \"Gather the events\" step of the events job."
+                  exit 1
+
     build:
+        needs: events
+        # A daily run without new events leaves the site as it is
+        if: github.event_name != 'schedule' || needs.events.outputs.changed == 'true'
         runs-on: ubuntu-latest
         defaults:
             run:
@@ -107,12 +181,19 @@ jobs:
                   cache: npm
                   cache-dependency-path: docs/package-lock.json
 
+            - name: Get the Ingress events
+              uses: actions/download-artifact@v4
+              with:
+                  name: ingress-events
+                  path: ${{ runner.temp }}/events
+
             - name: Build the documentation
               working-directory: docs
               run: |
                   npm ci
                   npm run build
                   cp -r ../web/docs/coverage ../web/docs/agenttools-dev.apk .vitepress/dist/
+                  cp "$RUNNER_TEMP/events/ingress-events.json" .vitepress/dist/
 
             - name: Configure Pages
               uses: actions/configure-pages@v6

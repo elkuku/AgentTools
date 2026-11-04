@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{#
+    The calendar of Ingress events, as the app's Events screen: a month grid with the month's
+    events under it, or those of the day picked.
+    calendar: App\IngressEvents\CalendarMonth, generatedAt: ISO 8601 or null, today: the current date, types: every EventType
+#}
+
+{% block title %}{{ 'events.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'events.title'|trans }}</h1>
+    <p class="text-body-secondary">{{ 'events.intro'|trans }}</p>
+
+    <div class="event-calendar-width d-flex align-items-center justify-content-between mb-2">
+        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.previous}) }}" aria-label="{{ 'events.previous_month'|trans }}">
+            <i class="bi-chevron-left" aria-hidden="true"></i>
+        </a>
+        <h2 class="h5 mb-0 text-capitalize">{{ calendar.month|format_datetime(pattern: 'LLLL y') }}</h2>
+        <div>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {day: today|date('Y-m-d')}) }}">{{ 'events.today'|trans }}</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.next}) }}" aria-label="{{ 'events.next_month'|trans }}">
+                <i class="bi-chevron-right" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="event-calendar event-calendar-width mb-2">
+        {% for day in calendar.weeks[0] %}
+            <div class="event-calendar-weekday" aria-hidden="true">{{ day.date|format_datetime(pattern: 'EEE') }}</div>
+        {% endfor %}
+        {% for week in calendar.weeks %}
+            {% for day in week %}
+                {% if day.inMonth %}
+                    <a class="event-day{{ day.today ? ' event-day-today' }}{{ day.selected ? ' event-day-selected' }}"
+                       href="{{ day.selected ? path('app_events', {month: calendar.month|date('Y-m')}) : path('app_events', {day: day.key}) }}"
+                       aria-label="{{ day.date|format_date('long') }}: {{ 'events.count'|trans({'%count%': day.eventCount}) }}"
+                       {% if day.selected %}aria-current="date"{% endif %}>
+                        <span>{{ day.date|date('j') }}</span>
+                        <span class="event-day-dots" aria-hidden="true">
+                            {% for type in day.types %}<i class="event-dot event-{{ type.value }}"></i>{% endfor %}
+                        </span>
+                        {% if day.ongoing %}<i class="event-day-ongoing" aria-hidden="true"></i>{% endif %}
+                    </a>
+                {% else %}
+                    <div class="event-day event-day-outside" aria-hidden="true"></div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <ul class="list-inline small text-body-secondary mb-4">
+        {% for type in types %}
+            <li class="list-inline-item">
+                {% if type.value == 'global' %}
+                    <i class="event-key-ongoing" aria-hidden="true"></i>
+                {% else %}
+                    <i class="event-dot event-{{ type.value }}" aria-hidden="true"></i>
+                {% endif %}
+                {{ ('events.type.' ~ type.value)|trans }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="h5">
+        {% if calendar.selected %}
+            {{ calendar.selected|format_date('long') }}
+        {% else %}
+            {{ 'events.this_month'|trans }}
+        {% endif %}
+    </h2>
+
+    {% if calendar.events %}
+        <div class="list-group mb-3">
+            {% for event in calendar.events %}
+                {% set url = event.url ?? event.source %}
+                {% set tag = url ? 'a' : 'div' %}
+                <{{ tag }} class="list-group-item{{ url ? ' list-group-item-action' }}"
+                    {% if url %}href="{{ url }}" target="_blank" rel="noopener noreferrer"{% endif %}>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">
+                                <i class="event-dot event-{{ event.type.value }}" aria-hidden="true"></i>
+                                {{ event.location ?? event.title }}
+                                {% if not event.confirmed %}
+                                    <span class="badge text-bg-secondary">{{ 'events.expected'|trans }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-body-secondary">
+                                {% if event.location %}{{ event.title }} · {% elseif event.title != ('events.type.' ~ event.type.value)|trans({}, 'messages', 'en') %}{{ ('events.type.' ~ event.type.value)|trans }} · {% endif %}
+                                {{ event.start|format_date('medium') }}{% if event.startsAt %} {{ event.startsAt|slice(11, 5) }} UTC{% endif %}
+                                {% if event.end != event.start %}– {{ event.end|format_date('medium') }}{% if event.endsAt %} {{ event.endsAt|slice(11, 5) }} UTC{% endif %}{% endif %}
+                            </div>
+                        </div>
+                        {% if url %}<i class="bi-box-arrow-up-right ms-2 text-body-secondary flex-shrink-0" aria-hidden="true"></i>{% endif %}
+                    </div>
+                </{{ tag }}>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>{{ 'events.empty'|trans }}</p>
+    {% endif %}
+
+    {% if generatedAt %}
+        <p class="small text-body-secondary">{{ 'events.updated'|trans({'%date%': generatedAt|format_date('medium')}) }}</p>
+    {% endif %}
+{% endblock %}

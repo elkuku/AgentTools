@@ -250,6 +250,118 @@ main > .container {
     --timeline-travel: #1aa3c2;
 }
 
+/* The calendar's colors per event type, in both themes (the app's ui/EventsScreen.kt) */
+:root,
+[data-bs-theme=light] {
+    --event-anomaly: #c62828;
+    --event-mission-day: #0d6efd;
+    --event-first-saturday: #2e7d32;
+    --event-second-sunday: #7b1fa2;
+    --event-shard: #b07400;
+    --event-global: #6c757d;
+}
+
+[data-bs-theme=dark] {
+    --event-anomaly: #ef5350;
+    --event-mission-day: #4d8ef7;
+    --event-first-saturday: #66bb6a;
+    --event-second-sunday: #ba68c8;
+    --event-shard: #ffb300;
+    --event-global: #adb5bd;
+}
+
+/* The calendar of Ingress events (events/index.html.twig): seven equal columns */
+.event-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+}
+
+.event-calendar-width {
+    max-width: 42rem;
+}
+
+.event-calendar-weekday {
+    padding-bottom: .25rem;
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+    text-align: center;
+}
+
+.event-day {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 3.25rem;
+    padding: .25rem 0;
+    border: 1px solid transparent;
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+
+a.event-day:hover {
+    border-color: var(--bs-border-color);
+}
+
+.event-day-outside {
+    background: none;
+}
+
+.event-day-today {
+    border-color: var(--bs-primary);
+    font-weight: 600;
+}
+
+.event-day-selected {
+    background: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary);
+}
+
+.event-day-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+}
+
+.event-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.event-day-ongoing,
+.event-key-ongoing {
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--event-global);
+}
+
+.event-day-ongoing {
+    position: absolute;
+    right: 4px;
+    bottom: 3px;
+    left: 4px;
+}
+
+.event-key-ongoing {
+    display: inline-block;
+    width: 14px;
+    vertical-align: 2px;
+}
+
+.event-anomaly { background: var(--event-anomaly); }
+.event-mission_day { background: var(--event-mission-day); }
+.event-first_saturday { background: var(--event-first-saturday); }
+.event-second_sunday { background: var(--event-second-sunday); }
+.event-shard { background: var(--event-shard); }
+.event-global { background: var(--event-global); }
+
 /* The timeline of stats uploads and custom events (agent_stat/_timeline.html.twig) */
 .timeline {
     border-left: 2px solid var(--bs-border-color);

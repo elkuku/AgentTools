@@ -98,6 +98,7 @@ nav:
     agent_stats: Estadísticas de agente
     agents: Agentes
     language: Idioma
+    events: Eventos
     links: Enlaces
     login: Iniciar sesión
     logout: Cerrar sesión
@@ -294,6 +295,25 @@ bannergress:
     map: Dónde empiezan tus banners
     map_partial: 'Los banners sincronizados antes del mapa aún no tienen punto de inicio: sincroniza de nuevo en la app.'
     none: 'Aún no sincronizado: en la app, abre Banners en tus estadísticas, inicia sesión en Bannergress y sincroniza.'
+
+events:
+    title: Eventos de Ingress
+    intro: 'Anomalías XM, Mission Days y otros eventos en todo el mundo, recopilados de las noticias de ingress.com. Elige un día para ver solo sus eventos.'
+    this_month: Todos los eventos del mes
+    empty: No hay eventos.
+    previous_month: Mes anterior
+    next_month: Mes siguiente
+    today: Hoy
+    count: '%count% evento|%count% eventos'
+    expected: Previsto
+    updated: 'Último cambio: %date%'
+    type:
+        anomaly: Anomalía XM
+        mission_day: Mission Day
+        first_saturday: First Saturday
+        second_sunday: Second Sunday
+        shard: Evento de Shards
+        global: Evento global
 
 links:
     title: Enlaces de Ingress
