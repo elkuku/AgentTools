@@ -54,3 +54,11 @@
     width: calc(50% - 8px);
   }
 }
+
+/* The medals of docs/events/anomalies.md: small beside a series, not at their full size */
+.vp-doc img[src*="anomaly_"] {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+}

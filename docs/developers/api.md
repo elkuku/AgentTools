@@ -6,7 +6,7 @@ a token for their **Authorize** button on their profile page.
 
 ## Authentication
 
-Every request except `GET /api/links` and `GET /api/events` needs a Google ID token issued for the Web OAuth client:
+Every request except `GET /api/links`, `GET /api/events` and `GET /api/history/{slug}` needs a Google ID token issued for the Web OAuth client:
 
 ```http
 Authorization: Bearer <Google ID token>
@@ -32,6 +32,7 @@ Unknown Google accounts are registered as users on their first request. Errors a
 | `GET` | `/api/agents/{agentName}` | One agent with the parts they show (`404` if private). |
 | `GET` | `/api/users` | Admins: every user with what they show. |
 | `GET` | `/api/events` | The [Ingress events](./#the-event-calendar): `events` (type, title, start, end, startsAt, endsAt, location, url, source, confirmed) and `generatedAt`. Fields without a value are left out. No token needed; cached for an hour. |
+| `GET` | `/api/history/{slug}` | A [history document](./#the-history), `anomalies` or `mission-days`: `title` and `blocks` (heading, paragraph, list, table). No token needed; cached for an hour. |
 | `GET` | `/api/links` | The [link list](./#the-link-list): sections with their links (title, url, description). No token needed; cached for an hour. |
 
 ## Saving stats

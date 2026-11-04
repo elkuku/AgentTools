@@ -121,6 +121,19 @@ calendar. The list is one generated file, published on GitHub Pages as
   as expected (`confirmed: false`).
 - The app loads `GET /api/events` from the website and keeps the last list in its files (`events.json`) for offline.
 
+## The history
+
+[`docs/events/anomalies.md`](/events/anomalies) and [`mission-days.md`](/events/mission-days) list
+past events. The website shows them at `/history` and the app (☰ → **History**) through
+`GET /api/history/{slug}`: `HistoryParser` reads the Markdown into blocks, so keep to headings, paragraphs, lists, tables, bold text, https links and medal images.
+Medals are images from the app's `custom_medals` assets, and country flags are emoji.
+`HistoryFileTest` fails on anything else, and on a medal without an image.
+
+Signed-in users mark a site or Mission Day as attended, which adds a timeline event with its
+`historyKey` (`anomalies:2026-05-16:Prague, Czechia`). Only rows with one exact date that has
+passed can be marked, so keep the tables to one row per site. Keys contain the date and the
+place: changing either in a document leaves the event on the timeline, without its mark.
+
 ## The link list
 
 The Ingress link list of the website (`/links`), the app (☰ → **Links**) and this site
