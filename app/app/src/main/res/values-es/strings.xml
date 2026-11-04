@@ -312,6 +312,17 @@
     <string name="event_type_shard">Evento de Shards</string>
     <string name="event_type_global">Evento global</string>
 
+    <!-- History -->
+    <string name="history">Historia</string>
+    <string name="history_title">Historia</string>
+    <string name="history_intro">Anomalías XM y Mission Days de años anteriores, con sus medallas y países. Los documentos están en inglés.</string>
+    <string name="history_anomalies">Anomalías XM</string>
+    <string name="history_mission_days">Mission Days</string>
+    <string name="history_attend_hint">Marca los eventos a los que asististe: se añaden a tu cronología.</string>
+    <string name="history_attend_sign_in">Inicia sesión para marcar los eventos a los que asististe.</string>
+    <string name="history_attended_label">Asistí: %1$s</string>
+    <string name="history_empty">Todavía no hay nada.</string>
+
     <!-- Links -->
     <string name="links">Enlaces</string>
     <string name="links_title">Enlaces de Ingress</string>

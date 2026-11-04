@@ -7,10 +7,17 @@ import java.time.LocalDate
 /**
  * A custom event on the timeline (`/api/timeline-events`, web's `TimelineEvent`): a date
  * (`yyyy-MM-dd`), a text and, for an event over several days (a travel), the [endDate]. [id] is
- * null until saved, and for other agents' events.
+ * null until saved, and for other agents' events. Deleting one with a [historyKey] removes the mark.
  */
 @Serializable
-data class TimelineEvent(val id: Int? = null, val date: String, val text: String, val endDate: String? = null) {
+data class TimelineEvent(
+    val id: Int? = null,
+    val date: String,
+    val text: String,
+    val endDate: String? = null,
+    /** The history row it marks as attended ([HistoryAttendance.key]); only set when adding it. */
+    val historyKey: String? = null,
+) {
     val isTravel: Boolean get() = endDate != null
 }
 

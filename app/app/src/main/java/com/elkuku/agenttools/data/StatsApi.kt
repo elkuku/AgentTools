@@ -72,7 +72,7 @@ private data class VisiblePartsBody(val visibleParts: List<String>)
 private data class BannergressBody(val bannergress: BannergressSync)
 
 @Serializable
-private data class TimelineEventBody(val date: String, val endDate: String?, val text: String)
+private data class TimelineEventBody(val date: String, val endDate: String?, val text: String, val historyKey: String? = null)
 
 @Serializable
 private data class TimelineEventsPage(val member: List<TimelineEvent> = emptyList())
@@ -217,6 +217,9 @@ interface StatsApi {
 
     /** `GET /api/events`: the Ingress events, for everyone (no sign-in). */
     suspend fun events(): IngressEventListResult
+
+    /** `GET /api/history/{slug}`: a history document, for everyone (no sign-in). */
+    suspend fun history(slug: String): HistoryResult
 }
 
 /** [baseUrl] is read on every request: debug and dev builds can change the server on the settings screen. */
@@ -561,7 +564,7 @@ class KtorStatsApi(
 
     override suspend fun saveTimelineEvent(idToken: String, event: TimelineEvent): TimelineEventResult {
         // A null end date clears it (merge patch)
-        val body = TimelineEventBody(event.date, event.endDate, event.text)
+        val body = TimelineEventBody(event.date, event.endDate, event.text, event.historyKey)
         val response = try {
             if (event.id == null) {
                 client.post(timelineEventsUrl) {
@@ -631,6 +634,22 @@ class KtorStatsApi(
                 ?: LinkListResult.Failure(uiText(R.string.error_unexpected_response))
 
             else -> LinkListResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
+        }
+    }
+
+    override suspend fun history(slug: String): HistoryResult {
+        val response = try {
+            client.get("${baseUrl().trimEnd('/')}/api/history/$slug") { accept(LdJson) }
+        } catch (e: IOException) {
+            return HistoryResult.Failure(networkError(e))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.decodeOrNull<HistoryDocument>()
+                ?.let(HistoryResult::Success)
+                ?: HistoryResult.Failure(uiText(R.string.error_unexpected_response))
+
+            else -> HistoryResult.Failure(response.errorMessage() ?: uiText(R.string.error_server, response.status.value))
         }
     }
 

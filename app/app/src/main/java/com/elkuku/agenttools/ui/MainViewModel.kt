@@ -29,6 +29,11 @@ import com.elkuku.agenttools.data.AgentsResult
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.ImportResult
+import com.elkuku.agenttools.data.HISTORY_SLUGS
+import com.elkuku.agenttools.data.HistoryAttendance
+import com.elkuku.agenttools.data.HistoryCache
+import com.elkuku.agenttools.data.HistoryDocument
+import com.elkuku.agenttools.data.HistoryResult
 import com.elkuku.agenttools.data.IngressEventCache
 import com.elkuku.agenttools.data.IngressEventList
 import com.elkuku.agenttools.data.IngressEventListResult
@@ -148,6 +153,16 @@ data class UiState(
     val eventsLoading: Boolean = false,
     /** Why the events could not be loaded. */
     val eventsStatus: Status? = null,
+    /** The history is shown, over any other screen. */
+    val historyOpen: Boolean = false,
+    /** The history document shown: its tab. */
+    val historySlug: String = HISTORY_SLUGS.first(),
+    /** The history documents by slug: the saved ones until loaded. */
+    val history: Map<String, HistoryDocument> = emptyMap(),
+    /** The history documents loading (they do not need a sign-in, so not [busy]). */
+    val historyLoading: Set<String> = emptySet(),
+    /** Why a history document could not be loaded, by slug. */
+    val historyStatus: Map<String, Status> = emptyMap(),
 ) {
     /** Ask the user to choose what other users see of the profile. */
     val askVisibility: Boolean get() = session != null && !visibilityChosen && !visibilityDismissed
@@ -164,6 +179,7 @@ class MainViewModel(
     private val bannergress: BannergressConnector? = null,
     private val linkCache: LinkListCache? = null,
     private val eventCache: IngressEventCache? = null,
+    private val historyCache: HistoryCache? = null,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
 
@@ -236,7 +252,7 @@ class MainViewModel(
      */
     fun onShared(context: Context, text: String) {
         // The result of a share shows on the stats screen
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, eventsOpen = false, statsOpen = true, timelineOpen = false) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, eventsOpen = false, historyOpen = false, statsOpen = true, timelineOpen = false) }
         val stats = parseIngressStats(text)
         if (stats == null) {
             _state.update { it.copy(status = Status(NOT_STATS_MESSAGE, true)) }
@@ -401,6 +417,69 @@ class MainViewModel(
         }
     }
 
+    /** The history: the saved document right away, then loaded again (signed in or not). */
+    fun openHistory() {
+        _state.update { it.copy(historyOpen = true, historyStatus = emptyMap()) }
+        selectHistory(_state.value.historySlug)
+    }
+
+    /** Marks a history row as attended, which adds it to the timeline, or removes the mark. */
+    fun toggleAttendance(context: Context, attendance: HistoryAttendance) = launchBusy {
+        val attended = _state.value.timelineEvents?.find { it.historyKey == attendance.key }
+        val result = withToken(context, { it is TimelineEventResult.Unauthorized }) { token ->
+            attended?.id?.let { api.deleteTimelineEvent(token, it) } ?: api.saveTimelineEvent(token, attendance.toEvent())
+        }
+        when (result) {
+            is TimelineEventResult.Success -> _state.update { state ->
+                val others = state.timelineEvents.orEmpty().filter { it.historyKey != attendance.key }
+                state.copy(timelineEvents = if (attended != null) others else newestFirst(others + listOfNotNull(result.event)))
+            }
+            is TimelineEventResult.Failure -> _state.update {
+                it.copy(historyStatus = it.historyStatus + (it.historySlug to Status(result.message, true)))
+            }
+            is TimelineEventResult.Unauthorized -> signedOutBy(result.message)
+            null -> Unit
+        }
+    }
+
+    fun closeHistory() = _state.update { it.copy(historyOpen = false, historyStatus = emptyMap()) }
+
+    fun selectHistory(slug: String) {
+        _state.update { state ->
+            val saved = state.history[slug] ?: historyCache?.read(slug)
+            state.copy(historySlug = slug, history = if (saved != null) state.history + (slug to saved) else state.history)
+        }
+        refreshHistory()
+    }
+
+    fun refreshHistory() {
+        val slug = _state.value.historySlug
+        if (slug in _state.value.historyLoading) return
+        _state.update { it.copy(historyLoading = it.historyLoading + slug) }
+        viewModelScope.launch {
+            try {
+                when (val result = api.history(slug)) {
+                    is HistoryResult.Success -> {
+                        historyCache?.write(result.document)
+                        _state.update { it.copy(history = it.history + (slug to result.document), historyStatus = it.historyStatus - slug) }
+                    }
+
+                    // Offline the saved document stays, with why it is not the latest
+                    is HistoryResult.Failure -> _state.update {
+                        val status = if (slug in it.history) {
+                            Status(uiText(R.string.links_saved_list, result.message), false)
+                        } else {
+                            Status(result.message, true)
+                        }
+                        it.copy(historyStatus = it.historyStatus + (slug to status))
+                    }
+                }
+            } finally {
+                _state.update { it.copy(historyLoading = it.historyLoading - slug) }
+            }
+        }
+    }
+
     fun closeSettings() = _state.update { it.copy(settingsOpen = false, visibilityStatus = null) }
 
     /** Saves the parts of the profile other users see; without [ProfilePart.AGENT] the server keeps none. */
@@ -436,7 +515,7 @@ class MainViewModel(
      * Ingress shows only the highest tier, so a lower one is a wrong match.
      */
     fun onSharedScreenshots(read: suspend () -> List<ArgbImage>) = launchBusy {
-        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, eventsOpen = false, statsOpen = true, timelineOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
+        _state.update { it.copy(settingsOpen = false, agentsOpen = false, linksOpen = false, eventsOpen = false, historyOpen = false, statsOpen = true, timelineOpen = false, medalScan = null, medalScanKnown = 0, status = null) }
         val recognized = withProgress(uiText(R.string.looking_for_custom_medals)) { scanMedals(read()) }
         val savedTiers = _state.value.let { it.customMedals.orEmpty() + it.pendingMedals.orEmpty() }
             .groupBy({ it.medal }, { it.tierIndex })

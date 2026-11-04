@@ -18,6 +18,7 @@ import com.elkuku.agenttools.ui.AgentTimelineScreen
 import com.elkuku.agenttools.ui.AgentsScreen
 import com.elkuku.agenttools.ui.AppBuild
 import com.elkuku.agenttools.ui.EventsScreen
+import com.elkuku.agenttools.ui.HistoryScreen
 import com.elkuku.agenttools.ui.LinksScreen
 import com.elkuku.agenttools.ui.MainScreen
 import com.elkuku.agenttools.ui.MainViewModel
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     bannergress = app.bannergress,
                     linkCache = app.linkCache,
                     eventCache = app.eventCache,
+                    historyCache = app.historyCache,
                 )
             }
         }
@@ -68,7 +70,21 @@ class MainActivity : ComponentActivity() {
                 val serverUrl by serverSettings.url.collectAsStateWithLifecycle()
                 val activity = this@MainActivity
 
-                if (state.eventsOpen) {
+                if (state.historyOpen) {
+                    BackHandler(onBack = viewModel::closeHistory)
+                    HistoryScreen(
+                        slug = state.historySlug,
+                        document = state.history[state.historySlug],
+                        status = state.historyStatus[state.historySlug],
+                        loading = state.historySlug in state.historyLoading,
+                        attended = state.timelineEvents?.takeIf { state.session != null }?.mapNotNull { it.historyKey }?.toSet(),
+                        saving = state.busy,
+                        onToggleAttendance = { viewModel.toggleAttendance(activity, it) },
+                        onSelect = viewModel::selectHistory,
+                        onRefresh = viewModel::refreshHistory,
+                        onBack = viewModel::closeHistory,
+                    )
+                } else if (state.eventsOpen) {
                     BackHandler(onBack = viewModel::closeEvents)
                     EventsScreen(
                         list = state.events,
@@ -195,6 +211,7 @@ class MainActivity : ComponentActivity() {
                         onOpenAgents = { viewModel.openAgents(activity) },
                         onOpenBanners = viewModel::openBannergress,
                         onOpenEvents = viewModel::openEvents,
+                        onOpenHistory = viewModel::openHistory,
                         onOpenLinks = viewModel::openLinks,
                         onOpenAdminAgents = { viewModel.openAgents(activity, admin = true) },
                         onChooseVisibility = viewModel::chooseVisibility,

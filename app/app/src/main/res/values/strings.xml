@@ -302,6 +302,17 @@
     <string name="event_type_shard">Shard event</string>
     <string name="event_type_global">Global event</string>
 
+    <!-- History -->
+    <string name="history">History</string>
+    <string name="history_title">History</string>
+    <string name="history_intro">XM Anomalies and Mission Days of past years, with their medals and countries. The documents are in English.</string>
+    <string name="history_anomalies">XM Anomalies</string>
+    <string name="history_mission_days">Mission Days</string>
+    <string name="history_attend_hint">Mark the events you attended: they are added to your timeline.</string>
+    <string name="history_attend_sign_in">Sign in to mark the events you attended.</string>
+    <string name="history_attended_label">Attended: %1$s</string>
+    <string name="history_empty">Nothing here yet.</string>
+
     <!-- Links -->
     <string name="links">Links</string>
     <string name="links_title">Ingress links</string>

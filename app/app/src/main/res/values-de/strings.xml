@@ -299,6 +299,17 @@
     <string name="event_type_shard">Shard-Event</string>
     <string name="event_type_global">Globales Event</string>
 
+    <!-- History -->
+    <string name="history">Geschichte</string>
+    <string name="history_title">Geschichte</string>
+    <string name="history_intro">XM-Anomalien und Mission Days vergangener Jahre, mit Medaillen und Ländern. Die Dokumente sind auf Englisch.</string>
+    <string name="history_anomalies">XM-Anomalien</string>
+    <string name="history_mission_days">Mission Days</string>
+    <string name="history_attend_hint">Markiere die Events, an denen du teilgenommen hast: Sie kommen in deine Timeline.</string>
+    <string name="history_attend_sign_in">Melde dich an, um Events zu markieren, an denen du teilgenommen hast.</string>
+    <string name="history_attended_label">Teilgenommen: %1$s</string>
+    <string name="history_empty">Noch nichts vorhanden.</string>
+
     <!-- Links -->
     <string name="links">Links</string>
     <string name="links_title">Ingress-Links</string>

@@ -26,6 +26,10 @@ import com.elkuku.agenttools.data.CUSTOM_MEDALS
 import com.elkuku.agenttools.data.CustomMedalsResult
 import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.Link
+import com.elkuku.agenttools.data.HistoryAttendance
+import com.elkuku.agenttools.data.HistoryCache
+import com.elkuku.agenttools.data.HistoryDocument
+import com.elkuku.agenttools.data.HistoryResult
 import com.elkuku.agenttools.data.IngressEvent
 import com.elkuku.agenttools.data.IngressEventCache
 import com.elkuku.agenttools.data.IngressEventList
@@ -97,6 +101,98 @@ class MainViewModelTest {
     private val official = listOf(LinkSection("Official", listOf(Link("Ingress", "https://ingress.com", "The official site."))))
 
     private val tools = listOf(LinkSection("Tools", listOf(Link("IITC-CE", "https://iitc.app"))))
+
+    private class FakeHistoryCache(val documents: MutableMap<String, HistoryDocument> = mutableMapOf()) : HistoryCache {
+        override fun read(slug: String) = documents[slug]
+
+        override fun write(document: HistoryDocument) {
+            documents[document.slug] = document
+        }
+    }
+
+    private val prague = HistoryAttendance("anomalies:2026-05-16:Prague", "2026-05-16", "Orion Anomaly: Prague")
+
+    @Test
+    fun attendingAddsTheEventToTheTimelineAndAgainRemovesIt() {
+        val viewModel = signedIn()
+
+        viewModel.toggleAttendance(context, prague)
+
+        assertEquals(prague.key, viewModel.state.value.timelineEvents?.singleOrNull()?.historyKey)
+        assertEquals(prague.text, api.serverEvents.single().text)
+        assertNull(viewModel.state.value.status)
+
+        viewModel.toggleAttendance(context, prague)
+
+        assertEquals(emptyList<TimelineEvent>(), viewModel.state.value.timelineEvents)
+        assertEquals(0, api.serverEvents.size)
+    }
+
+    @Test
+    fun aFailedAttendanceShowsOnTheHistory() {
+        val viewModel = signedIn()
+        api.eventFailure = TimelineEventResult.Failure(UiText.Plain("Offline"))
+
+        viewModel.toggleAttendance(context, prague)
+
+        assertEquals(true, viewModel.state.value.historyStatus["anomalies"]?.isError)
+        assertEquals(emptyList<TimelineEvent>(), viewModel.state.value.timelineEvents)
+    }
+
+    @Test
+    fun historyLoadsWithoutASignInAndIsSaved() {
+        val cache = FakeHistoryCache()
+        val document = HistoryDocument("anomalies", "Ingress XM Anomalies")
+        api.historyResults["anomalies"] = HistoryResult.Success(document)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, historyCache = cache)
+
+        viewModel.openHistory()
+
+        assertTrue(viewModel.state.value.historyOpen)
+        assertEquals("anomalies", viewModel.state.value.historySlug)
+        assertEquals(document, viewModel.state.value.history["anomalies"])
+        assertTrue(viewModel.state.value.historyLoading.isEmpty())
+        assertEquals(document, cache.documents["anomalies"])
+
+        viewModel.closeHistory()
+
+        assertFalse(viewModel.state.value.historyOpen)
+    }
+
+    @Test
+    fun historyTabsLoadTheirDocument() {
+        val document = HistoryDocument("mission-days", "Ingress Mission Days")
+        api.historyResults["mission-days"] = HistoryResult.Success(document)
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() })
+
+        viewModel.openHistory()
+        viewModel.selectHistory("mission-days")
+
+        assertEquals("mission-days", viewModel.state.value.historySlug)
+        assertEquals(document, viewModel.state.value.history["mission-days"])
+    }
+
+    @Test
+    fun historyKeepsTheSavedDocumentWhenOffline() {
+        val saved = HistoryDocument("anomalies", "Saved")
+        api.historyResults["anomalies"] = HistoryResult.Failure(UiText.Plain("Offline"))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() }, historyCache = FakeHistoryCache(mutableMapOf("anomalies" to saved)))
+
+        viewModel.openHistory()
+
+        assertEquals(saved, viewModel.state.value.history["anomalies"])
+        assertFalse(viewModel.state.value.historyStatus.getValue("anomalies").isError)
+    }
+
+    @Test
+    fun historyWithoutASavedDocumentShowsTheError() {
+        api.historyResults["anomalies"] = HistoryResult.Failure(UiText.Plain("Offline"))
+        val viewModel = MainViewModel(auth, api, scanMedals = { emptyList() })
+
+        viewModel.openHistory()
+
+        assertTrue(viewModel.state.value.historyStatus.getValue("anomalies").isError)
+    }
 
     private val zhuhai = IngressEventList(listOf(IngressEvent("mission_day", "Mission Day", "2026-11-07", "2026-11-07", location = "Zhuhai, China")))
 
@@ -1260,6 +1356,10 @@ class MainViewModelTest {
         }
 
         /** What `GET /api/links` answers. */
+        val historyResults = mutableMapOf<String, HistoryResult>()
+
+        override suspend fun history(slug: String): HistoryResult = historyResults[slug] ?: HistoryResult.Success(HistoryDocument(slug))
+
         var events: IngressEventListResult = IngressEventListResult.Success(IngressEventList())
 
         override suspend fun events(): IngressEventListResult = events

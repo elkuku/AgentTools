@@ -169,17 +169,23 @@ fun MedalScanReview(
 /** A custom medal's image from the assets, 50 dp like the other badges. */
 @Composable
 fun CustomMedalBadge(medal: CustomMedalTier, modifier: Modifier = Modifier, size: Dp = 50.dp) {
+    AssetMedal(medal.imageName, medal.label, modifier, size)
+}
+
+/** An image of the custom medal assets by its file name; [label] without such an image. */
+@Composable
+fun AssetMedal(imageName: String, label: String, modifier: Modifier = Modifier, size: Dp = 50.dp) {
     val assets = LocalContext.current.assets
-    val image: ImageBitmap? = remember(medal.imageName) {
+    val image: ImageBitmap? = remember(imageName) {
         runCatching {
-            assets.open("$CUSTOM_MEDAL_ASSETS/${medal.imageName}.webp").use { BitmapFactory.decodeStream(it) }
+            assets.open("$CUSTOM_MEDAL_ASSETS/$imageName.webp").use { BitmapFactory.decodeStream(it) }
                 ?.asImageBitmap()
         }.getOrNull()
     }
     if (image != null) {
-        Image(image, contentDescription = medal.label, modifier = modifier.size(size))
+        Image(image, contentDescription = label, modifier = modifier.size(size))
     } else {
-        Text(medal.label, modifier = modifier.width(size), style = MaterialTheme.typography.labelSmall)
+        Text(label, modifier = modifier.width(size), style = MaterialTheme.typography.labelSmall)
     }
 }
 

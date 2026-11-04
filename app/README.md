@@ -84,7 +84,7 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
 - `ui/MainScreen.kt` — the main screen: app bar with sign-in, or the account menu
   (`ui/AccountMenu.kt`, like web's: the Google profile picture from `GET /api/me` `avatar`, a
   `data:` URI, opens the email and role, Settings and Sign out) next to the feature menu (☰,
-  `FeatureMenu` in `ui/AccountMenu.kt`: Agents, Events and Links (also signed out); new features go
+  `FeatureMenu` in `ui/AccountMenu.kt`: Agents, Events, History and Links (also signed out); new features go
   there), status messages, the
   stats; pull down to reload. `ui/AgentsScreen.kt` (☰ → Agents): the agents who show their
   profile (`GET /api/agents`), tap one for the parts it shows (`GET /api/agents/{agentName}`,
@@ -96,6 +96,11 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   `GET /api/events` (`data/IngressEvents.kt`, the month grid as web's `EventCalendar`), with the
   month's or the picked day's events under it, as web's `/events`; the last list is kept in
   `files/events.json` (`FileIngressEventCache`).
+- `ui/HistoryScreen.kt` (☰ → History; no sign-in): the XM Anomalies and Mission Days of past
+  years from `GET /api/history/{slug}` (`data/History.kt`), a tab per document with buttons for
+  the years, as web's `/history`; the last documents are kept in `files/history-*.json`
+  (`FileHistoryCache`). Signed in, a checkbox marks a row as attended: a timeline event with its
+  `historyKey`, so deleting it on the timeline removes the mark.
 - `ui/LinksScreen.kt` (☰ → Links; no sign-in): the Ingress link list of
   `docs/links.md` from `GET /api/links` (`data/LinkList.kt`), a card per section as web's
   `/links`; the last list is kept in `files/links.json` (`FileLinkListCache`) and shows right

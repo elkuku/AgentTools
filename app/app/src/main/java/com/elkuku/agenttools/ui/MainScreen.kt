@@ -64,6 +64,7 @@ fun MainScreen(
     onOpenAgents: () -> Unit,
     onOpenBanners: () -> Unit,
     onOpenEvents: () -> Unit,
+    onOpenHistory: () -> Unit,
     onOpenLinks: () -> Unit,
     onOpenAdminAgents: () -> Unit,
     onChooseVisibility: () -> Unit,
@@ -78,11 +79,11 @@ fun MainScreen(
                 title = { Text("AgentTools", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
                     if (state.session == null) {
-                        // The events and links need no sign-in, as on web
-                        FeatureMenu(onOpenAgents = null, onOpenEvents = onOpenEvents, onOpenLinks = onOpenLinks)
+                        // The events, history and links need no sign-in, as on web
+                        FeatureMenu(onOpenAgents = null, onOpenEvents = onOpenEvents, onOpenHistory = onOpenHistory, onOpenLinks = onOpenLinks)
                         TextButton(onClick = onSignIn, enabled = !state.busy) { Text(stringResource(R.string.sign_in)) }
                     } else {
-                        FeatureMenu(onOpenAgents = onOpenAgents, onOpenEvents = onOpenEvents, onOpenLinks = onOpenLinks, onOpenAdminAgents = onOpenAdminAgents.takeIf { state.role == UserRole.ADMIN })
+                        FeatureMenu(onOpenAgents = onOpenAgents, onOpenEvents = onOpenEvents, onOpenHistory = onOpenHistory, onOpenLinks = onOpenLinks, onOpenAdminAgents = onOpenAdminAgents.takeIf { state.role == UserRole.ADMIN })
                         AccountMenu(
                             email = state.session.email,
                             role = state.role,
@@ -241,6 +242,7 @@ private fun MainScreenPreview() {
             onOpenAgents = {},
             onOpenBanners = {},
             onOpenEvents = {},
+            onOpenHistory = {},
             onOpenLinks = {},
             onOpenAdminAgents = {},
             onChooseVisibility = {},
