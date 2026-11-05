@@ -64,15 +64,15 @@ The End column is the last day, as the source gives it, mostly in UTC. A medal y
 
 | Medal | Operation | Start | End | Required actions | Source | Notes |
 |---|---|---|---|---|---|---|
-| ![Courier Meet You Out There Challenge](../../app/app/src/main/assets/custom_medals/event_badge_courier_challenge_gold.webp) | Courier Meet You Out There Challenge | 20 Aug | 30 Aug 2021 | AP from event Portals: 88,888, 888,888 or 2,888,888 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 | ![Optima Kinetic Capsule Challenge](../../app/app/src/main/assets/custom_medals/event_badge_kinetic_challenge_gold.webp) | Optima Kinetic Capsule Challenge | 17 Sep | 27 Sep 2021 | Complete Kinetic Capsules: 4, 16 or 50 | [Fevgames](https://fevgames.net/optima-kinetic-challenge-ii/) | Second round, with Silver and Gold. The first ran from 19 to 29 Mar and gave Bronze |
+| ![Courier Meet You Out There Challenge](../../app/app/src/main/assets/custom_medals/event_badge_courier_challenge_gold.webp) | Courier Meet You Out There Challenge | 20 Aug | 30 Aug 2021 | AP from event Portals: 88,888, 888,888 or 2,888,888 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 
 ## 2020
 
 | Medal | Operation | Start | End | Required actions | Source | Notes |
 |---|---|---|---|---|---|---|
-| ![Didact Field Challenge](../../app/app/src/main/assets/custom_medals/event_badge_didact_field_gold.webp) | Didact Field Challenge | 14 Feb | 24 Feb 2020 | Create Control Fields: 100, 300 or 800 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 | ![Nemesis: Perpetua](../../app/app/src/main/assets/custom_medals/event_badge_perpetua_elite.webp) | Nemesis: Perpetua | 29 Feb | 29 Feb 2020 | All six Hexathlon challenges. Elite: top 10% in any one challenge | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
+| ![Didact Field Challenge](../../app/app/src/main/assets/custom_medals/event_badge_didact_field_gold.webp) | Didact Field Challenge | 14 Feb | 24 Feb 2020 | Create Control Fields: 100, 300 or 800 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 
 ## 2019
 
