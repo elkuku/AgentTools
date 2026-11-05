@@ -12,7 +12,7 @@ change the same setting.
 | **Profile picture** | Your Google profile picture next to your agent name. |
 | **Latest stats** | The all-time stats of your newest upload, with medals. |
 | **Stats history** | Every upload with its date and AP, and your timeline with your events. |
-| **Custom medals** | Your anomaly, annual and event medals, and on your timeline the anomaly and event medals on the last day of their event. |
+| **Custom medals** | Your anomaly, annual and event medals, and on your timeline the anomaly, annual and event medals on the last day of their event. |
 | **Banners** | The number of banners you published, have to do and have done, with your lists and the map. |
 
 Unchecked parts stay private. Only signed-in users see agent pages; nothing is public.

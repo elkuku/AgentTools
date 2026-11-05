@@ -2,7 +2,7 @@
 
 Global Ops, Campaigns and Challenges with a medal of their own, newest first, as of 5 November 2026. XM Anomalies are on their own page.
 
-See also: [XM Anomalies](./anomalies).
+See also: [XM Anomalies](./anomalies) and [Ingress years](./ingress-years).
 
 ## How reliable this is
 
@@ -17,6 +17,7 @@ The End column is the last day, as the source gives it, mostly in UTC. A medal y
 
 - **Tessellation:** the Knight of Tessellation and Tessellation Paragon medals have no end date, so they are not added to the timeline. The Tessellation began in October 2019, and its results came in 2020. No source gives the last day.
 - **Redux:** the Memories Global Ops could be earned again through paid Redux Campaigns until 2 February 2026. The timeline still shows such a medal on the end date of the original op.
+- **Prime Challenge:** left out, as it counts repeated challenges at several Anomalies.
 - **Required actions:** three values mean bronze, silver and gold. They are the main route; the sources give the details.
 - **Medals without an op:** only medals the app knows are listed. Supporter, Dispatch reward and yearly medals are not.
 
@@ -29,6 +30,7 @@ The End column is the last day, as the source gives it, mostly in UTC. A medal y
 | ![Summer Solstice 2026](../../app/app/src/main/assets/custom_medals/event_badge_2026_summer_solstice_silver.webp) | Summer Solstice 2026 | 5 Jun | 29 Jun 2026 | Assignments of the Dispatch Campaign, each 3 of 4 Bounties such as Kinetic Programs, Resonators and Links. Bronze and Silver | [Official](https://ingress.com/news/2026-summer) | Extended from 22 Jun |
 | ![Orion: Global Op](../../app/app/src/main/assets/custom_medals/event_badge_orion_gold.webp) | Orion: Global Op | 24 Apr | 11 May 2026 | Linking and Fielding Bounties in the 3 Assignments of a Dispatch Campaign, for 3 tiers | [Official](https://ingress.com/news/2026-orion) | – |
 | ![+Gamma: Global Op](../../app/app/src/main/assets/custom_medals/event_badge_plus_gamma_gold.webp) | +Gamma: Global Op | 13 Feb | 23 Feb 2026 | Linking Bounties in the 3 Assignments of a Dispatch Campaign, for 3 tiers | [Official](https://ingress.com/news/2026-plusgamma) | – |
+| ![Operation Polaris](../../app/app/src/main/assets/custom_medals/event_badge_polaris_gold.webp) | Operation Polaris | 16 Dec 2025 | 5 Feb 2026 | Daily Bounties. Bronze: 13. Silver: 26. Gold: 39 | [Official](https://ingress.com/news/2025-operationpolaris) | – |
 
 ## 2025
 
@@ -70,6 +72,7 @@ The End column is the last day, as the source gives it, mostly in UTC. A medal y
 | Medal | Operation | Start | End | Required actions | Source | Notes |
 |---|---|---|---|---|---|---|
 | ![Didact Field Challenge](../../app/app/src/main/assets/custom_medals/event_badge_didact_field_gold.webp) | Didact Field Challenge | 14 Feb | 24 Feb 2020 | Create Control Fields: 100, 300 or 800 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
+| ![Nemesis: Perpetua](../../app/app/src/main/assets/custom_medals/event_badge_perpetua_elite.webp) | Nemesis: Perpetua | 29 Feb | 29 Feb 2020 | All six Hexathlon challenges. Elite: top 10% in any one challenge | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 
 ## 2019
 
@@ -77,6 +80,7 @@ The End column is the last day, as the source gives it, mostly in UTC. A medal y
 |---|---|---|---|---|---|---|
 | ![Umbra Deploy Challenge](../../app/app/src/main/assets/custom_medals/event_badge_umbra_deploy_gold.webp) | Umbra Deploy Challenge | 20 Dec | 30 Dec 2019 | Deploy Resonators: 120, 600 or 1,440 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | Fevgames gives 2020; reports from December 2019 show the year is 2019 |
 | ![Avenir Shard Challenge](../../app/app/src/main/assets/custom_medals/event_badge_avenir_shard_challenge.webp) | Avenir Shard Challenge | 17 Sep | 30 Sep 2019 | Hack a Portal during the Shard period | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
+| ![Field Test: Hexathlon](../../app/app/src/main/assets/custom_medals/event_badge_field_test_hexathlon_elite.webp) | Field Test: Hexathlon | 14 Sep | 14 Sep 2019 | All six challenges. Elite: top 10% in the city | [Community](https://massivelyop.com/2019/09/13/ingress-primes-upcoming-hexathlon-will-kick-off-a-new-series-of-events-for-the-ar-mobile-title/) | – |
 | ![Aurora Glyph Challenge](../../app/app/src/main/assets/custom_medals/event_badge_aurora_glyph_gold.webp) | Aurora Glyph Challenge | 15 Aug | 26 Aug 2019 | Challenge points: 100, 500 or 1,000 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 | ![Myriad Hack Challenge](../../app/app/src/main/assets/custom_medals/event_badge_myriad_hack_gold.webp) | Myriad Hack Challenge | 11 Jul | 22 Jul 2019 | Hack unique Portals: 100, 350 or 750 | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |
 | ![Dark XM](../../app/app/src/main/assets/custom_medals/event_badge_dark_xm_gold.webp) | Dark XM | 30 Apr | 30 Apr 2019 | Take part in the Dark XM event. The tiers are not found | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | – |

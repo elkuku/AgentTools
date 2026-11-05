@@ -12,7 +12,7 @@ App (Kontomenü → **Einstellungen → Für andere Benutzer sichtbar**) oder au
 | **Profilbild** | Dein Google-Profilbild neben deinem Agentennamen. |
 | **Neueste Statistiken** | Die All-Time-Statistiken deines neuesten Uploads, mit Medaillen. |
 | **Statistikverlauf** | Jeder Upload mit Datum und AP und deine Zeitleiste mit deinen Ereignissen. |
-| **Sondermedaillen** | Deine Anomalie-, Jahres- und Event-Medaillen, und auf deiner Zeitleiste die Anomalie- und Event-Medaillen am letzten Tag ihres Events. |
+| **Sondermedaillen** | Deine Anomalie-, Jahres- und Event-Medaillen, und auf deiner Zeitleiste die Anomalie-, Jahres- und Event-Medaillen am letzten Tag ihres Events. |
 | **Banner** | Wie viele Banner du veröffentlicht hast, noch machen willst und gemacht hast, mit deinen Listen und der Karte. |
 
 Nicht ausgewählte Teile bleiben privat. Nur angemeldete Benutzer sehen Agentenseiten; nichts ist
