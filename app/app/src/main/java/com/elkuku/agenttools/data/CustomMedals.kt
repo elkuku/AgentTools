@@ -69,6 +69,7 @@ val CUSTOM_MEDALS = listOf(
     CustomMedal("anomaly", "plus_theta", "+Theta", listOf("bronze", "silver", "gold")),
     CustomMedal("anomaly", "plus_alpha", "+Alpha"),
     CustomMedal("anomaly", "erased_memories", "Erased Memories"),
+    CustomMedal("anomaly", "shared_memories", "Shared Memories"),
     CustomMedal("anomaly", "buried_memories", "Buried Memories"),
     CustomMedal("anomaly", "cryptic_memories", "Cryptic Memories"),
     CustomMedal("anomaly", "discoverie", "Discoverie"),
@@ -100,6 +101,7 @@ val CUSTOM_MEDALS = listOf(
     CustomMedal("anomaly", "interitus", "Interitus"),
     CustomMedal("anomaly", "recursion", "Recursion"),
     // annual
+    CustomMedal("annual", "vector", "Vector", listOf("bronze", "silver", "gold", "platinum", "black")),
     CustomMedal("annual", "voyager", "Voyager", listOf("bronze", "silver", "gold", "platinum", "black")),
     CustomMedal("annual", "catalyst", "Catalyst", listOf("bronze", "silver", "gold", "platinum", "black")),
     CustomMedal("annual", "paragon", "Paragon", listOf("bronze", "silver", "gold", "platinum", "black")),
