@@ -74,7 +74,7 @@ jobs:
                   fi
 
             - name: Keep the list for the build
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: ingress-events
                   path: ${{ runner.temp }}/events/ingress-events.json
@@ -182,7 +182,7 @@ jobs:
                   cache-dependency-path: docs/package-lock.json
 
             - name: Get the Ingress events
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
                   name: ingress-events
                   path: ${{ runner.temp }}/events
