@@ -83,4 +83,13 @@ class CustomMedalsTest {
         // Still stored under anomaly
         assertEquals("gold", customMedalsToJson(listOf(CustomMedalTier(orion, "gold")))["anomaly"]!!.jsonObject["orion"].toString().trim('"'))
     }
+
+    @Test
+    fun theMedalsOfEachGroupAreNewestFirst() {
+        CUSTOM_MEDALS.groupBy { it.group }.forEach { (group, medals) ->
+            // An On-site medal stays beside the medal of its season, which ends later
+            val days = medals.filterNot { it.key.endsWith("_onsite") }.mapNotNull { it.endDate }
+            assertEquals(group, days.sortedDescending(), days)
+        }
+    }
 }
