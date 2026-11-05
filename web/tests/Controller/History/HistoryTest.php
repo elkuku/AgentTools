@@ -24,12 +24,12 @@ class HistoryTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('main h1:not(.alert)', 'History');
         self::assertSelectorTextContains('.nav-tabs .nav-link.active', 'XM Anomalies');
-        self::assertSelectorExists('img.history-medal[alt="Orion"]');
+        self::assertSelectorExists('img.history-medal[alt="Orion (On-site)"]');
         // Also beside its series below the years
-        self::assertSelectorExists('h3 img.history-medal[alt="Orion"]');
+        self::assertSelectorExists('h3 img.history-medal[alt="Orion (On-site)"]');
         self::assertSelectorExists('#year-2026');
         self::assertSelectorExists('a[href="#year-2013"]');
-        self::assertStringContainsString('custom_medals/anomaly_orion_platinum', (string) $crawler->filter('img.history-medal[alt="Orion"]')->attr('src'));
+        self::assertStringContainsString('custom_medals/anomaly_orion_onsite', (string) $crawler->filter('img.history-medal[alt="Orion (On-site)"]')->attr('src'));
     }
 
     public function testTheMissionDaysWithTheirFlags(): void
@@ -65,7 +65,7 @@ class HistoryTest extends WebTestCase
         self::assertSame('anomalies', $data['slug']);
         self::assertSame('Ingress XM Anomalies', $data['title']);
         self::assertContains('table', \array_column($data['blocks'], 'type'));
-        self::assertStringContainsString('"medal":"anomaly_orion_platinum"', $content);
+        self::assertStringContainsString('"medal":"anomaly_orion_onsite"', $content);
     }
 
     public function testTheApiKnowsOnlyTheDocuments(): void

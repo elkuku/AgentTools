@@ -32,7 +32,7 @@ The note under each series gives its rule, from the official rules or season pag
 
 ## All series
 
-The medal of each series, as images from the app. A medal with tiers is shown in its highest tier. No image is available for Shared Memories and Requiem. Cassandra and 13MAGNUS came before the first medal.
+The medal of each series, as images from the app. Where a season has its own medal for the XM Anomalies, that Onsite Medal is shown. Otherwise a medal with tiers is shown in its highest tier. No image is available for Requiem. Cassandra and 13MAGNUS came before the first medal.
 
 Dates and scores up to 2020 are from Fevgames. Early events used different scoring, so scores can only be compared within one event.
 
@@ -70,15 +70,15 @@ Dates and scores up to 2020 are from Fevgames. Early events used different scori
 | ![Discoverie](../../app/app/src/main/assets/custom_medals/anomaly_discoverie.webp) | Discoverie | Oct – Dec 2023 | – | – | – |
 | ![Cryptic Memories](../../app/app/src/main/assets/custom_medals/anomaly_cryptic_memories.webp) | Cryptic Memories | Feb – Mar 2024 | – | – | – |
 | ![Buried Memories](../../app/app/src/main/assets/custom_medals/anomaly_buried_memories.webp) | Buried Memories | Apr – Jun 2024 | – | – | – |
-| – | Shared Memories | Jul – Sep 2024 | – | – | – |
+| ![Shared Memories](../../app/app/src/main/assets/custom_medals/anomaly_shared_memories.webp) | Shared Memories | Jul – Sep 2024 | – | – | – |
 | ![Erased Memories](../../app/app/src/main/assets/custom_medals/anomaly_erased_memories.webp) | Erased Memories | Oct – Dec 2024 | – | – | – |
 | ![+Alpha](../../app/app/src/main/assets/custom_medals/anomaly_plus_alpha.webp) | +Alpha | Jan – Mar 2025 | – | – | – |
 | ![+Theta](../../app/app/src/main/assets/custom_medals/anomaly_plus_theta_gold.webp) | +Theta | Apr – Jun 2025 | – | – | – |
 | ![+Delta](../../app/app/src/main/assets/custom_medals/anomaly_plus_delta_gold.webp) | +Delta | Jul – Sep 2025 | – | – | – |
 | ![+Beta](../../app/app/src/main/assets/custom_medals/anomaly_plus_beta_gold.webp) | +Beta | Oct – Dec 2025 | – | – | – |
-| ![+Gamma](../../app/app/src/main/assets/custom_medals/anomaly_plus_gamma_gold.webp) | +Gamma | Jan – Mar 2026 | – | – | – |
-| ![Orion](../../app/app/src/main/assets/custom_medals/anomaly_orion_platinum.webp) | Orion | Apr – Jun 2026 | – | – | – |
-| ![Apollo](../../app/app/src/main/assets/custom_medals/anomaly_apollo_gold.webp) | Apollo | Jul – Sep 2026 | – | – | – |
+| ![+Gamma (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_plus_gamma_onsite.webp) | +Gamma | Jan – Mar 2026 | – | – | – |
+| ![Orion (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_orion_onsite.webp) | Orion | Apr – Jun 2026 | – | – | – |
+| ![Apollo (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_apollo_onsite.webp) | Apollo | Jul – Sep 2026 | – | – | – |
 | ![Cygnus](../../app/app/src/main/assets/custom_medals/anomaly_cygnus_gold.webp) | Cygnus | Oct – Dec 2026, no XM Anomalies | – | – | – |
 
 Fevgames also lists 11 smaller events from January to July 2013 and some special events, such as Ingress Campus and DICE2014.
@@ -91,7 +91,7 @@ October to December, no XM Anomalies. [Season overview](https://ingress.com/news
 
 **Medal:** Season medal for Cygnus Tokens: Bronze 6,000, Silver 12,000, Gold 24,000.
 
-### ![Apollo](../../app/app/src/main/assets/custom_medals/anomaly_apollo_gold.webp) Apollo
+### ![Apollo (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_apollo_onsite.webp) Apollo
 
 July to September. [Season overview](https://ingress.com/news/2026-apollo).
 
@@ -106,7 +106,7 @@ July to September. [Season overview](https://ingress.com/news/2026-apollo).
 | 19 Sep | 🇺🇸 Denver, CO, USA | – |
 | 19 Sep | 🇸🇬 Singapore | – |
 
-### ![Orion](../../app/app/src/main/assets/custom_medals/anomaly_orion_platinum.webp) Orion
+### ![Orion (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_orion_onsite.webp) Orion
 
 April to June. [Season overview](https://ingress.com/news/2026-orion).
 
@@ -121,7 +121,7 @@ April to June. [Season overview](https://ingress.com/news/2026-orion).
 | 20 Jun | 🇨🇭 Geneva, Switzerland | – |
 | 20 Jun | 🇵🇪 Lima, Peru | – |
 
-### ![+Gamma](../../app/app/src/main/assets/custom_medals/anomaly_plus_gamma_gold.webp) +Gamma
+### ![+Gamma (On-site)](../../app/app/src/main/assets/custom_medals/anomaly_plus_gamma_onsite.webp) +Gamma
 
 January to March. [Season overview](https://ingress.com/news/2026-plusgamma).
 
@@ -210,7 +210,7 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 | 14 Dec | 🇳🇿 Christchurch | – |
 | 14 Dec | 🇺🇸 Nashville, TN | – |
 
-### Shared Memories
+### ![Shared Memories](../../app/app/src/main/assets/custom_medals/anomaly_shared_memories.webp) Shared Memories
 
 [Season details](https://ingress.com/news/2024-sharedmem).
 
