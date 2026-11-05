@@ -141,6 +141,12 @@ en los secretos del repositorio `DEV_KEYSTORE_BASE64` (`base64 -w0 ~/agenttools-
 OAuth de Android para el paquete `.dev`. Para compilarla en local usa las propiedades `dev.*`
 (consulta `local.properties.example`): `cd app && ./gradlew assembleDev`.
 
+## La historia {#the-history}
+
+[`anomalies.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/anomalies.md), [`mission-days.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/mission-days.md), [`operations.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/operations.md) e [`ingress-years.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/ingress-years.md) en `docs/events/` listan eventos pasados. No se publican en este sitio. La web los muestra en `/history` y la app (☰ → **Historia**) mediante `GET /api/history/{slug}`.
+
+Las medallas especiales de eventos tienen un `endDate` en `MedalChecker` y `data/CustomMedals.kt`: el último día del evento (null si no se conoce). `TimelineBuilder` y `timeline()` de la app añaden una medalla guardada ese día, una vez pasado. `HistoryFileTest` compara las fechas de eventos y anuales con los documentos, así que cambia ambos.
+
 ## Publicar la app {#releasing-the-app}
 
 1. Sube `versionCode` y `versionName` en `app/app/build.gradle.kts` (un APK con el mismo

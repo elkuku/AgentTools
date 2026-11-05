@@ -26,6 +26,7 @@ son `application/problem+json` con un `detail`, incluido el `401` de un token au
 | `POST` | `/api/agent-stats` | Guardar estadísticas (`201`; `409` para la misma fecha y hora; `422` para estadísticas de otro agente). |
 | `GET`, `POST` | `/api/timeline-events` | Los eventos propios de la línea de tiempo del usuario; añadir uno. |
 | `PATCH`, `DELETE` | `/api/timeline-events/{id}` | Cambiar o eliminar un evento propio (`422` para viajes que se superponen). |
+| `GET` | `/api/history/{slug}` | Un [documento de historia](./#the-history), `anomalies`, `mission-days`, `operations` o `ingress-years`: `title` y `blocks`. Sin token; en caché una hora. |
 | `GET` | `/api/done-banners` | Los banners completados del usuario. |
 | `PATCH` | `/api/done-banners/{id}` | Fijar el día en que se completó un banner propio. |
 | `GET` | `/api/agents` | Los agentes que muestran su perfil. |

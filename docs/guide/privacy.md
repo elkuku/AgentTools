@@ -17,6 +17,8 @@ change the same setting.
 
 Unchecked parts stay private. Only signed-in users see agent pages; nothing is public.
 
+The other parts are only shown together with **Agent name, faction and level**, so they hang below it. Turn it off and they are unchecked and locked; turn it on and your choices come back. Your event medals are on your timeline only with **Custom medals** turned on.
+
 ## What is stored
 
 - Your Google account's email (as your identifier), its Google ID and your profile picture.

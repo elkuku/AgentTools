@@ -11,6 +11,7 @@ Después de iniciar sesión, la pantalla de inicio resume tu cuenta:
 
 - **Mis estadísticas**: tu agente, nivel, AP, la fecha de tu última subida y el número de subidas y
   de medallas especiales. **Abrir** las muestra completas.
+- **Mi línea de tiempo**: subidas, eventos, viajes, banners y medallas en orden. **Abrir** la muestra.
 - **Mis banners**: cuántos banners publicaste, completaste y tienes en tu lista de pendientes.
 - **Tu perfil**: lo que otros usuarios ven de ti. **Cambiar** abre los ajustes.
 - **Agentes**: los agentes que muestran su perfil.
@@ -79,7 +80,7 @@ así que la app las lee de capturas de pantalla de tu cuadrícula de medallas:
    que la app no estaba segura) que sean correctas.
 4. Guarda. Las medallas se añaden a las que ya tienes, conservando el nivel más alto.
 
-Las capturas se leen en tu teléfono; solo se suben las medallas que guardas.
+Las capturas se leen en tu teléfono; solo se suben las medallas que guardas. Funciona con los encabezados de sección de Ingress activados o no, en teléfonos y tabletas. Comparte las capturas originales: las apps de mensajería las comprimen y se pueden perder medallas.
 
 ## Línea de tiempo {#timeline}
 
@@ -92,7 +93,8 @@ reciente primero, con una etiqueta para cada año:
   mejoradas (se omiten las subidas en las que solo cambiaron los AP);
 - tus propios **eventos**, p. ej. una anomalía o un día de misiones, y **viajes**: eventos de
   varios días, con una línea junto a las entradas durante el viaje;
-- los **banners** que completaste, el día en que los completaste.
+- los **banners** que completaste, el día en que los completaste;
+- tus **medallas especiales** el día en que terminó su evento, en el nivel que alcanzaste, una vez terminado: XM Anomalies, temporadas, operaciones y años de Ingress. Tienen su propio filtro **Medallas de eventos**..
 
 El gráfico de arriba muestra tus AP a lo largo del tiempo, con una bandera para cada evento y una
 franja para cada viaje. Toca una marca para ver sus detalles.
@@ -150,6 +152,16 @@ su línea de tiempo y sus banners aparecen resumidos: toca **Línea de tiempo** 
 abrirlos en una pantalla propia.
 
 Los administradores tienen además ☰ → **Administrar agentes**: cada usuario con lo que muestra.
+
+## Historia {#history}
+
+☰ → **Historia** lista eventos pasados, también sin iniciar sesión, y los guarda para usarlos sin conexión:
+
+- **Anomalías XM** y **Mission Days** por año, con medallas y banderas. Con sesión iniciada, marca un lugar como asistido para añadirlo a tu línea de tiempo.
+- **Operaciones**: las Global Ops, Campaigns y Challenges con medalla propia, con sus fechas y acciones necesarias.
+- **Años de Ingress**: las medallas anuales, con sus fechas y requisitos de nivel.
+
+Los documentos están en inglés.
 
 ## Enlaces {#links}
 

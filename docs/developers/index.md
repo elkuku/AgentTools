@@ -124,11 +124,13 @@ calendar. The list is one generated file, published on GitHub Pages as
 ## The history
 
 [`docs/events/anomalies.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/anomalies.md)
-and [`mission-days.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/mission-days.md)
+and [`mission-days.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/mission-days.md), [`operations.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/operations.md), [`ingress-years.md`](https://github.com/elkuku/AgentTools/blob/master/docs/events/ingress-years.md)
 list past events. They are not published on this site. The website shows them at `/history` and the app (☰ → **History**) through
 `GET /api/history/{slug}`: `HistoryParser` reads the Markdown into blocks, so keep to headings, paragraphs, lists, tables, bold text, https links and medal images.
 Medals are images from the app's `custom_medals` assets, and country flags are emoji.
 `HistoryFileTest` fails on anything else, and on a medal without an image.
+
+Custom medals of events have an `endDate` in `MedalChecker` and `data/CustomMedals.kt`: the last day of the event (null without a known one). `TimelineBuilder` and the app's `timeline()` add a saved medal on that day, once it has passed. `HistoryFileTest` compares the event and annual dates with `operations.md` and `ingress-years.md`, so change both.
 
 Signed-in users mark a site or Mission Day as attended, which adds a timeline event with its
 `historyKey` (`anomalies:2026-05-16:Prague, Czechia`). Only rows with one exact date that has

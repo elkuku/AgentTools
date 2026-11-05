@@ -19,7 +19,6 @@
 #   ~/Android/Sdk/emulator/emulator -avd Pixel_6a_API_35 -memory 2048 -no-snapshot-save \
 #       -gpu swiftshader_indirect -timezone America/Guayaquil
 #   ANDROID_SERIAL=emulator-5554 npm run screenshots:app
-# Its colors follow its wallpaper (dynamic colors), so they differ a little from the phone's.
 #
 # Real users stay out of the agents list: the script makes them private while it runs and
 # restores their settings when it ends. It also restores the app's language and the device's

@@ -12,6 +12,7 @@ Nach der Anmeldung fasst der Startbildschirm dein Konto zusammen:
 
 - **Meine Statistiken**: dein Agent, Level, AP, das Datum deines letzten Uploads und die Anzahl der
   Uploads und Sondermedaillen. **Öffnen** zeigt sie vollständig.
+- **Meine Zeitleiste**: Uploads, Ereignisse, Reisen, Banner und Medaillen der Reihe nach. **Öffnen** zeigt sie.
 - **Meine Banner**: wie viele Banner du veröffentlicht, erledigt und auf deiner Zu-erledigen-Liste
   hast.
 - **Dein Profil**: was andere Benutzer von dir sehen. **Ändern** öffnet die Einstellungen.
@@ -82,7 +83,7 @@ liest die App sie aus Screenshots deines Medaillenrasters:
    bleibt.
 
 Die Screenshots werden auf deinem Handy gelesen; nur die Medaillen, die du speicherst, werden
-hochgeladen.
+hochgeladen. Das funktioniert mit und ohne die Abschnittsüberschriften von Ingress, auf Handys und Tablets. Teile die Original-Screenshots: Messenger komprimieren sie, dabei können Medaillen verloren gehen.
 
 ## Zeitleiste {#timeline}
 
@@ -95,7 +96,8 @@ zuerst, mit einer Marke für jedes Jahr:
   Medaillen-Upgrades (Uploads, bei denen sich nur die AP geändert haben, werden ausgelassen);
 - deine eigenen **Ereignisse**, z. B. eine Anomalie oder ein Missionstag, und **Reisen**: Ereignisse
   über mehrere Tage, mit einer Linie neben den Einträgen während der Reise;
-- die **Banner**, die du erledigt hast, an dem Tag, an dem du sie erledigt hast.
+- die **Banner**, die du erledigt hast, an dem Tag, an dem du sie erledigt hast;
+- deine **Sondermedaillen** an dem Tag, an dem ihr Event endete, in der erreichten Stufe, sobald es vorbei ist: XM-Anomalien, Seasons, Operationen und Ingress-Jahre. Sie haben einen eigenen Filter **Event-Medaillen**..
 
 Das Diagramm darüber zeigt deine AP im Zeitverlauf, mit einer Fahne für jedes Ereignis und einem
 Band für jede Reise. Tippe auf eine Markierung für ihre Details.
@@ -157,6 +159,16 @@ sind seine Zeitleiste und seine Banner dort zusammengefasst: Tippe auf **Zeitlei
 **Banner**, um sie auf einem eigenen Bildschirm zu öffnen.
 
 Admins haben außerdem ☰ → **Agenten verwalten**: alle Benutzer und was sie zeigen.
+
+## Geschichte {#history}
+
+☰ → **Geschichte** listet vergangene Events auf, auch ohne Anmeldung, und speichert sie für die Offline-Nutzung:
+
+- **XM-Anomalien** und **Mission Days** nach Jahren, mit Medaillen und Länderflaggen. Wenn du angemeldet bist, markiere einen Ort als besucht, um ihn deiner Zeitleiste hinzuzufügen.
+- **Operationen**: die Global Ops, Campaigns und Challenges mit eigener Medaille, mit Daten und nötigen Aktionen.
+- **Ingress-Jahre**: die Jahresmedaillen mit Daten und Level-Anforderungen.
+
+Die Dokumente sind auf Englisch.
 
 ## Links {#links}
 

@@ -26,6 +26,7 @@ Unbekannte Google-Konten werden bei ihrer ersten Anfrage als Benutzer registrier
 | `POST` | `/api/agent-stats` | Statistiken speichern (`201`; `409` für dasselbe Datum mit derselben Uhrzeit; `422` für Statistiken eines anderen Agenten). |
 | `GET`, `POST` | `/api/timeline-events` | Die eigenen Zeitleisten-Ereignisse des Benutzers; eines hinzufügen. |
 | `PATCH`, `DELETE` | `/api/timeline-events/{id}` | Ein eigenes Ereignis ändern oder löschen (`422` für sich überschneidende Reisen). |
+| `GET` | `/api/history/{slug}` | Ein [Historien-Dokument](./#the-history), `anomalies`, `mission-days`, `operations` oder `ingress-years`: `title` und `blocks`. Ohne Token; eine Stunde gecacht. |
 | `GET` | `/api/done-banners` | Die erledigten Banner des Benutzers. |
 | `PATCH` | `/api/done-banners/{id}` | Den Tag setzen, an dem ein eigenes Banner erledigt wurde. |
 | `GET` | `/api/agents` | Die Agenten, die ihr Profil zeigen. |

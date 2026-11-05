@@ -18,6 +18,8 @@ App (Kontomenü → **Einstellungen → Für andere Benutzer sichtbar**) oder au
 Nicht ausgewählte Teile bleiben privat. Nur angemeldete Benutzer sehen Agentenseiten; nichts ist
 öffentlich.
 
+Die anderen Teile werden nur zusammen mit **Agentenname, Fraktion und Level** gezeigt, deshalb hängen sie darunter. Schaltest du es aus, werden sie abgewählt und gesperrt; schaltest du es ein, kommt deine Auswahl zurück. Deine Event-Medaillen stehen nur mit eingeschalteten **Sondermedaillen** auf deiner Zeitleiste.
+
 ## Was gespeichert wird {#what-is-stored}
 
 - Die E-Mail-Adresse deines Google-Kontos (als deine Kennung), seine Google-ID und dein Profilbild.

@@ -11,6 +11,7 @@ After signing in, the home screen sums up your account:
 
 - **My stats**: your agent, level, AP, the date of your latest upload and the number of uploads
   and custom medals. **Open** shows them in full.
+- **My timeline**: uploads, events, travels, banners and medals in order. **Open** shows it.
 - **My banners**: how many banners you published, did and have on your to-do list.
 - **Your profile**: what other users see of you. **Change** opens the settings.
 - **Agents**: the agents who show their profile.
@@ -78,7 +79,7 @@ screenshots of your medal grid:
    that are right.
 4. Save. The medals are added to the ones you already have, keeping the higher tier.
 
-The screenshots are read on your phone; only the medals you save are uploaded.
+The screenshots are read on your phone; only the medals you save are uploaded. It works with Ingress's section headers on or off, on phones and tablets. Share the original screenshots: messaging apps compress them, and medals can get lost.
 
 ## Timeline
 
@@ -90,7 +91,8 @@ The timeline (My stats → **Timeline**) tells your Ingress story, newest first,
   upgrades (uploads where only the AP changed are left out);
 - your own **events**, e.g. an anomaly or a mission day, and **travels**: events over several days,
   with a line beside the entries during the trip;
-- the **banners** you did, on the day you did them.
+- the **banners** you did, on the day you did them;
+- your **custom medals** on the day their event ended, at the tier you earned, once it has ended: XM Anomalies, seasons, operations and Ingress years. They have their own **Event medals** filter..
 
 The chart above it shows your AP over time, with a flag for each event and a band for each travel.
 Tap a mark for its details.
@@ -146,6 +148,16 @@ medals, their stats history and their banners. As on **My stats**, their timelin
 banners are summed up there: tap **Timeline** or **Banners** to open them on a screen of their own.
 
 Admins also have ☰ → **Admin agents**: every user with what they show.
+
+## History {#history}
+
+☰ → **History** lists past events, also without signing in, and keeps them for offline use:
+
+- **XM Anomalies** and **Mission Days** by year, with medals and country flags. When signed in, mark a site as attended to add it to your timeline.
+- **Operations**: the Global Ops, Campaigns and Challenges with a medal of their own, with their dates and required actions.
+- **Ingress years**: the yearly medals, with their dates and level requirements.
+
+The documents are in English.
 
 ## Links
 

@@ -11,7 +11,7 @@ de la app; el sitio web también puede importar estadísticas que guardaste en o
 Haz clic en **Iniciar sesión con Google** y elige la misma cuenta de Google que en la app. La
 primera vez, el sitio web te lleva a tu perfil para que elijas lo que ven otros usuarios.
 
-La barra de navegación tiene **Agentes**, **Enlaces** (también sin sesión) y **Admin** para los administradores. A la derecha: tu foto
+La barra de navegación tiene **Agentes**, **Eventos**, **Historia**, **Enlaces** (también sin sesión) y **Admin** para los administradores. A la derecha: tu foto
 de perfil con el menú de usuario (**Mis estadísticas**, **Mi línea de tiempo**, **Mis banners**, perfil, **Importar estadísticas**, cerrar sesión), el idioma
 (inglés, alemán, español) y el tema claro u oscuro.
 
@@ -20,7 +20,7 @@ de perfil con el menú de usuario (**Mis estadísticas**, **Mi línea de tiempo*
 ![La página de inicio](/screenshots/web/es/home.webp){.shot-web}
 
 La página de inicio te da la bienvenida, enlaza tus estadísticas de agente y tiene el enlace de
-descarga de la app.
+descarga de la app. Con sesión iniciada, también tiene un botón a **Mi línea de tiempo**.
 
 ## Estadísticas de agente {#agent-stats}
 
@@ -40,7 +40,7 @@ nivel.
 ![La línea de tiempo](/screenshots/web/es/timeline.webp){.shot-web}
 
 La línea de tiempo (**Estadísticas de agente → Línea de tiempo**) tiene tus subidas con lo que
-cambió, tus eventos y viajes y tus banners con fecha, lo más reciente primero y por años, debajo de un gráfico
+cambió, tus eventos y viajes, tus banners con fecha y tus medallas de eventos, lo más reciente primero y por años, debajo de un gráfico
 de tus AP. Funciona como la [línea de tiempo de la app](/es/guide/app#timeline): los mismos filtros
 y, debajo del gráfico, un rango de fechas elegido en un calendario (solo los días con una subida,
 marcados con un punto; otro color para los días con varias) que acerca el gráfico. **Comparar
@@ -90,6 +90,10 @@ muestra. Como en tus estadísticas de agente, su línea de tiempo y sus banners 
 y tienen páginas propias.
 
 ![El perfil de un agente](/screenshots/web/es/agent-profile.webp){.shot-web}
+
+## Historia {#history}
+
+**Historia** tiene las mismas cuatro pestañas que la [app](/es/guide/app#history): Anomalías XM, Mission Days, Operaciones y Años de Ingress. Funciona sin iniciar sesión. Con sesión iniciada, marca un lugar como asistido para añadirlo a tu línea de tiempo.
 
 ## Enlaces {#links}
 

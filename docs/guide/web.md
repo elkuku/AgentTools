@@ -11,7 +11,7 @@ the website can also import stats you saved elsewhere.
 Click **Sign in with Google** and pick the same Google account as in the app. The first time, the
 website takes you to your profile to choose what other users see.
 
-The navigation bar has **Agents**, **Links** (also signed out) and **Admin** for admins. On the right: your profile
+The navigation bar has **Agents**, **Events**, **History**, **Links** (also signed out) and **Admin** for admins. On the right: your profile
 picture with the user menu (**My stats**, **My timeline**, **My banners**, profile, **Import stats**, sign out), the language (English, German,
 Spanish) and the light or dark theme.
 
@@ -19,7 +19,7 @@ Spanish) and the light or dark theme.
 
 ![The home page](/screenshots/web/home.webp){.shot-web}
 
-The home page welcomes you, links to your agent stats and has the download link for the app.
+The home page welcomes you, links to your agent stats and has the download link for the app. When signed in, it also has a button to **My timeline**.
 
 ## Agent stats
 
@@ -38,7 +38,7 @@ Click a medal for its details: the stat behind it, your value and the value of e
 ![The timeline](/screenshots/web/timeline.webp){.shot-web}
 
 The timeline (**Agent stats → Timeline**) has your uploads with what changed, your events and
-travels and your dated banners, newest first and by year, under a chart of your AP. It works like the
+travels, your dated banners and your event medals, newest first and by year, under a chart of your AP. It works like the
 [app's timeline](/guide/app#timeline): the same filters, and below the chart a date range picked in
 a calendar (only the days with an upload, marked with a dot; a second color for days with several)
 that zooms the chart. **Compare stats** next to it shows, instead of the list, what you gained
@@ -86,6 +86,10 @@ it on your timeline.
 your agent stats, their timeline and their banners are summed up there and have pages of their own.
 
 ![An agent's profile](/screenshots/web/agent-profile.webp){.shot-web}
+
+## History {#history}
+
+**History** has the same four tabs as the [app](/guide/app#history): XM Anomalies, Mission Days, Operations and Ingress years. It works without signing in. When signed in, mark a site as attended to add it to your timeline.
 
 ## Links
 

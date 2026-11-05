@@ -12,7 +12,7 @@ hast.
 Klicke auf **Über Google anmelden** und wähle dasselbe Google-Konto wie in der App. Beim ersten Mal
 bringt dich die Website zu deinem Profil, damit du wählst, was andere Benutzer sehen.
 
-Die Navigationsleiste enthält **Agenten**, **Links** (auch abgemeldet) und **Admin** für Admins. Rechts: dein
+Die Navigationsleiste enthält **Agenten**, **Events**, **Geschichte**, **Links** (auch abgemeldet) und **Admin** für Admins. Rechts: dein
 Profilbild mit dem Benutzermenü (**Meine Statistiken**, **Meine Zeitleiste**, **Meine Banner**, Profil, **Statistiken importieren**, Abmelden), die Sprache
 (Englisch, Deutsch, Spanisch) und das helle oder dunkle Design.
 
@@ -21,7 +21,7 @@ Profilbild mit dem Benutzermenü (**Meine Statistiken**, **Meine Zeitleiste**, *
 ![Die Startseite](/screenshots/web/de/home.webp){.shot-web}
 
 Die Startseite begrüßt dich, verlinkt deine Agentenstatistiken und hat den Download-Link für die
-App.
+App. Wenn du angemeldet bist, gibt es auch eine Schaltfläche zu **Meine Zeitleiste**.
 
 ## Agentenstatistiken {#agent-stats}
 
@@ -41,7 +41,7 @@ Stufe.
 ![Die Zeitleiste](/screenshots/web/de/timeline.webp){.shot-web}
 
 Die Zeitleiste (**Agentenstatistiken → Zeitleiste**) enthält deine Uploads mit dem, was sich
-geändert hat, deine Ereignisse und Reisen und deine datierten Banner, das Neueste zuerst und nach Jahren, unter
+geändert hat, deine Ereignisse und Reisen, deine datierten Banner und deine Event-Medaillen, das Neueste zuerst und nach Jahren, unter
 einem Diagramm deiner AP. Sie funktioniert wie die [Zeitleiste der App](/de/guide/app#timeline):
 dieselben Filter und unter dem Diagramm ein Datumsbereich aus einem Kalender (nur Tage mit einem
 Upload, mit einem Punkt markiert; eine zweite Farbe für Tage mit mehreren), der das Diagramm zoomt.
@@ -92,6 +92,10 @@ er zeigt. Wie bei deinen Agentenstatistiken sind seine Zeitleiste und seine Bann
 zusammengefasst und haben eigene Seiten.
 
 ![Das Profil eines Agenten](/screenshots/web/de/agent-profile.webp){.shot-web}
+
+## Geschichte {#history}
+
+**Geschichte** hat dieselben vier Tabs wie die [App](/de/guide/app#history): XM-Anomalien, Mission Days, Operationen und Ingress-Jahre. Das funktioniert ohne Anmeldung. Wenn du angemeldet bist, markiere einen Ort als besucht, um ihn deiner Zeitleiste hinzuzufügen.
 
 ## Links {#links}
 

@@ -18,6 +18,8 @@ la app (menú de la cuenta → **Ajustes → Visible para otros usuarios**) o en
 Las partes sin marcar siguen privadas. Solo los usuarios con sesión iniciada ven las páginas de
 agente; nada es público.
 
+Las demás partes solo se muestran junto con **Nombre de agente, facción y nivel**, por eso cuelgan debajo. Si lo desactivas, se desmarcan y se bloquean; si lo activas, vuelve tu selección. Tus medallas de eventos solo aparecen en tu línea de tiempo con **Medallas especiales** activado.
+
 ## Lo que se guarda {#what-is-stored}
 
 - El correo de tu cuenta de Google (como tu identificador), su ID de Google y tu foto de perfil.
