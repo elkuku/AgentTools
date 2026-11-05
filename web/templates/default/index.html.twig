@@ -22,6 +22,9 @@
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_agent_stat_index') }}">
                     <i class="bi-bar-chart-line"></i> {{ 'home.my_stats'|trans }}
                 </a>
+                <a class="btn btn-outline-primary btn-lg" href="{{ path('app_agent_stat_timeline') }}">
+                    <i class="bi-clock-history"></i> {{ 'home.my_timeline'|trans }}
+                </a>
             {% else %}
                 <a class="btn btn-outline-primary btn-lg" href="{{ path('app_login') }}">
                     <i class="bi-box-arrow-in-right"></i> {{ 'home.sign_in'|trans }}

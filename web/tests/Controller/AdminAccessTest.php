@@ -33,5 +33,6 @@ class AdminAccessTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h4', 'Welcome admin');
+        self::assertSelectorExists('.landing-hero a[href="/agent-stats/timeline"]');
     }
 }
