@@ -15,6 +15,8 @@ See also: [Mission Days](./mission-days).
 
 The flags show the country. The Role shows a primary or satellite site. A dash means the source does not say. When signed in, you can mark a site you attended, and it is added to your timeline.
 
+A medal you saved in your custom medals is added to your timeline: on the last Anomaly of its series, or on the last day of the season for a tiered season medal.
+
 ## How medals were earned
 
 The note under each series gives its rule, from the official rules or season page of that series unless it says otherwise. This covers the main medal of each series. Several seasons from 2024 on also had a separate Operation or Global Campaign medal.
@@ -25,6 +27,7 @@ The note under each series gives its rule, from the official rules or season pag
 
 ## Gaps
 
+- **Initio:** there is a medal, but no source gives its dates, so it is not listed here and not added to the timeline.
 - **Incomplete site lists:** no list was found for Darsana, nor for the first day of Via Lux. Persepolis and the second day of Aegis Nova have no dates per site.
 - **2020–2021:** the Requiem Anomaly of 9 May 2020 was cancelled because of COVID-19. No in-person Anomaly from then until 2022 was found.
 - **Results after 2020:** scores and winners are not included, so those columns show a dash. Kureze Effect is the exception, with its winner.

@@ -12,7 +12,7 @@ la app (menú de la cuenta → **Ajustes → Visible para otros usuarios**) o en
 | **Foto de perfil** | Tu foto de perfil de Google junto a tu nombre de agente. |
 | **Estadísticas más recientes** | Las estadísticas de siempre de tu última subida, con medallas. |
 | **Historial de estadísticas** | Cada subida con su fecha y AP, y tu línea de tiempo con tus eventos. |
-| **Medallas especiales** | Tus medallas de anomalías, anuales y de eventos. |
+| **Medallas especiales** | Tus medallas de anomalías, anuales y de eventos, y en tu línea de tiempo las medallas de anomalías y eventos en el último día de su evento. |
 | **Banners** | Cuántos banners publicaste, tienes pendientes y completaste, con tus listas y el mapa. |
 
 Las partes sin marcar siguen privadas. Solo los usuarios con sesión iniciada ven las páginas de
