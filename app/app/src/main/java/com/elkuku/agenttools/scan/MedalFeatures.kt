@@ -43,9 +43,9 @@ class MedalFeatures internal constructor(
     }
 
     companion object {
-        /** A medal cut from a screenshot: everything but the black background. */
+        /** A medal cut from a screenshot: its hexagon, everything but the black background. */
         fun ofScreenshotCell(image: ArgbImage): MedalFeatures? =
-            of(image) { isMedalPixel(it) }
+            of(hexagon(image)) { isMedalPixel(it) }
 
         /** A reference image with transparency: blended on black, like the medals in Ingress. */
         fun ofReference(image: ArgbImage): MedalFeatures? {
@@ -111,6 +111,22 @@ class MedalFeatures internal constructor(
             return MedalFeatures(lightness, ab, histogram)
         }
     }
+}
+
+/**
+ * The pointy-top hexagon that fills [image], black around it: the rows of the honeycomb overlap,
+ * so the corners of a medal's cell hold its neighbours.
+ */
+internal fun hexagon(image: ArgbImage): ArgbImage {
+    val black = argb(0, 0, 0)
+    val centerX = (image.width - 1) / 2.0
+    val centerY = (image.height - 1) / 2.0
+    val out = IntArray(image.pixels.size) { i ->
+        val dx = abs(i % image.width - centerX) / (image.width / 2.0)
+        val dy = abs(i / image.width - centerY) / (image.height / 2.0)
+        if (dx + 2 * dy <= 2) image.pixels[i] else black
+    }
+    return ArgbImage(image.width, image.height, out)
 }
 
 /** Area-average downscaling (or nearest-neighbour upscaling) to [size]×[size]. */

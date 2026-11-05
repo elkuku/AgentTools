@@ -58,6 +58,19 @@ class MedalScannerTest {
     }
 
     @Test
+    fun neighboursInTheCornersOfACellAreLeftOut() {
+        val cell = cell(echoDesign)
+        val pixels = cell.pixels.copyOf()
+        for (y in 0 until cell.height) for (x in 0 until cell.width) {
+            val nearSide = minOf(x, cell.width - 1 - x) < 14
+            val nearEnd = minOf(y, cell.height - 1 - y) < 8
+            if (nearSide && nearEnd) pixels[y * cell.width + x] = gold
+        }
+
+        assertTrue(scanner.recognize(ArgbImage(cell.width, cell.height, pixels))!!.score > 0.9)
+    }
+
+    @Test
     fun scanFindsMedalsInAGridOnceInReferenceOrder() {
         val designs = listOf(orionGoldDesign, otherDesign, echoDesign, orionSilverDesign, echoDesign, otherDesign)
         val screenshot = honeycomb(designs)

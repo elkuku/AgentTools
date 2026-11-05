@@ -117,7 +117,8 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   `MedalChecker::$customMedals`; the anomaly seasons are stored under anomaly but shown in their own
   section, `CustomMedal.section`, as web's): screenshots of the Ingress medal grid shared with the app
   (`image/*`, one or several) are scanned on the device by `scan/MedalScanner.kt`.
-  `scan/MedalGrid.kt` finds the honeycomb grid and cuts out each medal; each one is compared with
+  `scan/MedalGrid.kt` finds the honeycomb grid and cuts out each medal (its hexagon: the corners
+  of a cell hold the neighbours); each one is compared with
   4e-website's images in `assets/custom_medals` (150 px **lossless** WebP — lossy compression
   makes the matching worse) by shape, colors and a color histogram. Matches below a score of 0.5
   are shown as unsure, below 0.4 or too close to the second best match they are left out. Medals
