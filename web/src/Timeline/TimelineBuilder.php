@@ -7,12 +7,13 @@ namespace App\Timeline;
 use App\Entity\AgentStat;
 use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
+use App\Medal\CustomMedalTier;
 use App\Medal\MedalChecker;
 use App\Medal\MedalLevel;
 
 /**
- * The timeline of stats uploads, custom events and the Bannergress banners done (with a day),
- * newest first. An upload shows what changed
+ * The timeline of stats uploads, custom events, the Bannergress banners done (with a day) and
+ * the medals of ended events, newest first. An upload shows what changed
  * since the one before it, as the app's import result (data/ImportResult.kt): AP, level, medal
  * upgrades and recursions. Events come before the uploads of the same day; a travel is its end
  * (before the uploads of its last day) and its start (after those of its first), the entries
@@ -25,13 +26,14 @@ final readonly class TimelineBuilder
     }
 
     /**
-     * @param list<AgentStat>     $stats   newest first
-     * @param list<TimelineEvent> $events
-     * @param list<DoneBanner>    $banners those with the day they were done
+     * @param list<AgentStat>       $stats   newest first
+     * @param list<TimelineEvent>   $events
+     * @param list<DoneBanner>      $banners those with the day they were done
+     * @param list<CustomMedalTier> $medals  of ended events (MedalChecker::endedEventMedals)
      *
      * @return list<TimelineEntry>
      */
-    public function build(array $stats, array $events, array $banners = []): array
+    public function build(array $stats, array $events, array $banners = [], array $medals = []): array
     {
         $entries = [];
         foreach ($stats as $index => $stat) {
@@ -47,6 +49,11 @@ final readonly class TimelineBuilder
                 // As events: before that day's uploads
                 $entries[] = new TimelineEntry($banner->doneAt->setTime(23, 59, 59), banner: $banner);
             }
+        }
+
+        foreach ($medals as $medal) {
+            // As events: before that day's uploads
+            $entries[] = new TimelineEntry(new \DateTimeImmutable((string) $medal->medal->endDate)->setTime(23, 59, 59), medal: $medal);
         }
 
         // usort is stable: uploads and events keep their order on the same date

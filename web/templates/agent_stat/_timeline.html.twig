@@ -65,7 +65,7 @@
                 <i class="{{ icon }}"></i> {{ ('timeline.filter.' ~ filter)|trans }}
             </label>
         {% endfor %}
-        {% for kind, icon in {event: 'bi-flag-fill', travel: 'bi-airplane-fill', banner: 'bi-grid-3x3-gap'}|filter((icon, kind) => kind != 'banner' or listed|filter(e => e.banner)|length > 0) %}
+        {% for kind, icon in {event: 'bi-flag-fill', travel: 'bi-airplane-fill', banner: 'bi-grid-3x3-gap', medal: 'bi-award-fill'}|filter((icon, kind) => kind not in ['banner', 'medal'] or listed|filter(e => e.kind == kind)|length > 0) %}
             <input type="checkbox" class="btn-check" id="timeline-filter-{{ kind }}" value="{{ kind }}" checked autocomplete="off"
                    data-timeline-filter-target="kind" data-action="timeline-filter#apply">
             <label class="btn btn-sm btn-outline-secondary" for="timeline-filter-{{ kind }}">
@@ -83,7 +83,17 @@
             <li class="timeline-year{{ entry.inTravel or entry.travelEdge == 'start' ? ' timeline-in-travel' }}"
                 data-timeline-filter-target="year" data-year="{{ year }}"><span class="timeline-year-label">{{ year }}</span></li>
         {% endif %}
-        {% if entry.banner %}
+        {% if entry.medal %}
+            <li class="timeline-entry timeline-medal{{ entry.inTravel ? ' timeline-in-travel' }}" id="timeline-medal-{{ entry.medal.medal.group }}-{{ entry.medal.medal.key }}"
+                data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-from="{{ entry.days[0] }}" data-to="{{ entry.days[1] }}">
+                <div class="timeline-date small text-body-secondary">{{ entry.date|format_date('medium') }}</div>
+                <div class="d-flex align-items-center gap-2">
+                    <img class="timeline-badge" src="{{ asset(entry.medal.image) }}" alt="{{ entry.medal.label }}"
+                         data-tooltip="{{ entry.medal.label }}" width="40" height="40" loading="lazy">
+                    <span>{{ entry.medal.label }}</span>
+                </div>
+            </li>
+        {% elseif entry.banner %}
             {% set banner = entry.banner %}
             <li class="timeline-entry timeline-banner{{ entry.inTravel ? ' timeline-in-travel' }}" id="timeline-banner-{{ banner.id }}"
                 data-timeline-filter-target="entry" data-kind="{{ entry.kind }}" data-from="{{ entry.days[0] }}" data-to="{{ entry.days[1] }}">

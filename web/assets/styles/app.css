@@ -510,6 +510,11 @@ a.event-day:hover {
 }
 
 /* A banner done opens to its picture */
+.timeline-medal::before {
+    background: var(--timeline-event);
+    border-color: var(--timeline-event);
+}
+
 .timeline-banner-details > summary {
     cursor: pointer;
 }

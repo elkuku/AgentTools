@@ -19,6 +19,8 @@ final readonly class CustomMedal
         public string $key,
         public string $title,
         public array $tiers = [],
+        /** An event's last day (Y-m-d), as docs/events/; null without a known one. */
+        public ?string $endDate = null,
     ) {
     }
 

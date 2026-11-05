@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * The XM Anomalies and Mission Days of past years from docs/events/, for everyone.
+ * The XM Anomalies, Mission Days and operations of past years from docs/events/, for everyone.
  */
-#[Route('/history/{slug}', name: 'app_history', requirements: ['slug' => 'anomalies|mission-days'], defaults: ['slug' => 'anomalies'], methods: ['GET'])]
+#[Route('/history/{slug}', name: 'app_history', requirements: ['slug' => 'anomalies|mission-days|operations'], defaults: ['slug' => 'anomalies'], methods: ['GET'])]
 final class Index extends BaseController
 {
     public function __invoke(string $slug, HistoryLoader $loader, TimelineEventRepository $events): Response

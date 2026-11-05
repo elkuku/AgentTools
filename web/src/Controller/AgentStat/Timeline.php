@@ -8,6 +8,7 @@ use App\Controller\BaseController;
 use App\Entity\TimelineEvent;
 use App\Enum\UserRole;
 use App\Form\TimelineEventType;
+use App\Medal\MedalChecker;
 use App\Repository\AgentStatRepository;
 use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
@@ -38,6 +39,7 @@ final class Timeline extends BaseController
         AgentStatRepository $agentStatRepository,
         TimelineEventRepository $timelineEventRepository,
         TimelineBuilder $timelineBuilder,
+        MedalChecker $medalChecker,
         DoneBannerRepository $doneBannerRepository,
         EntityManagerInterface $entityManager,
         StatsComparer $statsComparer,
@@ -88,7 +90,12 @@ final class Timeline extends BaseController
         }
 
         return $this->render('agent_stat/timeline.html.twig', [
-            'timeline' => $timelineBuilder->build($agentStats, $events, $doneBannerRepository->findDatedByOwner($this->getUser())),
+            'timeline' => $timelineBuilder->build(
+                $agentStats,
+                $events,
+                $doneBannerRepository->findDatedByOwner($this->getUser()),
+                $medalChecker->endedEventMedals($this->getUser()->getCustomMedals(), new \DateTimeImmutable()),
+            ),
             'chart' => $timelineChart,
             'eventForm' => $form,
             'uploadDays' => ComparisonChoice::uploadDays($agentStats),

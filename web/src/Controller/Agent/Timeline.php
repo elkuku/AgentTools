@@ -8,6 +8,7 @@ use App\Controller\BaseController;
 use App\Entity\User;
 use App\Enum\ProfilePart;
 use App\Enum\UserRole;
+use App\Medal\MedalChecker;
 use App\Repository\AgentStatRepository;
 use App\Repository\DoneBannerRepository;
 use App\Repository\TimelineEventRepository;
@@ -38,6 +39,7 @@ final class Timeline extends BaseController
         AgentStatRepository $agentStatRepository,
         TimelineEventRepository $timelineEventRepository,
         TimelineBuilder $timelineBuilder,
+        MedalChecker $medalChecker,
         DoneBannerRepository $doneBannerRepository,
         #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => TimelineChart::DAY])]
         ?string $from = null,
@@ -62,9 +64,14 @@ final class Timeline extends BaseController
         // Banners only with the Bannergress part
         $banners = $agent->isVisible(ProfilePart::BANNERGRESS) ? $doneBannerRepository->findDatedByOwner($agent) : [];
 
+        // Event medals only with the custom medals part
+        $medals = $agent->isVisible(ProfilePart::CUSTOM_MEDALS)
+            ? $medalChecker->endedEventMedals($agent->getCustomMedals(), new \DateTimeImmutable())
+            : [];
+
         return $this->render('agent/timeline.html.twig', [
             'agent' => $agent,
-            'timeline' => $timelineBuilder->build($stats, $events, $banners),
+            'timeline' => $timelineBuilder->build($stats, $events, $banners, $medals),
             'chart' => $timelineChart,
             'uploadDays' => ComparisonChoice::uploadDays($stats),
         ]);

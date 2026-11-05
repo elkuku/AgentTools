@@ -233,6 +233,7 @@ timeline:
         upload: Uploads
         event: Events
         banner: Banners
+        medal: Event medals
         travel: Travels
         from: From
         to: To
@@ -325,9 +326,10 @@ history:
     attend_sign_in: Sign in to mark the events you attended.
     attended: Attended
     title: History
-    intro: 'XM Anomalies and Mission Days of past years, with their medals and countries. The documents are in English.'
+    intro: 'XM Anomalies, Mission Days and operations of past years, with their medals and countries. The documents are in English.'
     anomalies: XM Anomalies
     mission-days: Mission Days
+    operations: Operations
     years: Years
     empty: Nothing here yet.
 

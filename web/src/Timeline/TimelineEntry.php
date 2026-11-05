@@ -7,11 +7,12 @@ namespace App\Timeline;
 use App\Entity\AgentStat;
 use App\Entity\DoneBanner;
 use App\Entity\TimelineEvent;
+use App\Medal\CustomMedalTier;
 use App\Medal\MedalLevel;
 
 /**
  * One entry of the timeline: a stats upload with what changed since the one before it, a
- * custom event or a Bannergress banner done. A travel (an event with an end date) is two entries,
+ * custom event, a Bannergress banner done or the medal of an event on its last day. A travel (an event with an end date) is two entries,
  * its end and its start (travelEdge); the entries between are in it (inTravel), with a line beside
  * the timeline. Travels cannot overlap.
  */
@@ -24,6 +25,8 @@ final readonly class TimelineEntry
     public const string TRAVEL = 'travel';
 
     public const string BANNER = 'banner';
+
+    public const string MEDAL = 'medal';
 
     public const string TRAVEL_START = 'start';
 
@@ -50,14 +53,17 @@ final readonly class TimelineEntry
         public ?string $travelEdge = null,
         /** Between the end and the start of a travel. */
         public bool $inTravel = false,
+        /** A custom medal of an event that ended that day. */
+        public ?CustomMedalTier $medal = null,
     ) {
     }
 
-    /** UPLOAD, EVENT, TRAVEL (an event with an end date) or BANNER: the timeline's filter. */
+    /** UPLOAD, EVENT, TRAVEL (an event with an end date), BANNER or MEDAL: the timeline's filter. */
     public function kind(): string
     {
         return match (true) {
             $this->banner instanceof DoneBanner => self::BANNER,
+            $this->medal instanceof CustomMedalTier => self::MEDAL,
             !$this->event instanceof TimelineEvent => self::UPLOAD,
             $this->event->endDate instanceof \DateTimeImmutable => self::TRAVEL,
             default => self::EVENT,
@@ -96,7 +102,7 @@ final readonly class TimelineEntry
     /** The other entries in a travel (inTravel) with a new one: the timeline's travel line. */
     public function withInTravel(): self
     {
-        return new self($this->date, $this->stat, $this->event, $this->banner, $this->first, $this->apGain, $this->newLevel, $this->medalUps, $this->recursions, $this->travelEdge, true);
+        return new self($this->date, $this->stat, $this->event, $this->banner, $this->first, $this->apGain, $this->newLevel, $this->medalUps, $this->recursions, $this->travelEdge, true, $this->medal);
     }
 
     /** The first upload or a recursion: an upload the list always has (the app's `isMilestone`). */

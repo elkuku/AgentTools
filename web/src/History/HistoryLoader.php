@@ -14,7 +14,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 final readonly class HistoryLoader
 {
     /** The documents, as their file names, in the order of the page's tabs. */
-    public const array SLUGS = ['anomalies', 'mission-days'];
+    public const array SLUGS = ['anomalies', 'mission-days', 'operations'];
 
     public function __construct(
         private HistoryParser $parser,

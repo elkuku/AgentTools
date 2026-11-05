@@ -268,6 +268,25 @@ class AgentControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('#timeline-entries', 'Oct 21, 2026');
     }
 
+    public function testEventMedalsOnlyWithTheCustomMedalsPart(): void
+    {
+        $agent = $this->user('agent');
+        $agent->setCustomMedals(['event' => ['orion' => 'gold'], 'anomaly' => ['orion_onsite' => '']]);
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY]);
+        $this->createAgentStat($agent, '2026-05-10 15:35:56', 15);
+
+        $this->client->loginUser($this->user('admin'));
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent/timeline');
+        self::assertSelectorNotExists('#timeline-medal-event-orion');
+        self::assertSelectorNotExists('#timeline-medal-anomaly-orion_onsite');
+
+        $this->show('agent', [ProfilePart::AGENT, ProfilePart::STATS_HISTORY, ProfilePart::CUSTOM_MEDALS]);
+        $this->client->request(Request::METHOD_GET, '/agents/TestAgent/timeline');
+        self::assertSelectorTextContains('#timeline-medal-event-orion', 'Orion: Global Op (Gold)');
+        self::assertSelectorTextContains('#timeline-medal-anomaly-orion_onsite', 'Orion (On-site)');
+        self::assertSelectorExists('#timeline-filter-medal');
+    }
+
     public function testTheTimelineHasALabelPerYear(): void
     {
         $agent = $this->user('agent');
