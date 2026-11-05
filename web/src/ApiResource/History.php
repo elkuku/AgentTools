@@ -16,11 +16,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * website's /history page shows the same.
  */
 #[ApiResource(
-    description: 'A history document, anomalies, mission-days or operations, from docs/events/ in the repository: its title and blocks (heading, paragraph, list, table) of text with bold, links and medals. Public, no sign-in needed.',
+    description: 'A history document, anomalies, mission-days, operations or ingress-years, from docs/events/ in the repository: its title and blocks (heading, paragraph, list, table) of text with bold, links and medals. Public, no sign-in needed.',
     operations: [
         new Get(
             uriTemplate: '/history/{slug}',
-            requirements: ['slug' => 'anomalies|mission-days|operations'],
+            requirements: ['slug' => 'anomalies|mission-days|operations|ingress-years'],
             cacheHeaders: ['max_age' => 3600, 'public' => true],
             provider: HistoryProvider::class,
         ),

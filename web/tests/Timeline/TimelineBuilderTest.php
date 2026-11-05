@@ -67,23 +67,24 @@ class TimelineBuilderTest extends TestCase
             [
                 'event' => ['orion' => 'gold', 'cygnus' => 'bronze', 'paragon' => ''],
                 'anomaly' => ['orion' => 'platinum', 'orion_onsite' => '', 'initio' => ''],
-                'annual' => ['voyager' => 5],
+                'annual' => ['voyager' => 5, 'vector' => 3],
             ],
             new \DateTimeImmutable('2026-10-27'),
         );
 
-        // Cygnus ends on 28 Oct, the Tessellation and Initio have no end date, annual medals are no event
+        // Cygnus and Vector have not ended, the Tessellation and Initio have no end date
         self::assertSame(
-            ['Orion (Platinum)', 'Orion (On-site)', 'Orion: Global Op (Gold)'],
+            ['Orion (Platinum)', 'Orion (On-site)', 'Voyager (Onyx)', 'Orion: Global Op (Gold)'],
             \array_map(static fn ($tier): string => $tier->label(), $medals),
         );
 
         $timeline = new TimelineBuilder($checker)->build([$this->stat('2026-05-11 10:00:00', ap: 1000, level: 7)], [], [], $medals);
 
-        self::assertSame(['medal', 'medal', 'medal', 'upload'], \array_map(static fn ($entry): string => $entry->kind(), $timeline));
+        self::assertSame(['medal', 'medal', 'medal', 'upload', 'medal'], \array_map(static fn ($entry): string => $entry->kind(), $timeline));
         self::assertSame(['2026-06-30', '2026-06-30'], $timeline[0]->days());
         self::assertSame(['2026-06-20', '2026-06-20'], $timeline[1]->days());
         self::assertSame(['2026-05-11', '2026-05-11'], $timeline[2]->days());
+        self::assertSame(['2025-11-24', '2025-11-24'], $timeline[4]->days());
         self::assertTrue($timeline[0]->isListed());
     }
 

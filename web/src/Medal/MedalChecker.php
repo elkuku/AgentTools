@@ -124,24 +124,25 @@ final class MedalChecker
             new CustomMedal('anomaly', 'initio', 'Initio'),
             new CustomMedal('anomaly', 'interitus', 'Interitus', endDate: '2014-06-21'),
             new CustomMedal('anomaly', 'recursion', 'Recursion', endDate: '2014-03-29'),
-            new CustomMedal('annual', 'vector', 'Vector', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'voyager', 'Voyager', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'catalyst', 'Catalyst', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'paragon', 'Paragon', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'pathfinder', 'Pathfinder', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'persistence', 'Persistence', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'resonance', 'Resonance', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'resurgence', 'Resurgence', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'ouroboros', 'Ouroboros', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'sage', 'Sage', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'luminary', 'Luminary', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'vanguard', 'Vanguard', ['bronze', 'silver', 'gold', 'platinum', 'black']),
-            new CustomMedal('annual', 'innovator', 'Innovator', ['bronze', 'silver', 'gold', 'platinum', 'black']),
+            new CustomMedal('annual', 'vector', 'Vector', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2026-11-15'),
+            new CustomMedal('annual', 'voyager', 'Voyager', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2025-11-24'),
+            new CustomMedal('annual', 'catalyst', 'Catalyst', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2024-11-18'),
+            new CustomMedal('annual', 'paragon', 'Paragon', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2023-11-20'),
+            new CustomMedal('annual', 'pathfinder', 'Pathfinder', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2022-11-21'),
+            new CustomMedal('annual', 'persistence', 'Persistence', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2021-11-15'),
+            new CustomMedal('annual', 'resonance', 'Resonance', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2020-11-15'),
+            new CustomMedal('annual', 'resurgence', 'Resurgence', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2019-11-15'),
+            new CustomMedal('annual', 'ouroboros', 'Ouroboros', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2018-11-15'),
+            new CustomMedal('annual', 'sage', 'Sage', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2017-11-15'),
+            new CustomMedal('annual', 'luminary', 'Luminary', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2016-11-15'),
+            new CustomMedal('annual', 'vanguard', 'Vanguard', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2015-11-15'),
+            new CustomMedal('annual', 'innovator', 'Innovator', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2014-11-15'),
             new CustomMedal('event', 'cygnus', 'Cygnus: Global Battles', ['bronze', 'silver', 'gold'], endDate: '2026-10-28'),
             new CustomMedal('event', 'apollo', 'Apollo: Global Op', ['bronze', 'silver', 'gold'], endDate: '2026-09-16'),
             new CustomMedal('event', '2026_summer_solstice', 'Summer Solstice 2026', ['bronze', 'silver'], endDate: '2026-06-29'),
             new CustomMedal('event', 'orion', 'Orion: Global Op', ['bronze', 'silver', 'gold'], endDate: '2026-05-11'),
             new CustomMedal('event', 'plus_gamma', '+Gamma: Global Op', ['bronze', 'silver', 'gold'], endDate: '2026-02-23'),
+            new CustomMedal('event', 'polaris', 'Operation Polaris', ['bronze', 'silver', 'gold'], endDate: '2026-02-05'),
             new CustomMedal('event', '2025_winter_solstice', 'Winter Solstice 2025 Dispatch Challenge', ['bronze', 'silver'], endDate: '2025-12-22'),
             new CustomMedal('event', 'spider_web_2025', 'Spyder Web 2025', endDate: '2025-11-17'),
             new CustomMedal('event', 'plus_alpha', '+Alpha: Global Op', ['bronze', 'silver'], endDate: '2025-02-02'),
@@ -159,9 +160,11 @@ final class MedalChecker
             new CustomMedal('event', 'kinetic_challenge', 'Optima Kinetic Capsule Challenge', ['bronze', 'silver', 'gold'], endDate: '2021-09-27'),
             new CustomMedal('event', 'knight_tessellation', 'Knight of Tessellation', ['silver', 'gold']),
             new CustomMedal('event', 'paragon', 'Tessellation Paragon'),
+            new CustomMedal('event', 'perpetua', 'Nemesis: Perpetua', ['standard', 'elite'], endDate: '2020-02-29'),
             new CustomMedal('event', 'didact_field', 'Didact Field Challenge', ['bronze', 'silver', 'gold'], endDate: '2020-02-24'),
             new CustomMedal('event', 'umbra_deploy', 'Umbra Deploy Challenge', ['bronze', 'silver', 'gold'], endDate: '2019-12-30'),
             new CustomMedal('event', 'avenir_shard_challenge', 'Avenir Shard Challenge', endDate: '2019-09-30'),
+            new CustomMedal('event', 'field_test_hexathlon', 'Field Test: Hexathlon', ['standard', 'elite'], endDate: '2019-09-14'),
             new CustomMedal('event', 'aurora_glyph', 'Aurora Glyph Challenge', ['bronze', 'silver', 'gold'], endDate: '2019-08-26'),
             new CustomMedal('event', 'myriad_hack', 'Myriad Hack Challenge', ['bronze', 'silver', 'gold'], endDate: '2019-07-22'),
             new CustomMedal('event', 'dark_xm', 'Dark XM', ['bronze', 'silver', 'gold'], endDate: '2019-04-30'),
@@ -247,8 +250,8 @@ final class MedalChecker
     }
 
     /**
-     * The stored medals of events (anomalies and operations) that have ended by [$today], for
-     * the timeline: only those with an end date.
+     * The stored medals of events (anomalies, operations and Ingress years) that have ended by
+     * [$today], for the timeline: only those with an end date.
      *
      * @param array<string, array<string, int|string>> $stored
      *

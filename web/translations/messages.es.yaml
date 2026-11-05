@@ -325,10 +325,11 @@ history:
     attend_sign_in: Inicia sesión para marcar los eventos a los que asististe.
     attended: Asistí
     title: Historia
-    intro: 'Anomalías XM, Mission Days y operaciones de años pasados, con sus medallas y países. Los documentos están en inglés.'
+    intro: 'Anomalías XM, Mission Days, operaciones y años de Ingress, con sus medallas y países. Los documentos están en inglés.'
     anomalies: Anomalías XM
     mission-days: Mission Days
     operations: Operaciones
+    ingress-years: Años de Ingress
     years: Años
     empty: Todavía no hay nada.
 

@@ -39,12 +39,12 @@ class HistoryFileTest extends TestCase
 
     public function testTheOperationsHaveTheEndDatesOfTheEventMedals(): void
     {
-        $listed = $this->listedEndDates();
-        $expected = $this->eventMedalEndDates();
+        $this->assertEndDates('operations', 'event');
+    }
 
-        \ksort($listed);
-        \ksort($expected);
-        self::assertSame($expected, $listed);
+    public function testTheIngressYearsHaveTheEndDatesOfTheAnnualMedals(): void
+    {
+        $this->assertEndDates('ingress-years', 'annual');
     }
 
     public function testTheAnomalyMedalsEndInTheLastMonthOfTheirSeries(): void
@@ -86,12 +86,22 @@ class HistoryFileTest extends TestCase
         return $dates;
     }
 
-    /**
-     * @return array<string, string> the End column by operation
-     */
-    private function listedEndDates(): array
+    private function assertEndDates(string $slug, string $group): void
     {
-        $document = new HistoryParser()->parse((string) \file_get_contents(__DIR__.'/../../../docs/events/operations.md'));
+        $listed = $this->listedEndDates($slug);
+        $expected = $this->medalEndDates($group);
+
+        \ksort($listed);
+        \ksort($expected);
+        self::assertSame($expected, $listed);
+    }
+
+    /**
+     * @return array<string, string> the End column by the title beside the medal
+     */
+    private function listedEndDates(string $slug): array
+    {
+        $document = new HistoryParser()->parse((string) \file_get_contents(__DIR__.'/../../../docs/events/'.$slug.'.md'));
         $tables = \array_filter(
             $document->blocks,
             static fn (HistoryBlock $block): bool => HistoryBlock::TABLE === $block->type && 'Medal' === ($block->headers[0][0]->text ?? null),
@@ -110,11 +120,11 @@ class HistoryFileTest extends TestCase
     /**
      * @return array<string, string> the end date as in the document by medal title
      */
-    private function eventMedalEndDates(): array
+    private function medalEndDates(string $group): array
     {
         $expected = [];
         foreach (new MedalChecker()->customMedals() as $medal) {
-            if ('event' === $medal->group) {
+            if ($group === $medal->group) {
                 $expected[$medal->title] = null === $medal->endDate ? '–' : new \DateTimeImmutable($medal->endDate)->format('j M Y');
             }
         }
