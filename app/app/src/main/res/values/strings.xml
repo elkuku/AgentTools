@@ -273,6 +273,7 @@
     <string name="bannergress_timeline_done">Banner done: %1$s</string>
     <string name="bannergress_open">Open on Bannergress</string>
     <string name="timeline_filter_banners">Banners</string>
+    <string name="timeline_filter_event_medals">Event medals</string>
     <string name="banners">Banners</string>
     <string name="bannergress_published_none">No banners published.</string>
     <string name="bannergress_todo_none">No banners on the to-do list.</string>
@@ -310,6 +311,7 @@
     <string name="history_intro">XM Anomalies and Mission Days of past years, with their medals and countries. The documents are in English.</string>
     <string name="history_anomalies">XM Anomalies</string>
     <string name="history_mission_days">Mission Days</string>
+    <string name="history_operations">Operations</string>
     <string name="history_attend_hint">Mark the events you attended: they are added to your timeline.</string>
     <string name="history_attend_sign_in">Sign in to mark the events you attended.</string>
     <string name="history_attended_label">Attended: %1$s</string>

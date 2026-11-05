@@ -55,6 +55,9 @@ sealed interface TimelineItem {
 
     /** A Bannergress banner done that day. */
     data class Banner(val banner: DoneBanner) : TimelineItem
+
+    /** A custom medal of an event that ended that day. */
+    data class Medal(val medal: CustomMedalTier) : TimelineItem
 }
 
 /** The first upload or a recursion: an upload the list always has. */
@@ -62,12 +65,18 @@ val ImportResult.isMilestone: Boolean
     get() = isFirstImport || recursions != null
 
 /**
- * The stats uploads ([entries], any order), the custom [events] and the [banners] done with a
- * day, newest first, as web's `TimelineBuilder`: events and banners come before the uploads of
- * their day. A travel is its end (before the uploads of its last day) and its start (after those
+ * The stats uploads ([entries], any order), the custom [events], the [banners] done with a day
+ * and the [medals] of events ended by [today], newest first, as web's `TimelineBuilder`:
+ * events, banners and medals come before the uploads of their day. A travel is its end (before the uploads of its last day) and its start (after those
  * of its first); travels cannot overlap.
  */
-fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>, banners: List<DoneBanner> = emptyList()): List<TimelineItem> {
+fun timeline(
+    entries: List<AgentStatEntry>,
+    events: List<TimelineEvent>,
+    banners: List<DoneBanner> = emptyList(),
+    medals: List<CustomMedalTier> = emptyList(),
+    today: LocalDate = LocalDate.now(),
+): List<TimelineItem> {
     val uploads = entries.sortedByDescending { it.datetime }
     val items = uploads.mapIndexed { index, entry ->
         entry.datetime to TimelineItem.Upload(computeImportResult(entry, uploads.getOrNull(index + 1)))
@@ -76,20 +85,24 @@ fun timeline(entries: List<AgentStatEntry>, events: List<TimelineEvent>, banners
             listOf("$end 23:59:59" to TimelineItem.Event(event, TravelEdge.END), "${event.date} 00:00:00" to TimelineItem.Event(event, TravelEdge.START))
         } ?: listOf("${event.date} 23:59:59" to TimelineItem.Event(event))
     } +
-        banners.mapNotNull { banner -> banner.doneAt?.let { "$it 23:59:59" to TimelineItem.Banner(banner) } }
+        banners.mapNotNull { banner -> banner.doneAt?.let { "$it 23:59:59" to TimelineItem.Banner(banner) } } +
+        medals.mapNotNull { medal ->
+            medal.medal.endDate?.takeIf { it <= today.toString() }?.let { "$it 23:59:59" to TimelineItem.Medal(medal) }
+        }
 
     // sortedByDescending is stable: uploads and events keep their order on the same date
     return items.sortedByDescending { it.first }.map { it.second }
 }
 
 /** What an entry is, for the timeline's filter (as web's `TimelineEntry::kind()`). */
-enum class TimelineKind { UPLOAD, EVENT, TRAVEL, BANNER }
+enum class TimelineKind { UPLOAD, EVENT, TRAVEL, BANNER, MEDAL }
 
 val TimelineItem.kind: TimelineKind
     get() = when (this) {
         is TimelineItem.Upload -> TimelineKind.UPLOAD
         is TimelineItem.Event -> if (event.isTravel) TimelineKind.TRAVEL else TimelineKind.EVENT
         is TimelineItem.Banner -> TimelineKind.BANNER
+        is TimelineItem.Medal -> TimelineKind.MEDAL
     }
 
 /** The day of an entry: of a travel's end its end date. */
@@ -98,6 +111,7 @@ val TimelineItem.day: LocalDate
         is TimelineItem.Upload -> LocalDate.parse(result.entry.datetime.take(10))
         is TimelineItem.Event -> LocalDate.parse(if (edge == TravelEdge.END) event.endDate else event.date)
         is TimelineItem.Banner -> LocalDate.parse(banner.doneAt.orEmpty())
+        is TimelineItem.Medal -> LocalDate.parse(medal.medal.endDate.orEmpty())
     }
 
 /** The days an entry covers, for the filter: its [day]. */

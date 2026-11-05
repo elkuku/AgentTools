@@ -57,6 +57,7 @@ fun TimelineScreen(
                     state.timelineEvents.orEmpty(),
                     onEditEvent = { event -> editing = event },
                     banners = state.doneBanners.orEmpty(),
+                    medals = state.customMedals.orEmpty(),
                     onAddEvent = { editing = TimelineEvent(date = "", text = "") },
                     onOpenBanners = onOpenBannergress,
                     title = false,
@@ -111,7 +112,7 @@ fun AgentTimelineScreen(
     ) { padding ->
         RefreshableColumn(state, onRefresh, Modifier.padding(padding)) {
             agent.history?.let { history ->
-                Timeline(history, agent.events.orEmpty(), banners = agent.doneBanners.orEmpty(), title = false)
+                Timeline(history, agent.events.orEmpty(), banners = agent.doneBanners.orEmpty(), medals = agent.customMedals.orEmpty(), title = false)
             }
         }
     }

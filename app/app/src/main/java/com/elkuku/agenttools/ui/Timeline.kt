@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.elkuku.agenttools.R
 import com.elkuku.agenttools.data.AgentStatEntry
+import com.elkuku.agenttools.data.CustomMedalTier
 import com.elkuku.agenttools.data.DoneBanner
 import com.elkuku.agenttools.data.LEVEL_NAMES
 import com.elkuku.agenttools.data.TimelineEvent
@@ -112,7 +113,8 @@ fun TimelineSummary(entries: List<AgentStatEntry>, events: List<TimelineEvent>, 
 }
 
 /**
- * The stats uploads with what changed, the custom [events] and the Bannergress [banners] done
+ * The stats uploads with what changed, the custom [events], the [medals] of ended events and
+ * the Bannergress [banners] done
  * with a day, newest first, as web's timeline. With [onEditEvent] (the own timeline) an event
  * opens for editing, [onAddEvent] adds one, [onOpenBanners] opens the Bannergress screen.
  * Without [title] (on its own screen, which has it) only the add button. Below the chart, as
@@ -125,6 +127,7 @@ fun Timeline(
     entries: List<AgentStatEntry>,
     events: List<TimelineEvent>,
     banners: List<DoneBanner> = emptyList(),
+    medals: List<CustomMedalTier> = emptyList(),
     onEditEvent: ((TimelineEvent) -> Unit)? = null,
     onAddEvent: (() -> Unit)? = null,
     onOpenBanners: (() -> Unit)? = null,
@@ -176,7 +179,7 @@ fun Timeline(
         return
     }
 
-    val items = remember(entries, events, banners) { timeline(entries, events, banners) }
+    val items = remember(entries, events, banners, medals) { timeline(entries, events, banners, medals) }
     if (items.isEmpty()) {
         Text(stringResource(R.string.no_stats), color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
@@ -186,6 +189,7 @@ fun Timeline(
     var singleEvents by rememberSaveable { mutableStateOf(true) }
     var travels by rememberSaveable { mutableStateOf(true) }
     var bannersShown by rememberSaveable { mutableStateOf(true) }
+    var eventMedalsShown by rememberSaveable { mutableStateOf(true) }
     var medals by rememberSaveable { mutableStateOf(true) }
     var newLevels by rememberSaveable { mutableStateOf(true) }
     TimelineFilters(
@@ -195,12 +199,14 @@ fun Timeline(
         travels = travels to { travels = it },
         // Only for those who have them
         banners = (bannersShown to { shown: Boolean -> bannersShown = shown }).takeIf { items.any { it is TimelineItem.Banner } },
+        eventMedals = (eventMedalsShown to { shown: Boolean -> eventMedalsShown = shown }).takeIf { items.any { it is TimelineItem.Medal } },
     )
 
     val kinds = buildSet {
         if (singleEvents) add(TimelineKind.EVENT)
         if (travels) add(TimelineKind.TRAVEL)
         if (bannersShown) add(TimelineKind.BANNER)
+        if (eventMedalsShown) add(TimelineKind.MEDAL)
     }
     val shown = items.filtered(kinds, range, medals, newLevels)
     if (shown.isEmpty()) {
@@ -247,6 +253,9 @@ fun Timeline(
                         },
                     ) { BannerItem(item.banner, open, onOpenBanners) }
                 }
+                is TimelineItem.Medal -> TimelineRow(dot = colors.event, last = index == shown.lastIndex, travelLine = travelLine) {
+                    MedalItem(item.medal)
+                }
             }
         }
     }
@@ -260,6 +269,7 @@ private fun TimelineFilters(
     events: Pair<Boolean, (Boolean) -> Unit>,
     travels: Pair<Boolean, (Boolean) -> Unit>,
     banners: Pair<Boolean, (Boolean) -> Unit>?,
+    eventMedals: Pair<Boolean, (Boolean) -> Unit>?,
 ) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
@@ -269,6 +279,7 @@ private fun TimelineFilters(
             Triple(R.string.timeline_filter_events, R.drawable.ic_bi_flag_fill, events),
             Triple(R.string.timeline_filter_travels, R.drawable.ic_bi_airplane_fill, travels),
             banners?.let { Triple(R.string.timeline_filter_banners, R.drawable.ic_bi_grid_3x3_gap, it) },
+            eventMedals?.let { Triple(R.string.timeline_filter_event_medals, R.drawable.ic_bi_award, it) },
         ).filterNotNull().forEach { (label, icon, state) ->
             val (selected, onChange) = state
             FilterChip(
@@ -547,6 +558,18 @@ private fun EventItem(event: TimelineEvent, edge: TravelEdge?) {
             modifier = Modifier.padding(top = 3.dp).size(16.dp),
         )
         Text(event.text)
+    }
+}
+
+/** The medal of an event that ended on its day, as earned. */
+@Composable
+private fun MedalItem(medal: CustomMedalTier) {
+    Column {
+        Text(localDate(medal.medal.endDate.orEmpty()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AssetMedal(medal.imageName, medal.label, size = 40.dp)
+            Text(medal.label)
+        }
     }
 }
 

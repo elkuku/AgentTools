@@ -188,7 +188,11 @@ fun HistoryScreen(
     }
 }
 
-private fun tabLabel(slug: String): Int = if (slug == "anomalies") R.string.history_anomalies else R.string.history_mission_days
+private fun tabLabel(slug: String): Int = when (slug) {
+    "anomalies" -> R.string.history_anomalies
+    "operations" -> R.string.history_operations
+    else -> R.string.history_mission_days
+}
 
 @Composable
 private fun Block(block: HistoryBlock, attended: Set<String>?, saving: Boolean, today: String, onToggle: (HistoryAttendance) -> Unit) {

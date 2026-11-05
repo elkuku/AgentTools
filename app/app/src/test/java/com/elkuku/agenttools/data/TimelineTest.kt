@@ -76,6 +76,26 @@ class TimelineTest {
     }
 
     @Test
+    fun theMedalOfAnEventIsOnItsLastDayOnceItEnded() {
+        val upload = entry(1, "2026-05-11 10:00:00", ap = 1000, level = 7)
+        val orion = CustomMedalTier(customMedal("event", "orion")!!, "gold")
+        val cygnus = CustomMedalTier(customMedal("event", "cygnus")!!, "bronze")
+        val paragon = CustomMedalTier(customMedal("event", "paragon")!!, "")
+
+        val onsite = CustomMedalTier(customMedal("anomaly", "orion_onsite")!!, "")
+        val initio = CustomMedalTier(customMedal("anomaly", "initio")!!, "")
+
+        val items = timeline(listOf(upload), emptyList(), medals = listOf(orion, cygnus, paragon, onsite, initio), today = LocalDate.parse("2026-10-27"))
+
+        // Before the uploads of its day; Cygnus ends on 28 Oct, the Tessellation and Initio have no end date
+        assertEquals(listOf(TimelineKind.MEDAL, TimelineKind.MEDAL, TimelineKind.UPLOAD), items.map { it.kind })
+        assertEquals(TimelineItem.Medal(onsite), items[0])
+        assertEquals(TimelineItem.Medal(orion), items[1])
+        assertEquals(LocalDate.parse("2026-06-20"), items[0].day)
+        assertEquals(listOf(TimelineKind.UPLOAD), items.filtered(setOf(TimelineKind.UPLOAD), null).map { it.kind })
+    }
+
+    @Test
     fun filtersByKindAndDays() {
         val upload = entry(1, "2024-05-01 10:00:00", ap = 1000, level = 7)
         val anomaly = TimelineEvent(5, "2026-03-01", "Anomaly")
