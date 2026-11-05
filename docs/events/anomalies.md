@@ -10,20 +10,29 @@ See also: [Mission Days](./mission-days).
 |---|---|---|
 | 2022–2026 | Schedules and season pages on [ingress.com/news](https://ingress.com/news) | Official |
 | 2018–2019 | [GameGnome list of announced events](https://gamegnome.com/news/ingress-real-world-global-event-locations-and-dates-for-2018-and-2019/) | Announced dates, not checked against what happened. Series names matched by date |
+| 2015–2022 | [Global Resonator](https://globalresonator.com/tag/anomaly/), the Fevgames reports on a new site | Community reports. Used for Persepolis, the 2016 series, Darsana Prime, the 2019 Nemesis series and Kureze Effect. Countries mostly filled in from the city names |
 | 2013–2017 | [Ingress Wiki](https://ingress.wiki.gg/wiki/Anomaly) for sites, [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/anomaly/) for dates and scores | Community records |
 
 The flags show the country. The Role shows a primary or satellite site. A dash means the source does not say. When signed in, you can mark a site you attended, and it is added to your timeline.
 
+## How medals were earned
+
+The note under each series gives its rule, from the official rules or season page of that series unless it says otherwise. This covers the main medal of each series. Several seasons from 2024 on also had a separate Operation or Global Campaign medal.
+
+- **2014–2019, except Umbra:** Agents registered in advance on the event page, and the medal was sent to the scanner once their participation was confirmed. Earlier events also used passcode cards. This general rule is from [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/), and no official rule per series was found.
+- **2022 to +Alpha:** Most medals came from Battle Beacons, which an Agent interacts with by deploying or upgrading a Resonator, attacking or destroying a Resonator, destroying a Mod or Link, or recharging. Upgrading their own Resonator does not count. An Agent gets a series medal only once.
+- **From +Theta on:** Most seasons have a tiered medal for tokens from the whole season, such as bounties, campaigns and attending an Anomaly. Each season page lists the sources. An Anomaly site alone does not reach the top tier.
+
 ## Gaps
 
-- **No site lists found:** Darsana, Persepolis, Obsidian, Aegis Nova, Via Lux, Via Noir, Myriad and Umbra.
+- **Incomplete site lists:** no list was found for Darsana, nor for the first day of Via Lux. Persepolis and the second day of Aegis Nova have no dates per site.
 - **2020–2021:** the Requiem Anomaly of 9 May 2020 was cancelled because of COVID-19. No in-person Anomaly from then until 2022 was found.
-- **Results after 2020:** scores and winners are not included, so those columns show a dash.
+- **Results after 2020:** scores and winners are not included, so those columns show a dash. Kureze Effect is the exception, with its winner.
 - **Skirmishes and Shard events:** the 2024–2026 seasons also had Skirmishes and Shard Storms at many more sites. They are not listed here.
 
 ## All series
 
-The medal of each series, as images from the app. A medal with tiers is shown in its highest tier. No image is available for Cassandra, 13MAGNUS, Shared Memories and Requiem.
+The medal of each series, as images from the app. A medal with tiers is shown in its highest tier. No image is available for Shared Memories and Requiem. Cassandra and 13MAGNUS came before the first medal.
 
 Dates and scores up to 2020 are from Fevgames. Early events used different scoring, so scores can only be compared within one event.
 
@@ -46,12 +55,12 @@ Dates and scores up to 2020 are from Fevgames. Early events used different scori
 | ![EXO5](../../app/app/src/main/assets/custom_medals/anomaly_exo5.webp) | EXO5 | 4 Nov – 2 Dec 2017 | 11.5 | 10 | ENL |
 | ![Cassandra Prime](../../app/app/src/main/assets/custom_medals/anomaly_cassandra_prime.webp) | Cassandra Prime | 28 Jul – 25 Aug 2018 | 11 | 7 | ENL |
 | ![Recursion Prime](../../app/app/src/main/assets/custom_medals/anomaly_recursion_prime.webp) | Recursion Prime | 20 Oct – 17 Nov 2018 | 8 | 13 | RES |
-| ![Darsana Prime](../../app/app/src/main/assets/custom_medals/anomaly_darsana_prime.webp) | Darsana Prime | 23 Feb – 23 Mar 2019 (likely) | – | – | – |
+| ![Darsana Prime](../../app/app/src/main/assets/custom_medals/anomaly_darsana_prime.webp) | Darsana Prime | 23 Feb – 23 Mar 2019 | – | – | – |
 | ![Abaddon Prime](../../app/app/src/main/assets/custom_medals/anomaly_abaddon_prime.webp) | Abaddon Prime | 4–25 May 2019 | 1 | 2 | RES |
 | ![Nemesis: Myriad](../../app/app/src/main/assets/custom_medals/anomaly_nemesis_myriad.webp) | Nemesis: Myriad | 27 Jul 2019 | 5 | 3 | ENL |
 | ![Nemesis: Umbra](../../app/app/src/main/assets/custom_medals/anomaly_umbra.webp) | Nemesis: Umbra | 12 Oct 2019 | 7 | 2 | ENL |
 | – | Requiem | 9 May 2020 | – | – | Cancelled |
-| ![Kureze Effect](../../app/app/src/main/assets/custom_medals/anomaly_kureze_effect.webp) | Kureze Effect | Jan – Mar 2022 | – | – | – |
+| ![Kureze Effect](../../app/app/src/main/assets/custom_medals/anomaly_kureze_effect.webp) | Kureze Effect | Jan – Mar 2022 | – | – | ENL |
 | ![Kythera](../../app/app/src/main/assets/custom_medals/anomaly_kythera.webp) | Kythera | Apr – Jun 2022 | – | – | – |
 | ![Superposition](../../app/app/src/main/assets/custom_medals/anomaly_superposition.webp) | Superposition | Jul – Aug 2022 | – | – | – |
 | ![Epiphany Dawn](../../app/app/src/main/assets/custom_medals/anomaly_epiphany_dawn.webp) | Epiphany Dawn | Nov – Dec 2022 | – | – | – |
@@ -76,9 +85,17 @@ Fevgames also lists 11 smaller events from January to July 2013 and some special
 
 ## 2026
 
+### ![Cygnus](../../app/app/src/main/assets/custom_medals/anomaly_cygnus_gold.webp) Cygnus
+
+October to December, no XM Anomalies. [Season overview](https://ingress.com/news/2026-cygnus).
+
+**Medal:** Season medal for Cygnus Tokens: Bronze 6,000, Silver 12,000, Gold 24,000.
+
 ### ![Apollo](../../app/app/src/main/assets/custom_medals/anomaly_apollo_gold.webp) Apollo
 
 July to September. [Season overview](https://ingress.com/news/2026-apollo).
+
+**Medal:** Season medal for Apollo Tokens: Bronze 4,000, Silver 8,000, Gold 16,000. The Onsite Medal was for taking part in any Anomaly battle onsite.
 
 | Date | Site | Role |
 |---|---|---|
@@ -93,6 +110,8 @@ July to September. [Season overview](https://ingress.com/news/2026-apollo).
 
 April to June. [Season overview](https://ingress.com/news/2026-orion).
 
+**Medal:** Season medal for Orion Tokens: Bronze 5,000, Silver 8,000, Gold 15,000, Platinum 25,000. The Onsite Medal was for taking part in any Anomaly battle onsite.
+
 | Date | Site | Role |
 |---|---|---|
 | 16 May | 🇨🇿 Prague, Czechia | – |
@@ -105,6 +124,8 @@ April to June. [Season overview](https://ingress.com/news/2026-orion).
 ### ![+Gamma](../../app/app/src/main/assets/custom_medals/anomaly_plus_gamma_gold.webp) +Gamma
 
 January to March. [Season overview](https://ingress.com/news/2026-plusgamma).
+
+**Medal:** Season medal for +Gamma Tokens: Bronze 500, Silver 3,000, Gold 7,500. The Onsite Medal was for taking part in any Anomaly battle onsite.
 
 | Date | Site | Role |
 |---|---|---|
@@ -123,6 +144,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 [Season page](https://ingress.com/news/2025-plusbeta).
 
+**Medal:** Season medal for +Beta Tokens: Bronze 3,000, Silver 6,000, Gold 9,000. A hack at an Anomaly site gave 3,000 and its other Site Bounties 2,000 more.
+
 | Date | Site | Role |
 |---|---|---|
 | 18 Oct | 🇧🇷 São Paulo, Brazil | – |
@@ -135,6 +158,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### ![+Delta](../../app/app/src/main/assets/custom_medals/anomaly_plus_delta_gold.webp) +Delta
 
 [Season page](https://ingress.com/news/2025-plusdelta).
+
+**Medal:** Season medal for +Delta Tokens: Bronze 3,000, Silver 8,000, Gold 15,000. An Anomaly site gave up to 5,000.
 
 | Date | Site | Role |
 |---|---|---|
@@ -149,6 +174,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 [Season page](https://ingress.com/news/2025-plustheta).
 
+**Medal:** Season medal for +Theta Tokens: Bronze 2,000, Silver 4,000, Gold 6,000. An Anomaly site gave up to 2,500.
+
 | Date | Site | Role |
 |---|---|---|
 | 17 May | 🇵🇭 Manila, Metro Manila, Philippines | – |
@@ -159,6 +186,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### ![+Alpha](../../app/app/src/main/assets/custom_medals/anomaly_plus_alpha.webp) +Alpha
 
 [Season page](https://ingress.com/news/2025-plusalpha).
+
+**Medal:** One NIASection14 Battle Beacon at an Anomaly site, one Rare Battle Beacon or a Shard Portal hack at a Shard Skirmish, or one Very Rare Battle Beacon at a Battle Beacon Skirmish.
 
 | Date | Site | Role |
 |---|---|---|
@@ -172,6 +201,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 [Season details](https://ingress.com/news/2024-erasedmem).
 
+**Medal:** Five Battle Beacons at Anomaly sites, one local Battle Beacon or a Shard Portal hack at a Shard Skirmish, or five local Battle Beacons at a Battle Beacon Skirmish.
+
 | Date | Site | Role |
 |---|---|---|
 | 2 Nov | 🇹🇼 Tainan | – |
@@ -182,6 +213,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### Shared Memories
 
 [Season details](https://ingress.com/news/2024-sharedmem).
+
+**Medal:** Five NIASection14 Battle Beacons in an Anomaly Zone, or a local Battle Beacon or a Shard Portal hack at a Shard Skirmish.
 
 | Date | Site | Role |
 |---|---|---|
@@ -194,6 +227,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 [Season details](https://ingress.com/news/2024-buriedmem).
 
+**Medal:** Five NIASection14 Battle Beacons in an Anomaly Zone, or a local Battle Beacon or a Shard Portal hack at a Shard Skirmish.
+
 | Date | Site | Role |
 |---|---|---|
 | 18 May | 🇯🇵 Naha | – |
@@ -204,6 +239,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### ![Cryptic Memories](../../app/app/src/main/assets/custom_medals/anomaly_cryptic_memories.webp) Cryptic Memories
 
 [Series details](https://ingress.com/news/2024-crypticmem).
+
+**Medal:** Five NIASection14 Battle Beacons in an Anomaly Zone, top 50 of a faction in a Cell Battle, or a local Battle Beacon at a Shard Night. [Rules](https://ingress.com/news/2024-crypticmem).
 
 | Date | Site | Role |
 |---|---|---|
@@ -217,6 +254,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### ![Discoverie](../../app/app/src/main/assets/custom_medals/anomaly_discoverie.webp) Discoverie
 
 [October to December schedule](https://ingress.com/news/2023-q4-events).
+
+**Medal:** Five NIASection14 Battle Beacons in Phases 1, 3 or 5, 30 claimed Kinetic Programs in Phase 2, or 100 reclaimed Machina Portals in Phase 4. [Rules](https://ingress.com/news/discoverie-rules).
 
 | Date | Site | Role |
 |---|---|---|
@@ -234,6 +273,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 [July to September schedule](https://ingress.com/news/2023-q3-events).
 
+**Medal:** Five NIASection14 Battle Beacons in Ctrl Anomaly Zones. [Rules](https://ingress.com/news/ctrl-rules).
+
 | Date | Site | Role |
 |---|---|---|
 | 15 Jul | 🇧🇴 Santa Cruz de la Sierra, Bolivia | Primary |
@@ -249,6 +290,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 ### ![Echo](../../app/app/src/main/assets/custom_medals/anomaly_echo.webp) Echo
 
 [April to June schedule](https://ingress.com/news/2023-q2-events).
+
+**Medal:** Five NIASection14 Battle Beacons in any Phase. [Rules](https://ingress.com/news/echo-rules).
 
 | Date | Site | Role |
 |---|---|---|
@@ -266,6 +309,8 @@ The Cygnus season (October to December) has Shard Storms and global events, but 
 
 Global, held on 18 March through Agent Ops. [Announcement](https://ingress.com/news/2023-mzfpk).
 
+**Medal:** All six Agent Ops by 23:59 local time: trek 6 km, 60 hacks, deploy 60 Resonators and 16 Mods, 60 Glyph Points, destroy 24 Resonators.
+
 ## 2022
 
 These series ran in phases. Some phases were global or used Impact Zones instead of in-person sites.
@@ -273,6 +318,8 @@ These series ran in phases. Some phases were global or used Impact Zones instead
 ### ![Epiphany Dawn](../../app/app/src/main/assets/custom_medals/anomaly_epiphany_dawn.webp) Epiphany Dawn
 
 [Series rules](https://ingress.com/news/epiphany-dawn-rules).
+
+**Medal:** Ten Battle Beacons in total: deployed by NIA in Los Angeles and Yokohama, any in the global phase.
 
 | Date | Site | Role |
 |---|---|---|
@@ -285,6 +332,8 @@ These series ran in phases. Some phases were global or used Impact Zones instead
 
 [July to September schedule](https://ingress.com/news/2022-q3-events).
 
+**Medal:** Ten scored Battle Beacons across both phases. [Rules](https://ingress.com/news/2022-superposition-p2/).
+
 - **30–31 Jul:** Munich, Germany (P)
 - **27–28 Aug:** 10 Impact Zones, names not found
 
@@ -292,39 +341,122 @@ These series ran in phases. Some phases were global or used Impact Zones instead
 
 Phase 2 zones from the [Ingress Wiki](https://ingress.wiki.gg/wiki/Kythera). Phase 3 from the [official announcement](https://ingress.com/en/news/kythera-p3).
 
+**Medal:** Ten scored Battle Beacons across the three phases.
+
 - **15–18 Apr:** Phase 1, peak on 17 Apr, cities not found
 - **20–23 May:** Phase 2, Impact Zones: Shizuoka City, Dubai, Denizli, Kraków, Stuttgart, Cambridge, La Plata, Grand Rapids, Midland, Tapachula
 - **24–27 Jun:** Phase 3, deployments on 25 Jun, cities not found
 
 ### ![Kureze Effect](../../app/app/src/main/assets/custom_medals/anomaly_kureze_effect.webp) Kureze Effect
 
-Three phases from January to March. [FAQ](https://community-archive.ingress.plus/en/discussion/17975/kureze-effect-faqs-updated-10-feb.html).
+Three phases from January to March. The Enlightened won the series by 215,031 points. [FAQ](https://community-archive.ingress.plus/en/discussion/17975/kureze-effect-faqs-updated-10-feb.html), [Phase 1 results](https://globalresonator.com/kureze-effect-phase-1-results/), [final results](https://globalresonator.com/kureze-effect-phase-3-results/).
 
-- **23 Jan:** Phase 1, in the cities that hosted an Osiris Sequence Anomaly; list not found
-- **Feb, Mar:** Phases 2 and 3, details not found
+**Medal:** Ten Battle Beacons in total across the three phases, Rare or Very Rare.
+
+The Key Sites of Phase 1:
+
+| Date | Site | Role |
+|---|---|---|
+| 23 Jan | 🇺🇸 Albuquerque, NM, USA | – |
+| 23 Jan | 🇳🇱 Amsterdam, Netherlands | – |
+| 23 Jan | 🇵🇾 Asunción, Paraguay | – |
+| 23 Jan | 🇬🇷 Athens, Greece | – |
+| 23 Jan | 🇺🇸 Atlanta, GA, USA | – |
+| 23 Jan | 🇳🇿 Auckland, New Zealand | – |
+| 23 Jan | 🇺🇸 Austin, TX, USA | – |
+| 23 Jan | 🇹🇭 Bangkok, Thailand | – |
+| 23 Jan | 🇪🇸 Barcelona, Spain | – |
+| 23 Jan | 🇺🇸 Boston, MA, USA | – |
+| 23 Jan | 🇬🇧 Bristol, UK | – |
+| 23 Jan | 🇨🇿 Brno, Czechia | – |
+| 23 Jan | 🇷🇴 Bucharest, Romania | – |
+| 23 Jan | 🇦🇺 Canberra, Australia | – |
+| 23 Jan | 🇺🇸 Chicago, IL, USA | – |
+| 23 Jan | 🇩🇪 Frankfurt, Germany | – |
+| 23 Jan | 🇮🇹 Genoa, Italy | – |
+| 23 Jan | 🇻🇳 Ho Chi Minh City, Vietnam | – |
+| 23 Jan | 🇭🇰 Hong Kong | – |
+| 23 Jan | 🇰🇷 Incheon, South Korea | – |
+| 23 Jan | 🇹🇼 Kaohsiung, Taiwan | – |
+| 23 Jan | 🇺🇸 Las Vegas, NV, USA | – |
+| 23 Jan | 🇦🇹 Linz, Austria | – |
+| 23 Jan | 🇵🇹 Lisbon, Portugal | – |
+| 23 Jan | 🇲🇻 Malé, Maldives | – |
+| 23 Jan | 🇫🇷 Marseille, France | – |
+| 23 Jan | 🇲🇽 Mexico City, Mexico | – |
+| 23 Jan | 🇺🇸 Minneapolis, MN, USA | – |
+| 23 Jan | 🇺🇸 New Orleans, LA, USA | – |
+| 23 Jan | 🇩🇪 Nuremberg, Germany | – |
+| 23 Jan | 🇪🇸 Palma de Mallorca, Spain | – |
+| 23 Jan | 🇺🇸 Philadelphia, PA, USA | – |
+| 23 Jan | 🇺🇸 Phoenix, AZ, USA | – |
+| 23 Jan | 🇮🇳 Pune, India | – |
+| 23 Jan | 🇵🇭 Quezon City, Philippines | – |
+| 23 Jan | 🇱🇻 Riga, Latvia | – |
+| 23 Jan | 🇺🇸 Salt Lake City, UT, USA | – |
+| 23 Jan | 🇺🇸 San Diego, CA, USA | – |
+| 23 Jan | 🇯🇵 Sapporo, Japan | – |
+| 23 Jan | 🇸🇬 Singapore | – |
+| 23 Jan | 🇹🇼 Taichung, Taiwan | – |
+| 23 Jan | 🇯🇵 Tokyo, Japan | – |
+| 23 Jan | 🇨🇦 Vancouver, Canada | – |
+| 23 Jan | 🇵🇱 Warsaw, Poland | – |
+| 23 Jan | 🇮🇩 Yogyakarta, Indonesia | – |
+
+- **Feb, Mar:** Phases 2 and 3 were scored in regional cells, sites not found
 
 ## 2019
 
 ### ![Nemesis: Umbra](../../app/app/src/main/assets/custom_medals/anomaly_umbra.webp) Nemesis: Umbra
 
-12 October. Sites not found.
+12 October. [Results](https://globalresonator.com/nemesis-umbra/).
+
+**Medal:** A paid Anomaly ticket, plus 13 hacks of Anomaly Portals onsite, or a recharge or a decoded code from offsite. The free onsite ticket gave no medal. [Rules](https://community-archive.ingress.plus/en/discussion/4143/umbra-registration-now-open.html).
+
+| Date | Site | Role |
+|---|---|---|
+| 12 Oct | 🇦🇺 Newcastle, Australia | – |
+| 12 Oct | 🇲🇾 Sabah, Malaysia | – |
+| 12 Oct | 🇹🇼 Taoyuan, Taiwan | – |
+| 12 Oct | 🇧🇪 Antwerp, Belgium | – |
+| 12 Oct | 🇩🇪 Dresden, Germany | – |
+| 12 Oct | 🇸🇪 Gothenburg, Sweden | – |
+| 12 Oct | 🇲🇽 Guadalajara, Mexico | – |
+| 12 Oct | 🇺🇸 Brooklyn, NY, USA | – |
+| 12 Oct | 🇺🇸 Sacramento, CA, USA | – |
 
 ### ![Nemesis: Myriad](../../app/app/src/main/assets/custom_medals/anomaly_nemesis_myriad.webp) Nemesis: Myriad
 
-27 July. Sites not found.
+27 July. [Results](https://globalresonator.com/nemesis-myriad/).
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
+| Date | Site | Role |
+|---|---|---|
+| 27 Jul | 🇮🇩 Bandung, Indonesia | – |
+| 27 Jul | 🇧🇷 Brasilia, Brazil | – |
+| 27 Jul | 🇰🇷 Busan, South Korea | – |
+| 27 Jul | 🇫🇮 Helsinki, Finland | – |
+| 27 Jul | 🇱🇹 Kaunas, Lithuania | – |
+| 27 Jul | 🇫🇷 Lyon, France | – |
+| 27 Jul | 🇺🇸 Madison, WI, USA | – |
+| 27 Jul | 🇨🇦 Montreal, Canada | – |
 
 ### ![Abaddon Prime](../../app/app/src/main/assets/custom_medals/anomaly_abaddon_prime.webp) Abaddon Prime
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
 | 4 May | 🇹🇼 Kaohsiung, Taiwan | Primary |
 | 11 May | 🇳🇱 Amsterdam, Netherlands | Primary |
+| 25 May | 🇺🇸 Chicago, IL, USA | Primary |
 
-- **18 or 25 May:** Chicago, IL, USA (P). Sources differ: announced for 18 May, the series end is given as 25 May
+### ![Darsana Prime](../../app/app/src/main/assets/custom_medals/anomaly_darsana_prime.webp) Darsana Prime
 
-### ![Darsana Prime](../../app/app/src/main/assets/custom_medals/anomaly_darsana_prime.webp) Darsana Prime (likely)
+Results: [day 1](https://globalresonator.com/darsana-prime-1/), [day 2](https://globalresonator.com/darsana-prime-day-2/). The first day was announced for 23 February, and the second for 23 March.
 
-The source does not name the series of these two dates.
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -339,7 +471,7 @@ The source does not name the series of these two dates.
 | 23 Feb | 🇮🇹 Genoa, Italy | – |
 | 23 Mar | 🇺🇸 Atlanta, GA, USA | Primary |
 | 23 Mar | 🇩🇪 Nuremberg, Germany | Primary |
-| 23 Mar | 🇯🇵 Nagoya, Japan | Primary |
+| 23 Mar | 🇯🇵 Tokyo, Japan | Primary |
 | 23 Mar | 🇻🇳 Ho Chi Minh City, Vietnam | – |
 | 23 Mar | 🇺🇸 Las Vegas, NV, USA | – |
 | 23 Mar | 🇬🇧 Bristol, UK | – |
@@ -347,6 +479,8 @@ The source does not name the series of these two dates.
 ## 2018
 
 ### ![Recursion Prime](../../app/app/src/main/assets/custom_medals/anomaly_recursion_prime.webp) Recursion Prime
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -368,6 +502,8 @@ The source does not name the series of these two dates.
 
 ### ![Cassandra Prime](../../app/app/src/main/assets/custom_medals/anomaly_cassandra_prime.webp) Cassandra Prime
 
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
 | Date | Site | Role |
 |---|---|---|
 | 28 Jul | 🇺🇸 San Diego, CA, USA | Primary |
@@ -386,6 +522,8 @@ The source does not name the series of these two dates.
 ## 2017
 
 ### ![EXO5](../../app/app/src/main/assets/custom_medals/anomaly_exo5.webp) EXO5
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -408,6 +546,8 @@ The source does not name the series of these two dates.
 | 2 Dec | 🇧🇳 a site in Brunei | Satellite |
 
 ### ![13MAGNUS Reawakens](../../app/app/src/main/assets/custom_medals/anomaly_13_magnusreawakens.webp) 13MAGNUS Reawakens
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -432,11 +572,91 @@ The source does not name the series of these two dates.
 
 ## 2016
 
-Obsidian, Aegis Nova, Via Lux and Via Noir ran this year. See the table of all series above. No site lists were found.
+### ![Via Noir](../../app/app/src/main/assets/custom_medals/anomaly_via_noir.webp) Via Noir
+
+12 November. [Report](https://globalresonator.com/via-noir-report/).
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
+| Date | Site | Role |
+|---|---|---|
+| 12 Nov | 🇰🇷 Seoul, South Korea | – |
+| 12 Nov | 🇦🇺 Melbourne, Australia | – |
+| 12 Nov | 🇮🇩 Surabaya, Indonesia | – |
+| 12 Nov | 🇮🇹 Rome, Italy | Primary |
+| 12 Nov | 🇱🇹 Vilnius, Lithuania | – |
+| 12 Nov | 🇧🇬 Sofia, Bulgaria | – |
+| 12 Nov | 🇺🇸 New Orleans, LA, USA | – |
+| 12 Nov | 🇺🇸 Chicago, IL, USA | – |
+| 12 Nov | 🇺🇸 Miami, FL, USA | – |
+
+### ![Via Lux](../../app/app/src/main/assets/custom_medals/anomaly_via_lux.webp) Via Lux
+
+27 August to 24 September. [Day 2](https://globalresonator.com/via-lux-live/). The sites of the first day were not found.
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
+| Date | Site | Role |
+|---|---|---|
+| 24 Sep | 🇯🇵 Setouchi, Japan | – |
+| 24 Sep | 🇸🇬 Singapore | – |
+| 24 Sep | 🇮🇳 Mumbai, India | – |
+| 24 Sep | 🇲🇴 Macau | – |
+| 24 Sep | 🇩🇪 Cologne, Germany | – |
+| 24 Sep | 🇭🇺 Budapest, Hungary | – |
+| 24 Sep | 🇪🇸 Granada, Spain | – |
+| 24 Sep | 🇨🇦 Toronto, Canada | – |
+| 24 Sep | 🇨🇱 Santiago, Chile | – |
+| 24 Sep | 🇺🇸 St. Louis, MO, USA | – |
+
+### ![Aegis Nova](../../app/app/src/main/assets/custom_medals/anomaly_aegis_nova.webp) Aegis Nova
+
+28 May to 16 July. [Report](https://globalresonator.com/aegis-nova-report/). The report gives no date for its second day.
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
+| Date | Site | Role |
+|---|---|---|
+| 28 May | 🇹🇼 Tainan, Taiwan | – |
+| 28 May | 🇹🇭 Chiang Mai, Thailand | – |
+| 28 May | 🇵🇭 Manila, Philippines | – |
+| 28 May | 🇳🇱 Rotterdam, Netherlands | Primary |
+| 28 May | 🇮🇹 Padova, Italy | – |
+| 28 May | 🇿🇦 Cape Town, South Africa | – |
+| 28 May | 🇺🇸 Brooklyn, NY, USA | – |
+| 28 May | 🇺🇸 Savannah, GA, USA | – |
+| 28 May | 🇺🇸 Minneapolis / Saint Paul, MN, USA | – |
+
+- **Second day, date not found:** Sydney, Australia (P), Hyderabad, Kuala Lumpur, Moscow, Dublin, Nice, San Diego, Calgary, Salt Lake City
+- **Final, date not found:** Tokyo, Japan
+
+### ![Obsidian](../../app/app/src/main/assets/custom_medals/anomaly_obsidian.webp) Obsidian
+
+[Report](https://globalresonator.com/obsidian-report/).
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned. An Elite medal for the top 1,331 Agents was planned and then [removed](https://globalresonator.com/obsidian-anomaly-medal-details/).
+
+| Date | Site | Role |
+|---|---|---|
+| 27 Feb | 🇯🇵 Hamamatsu, Japan | – |
+| 27 Feb | 🇪🇸 Madrid, Spain | – |
+| 27 Feb | 🇧🇷 Rio de Janeiro, Brazil | – |
+| 27 Feb | 🇺🇸 Milwaukee, WI, USA | – |
+| 27 Feb | 🇺🇸 Seattle, WA, USA | – |
+| 2 Apr | 🇭🇰 Hong Kong | – |
+| 2 Apr | 🇱🇰 Colombo, Sri Lanka | – |
+| 2 Apr | 🇦🇹 Vienna, Austria | – |
+| 2 Apr | 🇩🇰 Copenhagen, Denmark | – |
+| 2 Apr | 🇺🇸 Orlando, FL, USA | – |
+| 2 Apr | 🇲🇽 Mexico City, Mexico | – |
+| 2 Apr | 🇺🇸 San Antonio, TX, USA | – |
+| 2 Apr | 🇺🇸 Tucson, AZ, USA | – |
 
 ## 2015
 
 ### ![Abaddon](../../app/app/src/main/assets/custom_medals/anomaly_abaddon.webp) Abaddon
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -471,9 +691,19 @@ Obsidian, Aegis Nova, Via Lux and Via Noir ran this year. See the table of all s
 
 ### ![Persepolis](../../app/app/src/main/assets/custom_medals/anomaly_persepolis.webp) Persepolis
 
-Sites not found.
+Reports: [rounds 1 and 2](https://globalresonator.com/persepolis-1-2-anomaly-report/), [rounds 3 to 5](https://globalresonator.com/persepolis-anomaly-finale/). They give no date per round.
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
+- **Round 1:** Bratislava, Slovakia (P), Bari, Covilhã, Thessaloniki
+- **Round 2:** Washington, DC, Buenos Aires, Phoenix, Toronto
+- **Round 3:** Sendai, Jakarta, Perth
+- **Round 4:** Utrecht, Helsinki, Liverpool, Poznań
+- **Round 5:** Portland, Fort Collins, Milwaukee, Nashville
 
 ### ![Shōnin](../../app/app/src/main/assets/custom_medals/anomaly_shonin.webp) Shōnin
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -504,7 +734,11 @@ Sites not found.
 
 Sites not found.
 
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
 ### ![Helios](../../app/app/src/main/assets/custom_medals/anomaly_helios.webp) Helios
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -540,6 +774,8 @@ Sites not found.
 | 27 Sep | 🇨🇦 Vancouver | Satellite |
 
 ### ![Interitus](../../app/app/src/main/assets/custom_medals/anomaly_interitus.webp) Interitus
+
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
 
 | Date | Site | Role |
 |---|---|---|
@@ -579,6 +815,8 @@ Sites not found.
 
 ### ![Recursion](../../app/app/src/main/assets/custom_medals/anomaly_recursion.webp) Recursion
 
+**Medal:** For taking part. The exact rule was not found, see How medals were earned.
+
 | Date | Site | Role |
 |---|---|---|
 | 15 Feb | 🇺🇸 Miami, FL, USA | Primary |
@@ -614,10 +852,14 @@ Sites not found.
 
 **13MAGNUS** started on 12 October in New York City and ended on 14 December. Fevgames lists only the start date.
 
+**Medal:** None. Anomaly medals started with Recursion in 2014.
+
 ## Sources
 
 - [Ingress news](https://ingress.com/news)
 - [Fevgames: Anomaly](https://fevgames.net/ingress/ingress-guide/concepts/anomaly/)
+- [Fevgames: Medals](https://fevgames.net/ingress/ingress-guide/concepts/medal/)
+- [Global Resonator: Anomaly reports](https://globalresonator.com/tag/anomaly/)
 - [Ingress Wiki: Anomaly](https://ingress.wiki.gg/wiki/Anomaly)
 - [GameGnome: events for 2018 and 2019](https://gamegnome.com/news/ingress-real-world-global-event-locations-and-dates-for-2018-and-2019/)
 - [Ingress community archive](https://community-archive.ingress.plus/en/categories/mission-days.html)
