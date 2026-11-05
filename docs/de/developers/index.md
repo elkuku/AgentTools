@@ -126,6 +126,19 @@ https).
   Pull-Request, der die Liste ändert, schlägt bei einem kaputten Link fehl. Telegram (`t.me`)
   antwortet auch für einen Kanal, den es nicht mehr gibt: Solche findet die Prüfung nicht.
 
+## Die Badge-Prüfung {#the-badge-check}
+
+Der Workflow Badge check läuft jeden Tag. Er vergleicht [ingress.plus](https://ingress.plus/badges) mit `.github/badges-known.tsv`, sucht die Seiten aus `.github/badges-watch.tsv` und schreibt alles Neue in ein Issue (Label `new-badges`). Das Issue wird jeden Tag aktualisiert und schließt sich, sobald nichts mehr neu ist.
+
+So fügst du eine neue Medaille hinzu:
+
+1. Wandle ihre Bilder in 150 px große verlustfreie WebP-Dateien in `app/app/src/main/assets/custom_medals` um.
+2. Trage sie mit ihrem `endDate` in `MedalChecker` und `data/CustomMedals.kt` ein.
+3. Trage sie im passenden Dokument in `docs/events/` ein.
+4. Führe `.github/scripts/new-badges.sh --update` aus und committe die Liste.
+
+Für ein Badge, das du nicht willst, reicht Schritt 4. Eine Zeile der Watch-Liste besteht aus einer URL, einem Tab und einer Notiz, was zu tun ist, sobald die Seite existiert.
+
 ## Dev-App {#dev-app}
 
 Der GitHub-Pages-Workflow baut außerdem den Build-Typ `dev` des neuesten master und stellt ihn auf

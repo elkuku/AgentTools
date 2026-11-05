@@ -156,6 +156,19 @@ with entries `- [Title](https://…) — Description` (the description is option
   when all links work again. A pull request that changes the list fails on a broken link.
   Telegram (`t.me`) answers even for a channel that is gone, so the check cannot find those.
 
+## The badge check {#the-badge-check}
+
+The Badge check workflow runs every day. It compares [ingress.plus](https://ingress.plus/badges) with `.github/badges-known.tsv` and looks for the pages in `.github/badges-watch.tsv`, and puts anything new into one issue (label `new-badges`). The issue is updated each day and closes when nothing is new any more.
+
+To add a new medal:
+
+1. Convert its images to 150 px lossless WebP in `app/app/src/main/assets/custom_medals`.
+2. Add it to `MedalChecker` and `data/CustomMedals.kt`, with its `endDate`.
+3. Add it to the matching document in `docs/events/`.
+4. Run `.github/scripts/new-badges.sh --update` and commit the list.
+
+For a badge you don't want, step 4 is enough. A line in the watch list is a URL, a tab and a note on what to do once that page exists.
+
 ## Dev app
 
 The GitHub Pages workflow also builds the `dev` build type of the latest master and puts it on the

@@ -126,6 +126,19 @@ con entradas `- [Título](https://…) — Descripción` (la descripción es opc
   funcionar. Un pull request que cambia la lista falla con un enlace roto. Telegram (`t.me`)
   responde incluso para un canal que ya no existe, así que la comprobación no los detecta.
 
+## La comprobación de insignias {#the-badge-check}
+
+El workflow Badge check se ejecuta cada día. Compara [ingress.plus](https://ingress.plus/badges) con `.github/badges-known.tsv`, busca las páginas de `.github/badges-watch.tsv` y pone todo lo nuevo en una issue (etiqueta `new-badges`). La issue se actualiza cada día y se cierra cuando ya no hay nada nuevo.
+
+Para añadir una medalla nueva:
+
+1. Convierte sus imágenes a WebP sin pérdida de 150 px en `app/app/src/main/assets/custom_medals`.
+2. Añádela con su `endDate` a `MedalChecker` y `data/CustomMedals.kt`.
+3. Añádela al documento correspondiente de `docs/events/`.
+4. Ejecuta `.github/scripts/new-badges.sh --update` y haz commit de la lista.
+
+Para una insignia que no quieras, basta con el paso 4. Una línea de la lista de vigilancia es una URL, un tabulador y una nota sobre qué hacer cuando exista esa página.
+
 ## App de desarrollo {#dev-app}
 
 El workflow de GitHub Pages también compila el tipo de compilación `dev` del último master y lo
