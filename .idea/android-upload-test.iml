@@ -191,6 +191,11 @@
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/twig/intl-extra" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/symfony/slack-notifier" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/symfony/telegram-notifier" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/dflydev/dot-access-data" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/league/commonmark" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/league/config" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/nette/schema" />
+      <excludeFolder url="file://$MODULE_DIR$/web/vendor/nette/utils" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
