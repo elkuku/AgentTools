@@ -1,0 +1,39 @@
+name: Badge check
+
+# Looks once a day for what ingress.plus has that .github/badges-known.tsv does not, and for the
+# pages of .github/badges-watch.tsv. Anything new goes into one issue (label new-badges), updated
+# each day and closed when the lists are up to date.
+on:
+    schedule:
+        - cron: '29 6 * * *'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    issues: write
+
+jobs:
+    badges:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Compare the badges
+              run: .github/scripts/new-badges.sh
+
+            - name: Open, update or close the issue
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+              run: |
+                  issue=$(gh issue list --label new-badges --state open --json number --jq '.[0].number // empty')
+                  if [ -f issue.md ]; then
+                      if [ -n "$issue" ]; then
+                          gh issue edit "$issue" --body-file issue.md
+                      else
+                          gh label create new-badges --color 0e8a16 --description 'New Ingress badges or pages to look at' --force
+                          gh issue create --title 'New Ingress badges' --label new-badges --body-file issue.md
+                      fi
+                  elif [ -n "$issue" ]; then
+                      gh issue close "$issue" --comment "Nothing new any more ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))."
+                  fi
