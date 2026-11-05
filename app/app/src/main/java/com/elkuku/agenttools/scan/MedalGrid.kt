@@ -9,6 +9,9 @@ internal const val BACKGROUND_MAX = 20
 /** Cells with less medal than this (of their area) are empty. */
 private const val MIN_FILL = 0.25
 
+/** A screenshot's width per pixel of the opening. */
+private const val OPENING_WIDTH = 216
+
 /**
  * Finds the medals in a screenshot of the Ingress agent profile's medal grid: a honeycomb of
  * equally sized medals on black, rows shifted by half a medal.
@@ -18,7 +21,7 @@ private const val MIN_FILL = 0.25
  * bottom of the screenshot are left out. Returns an empty list when there is no grid.
  */
 fun findMedalCells(image: ArgbImage): List<Cell> {
-    val components = components(open(foreground(image), image.width, image.height, 5), image.width, image.height)
+    val components = components(open(foreground(image), image.width, image.height, openingSize(image.width)), image.width, image.height)
 
     // Medals are a bit taller than wide (pointy-top hexagons); glowing neighbours can merge, so
     // take the typical size and keep the components close to it
@@ -69,6 +72,12 @@ fun findMedalCells(image: ArgbImage): List<Cell> {
     }
     return cells
 }
+
+/**
+ * The opening's square for a screenshot: 5 px at 1080 px wide, with the width, as a fixed one wears
+ * away the points of small medals and makes their cells too short. Odd: it has a centre.
+ */
+internal fun openingSize(width: Int): Int = (width / OPENING_WIDTH or 1).coerceIn(3, 9)
 
 private class Component(val x: Int, val y: Int, val width: Int, val height: Int)
 

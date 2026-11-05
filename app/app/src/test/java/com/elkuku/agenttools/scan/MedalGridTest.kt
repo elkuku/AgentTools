@@ -45,6 +45,12 @@ class MedalGridTest {
     }
 
     @Test
+    fun theOpeningGrowsWithTheScreenshot() {
+        // 5 px wore away the points of small medals and made their cells too short
+        assertEquals(listOf(3, 3, 5, 5, 7, 9), listOf(360, 720, 1080, 1200, 1440, 4000).map(::openingSize))
+    }
+
+    @Test
     fun skipsEmptyCells() {
         val cells = findMedalCells(grid(rows = 3, top = 10, missing = setOf(2 to 2, 2 to 3)))
 

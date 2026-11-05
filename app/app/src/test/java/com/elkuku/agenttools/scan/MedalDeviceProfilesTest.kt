@@ -83,7 +83,7 @@ class MedalDeviceProfilesTest {
                 report += "| $width | $quality | $cells | ${(medals intersect baseline).size} | ${(baseline - medals).size} | " +
                     "${(medals - baseline).size} | ${lowest(found)} |"
                 if ((medals - baseline).isNotEmpty()) failures += "$width, $quality: ${(medals - baseline).map { it.imageName }}"
-                if ("PNG" == quality && width >= 540 && (baseline - medals).isNotEmpty()) {
+                if ("PNG" == quality && width >= 480 && (baseline - medals).isNotEmpty()) {
                     failures += "$width: missing ${(baseline - medals).map { it.imageName }}"
                 }
             }
