@@ -123,4 +123,21 @@ class MedalCheckerTest extends TestCase
             seer: $seer,
         ));
     }
+
+    public function testTheMedalsOfEachGroupAreNewestFirst(): void
+    {
+        $dates = [];
+        foreach (new MedalChecker()->customMedals() as $medal) {
+            // An On-site medal stays beside the medal of its season, which ends later
+            if (null !== $medal->endDate && !\str_ends_with($medal->key, '_onsite')) {
+                $dates[$medal->group][] = $medal->endDate;
+            }
+        }
+
+        foreach ($dates as $group => $days) {
+            $sorted = $days;
+            \rsort($sorted);
+            self::assertSame($sorted, $days, $group);
+        }
+    }
 }
