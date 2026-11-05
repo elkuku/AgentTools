@@ -7,7 +7,7 @@ import java.io.File
 import java.io.IOException
 
 /** The documents of `GET /api/history/{slug}`, in the order of the tabs (web's `HistoryLoader::SLUGS`). */
-val HISTORY_SLUGS = listOf("anomalies", "mission-days", "operations")
+val HISTORY_SLUGS = listOf("anomalies", "mission-days", "operations", "ingress-years")
 
 /** A run of text: plain, bold, a link, or a custom medal's image ([medal], [text] is its name). */
 @Serializable

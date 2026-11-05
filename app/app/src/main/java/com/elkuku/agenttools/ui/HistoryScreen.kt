@@ -25,7 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -114,7 +114,7 @@ fun HistoryScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            PrimaryTabRow(selectedTabIndex = HISTORY_SLUGS.indexOf(slug).coerceAtLeast(0)) {
+            PrimaryScrollableTabRow(selectedTabIndex = HISTORY_SLUGS.indexOf(slug).coerceAtLeast(0)) {
                 HISTORY_SLUGS.forEach { tab ->
                     Tab(selected = tab == slug, onClick = { onSelect(tab) }, text = { Text(stringResource(tabLabel(tab))) })
                 }
@@ -191,6 +191,7 @@ fun HistoryScreen(
 private fun tabLabel(slug: String): Int = when (slug) {
     "anomalies" -> R.string.history_anomalies
     "operations" -> R.string.history_operations
+    "ingress-years" -> R.string.history_ingress_years
     else -> R.string.history_mission_days
 }
 
