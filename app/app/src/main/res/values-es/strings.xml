@@ -41,6 +41,7 @@
     <string name="account">Cuenta</string>
     <string name="my_stats">Mis estadísticas</string>
     <string name="my_timeline">Mi línea de tiempo</string>
+    <string name="my_timeline_card">Tus subidas, eventos, viajes, banners y medallas en orden.</string>
     <string name="settings">Ajustes</string>
     <string name="agents">Agentes</string>
     <string name="admin_agents">Administrar agentes</string>

@@ -38,6 +38,7 @@ fun ColumnScope.Home(
     state: UiState,
     serverUrl: String,
     onOpenStats: () -> Unit,
+    onOpenTimeline: () -> Unit,
     onOpenBanners: () -> Unit,
     onOpenAgents: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -93,6 +94,10 @@ fun ColumnScope.Home(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+
+    HomeCard(R.drawable.ic_bi_clock_history, stringResource(R.string.my_timeline), action = stringResource(R.string.open) to onOpenTimeline) {
+        Text(stringResource(R.string.my_timeline_card))
     }
 
     HomeCard(R.drawable.ic_bi_grid_3x3_gap, stringResource(R.string.my_banners), action = stringResource(R.string.open) to onOpenBanners) {

@@ -41,6 +41,7 @@
     <string name="account">Konto</string>
     <string name="my_stats">Meine Statistiken</string>
     <string name="my_timeline">Meine Zeitleiste</string>
+    <string name="my_timeline_card">Deine Uploads, Events, Reisen, Banner und Medaillen der Reihe nach.</string>
     <string name="settings">Einstellungen</string>
     <string name="agents">Agenten</string>
     <string name="admin_agents">Agenten verwalten</string>

@@ -121,7 +121,7 @@ fun MainScreen(
                 state.medalScan?.let { MedalScanReview(it, known = state.medalScanKnown, onSave = onSaveMedalScan, onDismiss = onDismissMedalScan) }
                 Landing(serverUrl)
             } else {
-                Home(state, serverUrl, onOpenStats = onOpenStats, onOpenBanners = onOpenBanners, onOpenAgents = onOpenAgents, onOpenSettings = onOpenSettings)
+                Home(state, serverUrl, onOpenStats = onOpenStats, onOpenTimeline = onOpenTimeline, onOpenBanners = onOpenBanners, onOpenAgents = onOpenAgents, onOpenSettings = onOpenSettings)
             }
         }
     }
