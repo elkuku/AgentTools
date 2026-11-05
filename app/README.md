@@ -96,8 +96,8 @@ Clear `debug.fakeSignInEmail` and set `APP_FAKE_GOOGLE_TOKENS=0` to go back to r
   `GET /api/events` (`data/IngressEvents.kt`, the month grid as web's `EventCalendar`), with the
   month's or the picked day's events under it, as web's `/events`; the last list is kept in
   `files/events.json` (`FileIngressEventCache`).
-- `ui/HistoryScreen.kt` (☰ → History; no sign-in): the XM Anomalies and Mission Days of past
-  years from `GET /api/history/{slug}` (`data/History.kt`), a tab per document with buttons for
+- `ui/HistoryScreen.kt` (☰ → History; no sign-in): the XM Anomalies, Mission Days, operations
+  and Ingress years from `GET /api/history/{slug}` (`data/History.kt`), a tab per document with buttons for
   the years, as web's `/history`; the last documents are kept in `files/history-*.json`
   (`FileHistoryCache`). Signed in, a checkbox marks a row as attended: a timeline event with its
   `historyKey`, so deleting it on the timeline removes the mark.
