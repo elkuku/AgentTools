@@ -122,6 +122,8 @@ profile:
         label: Visible para otros usuarios
         help: Las partes sin marcar siguen privadas. Solo los usuarios con sesión iniciada ven tu página de agente.
         saved: Se guardó la visibilidad de tu perfil.
+        depends: 'Solo se muestran junto con tu nombre de agente:'
+        depends_off: 'Activa «%part%» para elegir estas partes.'
     api_token:
         title: Token de la API
         paste: Pégalo en la <a href="%url%">documentación de la API</a> en <strong>Authorize</strong>.

@@ -140,6 +140,18 @@ main > .container {
     border-style: dashed;
 }
 
+/* The profile parts that are only shown with the agent part: hanging from it by a line */
+.visibility-parts {
+    margin-left: .5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--bs-primary);
+}
+
+.visibility-parts:disabled {
+    border-left-style: dashed;
+    border-left-color: var(--bs-border-color);
+}
+
 /* The orange accent; a darker orange on light backgrounds */
 .landing-accent {
     color: #9a3412;

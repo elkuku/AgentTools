@@ -123,6 +123,8 @@ profile:
         label: Visible to other users
         help: Unchecked parts stay private. Only signed-in users see your agent page.
         saved: Your profile visibility has been saved.
+        depends: 'Shown only together with your agent name:'
+        depends_off: 'Turn on “%part%” to choose these parts.'
     api_token:
         title: API token
         paste: Paste it in the <a href="%url%">API docs</a> under <strong>Authorize</strong>.

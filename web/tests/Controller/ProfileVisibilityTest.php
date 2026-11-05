@@ -71,6 +71,23 @@ class ProfileVisibilityTest extends WebTestCase
         self::assertNotNull($user->getVisibilityChosenAt());
     }
 
+    public function testTheOtherPartsHangFromTheAgentPart(): void
+    {
+        $this->client->loginUser($this->user());
+        $this->client->request(Request::METHOD_GET, '/profile');
+
+        self::assertSelectorExists('[data-controller="profile-visibility"] input[value="agent"][data-profile-visibility-target="agent"]');
+        self::assertSelectorNotExists('.visibility-parts input[value="agent"]');
+        self::assertSelectorCount(5, '.visibility-parts input[data-profile-visibility-target="part"]');
+        self::assertSelectorTextContains('[data-profile-visibility-target="off"]:not([hidden])', 'Agent name, faction and level');
+
+        $this->submit([ProfilePart::AGENT]);
+        $this->client->request(Request::METHOD_GET, '/profile');
+
+        self::assertSelectorExists('[data-profile-visibility-target="on"]:not([hidden])');
+        self::assertSelectorExists('[data-profile-visibility-target="off"][hidden]');
+    }
+
     public function testTheFirstGoogleSignInLeadsToTheProfileUntilTheUserChooses(): void
     {
         $idToken = FakeGoogleIdTokenVerifier::token('gid-visibility', 'user');

@@ -26,14 +26,30 @@
         </div>
     {% endif %}
     {{ form_start(visibilityForm) }}
-        <fieldset class="mb-3">
+        <fieldset class="mb-3" data-controller="profile-visibility">
             <legend class="col-form-label">{{ visibilityForm.visibleParts.vars.label|trans }}</legend>
-            {% for part in visibilityForm.visibleParts %}
-                <div class="mb-2">
-                    {{ form_widget(part) }}
-                    <div class="form-text ms-4 mt-0">{{ partHelp[part.vars.value]|trans }}</div>
-                </div>
-            {% endfor %}
+            {% set agentPart = visibilityForm.visibleParts|filter(part => part.vars.value == 'agent')|first %}
+            <div class="mb-2">
+                {{ form_widget(agentPart, {attr: {'data-profile-visibility-target': 'agent', 'data-action': 'profile-visibility#update'}}) }}
+                <div class="form-text ms-4 mt-0">{{ partHelp[agentPart.vars.value]|trans }}</div>
+            </div>
+            {# Disabled parts are not sent; ProfilePart: the others are only shown with the agent part #}
+            <fieldset class="visibility-parts mb-2" data-profile-visibility-target="group">
+                <legend class="form-text fw-semibold mt-0 mb-2">
+                    <span data-profile-visibility-target="on" {{ agentPart.vars.checked ? '' : 'hidden' }}>
+                        <i class="bi-diagram-2"></i> {{ 'profile.visibility.depends'|trans }}
+                    </span>
+                    <span data-profile-visibility-target="off" {{ agentPart.vars.checked ? 'hidden' : '' }}>
+                        <i class="bi-lock"></i> {{ 'profile.visibility.depends_off'|trans({'%part%': agentPart.vars.label|trans}) }}
+                    </span>
+                </legend>
+                {% for part in visibilityForm.visibleParts|filter(part => part.vars.value != 'agent') %}
+                    <div class="mb-2">
+                        {{ form_widget(part, {attr: {'data-profile-visibility-target': 'part'}}) }}
+                        <div class="form-text ms-4 mt-0">{{ partHelp[part.vars.value]|trans }}</div>
+                    </div>
+                {% endfor %}
+            </fieldset>
             <div class="form-text">{{ visibilityForm.visibleParts.vars.help|trans }}</div>
             {{ form_errors(visibilityForm.visibleParts) }}
         </fieldset>
