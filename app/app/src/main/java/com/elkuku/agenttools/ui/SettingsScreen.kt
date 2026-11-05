@@ -30,6 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -140,19 +142,29 @@ private fun ProfileCard(profile: ProfileSetting, onSave: (Set<ProfilePart>) -> U
                 stringResource(if (profile.chosen) R.string.visibility_chosen_hint else R.string.visibility_choose_hint),
                 style = MaterialTheme.typography.bodyMedium,
             )
-            ProfilePart.entries.forEach { part ->
-                // The agent page is found by the agent name: the other parts need it
-                val enabled = part == ProfilePart.AGENT || ProfilePart.AGENT in parts
-                Row(verticalAlignment = Alignment.Top) {
-                    Checkbox(
-                        checked = part in parts && enabled,
-                        onCheckedChange = { checked -> parts = if (checked) parts + part else parts - part },
-                        enabled = enabled && !profile.busy,
-                    )
-                    Column(modifier = Modifier.padding(top = 12.dp)) {
-                        Text(stringResource(part.label), color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(stringResource(part.help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+            val toggle = { part: ProfilePart, checked: Boolean -> parts = if (checked) parts + part else parts - part }
+            PartRow(ProfilePart.AGENT, ProfilePart.AGENT in parts, !profile.busy, toggle)
+            // The agent page is found by the agent name: the other parts need it
+            val agentShown = ProfilePart.AGENT in parts
+            val lineColor = if (agentShown) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+            Column(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .drawBehind { drawLine(lineColor, Offset.Zero, Offset(0f, size.height), strokeWidth = 2.dp.toPx()) }
+                    .padding(start = 8.dp),
+            ) {
+                Text(
+                    if (agentShown) {
+                        stringResource(R.string.visibility_depends)
+                    } else {
+                        stringResource(R.string.visibility_depends_off, stringResource(ProfilePart.AGENT.label))
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                )
+                ProfilePart.entries.filter { it != ProfilePart.AGENT }.forEach { part ->
+                    PartRow(part, part in parts && agentShown, agentShown && !profile.busy, toggle, muted = !agentShown)
                 }
             }
             profile.status?.let { status ->
@@ -164,6 +176,23 @@ private fun ProfileCard(profile: ProfileSetting, onSave: (Set<ProfilePart>) -> U
                 onClick = { onSave(toSave) },
                 enabled = !profile.busy && (!profile.chosen || toSave != profile.visibleParts),
             ) { Text(stringResource(R.string.save)) }
+        }
+    }
+}
+
+@Composable
+private fun PartRow(
+    part: ProfilePart,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (ProfilePart, Boolean) -> Unit,
+    muted: Boolean = false,
+) {
+    Row(verticalAlignment = Alignment.Top) {
+        Checkbox(checked = checked, onCheckedChange = { onCheckedChange(part, it) }, enabled = enabled)
+        Column(modifier = Modifier.padding(top = 12.dp)) {
+            Text(stringResource(part.label), color = if (muted) MaterialTheme.colorScheme.onSurfaceVariant else Color.Unspecified)
+            Text(stringResource(part.help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

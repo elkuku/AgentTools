@@ -185,6 +185,8 @@
     <string name="visible_to_others">Visible to other users</string>
     <string name="visibility_chosen_hint">Signed-in users see these parts on your agent page on the website. Unchecked parts stay private.</string>
     <string name="visibility_choose_hint">Choose what other users see. Until you save, everything is private.</string>
+    <string name="visibility_depends">Shown only together with your agent name:</string>
+    <string name="visibility_depends_off">Turn on “%1$s” to choose these parts.</string>
     <string name="app">App</string>
     <string name="version">Version</string>
     <string name="build">Build</string>

@@ -182,6 +182,8 @@
     <string name="visible_to_others">Für andere Benutzer sichtbar</string>
     <string name="visibility_chosen_hint">Angemeldete Benutzer sehen diese Teile auf deiner Agentenseite auf der Website. Nicht ausgewählte Teile bleiben privat.</string>
     <string name="visibility_choose_hint">Wähle, was andere Benutzer sehen. Bis du speicherst, ist alles privat.</string>
+    <string name="visibility_depends">Nur zusammen mit deinem Agentennamen sichtbar:</string>
+    <string name="visibility_depends_off">Aktiviere „%1$s“, um diese Teile zu wählen.</string>
     <string name="app">App</string>
     <string name="version">Version</string>
     <string name="build">Build</string>
