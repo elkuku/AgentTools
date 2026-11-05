@@ -2,7 +2,7 @@
 
 Mission Days from the quarterly lists on [ingress.com/news](https://ingress.com/news) and archived Ingress event pages, as of 4 November 2026.
 
-**559 Mission Days**, from 2015 to December 2026. Dates after 4 November 2026 are still upcoming.
+**560 Mission Days**, from 2015 to December 2026. Dates after 4 November 2026 are still upcoming.
 
 See also: [XM Anomalies](./anomalies).
 
@@ -13,7 +13,7 @@ The [Mission Day medal](https://globalresonator.com/ingress/ingress-guide/concep
 ## Coverage
 
 - **Official lists exist from Q3 2022.** Everything from there on comes from them, except the gaps below.
-- **2015–2019:** the official list is no longer public, so these years come from the event pages saved by the Wayback Machine, and a few from [md.ingress.ph](https://md.ingress.ph/). This list is incomplete. The dates are as announced, so an event may have moved or not taken place. Saved pages with no date were left out: Barcelona, Deventer, Houston, Knoxville, Kuala Lumpur, La Plata, Lima, Lucca, Luxembourg, Mannheim, Miami, Nashville, New Orleans, Nürnberg, Oita, Rotterdam, Santiago, Sennan, Shenzhen and Shreveport.
+- **2015–2019:** the official list is no longer public, so these years come from the event pages saved by the Wayback Machine, and a few from [md.ingress.ph](https://md.ingress.ph/) or an agent's report. This list is incomplete. The dates are as announced, so an event may have moved or not taken place. Saved pages with no date were left out: Barcelona, Deventer, Houston, Knoxville, Kuala Lumpur, La Plata, Lima, Lucca, Luxembourg, Mannheim, Miami, Nashville, New Orleans, Nürnberg, Oita, Rotterdam, Santiago, Sennan, Shenzhen and Shreveport.
 - **2020:** only the four Mission Days of 1 March were found. Later ones were stopped by COVID-19, so some of these may not have taken place.
 - **2021:** Second Sunday events counted for the Mission Day medal, from July to December. They were not tied to cities, so they are not in the table.
 - **Before Q3 2022:** no official list was found. The only 2022 entries before Q3 are single mentions.
@@ -449,7 +449,7 @@ Source: [2022 Q3 Mission Days](https://ingress.com/news/2022-q3-md)
 
 ## 2019
 
-42 Mission Days. From [archived event pages](https://web.archive.org/web/2018/https://www.ingress.com/events/archives_md.html).
+43 Mission Days. From [archived event pages](https://web.archive.org/web/2018/https://www.ingress.com/events/archives_md.html).
 
 ### Q4 2019
 
@@ -501,6 +501,7 @@ Source: [2022 Q3 Mission Days](https://ingress.com/news/2022-q3-md)
 
 | Date | City | Type |
 |---|---|---|
+| 12 Jan | 🇪🇨 Ambato, Ecuador | Mission Day (reported by an agent) |
 | 16 Feb | 🇦🇺 Adelaide, Australia | Mission Day |
 | 24 Feb | 🇵🇾 Asunción, Paraguay | Mission Day |
 | 24 Feb | 🇮🇹 Genoa, Italy | Mission Day |
