@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4744a69b631f72849a62b472d454dacd",
+    "content-hash": "a03a4eb9d939db21a2d1797f23769739",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -2636,16 +2636,16 @@
         },
         {
             "name": "elkuku/kuku-sf-system-tools-bundle",
-            "version": "1.3",
+            "version": "1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elkuku/SFSystemToolsBundle.git",
-                "reference": "3e3264d6315230cd6501a32289b60b2345de3400"
+                "reference": "544b5806408c2089dfb33b31c140700cd65b0f4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elkuku/SFSystemToolsBundle/zipball/3e3264d6315230cd6501a32289b60b2345de3400",
-                "reference": "3e3264d6315230cd6501a32289b60b2345de3400",
+                "url": "https://api.github.com/repos/elkuku/SFSystemToolsBundle/zipball/544b5806408c2089dfb33b31c140700cd65b0f4c",
+                "reference": "544b5806408c2089dfb33b31c140700cd65b0f4c",
                 "shasum": ""
             },
             "require": {
@@ -2657,7 +2657,18 @@
             },
             "require-dev": {
                 "phpunit/phpunit": "^12",
+                "symfony/browser-kit": "^7.2|^8.0",
+                "symfony/console": "^7.2|^8.0",
+                "symfony/css-selector": "^7.2|^8.0",
+                "symfony/security-bundle": "^7.2|^8.0",
+                "symfony/twig-bundle": "^7.2|^8.0",
+                "symfony/yaml": "^7.2|^8.0",
                 "symplify/config-transformer": "^12.4"
+            },
+            "suggest": {
+                "symfony/console": "For the About page",
+                "symfony/security-bundle": "For the About and deploy log pages",
+                "symfony/twig-bundle": "For the About and deploy log pages"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -2678,10 +2689,10 @@
             "description": "System tools for Symfony",
             "support": {
                 "issues": "https://github.com/elkuku/SFSystemToolsBundle/issues",
-                "source": "https://github.com/elkuku/SFSystemToolsBundle/tree/1.3"
+                "source": "https://github.com/elkuku/SFSystemToolsBundle/tree/1.7"
             },
-            "time": "2025-12-09T19:44:46+00:00",
-            "published-time": "2025-12-09T19:46:59+00:00"
+            "time": "2026-11-23T16:11:56+00:00",
+            "published-time": "2026-11-23T16:16:39+00:00"
         },
         {
             "name": "elkuku/symfony-utils",
