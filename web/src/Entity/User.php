@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[Entity(repositoryClass: UserRepository::class)]
-#[Table(name: 'system_user')]
+#[Table(name: '`system_user`')]
 #[UniqueEntity(fields: 'identifier', message: 'This identifier is already in use')]
 #[UniqueEntity(fields: 'agentName', message: self::AGENT_NAME_TAKEN)]
 class User implements UserInterface
