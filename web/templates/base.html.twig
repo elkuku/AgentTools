@@ -27,7 +27,7 @@
         {% endblock %}
     {% endblock %}
 </head>
-<body class="d-flex flex-column h-100" data-controller="tooltip"
+<body class="d-flex flex-column h-100{{ app_stage ? ' has-stage-banner' }}" data-controller="tooltip"
       data-action="pointerover->tooltip#show pointerout->tooltip#hide focusin->tooltip#show focusout->tooltip#hide click->tooltip#hide scroll@window->tooltip#hide">
 
 <header>

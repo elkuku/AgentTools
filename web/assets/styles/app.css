@@ -2,6 +2,33 @@ main > .container {
     padding: 60px 15px 0;
 }
 
+/* The banner of a non-production stage, e.g. the dev site (templates/_/_stage_banner.html.twig):
+   fixed above the fixed navbar, which moves down by its height, as does the page. */
+:root {
+    --stage-banner-height: 1.75rem;
+}
+
+.stage-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1031; /* above Bootstrap's .fixed-top (1030) */
+    height: var(--stage-banner-height);
+    line-height: var(--stage-banner-height);
+    background-color: #D32F2F;
+    color: #fff;
+    letter-spacing: .03em;
+}
+
+.has-stage-banner .fixed-top {
+    top: var(--stage-banner-height);
+}
+
+.has-stage-banner main > .container {
+    padding-top: calc(60px + var(--stage-banner-height));
+}
+
 /* Orange instead of Bootstrap's blue as the primary color, as in the documentation: links,
    primary buttons, form controls and active menu items */
 :root,

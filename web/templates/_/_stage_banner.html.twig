@@ -1,7 +1,7 @@
-{# On every page of a non-production stage (APP_STAGE), e.g. the dev site; nothing in production. #}
+{# On every page of a non-production stage (APP_STAGE), e.g. the dev site; nothing in production.
+   Fixed above the fixed navbar (see .stage-banner in app.css). #}
 {% if stage %}
-    <div class="stage-banner text-center fw-bold small py-1 px-2" role="status"
-         style="background-color: #D32F2F; color: #fff; letter-spacing: .03em;">
+    <div class="stage-banner text-center fw-bold small px-2 text-truncate" role="status">
         {{ stage|upper }} · {{ ('stage.' ~ stage)|trans }}
     </div>
 {% endif %}

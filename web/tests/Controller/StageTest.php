@@ -32,6 +32,7 @@ class StageTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('.stage-banner');
+        self::assertSelectorNotExists('body.has-stage-banner');
         self::assertStringNotContainsString('DEV', $crawler->filter('title')->text());
         self::assertSame('/favicon.svg', $crawler->filter('link[type="image/svg+xml"]')->attr('href'));
         self::assertSame('/site.webmanifest', $crawler->filter('link[rel="manifest"]')->attr('href'));
@@ -47,6 +48,7 @@ class StageTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.stage-banner', 'DEV');
+        self::assertSelectorExists('body.has-stage-banner');
         self::assertStringStartsWith('DEV · ', $crawler->filter('title')->text());
         self::assertSame('/favicon-dev.svg', $crawler->filter('link[type="image/svg+xml"]')->attr('href'));
         self::assertSame('/apple-touch-icon-dev.png', $crawler->filter('link[rel="apple-touch-icon"]')->attr('href'));
