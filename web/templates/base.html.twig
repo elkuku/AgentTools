@@ -5,12 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{% block title %}AgentTools{% endblock %}</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    {# The dev site (APP_STAGE=dev) gets its own title prefix, icons and manifest. #}
+    {% set icon = app_stage == 'dev' ? '-dev' : '' %}
+    <title>{% if app_stage %}{{ app_stage|upper }} · {% endif %}{% block title %}AgentTools{% endblock %}</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon{{ icon }}.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon{{ icon }}.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon{{ icon }}-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon{{ icon }}-16x16.png">
+    <link rel="manifest" href="/site{{ icon }}.webmanifest">
+    {% if app_stage %}
+        <meta name="theme-color" content="#D32F2F">
+        <meta name="robots" content="noindex, nofollow">
+    {% endif %}
 
     {% block stylesheets %}
     {% endblock %}
@@ -25,6 +31,7 @@
       data-action="pointerover->tooltip#show pointerout->tooltip#hide focusin->tooltip#show focusout->tooltip#hide click->tooltip#hide scroll@window->tooltip#hide">
 
 <header>
+    {% include '_/_stage_banner.html.twig' with {stage: app_stage} only %}
     {% include '_/_nav_bar.html.twig' %}
 </header>
 

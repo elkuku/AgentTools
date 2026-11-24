@@ -339,3 +339,6 @@ links:
     intro: 'Nützliche Seiten für Ingress-Agenten. Die Liste ist im AgentTools-Repository auf GitHub: Jeder kann mit einem Pull-Request einen Link vorschlagen, und jeder Link wird einmal am Tag geprüft.'
     empty: Noch keine Links.
     suggest: Link vorschlagen
+
+stage:
+    dev: Testseite mit einer Kopie der Daten, wird automatisch von GitHub master aktualisiert. Änderungen hier bleiben nicht erhalten.

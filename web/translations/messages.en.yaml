@@ -340,3 +340,6 @@ links:
     intro: 'Useful sites for Ingress agents. The list is in the AgentTools repository on GitHub: anyone can suggest a link with a pull request, and every link is checked once a day.'
     empty: There are no links yet.
     suggest: Suggest a link
+
+stage:
+    dev: Test site with a copy of the data, updated automatically from GitHub master. Changes here are not kept.

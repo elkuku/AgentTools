@@ -1,0 +1,7 @@
+{# On every page of a non-production stage (APP_STAGE), e.g. the dev site; nothing in production. #}
+{% if stage %}
+    <div class="stage-banner text-center fw-bold small py-1 px-2" role="status"
+         style="background-color: #D32F2F; color: #fff; letter-spacing: .03em;">
+        {{ stage|upper }} · {{ ('stage.' ~ stage)|trans }}
+    </div>
+{% endif %}

@@ -1,7 +1,15 @@
+parameters:
+    # Used when APP_STAGE is not set at all: production.
+    app.stage_default: ''
+
 twig:
     file_name_pattern: '*.twig'
     form_themes:
         - 'bootstrap_5_layout.html.twig'
+    globals:
+        # Non-production stage of this installation, e.g. "dev" on the dev site: marks the
+        # title, favicon and every page. Empty in production.
+        app_stage: '%env(default:app.stage_default:APP_STAGE)%'
 
 when@test:
     twig:
