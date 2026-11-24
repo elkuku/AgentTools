@@ -100,7 +100,7 @@ jobs:
                 working-directory: web
         services:
             postgres:
-                image: postgres:15
+                image: postgres:17
                 env:
                     POSTGRES_USER: postgres
                     POSTGRES_PASSWORD: postgres
@@ -133,13 +133,13 @@ jobs:
                   bin/console doctrine:fixtures:load -n
               env:
                   APP_ENV: test
-                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=17&charset=UTF-8
 
             - name: Generate coverage report
               run: vendor/bin/phpunit --coverage-html docs/coverage --coverage-clover docs/coverage.xml
               env:
                   APP_ENV: test
-                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=17&charset=UTF-8
 
             - name: Apply dark theme to coverage report
               run: |

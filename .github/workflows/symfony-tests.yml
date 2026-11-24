@@ -21,7 +21,7 @@ jobs:
         # Docs: https://docs.github.com/en/actions/using-containerized-services
         services:
             postgres:
-                image: postgres:15
+                image: postgres:17
                 env:
                     POSTGRES_USER: postgres
                     POSTGRES_PASSWORD: postgres
@@ -64,4 +64,4 @@ jobs:
             - name: Run functional and unit tests
               run: make citests
               env:
-                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=15&charset=UTF-8
+                  DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=17&charset=UTF-8

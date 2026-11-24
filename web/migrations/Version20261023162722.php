@@ -20,10 +20,10 @@ final class Version20261023162722 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE system_user ADD agent_name VARCHAR(50) DEFAULT NULL');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_9C5F65BFF3B8C4E5 ON system_user (agent_name)');
+        $this->addSql('ALTER TABLE "system_user" ADD agent_name VARCHAR(50) DEFAULT NULL');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_9C5F65BFF3B8C4E5 ON "system_user" (agent_name)');
         $this->addSql(<<<'SQL'
-            UPDATE system_user u SET agent_name = latest.nickname
+            UPDATE "system_user" u SET agent_name = latest.nickname
             FROM (
                 SELECT DISTINCT ON (owner_id) owner_id, nickname
                 FROM agent_stat
@@ -38,6 +38,6 @@ final class Version20261023162722 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->addSql('DROP INDEX UNIQ_9C5F65BFF3B8C4E5');
-        $this->addSql('ALTER TABLE system_user DROP agent_name');
+        $this->addSql('ALTER TABLE "system_user" DROP agent_name');
     }
 }

@@ -23,8 +23,8 @@ final class Version20261019181235 extends AbstractMigration
         $this->addSql('DROP SEQUENCE messenger_messages_id_seq CASCADE');
         $this->addSql('DROP TABLE messenger_messages');
         // Version20251012133926 added "role" as nullable without filling it
-        $this->addSql("UPDATE system_user SET role = 'ROLE_USER' WHERE role IS NULL");
-        $this->addSql('ALTER TABLE system_user ALTER role SET NOT NULL');
+        $this->addSql("UPDATE \"system_user\" SET role = 'ROLE_USER' WHERE role IS NULL");
+        $this->addSql('ALTER TABLE "system_user" ALTER role SET NOT NULL');
     }
 
     public function down(Schema $schema): void
@@ -35,6 +35,6 @@ final class Version20261019181235 extends AbstractMigration
         $this->addSql('CREATE INDEX idx_75ea56e0fb7336f0 ON messenger_messages (queue_name)');
         $this->addSql('CREATE INDEX idx_75ea56e0e3bd61ce ON messenger_messages (available_at)');
         $this->addSql('CREATE INDEX idx_75ea56e016ba31db ON messenger_messages (delivered_at)');
-        $this->addSql('ALTER TABLE system_user ALTER role DROP NOT NULL');
+        $this->addSql('ALTER TABLE "system_user" ALTER role DROP NOT NULL');
     }
 }

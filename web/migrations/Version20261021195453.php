@@ -20,7 +20,7 @@ final class Version20261021195453 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql(<<<'SQL'
-            UPDATE system_user SET role = 'ROLE_AGENT'
+            UPDATE "system_user" SET role = 'ROLE_AGENT'
             WHERE role = 'ROLE_USER'
               AND (id IN (SELECT owner_id FROM agent_stat) OR custom_medals::text <> '{}')
             SQL);
@@ -28,6 +28,6 @@ final class Version20261021195453 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql("UPDATE system_user SET role = 'ROLE_USER' WHERE role = 'ROLE_AGENT'");
+        $this->addSql("UPDATE \"system_user\" SET role = 'ROLE_USER' WHERE role = 'ROLE_AGENT'");
     }
 }

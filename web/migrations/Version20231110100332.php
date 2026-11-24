@@ -21,8 +21,8 @@ final class Version20231110100332 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SEQUENCE system_user_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE system_user (id INT NOT NULL, identifier VARCHAR(255) NOT NULL, roles JSON NOT NULL, params JSON DEFAULT NULL, google_id VARCHAR(100) DEFAULT NULL, git_hub_id INT DEFAULT NULL, git_lab_id INT DEFAULT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_9C5F65BF772E836A ON system_user (identifier)');
+        $this->addSql('CREATE TABLE "system_user" (id INT NOT NULL, identifier VARCHAR(255) NOT NULL, roles JSON NOT NULL, params JSON DEFAULT NULL, google_id VARCHAR(100) DEFAULT NULL, git_hub_id INT DEFAULT NULL, git_lab_id INT DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_9C5F65BF772E836A ON "system_user" (identifier)');
         $this->addSql('CREATE TABLE messenger_messages (id BIGSERIAL NOT NULL, body TEXT NOT NULL, headers TEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, available_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivered_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_75EA56E0FB7336F0 ON messenger_messages (queue_name)');
         $this->addSql('CREATE INDEX IDX_75EA56E0E3BD61CE ON messenger_messages (available_at)');
@@ -45,7 +45,7 @@ final class Version20231110100332 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP SEQUENCE system_user_id_seq CASCADE');
-        $this->addSql('DROP TABLE system_user');
+        $this->addSql('DROP TABLE "system_user"');
         $this->addSql('DROP TABLE messenger_messages');
     }
 }
