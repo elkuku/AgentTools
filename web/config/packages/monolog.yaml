@@ -12,8 +12,8 @@ when@dev:
                     type: fingers_crossed
                     action_level: error
                     handler: chat_errors_deduplicated
-                    # Client errors: bad input, no access, unknown page
-                    excluded_http_codes: [400, 403, 404, 405, 422]
+                    # Client errors: bad input, no access, unknown page, unsupported format
+                    excluded_http_codes: [400, 403, 404, 405, 406, 422]
                     channels: ["!deprecation", "!event"]
                     buffer_size: 50
                 chat_errors_deduplicated:

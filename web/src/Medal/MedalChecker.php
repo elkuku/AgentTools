@@ -124,7 +124,7 @@ final class MedalChecker
             new CustomMedal('anomaly', 'initio', 'Initio'),
             new CustomMedal('anomaly', 'interitus', 'Interitus', endDate: '2014-06-21'),
             new CustomMedal('anomaly', 'recursion', 'Recursion', endDate: '2014-03-29'),
-            new CustomMedal('annual', 'vector', 'Vector', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2026-11-15'),
+            new CustomMedal('annual', 'vector', 'Vector', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2026-11-24'),
             new CustomMedal('annual', 'voyager', 'Voyager', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2025-11-24'),
             new CustomMedal('annual', 'catalyst', 'Catalyst', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2024-11-18'),
             new CustomMedal('annual', 'paragon', 'Paragon', ['bronze', 'silver', 'gold', 'platinum', 'black'], endDate: '2023-11-20'),

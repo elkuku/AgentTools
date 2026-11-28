@@ -8,19 +8,28 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Gathers the events of the given years from ingress.com/news: each quarter's schedule and
- * Mission Days, and the season overview for a quarter without a schedule. A page that does not
- * exist yet is left out; any other failure throws, so a broken site never empties the list.
+ * Mission Days, the season overview for a quarter without a schedule, and the news articles with
+ * a time window that none of those has. A page that does not exist yet is left out; any other
+ * failure throws, so a broken site never empties the list.
  */
 final readonly class IngressEventCollector
 {
     private const string NEWS_URL = 'https://ingress.com/news';
 
-    /** Index pages searched for season overviews: a season's stays there for about a year. */
+    /** Index pages searched for season overviews and articles: about a year of news. */
     private const int INDEX_PAGES = 3;
+
+    /** Articles that are no event of their own: what the other pages have, or results. */
+    private const string NOT_AN_EVENT = '/-q\d-(?:events|md)$|-anomalysites$|-results$|-top100$/';
+
+    /** Article titles that are no event: a report on what happened. */
+    private const string NOT_AN_EVENT_TITLE = '/^Dev Diary\b/';
 
     public function __construct(
         private HttpClientInterface $httpClient,
         private EventPageParser $parser,
+        private ArticleEvents $articleEvents = new ArticleEvents(),
+        private ?BadgeCatalog $badges = null,
     ) {
     }
 
@@ -29,11 +38,34 @@ final readonly class IngressEventCollector
      */
     public function collect(array $years): CollectedEvents
     {
+        $news = $this->newsIndex();
+        $overviews = \array_values(\array_filter($news, static fn (string $title): bool => \str_ends_with($title, 'Season - Overview'), \ARRAY_FILTER_USE_KEY));
         $pages = $this->quarterPages($years);
-        $pages = [...$pages, ...$this->overviewPages($years, $pages)];
+        $pages = [...$pages, ...$this->overviewPages($years, $pages, $overviews)];
 
         $events = \array_merge(...\array_map(static fn (ParsedPage $page): array => $page->events, $pages), ...[[]]);
         $skipped = \array_merge(...\array_map(static fn (ParsedPage $page): array => $page->skipped, $pages), ...[[]]);
+
+        foreach (\array_diff($news, $overviews) as $title => $slug) {
+            if (1 === \preg_match(self::NOT_AN_EVENT_TITLE, $title)) {
+                continue;
+            }
+
+            $article = $this->article($slug, $years);
+
+            if (!$article instanceof ParsedPage) {
+                continue;
+            }
+
+            $merged = $this->articleEvents->merge($events, $article);
+
+            if ($merged !== $events) {
+                $events = $merged;
+                $pages[] = $article;
+            }
+        }
+
+        $events = $this->badges?->withMedals($events) ?? $events;
 
         return new CollectedEvents(
             $this->sorted([...$events, ...$this->unannounced($events)]),
@@ -68,10 +100,11 @@ final readonly class IngressEventCollector
      *
      * @param list<int>        $years
      * @param list<ParsedPage> $quarterPages
+     * @param list<string>     $overviews    their slugs
      *
      * @return list<ParsedPage>
      */
-    private function overviewPages(array $years, array $quarterPages): array
+    private function overviewPages(array $years, array $quarterPages, array $overviews): array
     {
         $scheduled = [];
 
@@ -85,7 +118,7 @@ final readonly class IngressEventCollector
             && !isset($scheduled[$this->quarter($event)]);
         $pages = [];
 
-        foreach ($this->seasonOverviews() as $slug) {
+        foreach ($overviews as $slug) {
             $page = $this->page($slug, $this->parser->overview(...));
             $own = \array_values(\array_filter($page->events ?? [], $isOwn));
 
@@ -117,17 +150,41 @@ final readonly class IngressEventCollector
     }
 
     /**
-     * @return list<string>
+     * The articles of the first news index pages, as title => slug.
+     *
+     * @return array<string, string>
      */
-    private function seasonOverviews(): array
+    private function newsIndex(): array
     {
-        $slugs = [];
+        $articles = [];
 
         for ($page = 1; $page <= self::INDEX_PAGES; ++$page) {
-            $slugs = [...$slugs, ...\array_values($this->parser->seasonOverviews($this->fetch(self::NEWS_URL.'?page='.$page) ?? ''))];
+            $articles = [...$articles, ...$this->parser->articles($this->fetch(self::NEWS_URL.'?page='.$page) ?? '')];
         }
 
-        return \array_values(\array_unique($slugs));
+        return \array_unique($articles);
+    }
+
+    /**
+     * An article's event and campaigns that start in one of the years; the year in its slug ("2026-leonids")
+     * is that of dates without one; an article without it, or of a year before, is left out.
+     *
+     * @param list<int> $years
+     */
+    private function article(string $slug, array $years): ?ParsedPage
+    {
+        if (1 === \preg_match(self::NOT_AN_EVENT, $slug) || 1 !== \preg_match('/^(?<year>\d{4})-/', $slug, $match) || !\in_array((int) $match['year'], $years, true) && !\in_array((int) $match['year'] + 1, $years, true)) {
+            return null;
+        }
+
+        $url = self::NEWS_URL.'/'.$slug;
+        $html = $this->fetch($url);
+        $page = null === $html ? null : $this->parser->article($html, (int) $match['year'], $url);
+        $inYears = static fn (IngressEvent $event): bool => \in_array((int) \substr($event->start, 0, 4), $years, true);
+        $events = \array_values(\array_filter($page->events ?? [], $inYears));
+        $campaigns = \array_values(\array_filter($page->campaigns ?? [], $inYears));
+
+        return [] === $events && [] === $campaigns ? null : new ParsedPage($url, $events, campaigns: $campaigns);
     }
 
     /**

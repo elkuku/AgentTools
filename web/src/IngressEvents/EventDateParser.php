@@ -24,6 +24,52 @@ final class EventDateParser
     }
 
     /**
+     * The first time window in a news article's text, as "From Friday, 13 November 2026, at 18:00
+     * UTC to Tuesday, 24 November 2026, at 18:00 UTC", "Dec 2, 2026, 18:00 UTC to Dec 21, 2026",
+     * "7 August 2026 1800 UTC to …" or "opens 26 August 2026 at 18:00 UTC and concludes 16 …".
+     *
+     * @param int $year for dates without one
+     */
+    public function window(string $text, int $year): ?EventDates
+    {
+        $text = (string) \preg_replace([
+            // Weekdays: "Friday, ", "(Fri)", "Tue "
+            '/\(\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\s*\)/',
+            '/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:day|sday|nesday|rsday|urday)?\b\.?,?\s*/',
+            // "Dec 2, 2026" as "2 Dec 2026", but not the "18" of "July 18:00"
+            '/\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*)\.? (\d{1,2})(?:st|nd|rd|th)?(?![\d:])(?:,? (\d{4})\b)?/',
+            // "1800 UTC"
+            '/\b(\d{2})(\d{2}) UTC/',
+            '/[(),]/',
+            '/\s+at\s+/',
+            '/\s+/',
+        ], ['', '', '$2 $1 $3', '$1:$2 UTC', ' ', ' ', ' '], $text);
+
+        $day = '(?<%1$sday>\d{1,2}) (?<%1$smonth>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*)(?: (?<%1$syear>\d{4}))?(?: (?<%1$stime>\d{2}:\d{2})(?: UTC)?)?';
+        $to = ' ?(?:-|–|to|until|through|and(?: will)?(?: (?:ends?|concludes?))?(?: on)?) ';
+
+        if (1 !== \preg_match('/'.\sprintf($day, 'from_').$to.\sprintf($day, 'to_').'/', $text, $range, \PREG_UNMATCHED_AS_NULL)) {
+            return null;
+        }
+
+        $start = $this->date($range['from_day'], $range['from_month'], $range['from_year'] ?? $range['to_year'] ?? $year, $range['from_time']);
+        $end = $this->date($range['to_day'], $range['to_month'], $range['to_year'] ?? $range['from_year'] ?? $year, $range['to_time']);
+
+        if (!$start instanceof \DateTimeImmutable || !$end instanceof \DateTimeImmutable) {
+            return null;
+        }
+
+        $end = $end < $start ? $end->modify('+1 year') : $end;
+
+        return new EventDates(
+            $start->format('Y-m-d'),
+            $end->format('Y-m-d'),
+            null === $range['from_time'] ? null : $start->format('Y-m-d\TH:i:s\Z'),
+            null === $range['to_time'] ? null : $end->format('Y-m-d\TH:i:s\Z'),
+        );
+    }
+
+    /**
      * @return ?list<EventDates>
      */
     private function range(string $when, ?int $year): ?array

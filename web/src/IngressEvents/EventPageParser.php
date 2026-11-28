@@ -8,7 +8,7 @@ use Dom\Element;
 use Dom\HTMLDocument;
 
 /**
- * Reads the three kinds of event pages of ingress.com/news. Text in <del> is a date that was
+ * Reads the event pages of ingress.com/news: schedules, overviews, Mission Days and articles. Text in <del> is a date that was
  * corrected, so it is left out. An entry whose date is only "Early May" is reported, not guessed.
  */
 final readonly class EventPageParser
@@ -16,8 +16,13 @@ final readonly class EventPageParser
     /** The Daily Bounties run all season: a line on every day of the calendar. */
     private const string SEASON_LONG = 'Daily Bounties';
 
-    public function __construct(private EventDateParser $dates = new EventDateParser())
-    {
+    /** The heading after which an article lists its campaigns' tasks. */
+    public const string CAMPAIGN_DETAILS = 'Campaign Details';
+
+    public function __construct(
+        private EventDateParser $dates = new EventDateParser(),
+        private EventDetailParser $details = new EventDetailParser(),
+    ) {
     }
 
     /**
@@ -78,7 +83,8 @@ final readonly class EventPageParser
                 continue;
             }
 
-            $events = [...$events, ...$this->events($name, $dates, null, $source)];
+            $details = $this->details->overview($heading->nextElementSibling);
+            $events = [...$events, ...\array_map(static fn (IngressEvent $event): IngressEvent => $event->with(['details' => $details]), $this->events($name, $dates, null, $source))];
         }
 
         return new ParsedPage($source, $events, $skipped);
@@ -131,17 +137,125 @@ final readonly class EventPageParser
      */
     public function seasonOverviews(string $html): array
     {
-        $overviews = [];
+        return \array_filter($this->articles($html), static fn (string $title): bool => \str_ends_with($title, 'Season - Overview'), \ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * The articles in a page of ingress.com/news, as title => slug.
+     *
+     * @return array<string, string>
+     */
+    public function articles(string $html): array
+    {
+        $articles = [];
 
         foreach ($this->document($html)->querySelectorAll('a[href^="/news/"]') as $card) {
             $title = $this->text($card->querySelector('h3'));
 
-            if (\str_ends_with($title, 'Season - Overview')) {
-                $overviews[$title] = \substr((string) $card->getAttribute('href'), \strlen('/news/'));
+            if ('' !== $title) {
+                $articles[$title] = \substr((string) $card->getAttribute('href'), \strlen('/news/'));
             }
         }
 
-        return $overviews;
+        return $articles;
+    }
+
+    /**
+     * A news article (2026-ingressyear14): its heading and the first time window in its text as
+     * one event (none without a window), paid when it offers only a campaign for CMU, and the
+     * campaigns it names, each with its section's window or else the article's.
+     *
+     * @param int $year for dates without one
+     */
+    public function article(string $html, int $year, string $source): ParsedPage
+    {
+        $document = $this->content($html);
+        $title = $this->text($document->querySelector('main h1'));
+        $text = $this->text($document->querySelector('main'));
+        $dates = $this->dates->window($text, $year);
+        $campaigns = [];
+
+        $details = $this->details->campaigns($document);
+
+        foreach ($this->sections($document) as $heading => $section) {
+            $campaign = $this->campaign($heading, $section);
+            $window = $this->dates->window($section, $year) ?? $dates;
+
+            if (null !== $campaign && $window instanceof EventDates) {
+                $campaigns[] = new IngressEvent(EventType::Global, $campaign['name'], $window->start, $window->end, $window->startsAt, $window->endsAt, source: $source, paid: $campaign['paid'], details: $details[$campaign['name']] ?? []);
+                unset($details[$campaign['name']]);
+            }
+        }
+
+        // The campaigns' details no campaign above has, as "Year 14 - Vector" or those named in the text
+        $own = 1 === \count($details)
+            ? \array_merge(...\array_values($details))
+            : \array_map(static fn (string $name, array $items): EventDetail => new EventDetail($name, $items), \array_keys($details), \array_values($details));
+        $events = '' === $title || !$dates instanceof EventDates ? [] : [new IngressEvent(EventType::fromName($title), $title, $dates->start, $dates->end, $dates->startsAt, $dates->endsAt, source: $source, paid: $this->onlyPaid($text), details: $own)];
+
+        return new ParsedPage($source, $events, campaigns: $campaigns);
+    }
+
+    /**
+     * An article that offers a campaign for CMU and nothing free, as "a Premium Campaign
+     * available in the in-game store for 15,000 CMU" (Mother's Day); "free", "no cost" or "granted
+     * access" (The Aberration) is something free.
+     */
+    private function onlyPaid(string $text): bool
+    {
+        return 1 === \preg_match('/\bCampaign\b/i', $text)
+            && 1 === \preg_match('/\b\d{1,3}(?:,\d{3})+ CMU\b/', $text)
+            && 1 !== \preg_match('/\bfree\b|\bno cost\b|\bat no charge\b|\bgranted access\b/i', $text);
+    }
+
+    /**
+     * The article's sections up to the "Campaign Details" (the campaigns' tasks), as heading =>
+     * text.
+     *
+     * @return array<string, string>
+     */
+    private function sections(HTMLDocument $document): array
+    {
+        $sections = [];
+        $heading = null;
+
+        foreach ($document->querySelectorAll('main h3, main h4, main p, main li') as $element) {
+            if (\in_array($element->localName, ['h3', 'h4'], true)) {
+                $heading = $this->text($element);
+
+                if (self::CAMPAIGN_DETAILS === $heading) {
+                    break;
+                }
+
+                $sections[$heading] = '';
+            } elseif (null !== $heading && !$element->querySelector('ul') instanceof Element) {
+                $sections[$heading] .= ' '.$this->text($element);
+            }
+        }
+
+        return \array_map(trim(...), $sections);
+    }
+
+    /**
+     * The campaign a section is about: "<Name> is free and available …" or "<Name> is available in
+     * the In-App Store for 15,000 CMU" under the heading <Name>, or a "Free Campaign: <Name>" or
+     * "Premium Campaign: <Name>" heading.
+     *
+     * @return ?array{name: string, paid: bool}
+     */
+    private function campaign(string $heading, string $text): ?array
+    {
+        if (1 === \preg_match('/^(?<kind>Free|Premium) Campaign: (?<name>.+)$/', $heading, $named)) {
+            return ['name' => $named['name'], 'paid' => 'Premium' === $named['kind']];
+        }
+
+        $name = \preg_quote($heading, '/');
+
+        return match (true) {
+            1 === \preg_match('/\b'.$name.' is free\b/', $text) => ['name' => $heading, 'paid' => false],
+            1 === \preg_match('/\b'.$name.' is available [^.]*\bfor [\d,]+ CMU\b/', $text) => ['name' => $heading, 'paid' => true],
+            default => null,
+        };
     }
 
     /**

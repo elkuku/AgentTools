@@ -10,6 +10,9 @@
 {% block body %}
     <h1>{{ 'links.title'|trans }}</h1>
     <p class="text-body-secondary">{{ 'links.intro'|trans }}</p>
+    <a class="btn btn-outline-secondary mb-3" href="{{ suggestUrl }}" target="_blank" rel="noopener noreferrer">
+        <i class="bi-github" aria-hidden="true"></i> {{ 'links.suggest'|trans }}
+    </a>
 
     {% for section in linkList.sections %}
         <div class="card mb-3">
@@ -33,8 +36,4 @@
     {% else %}
         <p>{{ 'links.empty'|trans }}</p>
     {% endfor %}
-
-    <a class="btn btn-outline-secondary" href="{{ suggestUrl }}" target="_blank" rel="noopener noreferrer">
-        <i class="bi-github" aria-hidden="true"></i> {{ 'links.suggest'|trans }}
-    </a>
 {% endblock %}

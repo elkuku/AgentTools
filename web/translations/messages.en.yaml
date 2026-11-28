@@ -311,8 +311,18 @@ events:
     next_month: Next month
     today: Today
     count: '%count% event|%count% events'
-    expected: Expected
     updated: 'Last change: %date%'
+    paid_events: Paid events
+    apply: Apply
+    paid: Paid
+    starts: Starts
+    ends_on: Ends
+    ends: '%title% ends'
+    several_days: Over several days
+    details: Details
+    mission_days: Mission Days
+    # A day on the timeline (ICU pattern)
+    day_pattern: 'EEE, MMM d'
     type:
         anomaly: XM Anomaly
         mission_day: Mission Day

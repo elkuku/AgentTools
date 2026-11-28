@@ -40,11 +40,41 @@ final readonly class IngressEvent
         /** False for a First Saturday or Second Sunday no page has announced. */
         #[Groups([IngressEventList::READ])]
         public bool $confirmed = true,
+        /** Only for CMU: a campaign bought in the store, or an event that is only such a campaign. */
+        #[Groups([IngressEventList::READ])]
+        public bool $paid = false,
+        /** The medal it gives, by its name on ingress.plus. */
+        #[Groups([IngressEventList::READ])]
+        public ?string $medal = null,
+        /** The medal's image on ingress.plus. */
+        #[Groups([IngressEventList::READ])]
+        public ?string $medalImage = null,
+        /**
+         * What to do for its medal and rewards, as the news show it: a campaign's stages, assignments
+         * and tasks, or the season overview's notes.
+         *
+         * @var list<EventDetail>
+         */
+        #[Groups([IngressEventList::READ])]
+        public array $details = [],
     ) {
     }
 
     /**
-     * @param array{type: string, title: string, start: string, end: string, startsAt?: ?string, endsAt?: ?string, location?: ?string, url?: ?string, source?: ?string, confirmed?: bool} $data
+     * A copy with other values.
+     *
+     * @param array<string, mixed> $changes by property name
+     */
+    public function with(array $changes): self
+    {
+        /** @var array{type: EventType, title: string, start: string, end: string, startsAt: ?string, endsAt: ?string, location: ?string, url: ?string, source: ?string, confirmed: bool, paid: bool, medal: ?string, medalImage: ?string, details: list<EventDetail>} $values */
+        $values = [...\get_object_vars($this), ...$changes];
+
+        return new self(...$values);
+    }
+
+    /**
+     * @param array{type: string, title: string, start: string, end: string, startsAt?: ?string, endsAt?: ?string, location?: ?string, url?: ?string, source?: ?string, confirmed?: bool, paid?: bool, medal?: ?string, medalImage?: ?string, details?: list<array{text: string, items?: list<mixed>}>} $data
      */
     public static function fromArray(array $data): self
     {
@@ -59,11 +89,15 @@ final readonly class IngressEvent
             $data['url'] ?? null,
             $data['source'] ?? null,
             $data['confirmed'] ?? true,
+            $data['paid'] ?? false,
+            $data['medal'] ?? null,
+            $data['medalImage'] ?? null,
+            \array_map(EventDetail::fromArray(...), $data['details'] ?? []),
         );
     }
 
     /**
-     * @return array{type: string, title: string, start: string, end: string, startsAt: ?string, endsAt: ?string, location: ?string, url: ?string, source: ?string, confirmed: bool}
+     * @return array{type: string, title: string, start: string, end: string, startsAt: ?string, endsAt: ?string, location: ?string, url: ?string, source: ?string, confirmed: bool, paid: bool, medal: ?string, medalImage: ?string, details: list<array{text: string, items?: list<array<string, mixed>>}>}
      */
     public function toArray(): array
     {
@@ -78,6 +112,10 @@ final readonly class IngressEvent
             'url' => $this->url,
             'source' => $this->source,
             'confirmed' => $this->confirmed,
+            'paid' => $this->paid,
+            'medal' => $this->medal,
+            'medalImage' => $this->medalImage,
+            'details' => \array_map(static fn (EventDetail $detail): array => $detail->toArray(), $this->details),
         ];
     }
 

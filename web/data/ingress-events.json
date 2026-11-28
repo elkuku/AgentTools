@@ -1,5 +1,5 @@
 {
-    "generatedAt": "2026-11-04T14:23:16+00:00",
+    "generatedAt": "2026-11-28T17:22:48+00:00",
     "events": [
         {
             "type": "first_saturday",
@@ -11,7 +11,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -23,7 +27,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "global",
@@ -35,7 +43,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -47,7 +59,11 @@
             "location": "Jauja, Peru",
             "url": "https://t.me/MD_LITE_JAUJA_PERU_2026",
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -59,7 +75,11 @@
             "location": "Hino, Japan",
             "url": "https://t.me/+IqTxNxux9sFlMmFl",
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -71,7 +91,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -83,7 +107,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "shard",
@@ -95,7 +123,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -107,7 +139,43 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Valentine’s 2022 Redux",
+            "start": "2026-02-10",
+            "end": "2026-02-27",
+            "startsAt": "2026-02-10T17:00:00Z",
+            "endsAt": "2026-02-27T17:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-valentines",
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Valentine’s 2026",
+            "start": "2026-02-10",
+            "end": "2026-02-27",
+            "startsAt": "2026-02-10T17:00:00Z",
+            "endsAt": "2026-02-27T17:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-valentines",
+            "confirmed": true,
+            "paid": true,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -119,7 +187,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -131,7 +203,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": true,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -143,7 +219,27 @@
             "location": "Youngstown, OH, USA",
             "url": "https://t.me/IngressMDYtown2026",
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Ingress Toast Day 2026",
+            "start": "2026-02-26",
+            "end": "2026-03-09",
+            "startsAt": "2026-02-26T18:00:00Z",
+            "endsAt": "2026-03-09T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-toastday",
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -155,7 +251,11 @@
             "location": "Charlotte, NC, USA",
             "url": "https://maps.app.goo.gl/gv3h43ckWPm3nRw69",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -167,7 +267,11 @@
             "location": "Lisbon, Portugal",
             "url": "https://maps.app.goo.gl/UUo7SusMUeJWVKSR7",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -179,7 +283,11 @@
             "location": "Charlotte, NC, USA",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -191,7 +299,27 @@
             "location": "Lisbon, Portugal",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Investigation Alert: The Aberration",
+            "start": "2026-03-06",
+            "end": "2026-04-06",
+            "startsAt": "2026-03-06T18:00:00Z",
+            "endsAt": "2026-04-06T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-aberration",
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -203,7 +331,11 @@
             "location": "Gurugram, India",
             "url": "https://t.me/IngressIN/12478",
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -215,7 +347,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -227,7 +363,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -239,7 +379,11 @@
             "location": "Hong Kong",
             "url": "https://maps.app.goo.gl/A7BEG36RGPi45LJX7",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -251,7 +395,11 @@
             "location": "Zagreb, Croatia",
             "url": "https://maps.app.goo.gl/Rd22X312axQ9JpVJA",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -263,7 +411,11 @@
             "location": "Hong Kong",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -275,7 +427,11 @@
             "location": "Zagreb, Croatia",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -287,7 +443,11 @@
             "location": "Buenos Aires, Argentina",
             "url": "https://maps.app.goo.gl/nYk2GdNuBZWorNLp9",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -299,7 +459,11 @@
             "location": "Hyderabad, Telangana, India",
             "url": "https://maps.app.goo.gl/WZDdbbED7dp69m6q6",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -311,7 +475,11 @@
             "location": "Buenos Aires, Argentina",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -323,7 +491,11 @@
             "location": "Hyderabad, Telangana, India",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -335,7 +507,11 @@
             "location": "Wörlitz, Germany",
             "url": null,
             "source": "https://ingress.com/news/2026-q1-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -347,7 +523,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "global",
@@ -359,7 +539,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -371,7 +555,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "global",
@@ -383,7 +571,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -395,7 +587,27 @@
             "location": "Shah Alam, Malaysia",
             "url": "https://t.me/MDShahAlamMalaysia",
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Nemesis Challenge Redux",
+            "start": "2026-05-01",
+            "end": "2026-06-01",
+            "startsAt": "2026-05-01T18:00:00Z",
+            "endsAt": "2026-06-01T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-nemesisredux",
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -407,7 +619,11 @@
             "location": "San Andres, Colombia",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -419,7 +635,11 @@
             "location": "Schwerin, Germany",
             "url": "https://t.me/MDSchwerin",
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -431,7 +651,27 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "The Mother is the Beacon: Honoring The Acolyte",
+            "start": "2026-05-08",
+            "end": "2026-05-18",
+            "startsAt": "2026-05-08T18:00:00Z",
+            "endsAt": "2026-05-18T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-mothersday",
+            "confirmed": true,
+            "paid": true,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -443,7 +683,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -455,7 +699,11 @@
             "location": "Prague, Czechia",
             "url": "https://maps.app.goo.gl/y6qseyJ7xsk371sg7",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -467,7 +715,11 @@
             "location": "Sydney, NSW, Australia",
             "url": "https://maps.app.goo.gl/RGochG5GMc2TJcKM9",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -479,7 +731,11 @@
             "location": "Prague, Czechia",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -491,7 +747,11 @@
             "location": "Sydney, NSW, Australia",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -503,7 +763,11 @@
             "location": "Jersey City, New Jersey, USA",
             "url": "https://maps.app.goo.gl/GcHBe5rfSzawjvRs8",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -515,7 +779,11 @@
             "location": "Kure City, Hiroshima Pref, Japan",
             "url": "https://maps.app.goo.gl/4temPQExy8sQydWt6",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -527,7 +795,11 @@
             "location": "Jersey City, New Jersey, USA",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -539,7 +811,11 @@
             "location": "Kure City, Hiroshima Pref, Japan",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -551,7 +827,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -563,7 +843,11 @@
             "location": "Espoo, Finland",
             "url": "https://t.me/MissionDayEspoo",
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -575,7 +859,27 @@
             "location": "Foshan, China",
             "url": "https://t.me/foshanmissionday",
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "The Father is the Enigma: The Legacy of Nigel Moyer",
+            "start": "2026-06-12",
+            "end": "2026-06-22",
+            "startsAt": "2026-06-12T18:00:00Z",
+            "endsAt": "2026-06-22T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-fathersday",
+            "confirmed": true,
+            "paid": true,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -587,7 +891,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -599,7 +907,11 @@
             "location": "Geneva, Switzerland",
             "url": "https://maps.app.goo.gl/p5M9SRSryJSDshGv9",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -611,7 +923,11 @@
             "location": "Lima, Peru",
             "url": "https://maps.app.goo.gl/kveN1kw2NVBAw6Bz9",
             "source": "https://ingress.com/news/2026-q2-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -623,7 +939,11 @@
             "location": "Geneva, Switzerland",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -635,7 +955,11 @@
             "location": "Lima, Peru",
             "url": null,
             "source": "https://ingress.com/news/2026-q2-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -647,7 +971,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -659,7 +987,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -671,11 +1003,15 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "global",
-            "title": "▓▓▓▓▓▓▓",
+            "title": "Operation Moonlit Paths",
             "start": "2026-07-15",
             "end": "2026-08-14",
             "startsAt": "2026-07-15T18:00:00Z",
@@ -683,7 +1019,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Moonlit Paths",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/3r2hjdn6fh2k1fi/moonlit_paths_z3uejcr59c.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -695,7 +1035,11 @@
             "location": "Bogotá, Colombia",
             "url": "https://maps.app.goo.gl/tvXU95vQzPDNAgeEA",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -707,7 +1051,11 @@
             "location": "Helsinki, Finland",
             "url": "https://maps.app.goo.gl/B9ipUf278N4s6yNV8",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -719,7 +1067,11 @@
             "location": "Bogotá, Colombia",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -731,7 +1083,11 @@
             "location": "Helsinki, Finland",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -743,7 +1099,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -755,7 +1115,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "global",
@@ -767,7 +1131,234 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Level 8 Week 2026",
+                    "items": [
+                        {
+                            "text": "Stage 1",
+                            "items": [
+                                {
+                                    "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 1× Apex Boost and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Hack any 25 Portals → 1× Rare Multi-Hack, 1× Level 4 Resonator and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Deploy 50 Resonators → 3× Agent-level XMP Bursters, 6× Level 1 Resonators and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Walk 2 kilometers → 1× Agent-level Ultra Strike, 1× Agent-level Power Cube and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Recharge Portals with 35,000 XM → 3× Agent-level XMP Bursters, 6× Level 1 Resonators and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: “Machina Forever 2026” Medal and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Destroy 25 Resonators → 1× Common Portal Shield, 1× Common Heat Sink and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Capture any 10 Portals → 1× Common Multi-Hack, 2× Agent-level Power Cubes and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Earn 40 Glyph Hack Points → 1× Common Heat Sink, 1× Level 4 Resonator and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Activate 1 Apex Boost → 10× Level 1 Resonators, 1× Agent-level Power Cube and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Stage 2",
+                            "items": [
+                                {
+                                    "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 1× Very Rare Multi-Hack, 1× Very Rare Portal Shield and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Hack any 55 Portals → 2× Rare Heat Sinks, 2× Agent-level Power Cubes, 1× Level 5 Resonator and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Deploy 20 Portal Mods → 3× Rare Portal Shields, 1× Rare Multi-Hack and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Create 15 Links → 2× Rare Heat Sinks, 3× Agent-level XMP Bursters, 1× Common Multi-Hack and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Destroy 60 Resonators → 1× Rare Capsule, 1× Rare Heat Sink, 1× Rare Multi-Hack and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 1× Very Rare Heat Sink, 2× Agent-level Ultra Strikes and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Deploy 100 Resonators → 3× Agent-level Power Cubes, 2× Rare Heat Sinks, 1× Common Portal Shield, 1× Agent-level XMP Burster and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Earn 70 Glyph Hack Points → 1× Rare Multi-Hack, 3× Agent-level XMP Bursters, 1× Level 4 Resonator and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Create 10 Fields → 1× Rare Heat Sink, 1× Agent-level Ultra Strike, 1× Common Multi-Hack and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Claim 2 Kinetic Capsule Programs → 1× Rare Heat Sink, 1× Agent-level Ultra Strike, 1× Agent-level XMP Burster and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Stage 3",
+                            "items": [
+                                {
+                                    "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 1× Very Rare Multi-Hack, 1× Very Rare Heat Sink, 1× Rare Portal Shield, 1× Level 3 Resonator and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Capture any 30 Portals → 3× Agent-level Ultra Strikes, 3× Common Portal Shields, 3× Level 2 Resonators, 1× Agent-level Power Cube and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Earn 150 Glyph Hack Points → 1× Very Rare Heat Sink, 1× Agent-level Power Cube and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Destroy 20 Opponent Fields → 3× Common Portal Shields, 3× Common Multi-Hacks, 3× Level 6 Resonators, 1× Common Heat Sink and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Create 30 Links → 1× Very Rare Multi-Hack, 1× Rare Heat Sink, 3× Level 3 Resonators and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 1× Very Rare Multi-Hack, 1× Very Rare Portal Shield, 3× Agent-level Power Cubes and 10 Apollo Tokens",
+                                    "items": [
+                                        {
+                                            "text": "Deploy 160 Resonators → 3× Rare Portal Shields, 1× Rare Heat Sink and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Deploy 30 Portal Mods → 3× Rare Multi-Hacks, 3× Agent-level XMP Bursters, 3× Level 3 Resonators, 1× Common Portal Shield and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Destroy 20 Enemy Links → 1× Very Rare Multi-Hack, 1× Rare Portal Shield and 10 Apollo Tokens"
+                                        },
+                                        {
+                                            "text": "Neutralize 20 Portals → 1× Softbank Ultra Link, 2× Level 6 Resonators, 1× Agent-level Power Cube and 10 Apollo Tokens"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Cobalt Blue Rising",
+                    "items": [
+                        {
+                            "text": "Stage 1",
+                            "items": [
+                                {
+                                    "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: “Resistance Forever 2026” medal",
+                                    "items": [
+                                        {
+                                            "text": "Hack any 30 Portals → 1× Rare Portal Shield and 1× Level 4 Resonator"
+                                        },
+                                        {
+                                            "text": "Deploy 55 Resonators → 1× Rare Heat Sink and 1× Common Portal Shield"
+                                        },
+                                        {
+                                            "text": "Neutralize 10 Portals → 1× Agent-level Ultra Strike, 1× Agent-level Power Cube and 1× Common Heat Sink"
+                                        },
+                                        {
+                                            "text": "Create 10 Links → 2× Agent-level XMP Bursters, 1× Common Portal Shield and 1× Common Heat Sink"
+                                        },
+                                        {
+                                            "text": "Destroy 8 Opponent Fields → 2× Common Portal Shields, 1× Level 3 Resonator and 1× Common Heat Sink"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 1× Aegis Shield",
+                                    "items": [
+                                        {
+                                            "text": "Earn 50 Glyph Hack Points → 1× Agent-level Ultra Strike and 1× Agent-level Power Cube"
+                                        },
+                                        {
+                                            "text": "Destroy 40 Resonators → 2× Agent-level Resonators and 1× Common Portal Shield"
+                                        },
+                                        {
+                                            "text": "Deploy 10 Portal Mods → 1× Rare Portal Shield and 1× Common Heat Sink"
+                                        },
+                                        {
+                                            "text": "Create 5 Fields → 1× Agent-level Power Cube and 1× Level 4 Resonator"
+                                        },
+                                        {
+                                            "text": "Walk 3 kilometers → 1× Agent-level XMP Burster and 1× Common Multi-Hack"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Viridian Green Rising",
+                    "items": [
+                        {
+                            "text": "Stage 1",
+                            "items": [
+                                {
+                                    "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: “Enlightened Forever 2026” medal",
+                                    "items": [
+                                        {
+                                            "text": "Hack any 30 Portals → 1× Level 4 Resonator, 1× Rare Multi-Hack and 1× Agent-level XMP Burster"
+                                        },
+                                        {
+                                            "text": "Destroy 40 Resonators → 2× Agent-level XMP Bursters, 1× Rare Multi-Hack and 1× Agent-level Power Cube"
+                                        },
+                                        {
+                                            "text": "Capture any 10 Portals → 2× Agent-level Power Cubes, 1× Agent-level XMP Burster and 1× Common Multi-Hack"
+                                        },
+                                        {
+                                            "text": "Destroy 10 Enemy Links → 2× Agent-level Power Cubes and 2× Rare Multi-Hacks"
+                                        },
+                                        {
+                                            "text": "Create 8 Fields → 3× Agent-level XMP Bursters and 2× Level 4 Resonators"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 1× Rare Kinetic Capsule",
+                                    "items": [
+                                        {
+                                            "text": "Earn 50 Glyph Hack Points → 2× Agent-level XMP Bursters and 1× Agent-level Power Cube"
+                                        },
+                                        {
+                                            "text": "Deploy 55 Resonators → 1× Rare Multi-Hack"
+                                        },
+                                        {
+                                            "text": "Destroy 10 Portal Mods → 1× Agent-level Resonator and 1× Common Heat Sink"
+                                        },
+                                        {
+                                            "text": "Destroy 5 Opponent Fields → 1× Agent-level XMP Burster and 2× Common Multi-Hacks"
+                                        },
+                                        {
+                                            "text": "Walk 3 kilometers → 1× Agent-level XMP Burster and 1× Level 5 Resonator"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "second_sunday",
@@ -779,7 +1370,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -791,7 +1386,11 @@
             "location": "Paris, France",
             "url": "https://maps.app.goo.gl/N5dRszFUWghALCqy7",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -803,7 +1402,11 @@
             "location": "Seoul, South Korea",
             "url": "https://maps.app.goo.gl/qzxgRC9PtiiB7vAo6",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -815,7 +1418,11 @@
             "location": "Paris, France",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -827,7 +1434,11 @@
             "location": "Seoul, South Korea",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -839,7 +1450,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -851,7 +1466,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -863,7 +1482,11 @@
             "location": "Asahikawa, Japan",
             "url": "https://t.me/+B162QnWH-ag3NGQ1",
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -875,7 +1498,11 @@
             "location": "Oban, United Kingdom",
             "url": "https://t.me/+ckFYLKNFUP0wMjM0",
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -887,7 +1514,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "First Saturday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/jraohuaswstkuvj/badge_fs_black_9iXZMWkiTP.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -899,7 +1530,11 @@
             "location": "Darmstadt, Germany",
             "url": "https://t.me/+IWuTOE1ukD84MThi",
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -911,7 +1546,11 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Second Sunday",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/hf6es3k9wfij5dd/badge_second_sunday_black_hDWoDw8SmH.png",
+            "details": []
         },
         {
             "type": "anomaly",
@@ -923,7 +1562,11 @@
             "location": "Denver, CO, USA",
             "url": "https://maps.app.goo.gl/1sbDMExy8NgX3F3v7",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "anomaly",
@@ -935,7 +1578,11 @@
             "location": "Singapore",
             "url": "https://maps.app.goo.gl/xdQZPHUNF5cT9Dc27",
             "source": "https://ingress.com/news/2026-q3-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -947,7 +1594,11 @@
             "location": "Denver, CO, USA",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "mission_day",
@@ -959,7 +1610,11 @@
             "location": "Singapore, Singapore",
             "url": null,
             "source": "https://ingress.com/news/2026-q3-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -971,7 +1626,21 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Cygnus: Global Battles",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/6wz6i52ie99k44j/medal_cygnus_battle_gold_1h33r81ogm.png",
+            "details": [
+                {
+                    "text": "Details: Complete a free Campaign delivered via Dispatch."
+                },
+                {
+                    "text": "Season Points: 2,000 Season Points"
+                },
+                {
+                    "text": "Cygnus Tokens: Complete the 3 Assignments in the Campaign to claim up to 8,000 Cygnus Tokens, alongside the 3-tiered Cygnus Global Battles medal."
+                }
+            ]
         },
         {
             "type": "first_saturday",
@@ -983,7 +1652,34 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Attend and check in at an onsite IFS event."
+                },
+                {
+                    "text": "Season Points: Each verified attendant earns their Faction 0.1 Season Point. The total Season Point earned per Faction is capped at 750.",
+                    "items": [
+                        {
+                            "text": "An individual Agent’s Faction is determined at the time the IFS medal is awarded."
+                        },
+                        {
+                            "text": "Each Agent will only be credited once per month, regardless of how many IFS events they attended that month."
+                        }
+                    ]
+                },
+                {
+                    "text": "Cygnus Tokens: Verified Agents will receive 2,500 Cygnus Tokens, alongside their IFS medal tick, by the end of the month.",
+                    "items": [
+                        {
+                            "text": "Read more about FS verification here"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "second_sunday",
@@ -995,7 +1691,11 @@
             "location": null,
             "url": null,
             "source": null,
-            "confirmed": false
+            "confirmed": false,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         },
         {
             "type": "global",
@@ -1007,7 +1707,21 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Complete a free Campaign delivered via Dispatch."
+                },
+                {
+                    "text": "Season Points: N/A"
+                },
+                {
+                    "text": "Cygnus Tokens: Earn up to 2,000 Cygnus Tokens"
+                }
+            ]
         },
         {
             "type": "shard",
@@ -1019,7 +1733,21 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Traverse Shards greater than a defined minimum distance."
+                },
+                {
+                    "text": "Season Points: 105 Season Points per site, 6 sites per weekend"
+                },
+                {
+                    "text": "Cygnus Tokens: Hack a Portal where a Shard is present to earn 2,500 Cygnus Tokens. Reward limit: 2,500 Cygnus Tokens per Event Day, up to 3 times per Season."
+                }
+            ]
         },
         {
             "type": "shard",
@@ -1031,7 +1759,113 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Traverse Shards greater than a defined minimum distance."
+                },
+                {
+                    "text": "Season Points: 105 Season Points per site, 6 sites per weekend"
+                },
+                {
+                    "text": "Cygnus Tokens: Hack a Portal where a Shard is present to earn 2,500 Cygnus Tokens. Reward limit: 2,500 Cygnus Tokens per Event Day, up to 3 times per Season."
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Leonids: The Lion Awakens",
+            "start": "2026-11-05",
+            "end": "2026-11-30",
+            "startsAt": "2026-11-05T18:00:00Z",
+            "endsAt": "2026-11-30T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-leonids",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Leonids: The Lion Awakens",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/13ez72kmmscj5dt/leonids_the_lion_awakens_u0uef8l05w.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 3× Rare Portal Shields, 1× Rare Kinetic Capsule and Leonids: The Lion Awakens medal",
+                            "items": [
+                                {
+                                    "text": "Capture 3 all time unique Portals → 3× Level 8 Resonators and 1× Agent-level Ultra Strike"
+                                },
+                                {
+                                    "text": "Deploy 20 Resonators → 1× Rare Link Amp and 1× Rare Portal Shield"
+                                },
+                                {
+                                    "text": "Recharge Portals with 50,000 XM → 5× Level 4 Resonators and 2× Common Heat Sinks"
+                                },
+                                {
+                                    "text": "Earn 20 Glyph Hack Points → 5× Level 2 Resonators and 1× Rare Multi-Hack"
+                                },
+                                {
+                                    "text": "Destroy 15 Resonators → 2× Rare Portal Shields and 1× Common Multi-Hack"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 20× Level 8 XMP Bursters, 3× Rare Heat Sinks and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Visit 3 all time unique Portals → 5× Level 4 Resonators and 5× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Deploy 20 Portal Mods → 5× Level 4 Resonators, 3× Rare Portal Shields and 1× Rare Heat Sink"
+                                },
+                                {
+                                    "text": "Drone Hack 6 Portals → 5× Level 8 Resonators and 3× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Claim 6 Daily Bounties → 2× Rare Force Amps and 1× Rare Kinetic Capsule"
+                                },
+                                {
+                                    "text": "Destroy 15 Portal Mods → 1× Common Portal Shield and 2× Rare Heat Sinks"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 1× Very Rare Link Amp, 3× Softbank Ultra Links and 1× Very Rare Battle Beacon",
+                            "items": [
+                                {
+                                    "text": "Complete 6 all time unique Missions → 5× Level 8 Power Cubes, 3× Softbank Ultra Links and 1× Hypercube"
+                                },
+                                {
+                                    "text": "Create 100 Links → 10× Agent-level Resonators, 3× Hypercubes and 1× APEX"
+                                },
+                                {
+                                    "text": "Drone Hack 20 Portals → 20× Level 8 Resonators, 10× Agent-level Power Cubes, 3× Rare Heat Sinks and 1× Very Rare Multi-Hack"
+                                },
+                                {
+                                    "text": "Recharge Portals with 1,000,000 XM → 15× Level 8 XMP Bursters, 5× Rare Capsules, 1× Hypercube, 1× APEX and 10× Beacon - Peace"
+                                },
+                                {
+                                    "text": "Destroy 100 Enemy Links → 1× Very Rare Aegis Shield, 3× Rare Heat Sinks and 5× Beacon - Meetup"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "global",
@@ -1043,7 +1877,87 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Leonids: Through the Ages",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/ck0finkrwjx5gjr/leonids_through_the_ages_zt4fpl63qk.png",
+            "details": [
+                {
+                    "text": "Details: Complete a free Campaign delivered via Dispatch."
+                },
+                {
+                    "text": "Season Points: N/A"
+                },
+                {
+                    "text": "Cygnus Tokens: Earn up to 2,000 Cygnus Tokens"
+                },
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 400 Cygnus Season Tokens, 5× Rare Portal Shields, 3× Rare Force Amps and Leonids: Through the Ages medal",
+                            "items": [
+                                {
+                                    "text": "Capture 3 all time unique Portals → 150 Cygnus Season Tokens, 3× Level 8 XMP Bursters and 1× Level 4 Resonator"
+                                },
+                                {
+                                    "text": "Deploy 70 Resonators → 150 Cygnus Season Tokens, 1× Agent-level Resonator, 1× Rare Portal Shield and 2× Common Heat Sinks"
+                                },
+                                {
+                                    "text": "Drone Hack 3 Portals → 150 Cygnus Season Tokens, 3× Level 8 Resonators and 1× Level 8 Power Cube"
+                                },
+                                {
+                                    "text": "Destroy 50 Resonators → 150 Cygnus Season Tokens, 1× Level 8 Resonator and 5× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 400 Cygnus Season Tokens, 10× Level 8 XMP Bursters and 5× Common Heat Sinks",
+                            "items": [
+                                {
+                                    "text": "Visit 3 all time unique Portals → 150 Cygnus Season Tokens, 5× Level 4 Resonators and 2× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Deploy 20 Portal Mods → 150 Cygnus Season Tokens, 3× Rare Portal Shields and 1× Rare Heat Sink"
+                                },
+                                {
+                                    "text": "Claim 8 Daily Bounties → 150 Cygnus Season Tokens, 15× Level 4 Resonators and 1× Rare Kinetic Capsule"
+                                },
+                                {
+                                    "text": "Destroy 15 Portal Mods → 150 Cygnus Season Tokens, 1× Rare Portal Shield and 3× Rare Force Amps"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 10× Level 8 Resonators, 1× ADA Refactor, 1× Jarvis Virus, 3× Softbank Ultra Links and 1× Very Rare Heat Sink",
+                            "items": [
+                                {
+                                    "text": "Complete 6 all time unique Missions → 5× Level 8 Resonators, 5× Level 8 Power Cubes and 1× Hypercube"
+                                },
+                                {
+                                    "text": "Upgrade 80 Resonators → 10× Level 8 Resonators, 1× Rare Portal Shield and 3× Hypercubes"
+                                },
+                                {
+                                    "text": "Drone Hack 25 Portals → 10× Level 8 Resonators, 5× Agent-level Power Cubes, 3× Rare Heat Sinks and 1× Rare Multi-Hack"
+                                },
+                                {
+                                    "text": "Destroy 300 Resonators → 20× Level 2 Resonators, 2× Rare Portal Shields, 1× Hypercube and 1× APEX"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1055,7 +1969,11 @@
             "location": "Zhuhai, China",
             "url": "https://t.me/ZhuhaiMD",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -1067,7 +1985,34 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Attend and check in at an onsite IFS event."
+                },
+                {
+                    "text": "Season Points: Each verified attendant earns their Faction 0.1 Season Point. The total Season Point earned per Faction is capped at 750.",
+                    "items": [
+                        {
+                            "text": "An individual Agent’s Faction is determined at the time the IFS medal is awarded."
+                        },
+                        {
+                            "text": "Each Agent will only be credited once per month, regardless of how many IFS events they attended that month."
+                        }
+                    ]
+                },
+                {
+                    "text": "Cygnus Tokens: Verified Agents will receive 2,500 Cygnus Tokens, alongside their IFS medal tick, by the end of the month.",
+                    "items": [
+                        {
+                            "text": "Read more about FS verification here"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "second_sunday",
@@ -1079,7 +2024,80 @@
             "location": null,
             "url": null,
             "source": null,
-            "confirmed": false
+            "confirmed": false,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Ingress Year 14 - Vector",
+            "start": "2026-11-13",
+            "end": "2026-11-24",
+            "startsAt": "2026-11-13T18:00:00Z",
+            "endsAt": "2026-11-24T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-ingressyear14",
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 10 out of 14 to proceed and claim: 14× Portal Frackers",
+                            "items": [
+                                {
+                                    "text": "Deploy 140 Resonators → 14× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Hack 14 Portal Keys → 14× Fireworks (RES)"
+                                },
+                                {
+                                    "text": "Destroy 140 Resonators → 14× Agent-level XMP Bursters"
+                                },
+                                {
+                                    "text": "Destroy 14 Enemy Links → 14× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Destroy 14 Portal Mods → 14× Agent-level Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 14 Portal Mods → 14× Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Capture any 14 Portals → 14× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Create 14 Links → 14× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Create 14 Fields → 14× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Fully Deploy 14 Portals → 14× Rare Turrets"
+                                },
+                                {
+                                    "text": "Claim 14 Kinetic Capsule Programs → 14× Hypercubes"
+                                },
+                                {
+                                    "text": "Claim 14 Daily Bounties → 14× Fireworks (ENL)"
+                                },
+                                {
+                                    "text": "Activate 14 Apex Boosts → 14× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Use 14 Portal Boosts (e.g., Beacons, Fireworks) → 14× Level 4 Resonators"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1091,7 +2109,11 @@
             "location": "Khon Kaen, Thailand",
             "url": "https://t.me/MD2026KhonKaen",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "mission_day",
@@ -1103,7 +2125,133 @@
             "location": "Novi Sad, Serbia",
             "url": "https://t.me/NSMD2026",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
+        },
+        {
+            "type": "global",
+            "title": "Leonids: A Feline Adventure",
+            "start": "2026-11-16",
+            "end": "2026-12-09",
+            "startsAt": "2026-11-16T18:00:00Z",
+            "endsAt": "2026-12-09T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-leonids",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Leonids: A Feline Adventure",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/r283ubic6vzw64g/leonids_a_feline_adventure_lzehcxggx4.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 3× Rare Heat Sinks, 1× Rare Kinetic Capsule and Leonids: A Feline Adventure medal",
+                            "items": [
+                                {
+                                    "text": "Hack any 10 Portals → 5× Level 8 XMP Bursters and 3× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Capture any 10 Portals → 5× Agent-level Resonators and 3× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 1× Level 8 Power Cube and 6× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Use 3 Portal Boosts (e.g., Beacons, Fireworks) → 5× Agent-level XMP Bursters and 5× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 1× Very Rare Portal Shield, 3× Rare Heat Sinks and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Capture any 30 Portals → 10× Level 8 Power Cubes and 3× Level 8 Ultra Strikes"
+                                },
+                                {
+                                    "text": "Visit 3 all time unique Portals → 10× Agent-level Resonators and 3× Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Claim 5 Kinetic Capsule Programs → 5× Level 8 XMP Bursters and 10× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Use 10 Portal Boosts (e.g., Beacons, Fireworks) → 5× Agent-level Resonators and 5× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Leonids: Brilliant Passage",
+            "start": "2026-11-16",
+            "end": "2026-12-09",
+            "startsAt": "2026-11-16T18:00:00Z",
+            "endsAt": "2026-12-09T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-leonids",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Leonids: Brilliant Passage",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/y3qywsv1a00icrw/leonids_brilliant_passage_9ntap1qh1v.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 5× Level 8 XMP Bursters, 10× Agent-level Power Cubes, 3× Hypercubes, 1× APEX and Leonids: Brilliant Passage medal",
+                            "items": [
+                                {
+                                    "text": "Create 10 Links → 5× Agent-level Resonators and 3× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 1× Rare Link Amp and 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Use 3 Portal Boosts (e.g., Beacons, Fireworks) → 5× Level 8 XMP Bursters and 3× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Destroy 10 Enemy Links → 10× Level 4 Resonators and 3× Common Multi-Hacks"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 10× Agent-level XMP Bursters, 1× Very Rare Aegis Shield, 1× Hypercube, 1× Portal Fracker and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Deploy 25 Portal Mods → 10× Level 8 Resonators and 3× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Recharge Portals with 200,000 XM → 5× Agent-level Power Cubes, 3× Rare Portal Shields and 1× Rare Heat Sink"
+                                },
+                                {
+                                    "text": "Claim 8 Daily Bounties → 10× Agent-level XMP Bursters, 3× Agent-level Ultra Strikes and 1× Rare Kinetic Capsule"
+                                },
+                                {
+                                    "text": "Destroy 20 Portal Mods → 5× Level 8 XMP Bursters and 1× Very Rare Portal Shield"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1115,7 +2263,11 @@
             "location": "Putrajaya, Malaysia",
             "url": "https://t.me/MDMalaysia",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "shard",
@@ -1127,7 +2279,21 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Traverse Shards greater than a defined minimum distance."
+                },
+                {
+                    "text": "Season Points: 105 Season Points per site, 6 sites per weekend"
+                },
+                {
+                    "text": "Cygnus Tokens: Hack a Portal where a Shard is present to earn 2,500 Cygnus Tokens. Reward limit: 2,500 Cygnus Tokens per Event Day, up to 3 times per Season."
+                }
+            ]
         },
         {
             "type": "global",
@@ -1139,7 +2305,21 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Cygnus: Global Deploy",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/1zm5fy4f48duk69/cygnus_global_deploy_gold_h2oemmuihn.png",
+            "details": [
+                {
+                    "text": "Details: Complete a free Campaign delivered via Dispatch."
+                },
+                {
+                    "text": "Season Points: 2,000 Season Points"
+                },
+                {
+                    "text": "Cygnus Tokens: Complete the 3 Assignments in the Campaign to claim up to 8,000 Cygnus Tokens, alongside the 3-tiered Cygnus Global Deploy medal."
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1151,7 +2331,11 @@
             "location": "Shanghai, China",
             "url": "https://t.me/SHingress_MISSIONDAY",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "global",
@@ -1163,7 +2347,916 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Crystal Horizon 2026",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/prq79k1d88vyoha/crystal_horizon_fflzx95l3d.png",
+            "details": [
+                {
+                    "text": "Details: Complete a free Campaign delivered via Dispatch."
+                },
+                {
+                    "text": "Season Points: N/A"
+                },
+                {
+                    "text": "Cygnus Tokens: Earn up to 2,000 Cygnus Tokens"
+                },
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 6× Level 8 XMP Bursters and 6× Common Portal Shields",
+                            "items": [
+                                {
+                                    "text": "Hack any 10 Portals → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Deploy 10 Resonators → 2× Common Heat Sinks"
+                                },
+                                {
+                                    "text": "Capture any 3 Portals → 2× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Neutralize 3 Portals → 2× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 10× Agent-level Resonators and 4× Common Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens and 10× Agent-level Resonators",
+                            "items": [
+                                {
+                                    "text": "Hack any 20 Portals → 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 25 Resonators → 10× Agent-level Resonators and 2× Rare Turrets"
+                                },
+                                {
+                                    "text": "Capture any 10 Portals → 2× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Walk 1.0 kilometer → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Neutralize 10 Portals → 2× Agent-level Power Cubes and 4× Common Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 2× Agent-level Ultra Strikes and 2× Rare Capsules",
+                            "items": [
+                                {
+                                    "text": "Hack any 30 Portals → 2× Rare Force Amps and 2× Rare Turrets"
+                                },
+                                {
+                                    "text": "Deploy 40 Resonators → 10× Agent-level Resonators and 2× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Create 5 Links → 10× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Destroy 5 Enemy Links → 6× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 2× Rare Force Amps, 2× Rare Turrets and 2× Agent-level Ultra Strikes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 4 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 10× Level 8 XMP Bursters, 10× Agent-level Resonators and [crystal_horizon_2026] medal",
+                            "items": [
+                                {
+                                    "text": "Hack any 40 Portals → 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 60 Resonators → 6× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Create 10 Links → 6× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Walk 2.0 kilometers → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Destroy 10 Enemy Links → 2× Agent-level Power Cubes and 4× Rare Portal Shields"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 2× Level 8 Power Cubes and 2× Rare Force Amps",
+                            "items": [
+                                {
+                                    "text": "Claim 3 Daily Bounties → 2× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 25 Resonators → 2× Agent-level Resonators and 2× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Capture any 10 Portals → 2× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Neutralize 10 Portals → 2× Common Portal Shields and 2× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Claim 2 Kinetic Capsule Programs → 2× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 6× Agent-level Resonators and 2× Level 8 Ultra Strikes",
+                            "items": [
+                                {
+                                    "text": "Hack any 20 Portals → 2× Level 8 XMP Bursters and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 40 Resonators → 2× Level 8 Power Cubes and 2× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Capture any 15 Portals → 2× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Walk 4.0 kilometers → 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Neutralize 15 Portals → 2× Level 8 XMP Bursters and 2× Agent-level Resonators"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 6× Level 8 Power Cubes, 2× Softbank Ultra Links and 2× Rare Heat Sinks",
+                            "items": [
+                                {
+                                    "text": "Claim 3 Daily Bounties → 2× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Deploy 80 Resonators → 6× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Create 30 Links → 2× Level 8 Power Cubes and 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Destroy 30 Enemy Links → 6× Level 8 XMP Bursters and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Claim 3 Kinetic Capsule Programs → 2× Rare Portal Shields and 2× Hypercubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 4 → Complete 4 out of 5 to proceed and claim: 250 Cygnus Tokens, 10× Level 8 XMP Bursters, 2× Softbank Ultra Links and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Hack any 160 Portals → 2× Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Deploy 160 Resonators → 10× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Create 50 Links → 10× Agent-level Resonators and 10× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Walk 5.0 kilometers → 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 10× Level 8 XMP Bursters"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 6× Rare Link Amps and 2× Very Rare Multi-Hacks",
+                            "items": [
+                                {
+                                    "text": "Hack any 180 Portals → 2× Level 8 Power Cubes and 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Deploy 200 Resonators → 20× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Capture any 40 Portals → 4× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Neutralize 40 Portals → 10× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Claim 5 Kinetic Capsule Programs → 6× Level 8 Power Cubes and 4× Rare Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 10× Level 8 Power Cubes and 2× Very Rare Multi-Hacks",
+                            "items": [
+                                {
+                                    "text": "Claim 6 Daily Bounties → 4× Hypercubes"
+                                },
+                                {
+                                    "text": "Deploy 250 Resonators → 20× Level 8 XMP Bursters and 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Create 50 Links → 6× Very Rare ITO EN (+)"
+                                },
+                                {
+                                    "text": "Walk 10.0 kilometers → 6× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 2× Softbank Ultra Links, 2× Rare Multi-Hacks and 2× Hypercubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 4 out of 5 to proceed and claim: 10× Level 8 Power Cubes and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Hack any 200 Portals → 2× Rare Heat Sinks and 10× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Deploy 280 Resonators → 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Create 30 Fields → 4× Level 8 Power Cubes and 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Destroy 30 Opponent Fields → 10× Agent-level Resonators and 4× Rare Capsules"
+                                },
+                                {
+                                    "text": "Claim 7 Kinetic Capsule Programs → 2× Softbank Ultra Links and 2× Very Rare Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 4 → Complete 4 out of 5 to proceed and claim: 2× Very Rare Heat Sinks and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Hack any 150 Portals → 6× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Capture any 30 Portals → 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Create 50 Links → 2× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Create 30 Fields → 10× Agent-level Resonators and 2× Rare Capsules"
+                                },
+                                {
+                                    "text": "Deploy 300 Resonators → 2× Rare Portal Shields and 1× APEX"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 4",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 4 out of 5 to proceed and claim: 2× Very Rare Portal Shields and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Hack any 180 Portals → 2× Rare Portal Shields and 4× Rare Capsules"
+                                },
+                                {
+                                    "text": "Deploy 200 Resonators → 2× Level 8 Power Cubes and 6× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Capture any 50 Portals → 4× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Neutralize 50 Portals → 2× Level 8 Power Cubes and 2× Fireworks (RES)"
+                                },
+                                {
+                                    "text": "Claim 5 Kinetic Capsule Programs → 10× Agent-level Resonators and 10× Level 8 Power Cubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 4 out of 5 to proceed and claim: 1× APEX and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Hack any 270 Portals → 2× Level 8 Power Cubes and 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Claim 10 Daily Bounties → 4× Hypercubes, 1× APEX and 1× Rare Kinetic Capsule"
+                                },
+                                {
+                                    "text": "Create 90 Links → 6× Level 8 Ultra Strikes"
+                                },
+                                {
+                                    "text": "Walk 15.0 kilometers → 2× Very Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Destroy 90 Enemy Links → 2× Rare Link Amps and 4× Hypercubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 4 out of 5 to proceed and claim: 30× Agent-level Resonators and 4× Hypercubes",
+                            "items": [
+                                {
+                                    "text": "Hack any 300 Portals → 10× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Deploy 300 Resonators → 20× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Create 90 Fields → 2× Softbank Ultra Links, 2× Very Rare Heat Sinks and 2× Very Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Destroy 90 Opponent Fields → 2× Softbank Ultra Links and 2× Very Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Claim 10 Kinetic Capsule Programs → 1× APEX"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 4 → Complete 4 out of 5 to proceed and claim: 1× APEX, 1× Very Rare Battle Beacon and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Claim 12 Daily Bounties → 30× Agent-level Resonators, 2× Hypercubes and 1× Rare Kinetic Capsule"
+                                },
+                                {
+                                    "text": "Capture any 100 Portals → 2× Softbank Ultra Links and 2× Very Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Create 180 Links → 4× Level 8 Power Cubes and 2× Very Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Create 120 Fields → 4× Level 8 Power Cubes and 2× Very Rare Aegis Shields"
+                                },
+                                {
+                                    "text": "Claim 15 Kinetic Capsule Programs → 2× Very Rare Heat Sinks, 2× Very Rare Multi-Hacks and 1× APEX"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Crescent Dream",
+            "start": "2026-12-02",
+            "end": "2027-01-06",
+            "startsAt": "2026-12-02T18:00:00Z",
+            "endsAt": "2027-01-06T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-crystalhorizon",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Crescent Dream 2026",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/os758qhprzz8dai/crescent_dream_dohl78isg7.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 2× Rare Link Amps and 4× Rare Force Amps",
+                            "items": [
+                                {
+                                    "text": "Capture any 5 Portals → 2× Level 8 Power Cubes and 2× Common Heat Sinks"
+                                },
+                                {
+                                    "text": "Deploy 30 Resonators → 2× Agent-level Resonators and 2× Common Heat Sinks"
+                                },
+                                {
+                                    "text": "Recharge Portals with 46,000 XM → 2× Agent-level Resonators and 2× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Earn 50 Glyph Hack Points → 2× Agent-level Resonators and 6× Level 8 Power Cubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Common Heat Sinks and 4× Rare Force Amps",
+                            "items": [
+                                {
+                                    "text": "Claim 3 Daily Bounties → 2× Level 8 XMP Bursters and 4× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Recharge Portals with 46,000 XM → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Create 5 Links → 2× Level 8 Power Cubes and 4× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Destroy 5 Enemy Links → 6× Agent-level XMP Bursters and 2× Agent-level Resonators"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 2× Level 8 Power Cubes, 1× ADA Refactor, 1× Jarvis Virus, 4× Rare Force Amps and [crescent_dream_2026] medal",
+                            "items": [
+                                {
+                                    "text": "Deploy 30 Resonators → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Earn 30 Glyph Hack Points → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 5 Fields → 2× Agent-level Resonators and 6× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Destroy 5 Opponent Fields → 2× Agent-level Resonators and 2× Rare Force Amps"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 2× Rare Portal Shields and 2× Very Rare Aegis Shields",
+                            "items": [
+                                {
+                                    "text": "Capture any 20 Portals → 2× Level 8 XMP Bursters and 6× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Recharge Portals with 341,000 XM → 10× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Create 20 Links → 2× Common Multi-Hacks and 6× Level 8 Ultra Strikes"
+                                },
+                                {
+                                    "text": "Destroy 20 Enemy Links → 10× Level 8 XMP Bursters"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Rare Link Amps and 30× Common Portal Shields",
+                            "items": [
+                                {
+                                    "text": "Claim 6 Daily Bounties → 10× Agent-level XMP Bursters and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Deploy 120 Resonators → 10× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Create 10 Fields → 30× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Destroy 15 Resonators → 30× Agent-level Resonators"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 1× ADA Refactor, 1× Jarvis Virus and 2× Softbank Ultra Links",
+                            "items": [
+                                {
+                                    "text": "Earn 80 Glyph Hack Points → 20× Agent-level Resonators and 2× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Recharge Portals with 341,000 XM → 2× Level 8 XMP Bursters and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Create 20 Links → 2× Hypercubes and 2× Fireworks (ENL)"
+                                },
+                                {
+                                    "text": "Destroy 20 Enemy Links → 6× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 60× Rare Link Amps, 2× Rare Portal Shields and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Capture any 50 Portals → 2× Level 8 Power Cubes and 6× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Earn 270 Glyph Hack Points → 6× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Create 30 Fields → 60× Agent-level Resonators and 2× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Destroy 30 Opponent Fields → 60× Agent-level Resonators and 2× Hypercubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 60× Agent-level Power Cubes, 2× Very Rare Portal Shields, 3× APEX and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Deploy 290 Resonators → 20× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Recharge Portals with 1,058,000 XM → 6× Level 8 XMP Bursters, 6× Agent-level Resonators and 30× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Create 50 Links → 20× Level 8 Power Cubes, 4× Very Rare ITO EN (+) and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 2× Level 8 Power Cubes and 4× Very Rare Aegis Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 60× Agent-level Resonators, 60× Level 8 Power Cubes, 1× ADA Refactor, 1× Jarvis Virus, 1× Very Rare Link Amp, 1× APEX, 1× Very Rare Battle Beacon and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Create 120 Links → 2× Rare Portal Shields and 30× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Destroy 120 Enemy Links → 6× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Create 90 Fields → 30× Rare Link Amps and 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Destroy 150 Resonators → 6× Agent-level Resonators and 2× Hypercubes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Frostwarden",
+            "start": "2026-12-02",
+            "end": "2027-01-06",
+            "startsAt": "2026-12-02T18:00:00Z",
+            "endsAt": "2027-01-06T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-crystalhorizon",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Frostwarden 2026",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/1vitqinhwmj855s/frostwarden_llyyo8eyry.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 2× Rare Link Amps and 4× Rare Force Amps",
+                            "items": [
+                                {
+                                    "text": "Deploy 30 Resonators → 2× Level 8 Power Cubes and 2× Rare Multi-Hacks"
+                                },
+                                {
+                                    "text": "Recharge Portals with 46,000 XM → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 6× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Use 3 Portal Boosts (e.g., Beacons, Fireworks) → 6× Level 8 Power Cubes and 6× Beacon - Peace"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Rare Heat Sinks and 2× Rare Turrets",
+                            "items": [
+                                {
+                                    "text": "Deploy 30 Resonators → 2× Level 8 XMP Bursters and 4× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Recharge Portals with 46,000 XM → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Create 5 Links → 2× Level 8 Power Cubes and 4× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Destroy 5 Enemy Links → 6× Agent-level XMP Bursters and 2× Agent-level Resonators"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 2× Level 8 Power Cubes, 1× ADA Refactor, 1× Jarvis Virus, 12× Common Portal Shields and [frostwarden_2026] medal",
+                            "items": [
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Deploy 30 Resonators → 2× Agent-level Resonators and 6× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Create 5 Links → 6× Agent-level Power Cubes"
+                                },
+                                {
+                                    "text": "Destroy 5 Enemy Links → 2× Agent-level Resonators and 2× Rare Force Amps"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 6× Agent-level XMP Bursters, 2× Common Portal Shields and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Deploy 100 Resonators → 2× Level 8 Power Cubes and 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Recharge Portals with 286,000 XM → 2× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 20× Agent-level XMP Bursters and 2× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Use 6 Portal Boosts (e.g., Beacons, Fireworks) → 2× Level 8 Power Cubes, 2× Hypercubes and 12× Beacon - Peace"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Softbank Ultra Links and 6× Rare Portal Shields",
+                            "items": [
+                                {
+                                    "text": "Deploy 100 Resonators → 10× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Recharge Portals with 286,000 XM → 20× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 15 Links → 10× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Destroy 15 Enemy Links → 2× Agent-level Resonators, 2× Level 8 Power Cubes and 6× Rare Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 1× ADA Refactor, 1× Jarvis Virus and 2× Softbank Ultra Links",
+                            "items": [
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 20× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Recharge Portals with 286,000 XM → 2× Level 8 XMP Bursters, 2× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Create 15 Links → 2× Hypercubes and 2× Fireworks (ENL)"
+                                },
+                                {
+                                    "text": "Destroy 15 Enemy Links → 2× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 6× Agent-level Resonators, 6× Softbank Ultra Links, 2× Very Rare Portal Shields and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Deploy 285 Resonators → 2× Level 8 Power Cubes and 6× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Recharge Portals with 1,056,000 XM → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 50 Links → 2× Softbank Ultra Links and 30× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 60× Agent-level Resonators and 2× Softbank Ultra Links"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 60× Level 8 Power Cubes, 2× Rare Heat Sinks and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Claim 3 Kinetic Capsule Programs → 6× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Deploy 285 Resonators → 60× Level 8 XMP Bursters, 2× Rare Portal Shields and 10× Level 8 Ultra Strikes"
+                                },
+                                {
+                                    "text": "Create 50 Links → 2× Hypercubes and 1× Very Rare Battle Beacon"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 2× Level 8 Power Cubes and 3× APEX"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 20× Agent-level XMP Bursters, 60× Agent-level Resonators, 60× Level 8 Power Cubes, 1× ADA Refactor, 1× Jarvis Virus, 1× Very Rare Link Amp, 1× APEX, 1× Very Rare Battle Beacon and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Deploy 350 Resonators → 60× Agent-level Resonators, 10× Agent-level Power Cubes and 2× Very Rare Portal Shields"
+                                },
+                                {
+                                    "text": "Claim 9 Kinetic Capsule Programs → 6× Agent-level Resonators and 6× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Create 150 Links → 2× Hypercubes and 2× Portal Frackers"
+                                },
+                                {
+                                    "text": "Destroy 150 Enemy Links → 6× Agent-level Resonators, 10× Level 8 Power Cubes and 6× Softbank Ultra Links"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Prism Summit",
+            "start": "2026-12-02",
+            "end": "2027-01-06",
+            "startsAt": "2026-12-02T18:00:00Z",
+            "endsAt": "2027-01-06T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-crystalhorizon",
+            "confirmed": true,
+            "paid": true,
+            "medal": "Prism Summit 2026",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/iobihij2egh53qe/prism_summit_2lhsd4dvib.png",
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 2× Rare Link Amps and 4× Rare Portal Shields",
+                            "items": [
+                                {
+                                    "text": "Capture any 5 Portals → 2× Level 8 Power Cubes and 4× Common Multi-Hacks"
+                                },
+                                {
+                                    "text": "Earn 30 Glyph Hack Points → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Walk 1.0 kilometer → 4× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 2× Agent-level Resonators and 6× Level 8 Power Cubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Agent-level Resonators and 4× Rare Force Amps",
+                            "items": [
+                                {
+                                    "text": "Capture any 5 Portals → 2× Level 8 XMP Bursters and 4× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Earn 30 Glyph Hack Points → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Create 5 Links → 2× Level 8 Power Cubes and 4× Common Portal Shields"
+                                },
+                                {
+                                    "text": "Destroy 5 Enemy Links → 6× Agent-level XMP Bursters and 2× Agent-level Resonators"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 10× Level 8 XMP Bursters, 2× Level 8 Power Cubes, 4× Rare Force Amps and [prism_summit_2026] medal",
+                            "items": [
+                                {
+                                    "text": "Capture any 5 Portals → 2× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Earn 30 Glyph Hack Points → 6× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 5 Fields → 2× Agent-level Resonators and 6× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Destroy 5 Opponent Fields → 2× Agent-level Resonators and 2× Rare Force Amps"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 2",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 10× Level 8 XMP Bursters and 2× Rare Multi-Hacks",
+                            "items": [
+                                {
+                                    "text": "Walk 5.0 kilometers → 2× Agent-level Resonators and 8× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Capture any 20 Portals → 10× Level 8 Power Cubes and 2× Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Earn 120 Glyph Hack Points → 10× Level 8 XMP Bursters"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 2× Softbank Ultra Links and 2× Rare Multi-Hacks",
+                            "items": [
+                                {
+                                    "text": "Capture any 20 Portals → 10× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Walk 5.0 kilometers → 20× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 15 Links → 10× Level 8 XMP Bursters"
+                                },
+                                {
+                                    "text": "Destroy 15 Enemy Links → 6× Agent-level Resonators and 4× Rare Portal Shields"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 10× Level 8 XMP Bursters, 10× Level 8 Power Cubes and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Earn 75 Glyph Hack Points → 20× Agent-level Resonators and 2× Rare Link Amps"
+                                },
+                                {
+                                    "text": "Claim 1 Kinetic Capsule Program → 10× Agent-level Resonators and 10× Level 8 Power Cubes"
+                                },
+                                {
+                                    "text": "Create 10 Fields → 2× Agent-level Resonators and 4× Level 8 Ultra Strikes"
+                                },
+                                {
+                                    "text": "Destroy 15 Resonators → 4× Agent-level Resonators and 2× Level 8 Power Cubes"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "text": "Stage 3",
+                    "items": [
+                        {
+                            "text": "Assignment 1 → Complete 3 out of 4 to proceed and claim: 2× Softbank Ultra Links, 2× Common Portal Shields, 2× Rare Force Amps and 1× APEX",
+                            "items": [
+                                {
+                                    "text": "Capture any 50 Portals → 6× Level 8 XMP Bursters, 2× Level 8 Power Cubes and 4× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Walk 10.0 kilometers → 20× Agent-level Resonators"
+                                },
+                                {
+                                    "text": "Create 50 Links → 2× Softbank Ultra Links and 10× Rare Force Amps"
+                                },
+                                {
+                                    "text": "Destroy 50 Enemy Links → 60× Agent-level Resonators and 2× Softbank Ultra Links"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 2 → Complete 3 out of 4 to proceed and claim: 6× Agent-level Resonators, 10× Level 8 Power Cubes, 2× Hypercubes and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Earn 280 Glyph Hack Points → 6× Agent-level Resonators and 2× Hypercubes"
+                                },
+                                {
+                                    "text": "Claim 3 Kinetic Capsule Programs → 60× Level 8 XMP Bursters, 6× Agent-level Resonators and 30× Agent-level Power Cubes"
+                                },
+                                {
+                                    "text": "Create 30 Fields → 2× Softbank Ultra Links and 2× Very Rare Aegis Shields"
+                                },
+                                {
+                                    "text": "Destroy 30 Opponent Fields → 10× Agent-level Resonators, 2× Level 8 Power Cubes and 2× Hypercubes"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "Assignment 3 → Complete 3 out of 4 to proceed and claim: 60× Level 8 XMP Bursters, 1× APEX, 1× Very Rare Battle Beacon and 1× Rare Kinetic Capsule",
+                            "items": [
+                                {
+                                    "text": "Create 40 Links → 2× Level 8 Power Cubes, 2× Rare Portal Shields and 20× Agent-level Ultra Strikes"
+                                },
+                                {
+                                    "text": "Destroy 40 Enemy Links → 2× Softbank Ultra Links"
+                                },
+                                {
+                                    "text": "Create 30 Fields → 6× Rare Portal Shields and 2× Very Rare Heat Sinks"
+                                },
+                                {
+                                    "text": "Destroy 50 Resonators → 20× Agent-level Resonators and 2× Hypercubes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1175,7 +3268,11 @@
             "location": "Bellevue, WA, United States",
             "url": "https://t.me/+aonn8LgMyLQxNzVh",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "first_saturday",
@@ -1187,7 +3284,34 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": [
+                {
+                    "text": "Details: Attend and check in at an onsite IFS event."
+                },
+                {
+                    "text": "Season Points: Each verified attendant earns their Faction 0.1 Season Point. The total Season Point earned per Faction is capped at 750.",
+                    "items": [
+                        {
+                            "text": "An individual Agent’s Faction is determined at the time the IFS medal is awarded."
+                        },
+                        {
+                            "text": "Each Agent will only be credited once per month, regardless of how many IFS events they attended that month."
+                        }
+                    ]
+                },
+                {
+                    "text": "Cygnus Tokens: Verified Agents will receive 2,500 Cygnus Tokens, alongside their IFS medal tick, by the end of the month.",
+                    "items": [
+                        {
+                            "text": "Read more about FS verification here"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "mission_day",
@@ -1199,7 +3323,11 @@
             "location": "Guangzhou, China",
             "url": "https://t.me/gzmd2026",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false,
+            "medal": "Mission Day",
+            "medalImage": "https://ingress.plus/api/files/i37o5ykupb5voix/m3ld0u5dsil1p5l/badge_mission_day_prime_black_xk39yCJnKt.png",
+            "details": []
         },
         {
             "type": "second_sunday",
@@ -1211,7 +3339,11 @@
             "location": null,
             "url": null,
             "source": null,
-            "confirmed": false
+            "confirmed": false,
+            "paid": false,
+            "medal": null,
+            "medalImage": null,
+            "details": []
         }
     ]
 }

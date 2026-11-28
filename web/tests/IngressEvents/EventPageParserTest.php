@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\IngressEvents;
 
+use App\IngressEvents\EventDetail;
 use App\IngressEvents\EventPageParser;
 use App\IngressEvents\EventType;
 use App\IngressEvents\IngressEvent;
@@ -139,5 +140,143 @@ class EventPageParserTest extends TestCase
             ['Cygnus Anomaly Season - Overview' => '2026-cygnus'],
             $this->parser->seasonOverviews('<main><a href="/news/2026-cygnus"><h3>Cygnus Anomaly Season - Overview</h3></a><a href="/news/2026-leonids"><h3>The Leonids Return</h3></a></main>'),
         );
+    }
+
+    public function testArticlesInTheNews(): void
+    {
+        self::assertSame(
+            ['Cygnus Anomaly Season - Overview' => '2026-cygnus', 'The Leonids Return' => '2026-leonids'],
+            $this->parser->articles('<main><a href="/news/2026-cygnus"><h3>Cygnus Anomaly Season - Overview</h3></a><a href="/news/2026-leonids"><h3>The Leonids Return</h3></a><a href="/news/events">All news</a></main>'),
+        );
+    }
+
+    public function testAnArticle(): void
+    {
+        $page = $this->parser->article(<<<'HTML'
+            <main><h1 id="news-title">Operation Luna</h1>
+            <p>Operation Luna 2026 will be available from Sep 1 – <del>Sep 30</del> Oct 7 18:00 UTC. Mooncake 2026 from Sep 7 – Sep 30 18:00 UTC.</p>
+            </main>
+            HTML, 2026, self::SOURCE);
+
+        self::assertCount(1, $page->events);
+        $event = $page->events[0];
+        self::assertSame(EventType::Global, $event->type);
+        self::assertSame('Operation Luna', $event->title);
+        // The first window, with the corrected end
+        self::assertSame('2026-09-01', $event->start);
+        self::assertSame('2026-10-07', $event->end);
+        self::assertNull($event->startsAt);
+        self::assertSame('2026-10-07T18:00:00Z', $event->endsAt);
+        self::assertSame(self::SOURCE, $event->source);
+    }
+
+    public function testTheCampaignsOfAnArticle(): void
+    {
+        $page = $this->parser->article(<<<'HTML'
+            <main><h1>Light Over the Winter Peaks</h1>
+            <p>The climb begins on December 2.</p>
+            <h4>Crystal Horizon</h4>
+            <p><mark>Crystal Horizon</mark> is free and available to every Agent through Dispatch.</p>
+            <p>Available: Dec 2, 2026, 18:00 UTC to Dec 21, 2026, 18:00 UTC</p>
+            <h4>Prism Summit</h4>
+            <p><mark>Prism Summit</mark> is available in the In-App Store for 15,000 CMU. Complete Stage 1.</p>
+            <p>Available: Dec 2, 2026, 18:00 UTC to Jan 6, 2027, 18:00 UTC</p>
+            <h4>Returning Winter Medals</h4>
+            <ul><li><mark>Winterblue</mark>: 2,500 CMU</li></ul>
+            <p>Available: Dec 2, 2026, 18:00 UTC to Jan 6, 2027, 18:00 UTC</p>
+            <h3>Campaign Details</h3>
+            <h4>Late Campaign</h4>
+            <p><mark>Late Campaign</mark> is free.</p>
+            </main>
+            HTML, 2026, self::SOURCE);
+
+        // The article's own window, free: it has a free campaign
+        self::assertSame(
+            [['Light Over the Winter Peaks', false, '2026-12-02', '2026-12-21']],
+            \array_map(static fn (IngressEvent $event): array => [$event->title, $event->paid, $event->start, $event->end], $page->events),
+        );
+        // Not the medals or the details
+        self::assertSame(
+            [['Crystal Horizon', false, '2026-12-02', '2026-12-21'], ['Prism Summit', true, '2026-12-02', '2027-01-06']],
+            \array_map(static fn (IngressEvent $event): array => [$event->title, $event->paid, $event->start, $event->end], $page->campaigns),
+        );
+        self::assertSame(EventType::Global, $page->campaigns[1]->type);
+        self::assertSame('2027-01-06T18:00:00Z', $page->campaigns[1]->endsAt);
+    }
+
+    public function testCampaignHeadingsTakeTheArticlesWindow(): void
+    {
+        $page = $this->parser->article(<<<'HTML'
+            <main><h1>Love Is in the XM</h1>
+            <p>From 10 February 2026 (Tue) 17:00 UTC to 27 February 2026 (Fri) 17:00 UTC.</p>
+            <h3>Free Campaign: Valentine’s 2022 Redux</h3><p>Complete it.</p>
+            <h3>Premium Campaign: Valentine’s 2026</h3><p>For 15,000 CMU.</p>
+            </main>
+            HTML, 2026, self::SOURCE);
+
+        self::assertSame(
+            [['Valentine’s 2022 Redux', false], ['Valentine’s 2026', true]],
+            \array_map(static fn (IngressEvent $event): array => [$event->title, $event->paid], $page->campaigns),
+        );
+        self::assertSame('2026-02-27', $page->campaigns[1]->end);
+        // A free campaign: not only paid
+        self::assertFalse($page->events[0]->paid);
+    }
+
+    public function testAnArticleWithOnlyAPaidCampaignIsPaid(): void
+    {
+        $page = $this->parser->article(<<<'HTML'
+            <main><h1>The Mother is the Beacon</h1>
+            <p>8 May 2026, 18:00 UTC to 18 May 2026, 18:00 UTC</p>
+            <p>Enrol in “The Acolyte - Mother’s Day 2026,” a Premium Campaign available in the in-game store for 15,000 CMU.</p>
+            </main>
+            HTML, 2026, self::SOURCE);
+
+        self::assertTrue($page->events[0]->paid);
+
+        foreach (['The free “Toast Day 2026” Campaign is in Dispatch.', 'All Agents will be granted access to a primary Campaign.'] as $free) {
+            $page = $this->parser->article(\sprintf('<main><h1>Event</h1><p>8 May 2026 to 18 May 2026</p><p>A Premium Campaign for 15,000 CMU. %s</p></main>', $free), 2026, self::SOURCE);
+
+            self::assertFalse($page->events[0]->paid, $free);
+        }
+    }
+
+    public function testTheDetailsOfTheCampaigns(): void
+    {
+        $page = $this->parser->article(<<<'HTML'
+            <main><h1>Light Over the Winter Peaks</h1>
+            <h4>Crystal Horizon</h4>
+            <p>Crystal Horizon is free and available to every Agent through Dispatch.</p>
+            <p>Available: Dec 2, 2026, 18:00 UTC to Dec 21, 2026, 18:00 UTC</p>
+            <h3>Campaign Details</h3>
+            <h4>Crystal Horizon</h4>
+            <ul><li>Stage 1<ul><li>Assignment 1 → Complete 4 out of 5<ul><li>Hack any 10 Portals → 6× Resonators</li></ul></li></ul></li><li>Stage 2</li></ul>
+            <h4>Noise Floor</h4>
+            <ul><li>Stage 1</li></ul>
+            </main>
+            HTML, 2026, self::SOURCE);
+
+        $tree = static fn (EventDetail $detail): array => [$detail->text, \array_map(static fn (EventDetail $item): array => [$item->text, \count($item->items)], $detail->items)];
+
+        // The campaign's own details
+        self::assertSame([['Stage 1', [['Assignment 1 → Complete 4 out of 5', 1]]], ['Stage 2', []]], \array_map($tree, $page->campaigns[0]->details));
+        self::assertSame('Hack any 10 Portals → 6× Resonators', $page->campaigns[0]->details[0]->items[0]->items[0]->text);
+        // A campaign named only in the text: the article's event's, as the only one left directly
+        self::assertSame([['Stage 1', []]], \array_map($tree, $page->events[0]->details ?? []));
+    }
+
+    public function testAnOverviewsNotes(): void
+    {
+        $page = $this->parser->overview(
+            '<main><h4>Crystal Horizon</h4><ul><li><strong>Where:</strong> Global</li><li><strong>When:</strong> 2 Dec 2026 18:00 UTC to 21 Dec 2026 18:00 UTC</li><li><strong>Details:</strong> Complete a free Campaign.</li><li><strong>Cygnus Tokens:</strong> Up to 2,000</li></ul></main>',
+            self::SOURCE,
+        );
+
+        self::assertSame(['Details: Complete a free Campaign.', 'Cygnus Tokens: Up to 2,000'], \array_map(static fn (EventDetail $detail): string => $detail->text, $page->events[0]->details));
+    }
+
+    public function testAnArticleWithoutAWindow(): void
+    {
+        self::assertSame([], $this->parser->article('<main><h1>Bounty Pass</h1><p>Starting May 22 at 18:00 UTC, it is open.</p></main>', 2026, self::SOURCE)->events);
     }
 }

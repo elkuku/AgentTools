@@ -11,7 +11,8 @@
             "location": "Charlotte, NC, USA",
             "url": "https://maps.app.goo.gl/gv3h43ckWPm3nRw69",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "anomaly",
@@ -23,7 +24,8 @@
             "location": "Lisbon, Portugal",
             "url": "https://maps.app.goo.gl/UUo7SusMUeJWVKSR7",
             "source": "https://ingress.com/news/2026-q1-events",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "global",
@@ -35,7 +37,8 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "global",
@@ -47,7 +50,8 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "mission_day",
@@ -59,7 +63,8 @@
             "location": "Zhuhai, China",
             "url": "https://t.me/ZhuhaiMD",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "first_saturday",
@@ -71,7 +76,8 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "mission_day",
@@ -83,7 +89,8 @@
             "location": "Putrajaya, Malaysia",
             "url": "https://t.me/MDMalaysia",
             "source": "https://ingress.com/news/2026-q4-md",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
         },
         {
             "type": "shard",
@@ -95,7 +102,44 @@
             "location": null,
             "url": null,
             "source": "https://ingress.com/news/2026-cygnus",
-            "confirmed": true
+            "confirmed": true,
+            "paid": false
+        },
+        {
+            "type": "global",
+            "title": "Crystal Horizon",
+            "start": "2026-12-02",
+            "end": "2026-12-21",
+            "startsAt": "2026-12-02T18:00:00Z",
+            "endsAt": "2026-12-21T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-crystalhorizon",
+            "confirmed": true,
+            "paid": false,
+            "details": [
+                {
+                    "text": "Stage 1",
+                    "items": [
+                        {
+                            "text": "Hack any 10 Portals"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "global",
+            "title": "Prism Summit",
+            "start": "2026-12-02",
+            "end": "2027-01-06",
+            "startsAt": "2026-12-02T18:00:00Z",
+            "endsAt": "2027-01-06T18:00:00Z",
+            "location": null,
+            "url": null,
+            "source": "https://ingress.com/news/2026-crystalhorizon",
+            "confirmed": true,
+            "paid": true
         }
     ]
 }

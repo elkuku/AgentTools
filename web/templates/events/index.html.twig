@@ -2,30 +2,34 @@
 
 {#
     The calendar of Ingress events, as the app's Events screen: a month grid with the month's
-    events under it, or those of the day picked.
-    calendar: App\IngressEvents\CalendarMonth, generatedAt: ISO 8601 or null, today: the current date, types: every EventType
+    events under it as a timeline down the page, or those of the day picked.
+    calendar: App\IngressEvents\CalendarMonth, generatedAt: ISO 8601 or null, today: the current date, types: every EventType,
+    paid, missionDays: whether paid events and Mission Days are shown (unticked kept in every link as paid=0, md=0),
+    timeline: list<EventTimelineDay>,
+    layout: EventLayout (the month's lines), medals: EventMedals, dayMedals: the medals of the events starting on a day (Y-m-d)
 #}
 
 {% block title %}{{ 'events.title'|trans }}{% endblock %}
 
 {% block body %}
+    {% set filter = (paid ? {} : {paid: 0})|merge(missionDays ? {} : {md: 0}) %}
     <h1>{{ 'events.title'|trans }}</h1>
     <p class="text-body-secondary">{{ 'events.intro'|trans }}</p>
 
     <div class="event-calendar-width d-flex align-items-center justify-content-between mb-2">
-        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.previous}) }}" aria-label="{{ 'events.previous_month'|trans }}">
+        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.previous}|merge(filter)) }}" aria-label="{{ 'events.previous_month'|trans }}">
             <i class="bi-chevron-left" aria-hidden="true"></i>
         </a>
         <h2 class="h5 mb-0 text-capitalize">{{ calendar.month|format_datetime(pattern: 'LLLL y') }}</h2>
         <div>
-            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {day: today|date('Y-m-d')}) }}">{{ 'events.today'|trans }}</a>
-            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.next}) }}" aria-label="{{ 'events.next_month'|trans }}">
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {day: today|date('Y-m-d')}|merge(filter)) }}">{{ 'events.today'|trans }}</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_events', {month: calendar.next}|merge(filter)) }}" aria-label="{{ 'events.next_month'|trans }}">
                 <i class="bi-chevron-right" aria-hidden="true"></i>
             </a>
         </div>
     </div>
 
-    <div class="event-calendar event-calendar-width mb-2">
+    <div class="event-calendar event-calendar-width mb-2" style="--lanes: {{ layout.laneCount }}">
         {% for day in calendar.weeks[0] %}
             <div class="event-calendar-weekday" aria-hidden="true">{{ day.date|format_datetime(pattern: 'EEE') }}</div>
         {% endfor %}
@@ -33,14 +37,25 @@
             {% for day in week %}
                 {% if day.inMonth %}
                     <a class="event-day{{ day.today ? ' event-day-today' }}{{ day.selected ? ' event-day-selected' }}"
-                       href="{{ day.selected ? path('app_events', {month: calendar.month|date('Y-m')}) : path('app_events', {day: day.key}) }}"
+                       href="{{ day.selected ? path('app_events', {month: calendar.month|date('Y-m')}|merge(filter)) : path('app_events', {day: day.key}|merge(filter)) }}"
                        aria-label="{{ day.date|format_date('long') }}: {{ 'events.count'|trans({'%count%': day.eventCount}) }}"
                        {% if day.selected %}aria-current="date"{% endif %}>
                         <span>{{ day.date|date('j') }}</span>
                         <span class="event-day-dots" aria-hidden="true">
                             {% for type in day.types %}<i class="event-dot event-{{ type.value }}"></i>{% endfor %}
                         </span>
-                        {% if day.ongoing %}<i class="event-day-ongoing" aria-hidden="true"></i>{% endif %}
+                        {% if dayMedals[day.key] is defined %}
+                            {# The medals of the events that start on the day #}
+                            <span class="event-day-medals">
+                                {% for medal in dayMedals[day.key]|slice(0, 3) %}<img src="{{ medal.image }}" alt="{{ medal.name }}" title="{{ medal.name }}">{% endfor %}
+                            </span>
+                        {% endif %}
+                        {# A line per event over several days, in its color and lane, as in the timeline #}
+                        <span class="event-day-lines" aria-hidden="true">
+                            {%- for lane in layout.lanesOn(day.key) -%}
+                                <i class="event-day-line{{ lane ? ' event-day-line-' ~ lane.edge }}"{% if lane %} style="--lane: var(--series-{{ lane.slot ?? 'none' }})"{% endif %}></i>
+                            {%- endfor -%}
+                        </span>
                     </a>
                 {% else %}
                     <div class="event-day event-day-outside" aria-hidden="true"></div>
@@ -49,18 +64,37 @@
         {% endfor %}
     </div>
 
-    <ul class="list-inline small text-body-secondary mb-4">
+    <ul class="list-inline small text-body-secondary mb-2">
         {% for type in types %}
             <li class="list-inline-item">
-                {% if type.value == 'global' %}
-                    <i class="event-key-ongoing" aria-hidden="true"></i>
-                {% else %}
-                    <i class="event-dot event-{{ type.value }}" aria-hidden="true"></i>
-                {% endif %}
+                <i class="event-dot event-{{ type.value }}" aria-hidden="true"></i>
                 {{ ('events.type.' ~ type.value)|trans }}
             </li>
         {% endfor %}
+        <li class="list-inline-item">
+            <i class="event-key-lines" aria-hidden="true"></i>
+            {{ 'events.several_days'|trans }}
+        </li>
     </ul>
+
+    <form class="event-calendar-width d-flex flex-wrap align-items-center column-gap-3 row-gap-1 mb-4" method="get" action="{{ path('app_events') }}" data-controller="auto-submit">
+        {% if calendar.selected %}
+            <input type="hidden" name="day" value="{{ calendar.selected|date('Y-m-d') }}">
+        {% else %}
+            <input type="hidden" name="month" value="{{ calendar.month|date('Y-m') }}">
+        {% endif %}
+        {# With it a box that is not ticked is off; without it (a link) both are on unless 0 #}
+        <input type="hidden" name="filter" value="1">
+        <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" name="paid" value="1" id="events-paid" data-action="auto-submit#submit"{{ paid ? ' checked' }}>
+            <label class="form-check-label" for="events-paid">{{ 'events.paid_events'|trans }}</label>
+        </div>
+        <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" name="md" value="1" id="events-md" data-action="auto-submit#submit"{{ missionDays ? ' checked' }}>
+            <label class="form-check-label" for="events-md">{{ 'events.mission_days'|trans }}</label>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" type="submit" data-auto-submit-target="button">{{ 'events.apply'|trans }}</button>
+    </form>
 
     <h2 class="h5">
         {% if calendar.selected %}
@@ -71,32 +105,81 @@
     </h2>
 
     {% if calendar.events %}
-        <div class="list-group mb-3">
-            {% for event in calendar.events %}
-                {% set url = event.url ?? event.source %}
-                {% set tag = url ? 'a' : 'div' %}
-                <{{ tag }} class="list-group-item{{ url ? ' list-group-item-action' }}"
-                    {% if url %}href="{{ url }}" target="_blank" rel="noopener noreferrer"{% endif %}>
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold">
-                                <i class="event-dot event-{{ event.type.value }}" aria-hidden="true"></i>
-                                {{ event.location ?? event.title }}
-                                {% if not event.confirmed %}
-                                    <span class="badge text-bg-secondary">{{ 'events.expected'|trans }}</span>
-                                {% endif %}
-                            </div>
-                            <div class="small text-body-secondary">
-                                {% if event.location %}{{ event.title }} · {% elseif event.title != ('events.type.' ~ event.type.value)|trans({}, 'messages', 'en') %}{{ ('events.type.' ~ event.type.value)|trans }} · {% endif %}
-                                {{ event.start|format_date('medium') }}{% if event.startsAt %} {{ event.startsAt|slice(11, 5) }} UTC{% endif %}
-                                {% if event.end != event.start %}– {{ event.end|format_date('medium') }}{% if event.endsAt %} {{ event.endsAt|slice(11, 5) }} UTC{% endif %}{% endif %}
-                            </div>
+        {#
+            The events down the page, a day per start and end (App\IngressEvents\EventTimeline), as the app's:
+            an event over several days has its color (--series-n) on its line beside the timeline (a circle where
+            it starts and where it ends), on its entry and on its end
+        #}
+        <ol class="event-timeline list-unstyled mb-3">
+            {% for day in timeline %}
+                <li class="event-timeline-day{{ day.today ? ' event-timeline-today' }}"{% if day.today %} aria-current="date"{% endif %}>
+                    {% for lane in day.lanes %}
+                        <span class="event-lane{{ lane ? ' event-lane-' ~ lane.edge }}" aria-hidden="true"
+                              {%- if lane %} style="--lane: var(--series-{{ lane.slot ?? 'none' }})"{% endif %}></span>
+                    {% endfor %}
+                    <div class="event-timeline-content">
+                        <div class="event-timeline-date">
+                            {% if day.today %}<span class="badge text-bg-primary">{{ 'events.today'|trans }}</span>{% endif %}
+                            {{ day.date|format_date(pattern: 'events.day_pattern'|trans) }}
                         </div>
-                        {% if url %}<i class="bi-box-arrow-up-right ms-2 text-body-secondary flex-shrink-0" aria-hidden="true"></i>{% endif %}
+                        {% if day.starts %}
+                            <div class="list-group mb-1">
+                                {% for entry in day.starts %}
+                                    {% set event = entry.event %}
+                                    {% set medal = medals.of(event) %}
+                                    {% set url = event.url ?? event.source %}
+                                    <div class="list-group-item{{ event.start != event.end ? ' event-timeline-long' }}"
+                                        {% if event.start != event.end %}style="--lane: var(--series-{{ entry.slot ?? 'none' }})"{% endif %}>
+                                        <div class="d-flex align-items-start gap-2">
+                                            {# The medal first: ours, else the one of ingress.plus #}
+                                            {% if medal %}
+                                                <img class="event-timeline-medal flex-shrink-0" src="{{ asset(medal.image) }}" alt="{{ medal.name }}" title="{{ medal.name }}">
+                                            {% elseif event.medalImage %}
+                                                <img class="event-timeline-medal flex-shrink-0" src="{{ event.medalImage }}" alt="{{ event.medal }}" title="{{ event.medal }}" loading="lazy">
+                                            {% endif %}
+                                            <div class="flex-grow-1 min-width-0">
+                                                <div class="fw-semibold">
+                                                    {% if event.start == event.end and not medal and not event.medalImage %}<i class="event-dot event-{{ event.type.value }}" aria-hidden="true"></i>{% endif %}
+                                                    {% if url %}
+                                                        <a class="event-timeline-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ event.location ?? event.title }}<i class="bi-box-arrow-up-right small ms-1" aria-hidden="true"></i></a>
+                                                    {% else %}
+                                                        {{ event.location ?? event.title }}
+                                                    {% endif %}
+                                                    {% if event.paid %}
+                                                        <span class="badge text-bg-warning">{{ 'events.paid'|trans }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="small text-body-secondary">
+                                                    {% if event.location %}{{ event.title }} · {% elseif event.title != ('events.type.' ~ event.type.value)|trans({}, 'messages', 'en') %}{{ ('events.type.' ~ event.type.value)|trans }} · {% endif %}
+                                                    {% if event.start == event.end %}
+                                                        {{ event.start|format_date('medium') }}{% if event.startsAt %} {{ event.startsAt|slice(11, 5) }} UTC{% endif %}
+                                                    {% else %}
+                                                        <span class="event-timeline-when">{{ 'events.starts'|trans }}</span> {{ event.start|format_date('medium') }}{% if event.startsAt %} {{ event.startsAt|slice(11, 5) }} UTC{% endif %}
+                                                        · <span class="event-timeline-when">{{ 'events.ends_on'|trans }}</span> {{ event.end|format_date('medium') }}{% if event.endsAt %} {{ event.endsAt|slice(11, 5) }} UTC{% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                {% if event.details %}
+                                                    {# What to do for the medal and rewards: closed until clicked #}
+                                                    <details class="event-details small mt-1">
+                                                        <summary>{{ 'events.details'|trans }}</summary>
+                                                        {{ _self.details(event.details) }}
+                                                    </details>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% for entry in day.ends %}
+                            <div class="event-timeline-end small" style="--lane: var(--series-{{ entry.slot ?? 'none' }})">
+                                {{ 'events.ends'|trans({'%title%': entry.event.location ?? entry.event.title}) }}{% if entry.event.endsAt %} · {{ entry.event.endsAt|slice(11, 5) }} UTC{% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
-                </{{ tag }}>
+                </li>
             {% endfor %}
-        </div>
+        </ol>
     {% else %}
         <p>{{ 'events.empty'|trans }}</p>
     {% endif %}
@@ -105,3 +188,12 @@
         <p class="small text-body-secondary">{{ 'events.updated'|trans({'%date%': generatedAt|format_date('medium')}) }}</p>
     {% endif %}
 {% endblock %}
+
+{# An event's details: its lines with the lines under them #}
+{% macro details(items) %}
+    <ul class="event-details-list">
+        {% for item in items %}
+            <li>{{ item.text }}{% if item.items %}{{ _self.details(item.items) }}{% endif %}</li>
+        {% endfor %}
+    </ul>
+{% endmacro %}

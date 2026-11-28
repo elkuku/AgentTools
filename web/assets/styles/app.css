@@ -298,6 +298,16 @@ main > .container {
     --event-second-sunday: #7b1fa2;
     --event-shard: #b07400;
     --event-global: #6c757d;
+    /* The events over several days on the timeline: the categorical palette (validated), gray past the 8th */
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    --series-5: #e87ba4;
+    --series-6: #008300;
+    --series-7: #6250d6;
+    --series-8: #e34948;
+    --series-none: #6c757d;
 }
 
 [data-bs-theme=dark] {
@@ -307,6 +317,15 @@ main > .container {
     --event-second-sunday: #ba68c8;
     --event-shard: #ffb300;
     --event-global: #adb5bd;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #0ca30c;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --series-none: #adb5bd;
 }
 
 /* The calendar of Ingress events (events/index.html.twig): seven equal columns */
@@ -333,7 +352,8 @@ main > .container {
     flex-direction: column;
     align-items: center;
     min-height: 3.25rem;
-    padding: .25rem 0;
+    /* Room for the month's lines (--lanes on .event-calendar) */
+    padding: .25rem 0 calc(var(--lanes, 0) * 4px + .25rem);
     border: 1px solid transparent;
     border-radius: var(--bs-border-radius);
     background: var(--bs-tertiary-bg);
@@ -373,25 +393,97 @@ a.event-day:hover {
     border-radius: 50%;
 }
 
-.event-day-ongoing,
-.event-key-ongoing {
-    display: block;
-    height: 3px;
-    border-radius: 2px;
-    background: var(--event-global);
+/* The medals of the events that start on the day */
+.event-day-medals {
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    margin-top: 1px;
 }
 
-.event-day-ongoing {
+.event-day-medals img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.event-timeline-medal {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.event-timeline-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.event-timeline-link:hover {
+    text-decoration: underline;
+}
+
+/* An event's details: closed until clicked */
+.event-details summary {
+    color: var(--bs-link-color);
+    cursor: pointer;
+}
+
+.event-details-list {
+    margin: .25rem 0 0;
+    padding-left: 1.1rem;
+}
+
+.event-details-list .event-details-list {
+    margin-top: 0;
+}
+
+/*
+ * A line per event over several days at the bottom of the day, in its color and lane (the same as
+ * on the timeline): across the gap to the next day, rounded where it starts and ends.
+ */
+.event-day-lines {
     position: absolute;
-    right: 4px;
+    right: -2px;
     bottom: 3px;
-    left: 4px;
+    left: -1px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 }
 
-.event-key-ongoing {
+.event-day-line {
+    height: 3px;
+}
+
+.event-day-line-start,
+.event-day-line-through,
+.event-day-line-end {
+    background: var(--lane);
+}
+
+.event-day-line-start {
+    margin-left: 6px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.event-day-line-end {
+    margin-right: 7px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.event-day:nth-child(7n) .event-day-lines {
+    right: -1px;
+}
+
+/* The legend's key for them: a few of the colors */
+.event-key-lines {
     display: inline-block;
-    width: 14px;
-    vertical-align: 2px;
+    width: 18px;
+    height: 7px;
+    vertical-align: 0;
+    background: linear-gradient(var(--series-1) 0 2px, transparent 2px 3px, var(--series-2) 3px 5px, transparent 5px 6px) no-repeat;
 }
 
 .event-anomaly { background: var(--event-anomaly); }
@@ -400,6 +492,136 @@ a.event-day:hover {
 .event-second_sunday { background: var(--event-second-sunday); }
 .event-shard { background: var(--event-shard); }
 .event-global { background: var(--event-global); }
+
+/*
+ * The events under the grid as a timeline down the page (events/index.html.twig), as the app's:
+ * a dot per day on the timeline's line, and left of it a lane per event over several days, its
+ * line in the event's color (--lane) from a circle on its first day's dot to one on its last.
+ */
+.event-timeline-day {
+    display: flex;
+}
+
+.event-lane {
+    position: relative;
+    flex: 0 0 12px;
+}
+
+.event-lane-start::before,
+.event-lane-through::before,
+.event-lane-end::before {
+    content: "";
+    position: absolute;
+    left: 4.5px;
+    width: 3px;
+    background: var(--lane);
+}
+
+.event-lane-through::before {
+    top: 0;
+    bottom: 0;
+}
+
+.event-lane-start::before {
+    top: .75rem;
+    bottom: 0;
+}
+
+.event-lane-end::before {
+    top: 0;
+    height: .75rem;
+}
+
+.event-lane-start::after,
+.event-lane-end::after {
+    content: "";
+    position: absolute;
+    top: calc(.75rem - 5px);
+    left: 1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--lane);
+}
+
+.event-timeline-content {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    margin-left: .5rem;
+    padding: 0 0 1rem 1.25rem;
+    border-left: 2px solid var(--bs-border-color);
+}
+
+.event-timeline-day:first-child .event-timeline-content {
+    border-image: linear-gradient(transparent .75rem, var(--bs-border-color) .75rem) 1;
+}
+
+.event-timeline-day:last-child .event-timeline-content {
+    border-image: linear-gradient(var(--bs-border-color) .75rem, transparent .75rem) 1;
+}
+
+.event-timeline-day:only-child .event-timeline-content {
+    border-left-color: transparent;
+    border-image: none;
+}
+
+/* The day's dot on the line */
+.event-timeline-content::before {
+    content: "";
+    position: absolute;
+    top: calc(.75rem - 6px);
+    left: -7px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bs-secondary-color);
+}
+
+.event-timeline-date {
+    font-weight: 600;
+    line-height: 1.5rem;
+    margin-bottom: .25rem;
+}
+
+/* Today: a bigger dot in the site's color, a label, and without events no room below */
+.event-timeline-today .event-timeline-content::before {
+    top: calc(.75rem - 8px);
+    left: -9px;
+    width: 16px;
+    height: 16px;
+    background: var(--bs-primary);
+    box-shadow: 0 0 0 3px var(--bs-primary-bg-subtle);
+}
+
+.event-timeline-today .event-timeline-date {
+    color: var(--bs-primary-text-emphasis);
+}
+
+/* An event over several days: its color down the left of its entry */
+.event-timeline-long {
+    border-left: 4px solid var(--lane);
+}
+
+.event-timeline-when {
+    font-weight: 600;
+}
+
+/* An event's end: its color as a circle */
+.event-timeline-end {
+    color: var(--bs-secondary-color);
+}
+
+.event-timeline-end::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: .35rem;
+    border-radius: 50%;
+    background: var(--lane);
+    vertical-align: -1px;
+}
 
 /* The history documents (history/index.html.twig); the years' links stop below the fixed navbar */
 .history [id^="year-"],
