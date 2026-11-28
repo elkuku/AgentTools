@@ -167,9 +167,9 @@ done < "$TMP/visible_parts"
 
 for LANG_TAG in "${LANGUAGES[@]}"; do
     case $LANG_TAG in
-        en) SIGN_IN="Sign in"; CLOSE=Close; OPEN=Open; TIMELINE=Timeline; BANNERS="My banners"; MENU=Menu; AGENTS=Agents; SETTINGS=Settings; WELCOME=Welcome ;;
-        de) SIGN_IN=Anmelden; CLOSE=Schließen; OPEN=Öffnen; TIMELINE=Zeitleiste; BANNERS="Meine Banner"; MENU=Menü; AGENTS=Agenten; SETTINGS=Einstellungen; WELCOME=Willkommen ;;
-        es) SIGN_IN="Iniciar sesión"; CLOSE=Cerrar; OPEN=Abrir; TIMELINE="Línea de tiempo"; BANNERS="Mis banners"; MENU=Menú; AGENTS=Agentes; SETTINGS=Ajustes; WELCOME=Hola ;;
+        en) SIGN_IN="Sign in"; CLOSE=Close; OPEN=Open; TIMELINE=Timeline; BANNERS="My banners"; MENU=Menu; AGENTS=Agents; SETTINGS=Settings; WELCOME=Welcome; EVENTS=Events; DETAILS=Details ;;
+        de) SIGN_IN=Anmelden; CLOSE=Schließen; OPEN=Öffnen; TIMELINE=Zeitleiste; BANNERS="Meine Banner"; MENU=Menü; AGENTS=Agenten; SETTINGS=Einstellungen; WELCOME=Willkommen; EVENTS=Events; DETAILS=Details ;;
+        es) SIGN_IN="Iniciar sesión"; CLOSE=Cerrar; OPEN=Abrir; TIMELINE="Línea de tiempo"; BANNERS="Mis banners"; MENU=Menú; AGENTS=Agentes; SETTINGS=Ajustes; WELCOME=Hola; EVENTS=Eventos; DETAILS=Detalles ;;
         *) echo "Unknown language: $LANG_TAG" >&2; exit 1 ;;
     esac
     DIR=$OUT; [ "$LANG_TAG" = en ] || DIR=$OUT/$LANG_TAG
@@ -223,4 +223,17 @@ for LANG_TAG in "${LANGUAGES[@]}"; do
     "$ADB" shell input tap 1000 216; sleep 3
     tap_again "$SETTINGS"; sleep 3
     shot settings
+
+    # The events of the current month; then the timeline with an event's details opened
+    back; sleep 1
+    tap "$MENU"; sleep 2
+    tap "$EVENTS"; sleep 5
+    shot events
+    swipe 2000 500; sleep 1
+    y=$(y_of "▸ $DETAILS")
+    [ -n "$y" ] || { swipe 2000 1000; y=$(y_of "▸ $DETAILS"); }
+    tap "▸ $DETAILS"; sleep 2
+    y=$(y_of "▾ $DETAILS")
+    [ -n "$y" ] && [ "$y" -gt 700 ] && swipe "$y" 600
+    shot events-timeline
 done

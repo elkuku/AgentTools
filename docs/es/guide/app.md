@@ -153,6 +153,27 @@ abrirlos en una pantalla propia.
 
 Los administradores tienen además ☰ → **Administrar agentes**: cada usuario con lo que muestra.
 
+## Eventos {#events}
+
+<div class="shots">
+  <img src="/screenshots/app/es/events.webp" alt="El calendario de eventos" class="shot-phone">
+  <img src="/screenshots/app/es/events-timeline.webp" alt="La línea de tiempo de eventos con detalles" class="shot-phone">
+</div>
+
+☰ → **Eventos** muestra los eventos de Ingress en todo el mundo, también sin iniciar sesión, como
+en la [web](/es/guide/web#events): el calendario del mes con un punto por cada tipo de evento de un
+día, las medallas de los eventos que empiezan ese día y una línea de color por cada evento de
+varios días. Toca un día para ver solo sus eventos, y otra vez para todo el mes; **Hoy** va al día
+actual. Desmarca **Eventos de pago** o **Mission Days** para ocultarlos.
+
+Bajo el calendario los eventos forman una línea de tiempo, los más antiguos primero, con **Hoy**
+marcado. Un evento de varios días tiene su propio color: su línea empieza con un círculo en su
+primer día y termina con otro en el último. Cada evento muestra su medalla y sus fechas; tócalo
+para abrir su página, y **Detalles** para ver lo que hay que hacer para la medalla.
+
+La app guarda la última lista cargada para usarla sin conexión; desliza hacia abajo para cargarla
+de nuevo.
+
 ## Historia {#history}
 
 ☰ → **Historia** lista eventos pasados, también sin iniciar sesión, y los guarda para usarlos sin conexión:

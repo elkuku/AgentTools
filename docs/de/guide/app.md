@@ -160,6 +160,28 @@ sind seine Zeitleiste und seine Banner dort zusammengefasst: Tippe auf **Zeitlei
 
 Admins haben außerdem ☰ → **Agenten verwalten**: alle Benutzer und was sie zeigen.
 
+## Events {#events}
+
+<div class="shots">
+  <img src="/screenshots/app/de/events.webp" alt="Der Eventkalender" class="shot-phone">
+  <img src="/screenshots/app/de/events-timeline.webp" alt="Die Event-Zeitleiste mit Details" class="shot-phone">
+</div>
+
+☰ → **Events** zeigt die Ingress-Events weltweit, auch ohne Anmeldung, wie auf der
+[Website](/de/guide/web#events): den Kalender des Monats mit einem Punkt für jede Art eintägiger
+Events, den Medaillen der Events, die an einem Tag beginnen, und einer farbigen Linie für jedes
+Event über mehrere Tage. Tippe auf einen Tag, um nur seine Events zu sehen, und noch einmal für den
+ganzen Monat; **Heute** springt zum aktuellen Tag. Entferne den Haken bei **Bezahlte Events** oder
+**Mission Days**, um sie auszublenden.
+
+Unter dem Kalender stehen die Events als Zeitleiste, die ältesten zuerst, mit **Heute** markiert.
+Ein Event über mehrere Tage hat seine eigene Farbe: Seine Linie beginnt mit einem Kreis an seinem
+ersten Tag und endet mit einem an seinem letzten. Jedes Event zeigt seine Medaille und seine
+Daten; tippe darauf, um seine Seite zu öffnen, und auf **Details**, um zu sehen, was für die
+Medaille zu tun ist.
+
+Die App behält die zuletzt geladene Liste für offline; zieh nach unten, um sie neu zu laden.
+
 ## Geschichte {#history}
 
 ☰ → **Geschichte** listet vergangene Events auf, auch ohne Anmeldung, und speichert sie für die Offline-Nutzung:

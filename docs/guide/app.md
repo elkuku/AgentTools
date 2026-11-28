@@ -149,6 +149,26 @@ banners are summed up there: tap **Timeline** or **Banners** to open them on a s
 
 Admins also have ☰ → **Admin agents**: every user with what they show.
 
+## Events {#events}
+
+<div class="shots">
+  <img src="/screenshots/app/events.webp" alt="The events calendar" class="shot-phone">
+  <img src="/screenshots/app/events-timeline.webp" alt="The events timeline with details" class="shot-phone">
+</div>
+
+☰ → **Events** shows the Ingress events worldwide, also without signing in, the same as on the
+[website](/guide/web#events): the month's calendar with a dot for each kind of one-day event, the
+medals of the events starting on a day and a colored line for each event over several days. Tap a
+day to see only its events and again for the whole month; **Today** goes to the current day.
+Untick **Paid events** or **Mission Days** to hide them.
+
+Below the calendar the events are a timeline, oldest first, with **Today** marked. An event over
+several days has its own color: its line starts with a circle on its first day and ends with one
+on its last. Each event shows its medal and its dates; tap it to open its page, and **Details** to
+see what to do for the medal.
+
+The app keeps the last list it loaded, for offline use; pull down to load it again.
+
 ## History {#history}
 
 ☰ → **History** lists past events, also without signing in, and keeps them for offline use:

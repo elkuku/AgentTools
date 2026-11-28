@@ -1,8 +1,10 @@
 #!/bin/bash
 #
-# Compares the badges of ingress.plus with .github/badges-known.tsv, and the pages of
-# .github/badges-watch.tsv with what they answered so far. Writes what is new to issue.md, or
-# no file when nothing is. The badges workflow turns it into one issue.
+# Compares the badges of ingress.plus with .github/badges-known.tsv, and looks for the pages of
+# .github/badges-watch.tsv: a URL that answers (a 404 is a page not published yet), or
+# "news:<regex>" for an article on the first ingress.com/news page whose address matches, as
+# Niantic picks the address only when it publishes. Writes what is new to issue.md, or no file
+# when nothing is. The badges workflow turns it into one issue.
 #
 #   .github/scripts/new-badges.sh            check
 #   .github/scripts/new-badges.sh --update   add the badges of today to the list
@@ -40,6 +42,13 @@ LC_ALL=C comm -13 "$KNOWN" "$TMP/now.tsv" | cut -f1 > "$TMP/new.txt"
 : > "$TMP/pages.md"
 while IFS=$'\t' read -r url note; do
     [ -n "$url" ] || continue
+    if [[ $url == news:* ]]; then
+        [ -f "$TMP/news.html" ] || curl --silent --location --max-time 30 --output "$TMP/news.html" 'https://ingress.com/news' || : > "$TMP/news.html"
+        grep -oE 'href="/news/[^"]+"' "$TMP/news.html" | sed 's#href="/news/##; s#"$##' | sort -u | grep -E "${url#news:}" | while read -r slug; do
+            echo "- [ingress.com/news/$slug](https://ingress.com/news/$slug): $note" >> "$TMP/pages.md"
+        done || true
+        continue
+    fi
     status=$(curl --silent --location --output /dev/null --max-time 30 --write-out '%{http_code}' "$url" || true)
     if [ "$status" = 200 ]; then
         echo "- [$url]($url): $note" >> "$TMP/pages.md"
@@ -64,7 +73,7 @@ done < "$WATCH"
         echo
     fi
     if [ -s "$TMP/pages.md" ]; then
-        echo 'These pages now exist:'
+        echo 'These pages are published now:'
         echo
         cat "$TMP/pages.md"
         echo

@@ -87,6 +87,29 @@ your agent stats, their timeline and their banners are summed up there and have 
 
 ![An agent's profile](/screenshots/web/agent-profile.webp){.shot-web}
 
+## Events {#events}
+
+**Events** shows the Ingress events worldwide, also signed out: XM Anomalies, Mission Days, First
+Saturdays, Second Sundays, Shard events, global events and campaigns, gathered every day from the
+news on [ingress.com](https://ingress.com/news).
+
+![The events calendar](/screenshots/web/events.webp){.shot-web}
+
+- The calendar shows a month: a dot for each kind of one-day event, the medals of the events that
+  start on a day, and a colored line for each event over several days. Pick a day to see only its
+  events and again for the whole month; **Today** goes to the current day.
+- **Paid events** and **Mission Days** are ticked: untick them to hide the campaigns sold for CMU or
+  the Mission Days.
+- Below the calendar the events are a timeline, oldest first, with **Today** marked in the current
+  month. An event over several days has its own color, the same as in the calendar: its line
+  beside the timeline starts with a circle on its first day and ends with one on its last, where
+  "… ends" says so.
+- Each event shows its medal, its start and end and, if it is sold for CMU, **Paid**. Its name opens
+  its page on ingress.com or its organizers'. **Details** opens what to do for the medal: a
+  campaign's stages, assignments and tasks, or the season's notes.
+
+![The events timeline with details](/screenshots/web/events-timeline.webp){.shot-web}
+
 ## History {#history}
 
 **History** has the same four tabs as the [app](/guide/app#history): XM Anomalies, Mission Days, Operations and Ingress years. It works without signing in. When signed in, mark a site as attended to add it to your timeline.

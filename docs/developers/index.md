@@ -105,20 +105,31 @@ npm run screenshots:app   # optional: -- en de es
 ## The event calendar
 
 The website (`/events`) and the app (☰ → **Events**) show the Ingress events worldwide as a month
-calendar. The list is one generated file, published on GitHub Pages as
+calendar with a timeline below it. The list is one generated file, published on GitHub Pages as
 [`ingress-events.json`](https://elkuku.github.io/AgentTools/ingress-events.json):
 
-- `symfony console app:events:fetch` reads the quarterly schedules, Mission Day lists and season
-  overviews on [ingress.com/news](https://ingress.com/news) and writes the file. If a page fails,
-  the file stays as it is; if nothing changed, it is not touched. Entries without a real date
-  ("Early May") are reported as warnings.
+- `symfony console app:events:fetch` reads [ingress.com/news](https://ingress.com/news): the
+  quarterly schedules, the Mission Day lists, the season overviews (for a quarter without a
+  schedule) and the other news articles of about a year. An article gives the first time window in
+  its text as an event, unless a schedule already has it (then it only names a redacted
+  `▓▓▓▓▓▓▓` one), and its campaigns ("… is free", "… for 15,000 CMU", "Free/Premium Campaign: …").
+  Events sold only for CMU are `paid`.
+- Each event gets its `details` (the article's "Campaign Details": stages, assignments, tasks; or
+  the overview's notes) and, from [ingress.plus](https://ingress.plus/badges), its `medal` and
+  `medalImage`. When ingress.plus fails, the events just have no medal from there.
+- If ingress.com fails, the file stays as it is; if nothing changed, it is not touched. Entries
+  without a real date ("Early May") are reported as warnings.
 - `.github/workflows/symfony-pages.yml` runs it every day. The site is only built again when the
   list changed. When ingress.com fails, the published list stays and the run fails.
 - The website loads the published file (`INGRESS_EVENTS_URL`) and keeps it for an hour, so new
   events need no commit or deploy. When GitHub Pages cannot be reached, it keeps the last list it
   loaded, else the committed `web/data/ingress-events.json`.
-- First Saturdays and Second Sundays that no page lists are worked out from the calendar and marked
-  as expected (`confirmed: false`).
+- First Saturdays and Second Sundays that no page lists are worked out from the calendar
+  (`confirmed: false`); they are shown like the others.
+- Both show our own medal images first (First Saturday, Second Sunday, Mission Day, and a custom
+  medal ending on the event's last day whose name shares a word with it), else the ingress.plus
+  one. Each event over several days gets a color of the categorical palette in start order, the
+  same for its line in the calendar and on the timeline.
 - The app loads `GET /api/events` from the website and keeps the last list in its files (`events.json`) for offline.
 
 ## The history
@@ -158,7 +169,7 @@ with entries `- [Title](https://…) — Description` (the description is option
 
 ## The badge check {#the-badge-check}
 
-The Badge check workflow runs every day. It compares [ingress.plus](https://ingress.plus/badges) with `.github/badges-known.tsv` and looks for the pages in `.github/badges-watch.tsv`, and puts anything new into one issue (label `new-badges`). The issue is updated each day and closes when nothing is new any more.
+The Badge check workflow runs every day. It compares [ingress.plus](https://ingress.plus/badges) with `.github/badges-known.tsv` and looks for the pages in `.github/badges-watch.tsv`, and puts anything new into one issue (label `new-badges`). The issue is updated each day and closes when nothing is new any more. A line of `.github/badges-watch.tsv` is a page address with a note (a 404 means not published yet), or `news:` and a regular expression for an article address on the first page of [ingress.com/news](https://ingress.com/news), for pages whose address Niantic only picks when publishing (`news:ingress-?year-?15`).
 
 To add a new medal:
 

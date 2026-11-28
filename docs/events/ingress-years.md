@@ -1,6 +1,6 @@
 # Ingress Years
 
-The yearly medal of each Ingress year, newest first, as of 5 November 2026.
+The yearly medal of each Ingress year, newest first, as of 28 November 2026.
 
 See also: [Operations](./operations).
 
@@ -16,13 +16,12 @@ The End column is the last day of the anniversary celebrations. A medal you save
 ## Gaps
 
 - **Before Year 10:** no end of the celebrations was found, so the anniversary on 15 November is used.
-- **Year 14:** Vector has not ended yet, and its dates are not announced. Its medal joins the timeline after the anniversary.
 
 ## 2026
 
 | Medal | Year | Start | End | Required actions | Source | Notes |
 |---|---|---|---|---|---|---|
-| ![Vector](../../app/app/src/main/assets/custom_medals/badge_vector_black.webp) | Vector | 15 Nov 2025 | 15 Nov 2026 | Level: Bronze 3, Silver 9, Gold 13, Platinum 15, Onyx 16. Recursed Agents get Onyx. At least 1 AP in the year | [Fevgames](https://fevgames.net/ingress/ingress-guide/concepts/medal/) | Dates not announced yet: the anniversary is used |
+| ![Vector](../../app/app/src/main/assets/custom_medals/badge_vector_black.webp) | Vector | 14 Nov 2025 | 24 Nov 2026 | Level: Bronze 3, Silver 9, Gold 13, Platinum 15, Onyx 16. Recursed Agents get Onyx. At least 1 AP in the year | [Official](https://ingress.com/news/2026-ingressyear14) | The celebration was extended by a day for its late start |
 
 ## 2025
 

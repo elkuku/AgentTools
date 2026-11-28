@@ -93,6 +93,31 @@ zusammengefasst und haben eigene Seiten.
 
 ![Das Profil eines Agenten](/screenshots/web/de/agent-profile.webp){.shot-web}
 
+## Events {#events}
+
+**Events** zeigt die Ingress-Events weltweit, auch ohne Anmeldung: XM-Anomalien, Mission Days, First
+Saturdays, Second Sundays, Shard-Events, globale Events und Kampagnen, jeden Tag aus den
+Neuigkeiten auf [ingress.com](https://ingress.com/news) gesammelt.
+
+![Der Eventkalender](/screenshots/web/de/events.webp){.shot-web}
+
+- Der Kalender zeigt einen Monat: einen Punkt für jede Art eintägiger Events, die Medaillen der
+  Events, die an einem Tag beginnen, und eine farbige Linie für jedes Event über mehrere Tage.
+  Wähle einen Tag, um nur seine Events zu sehen, und noch einmal für den ganzen Monat; **Heute**
+  springt zum aktuellen Tag.
+- **Bezahlte Events** und **Mission Days** sind angehakt: Entferne den Haken, um die für CMU
+  verkauften Kampagnen oder die Mission Days auszublenden.
+- Unter dem Kalender stehen die Events als Zeitleiste, die ältesten zuerst, im aktuellen Monat mit
+  **Heute** markiert. Ein Event über mehrere Tage hat seine eigene Farbe, dieselbe wie im
+  Kalender: Seine Linie neben der Zeitleiste beginnt mit einem Kreis an seinem ersten Tag und
+  endet mit einem an seinem letzten, wo „… endet“ steht.
+- Jedes Event zeigt seine Medaille, Beginn und Ende und, wenn es für CMU verkauft wird,
+  **Bezahlt**. Sein Name öffnet seine Seite auf ingress.com oder die seiner Organisatoren.
+  **Details** öffnet, was für die Medaille zu tun ist: die Stufen, Aufgaben und Ziele einer
+  Kampagne oder die Hinweise der Season.
+
+![Die Event-Zeitleiste mit Details](/screenshots/web/de/events-timeline.webp){.shot-web}
+
 ## Geschichte {#history}
 
 **Geschichte** hat dieselben vier Tabs wie die [App](/de/guide/app#history): XM-Anomalien, Mission Days, Operationen und Ingress-Jahre. Das funktioniert ohne Anmeldung. Wenn du angemeldet bist, markiere einen Ort als besucht, um ihn deiner Zeitleiste hinzuzufügen.

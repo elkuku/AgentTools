@@ -34,6 +34,10 @@ const shots = [
   ['agents', '/agents', `document.querySelectorAll('tbody tr').forEach((tr) => { if (!tr.querySelector('a[href^="/agents/Demo"]')) tr.remove() })`],
   ['agent-profile', '/agents/DemoKey'],
   ['profile', '/profile'],
+  // The current month; the timeline with the details of its first event that has some opened
+  ['events', '/events'],
+  ['events-timeline', '/events', `const details = document.querySelector('details.event-details'); details.open = true;
+    details.closest('.list-group-item').scrollIntoView({ block: 'start', behavior: 'instant' }); window.scrollBy({ top: -110, behavior: 'instant' })`],
 ]
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -80,7 +84,9 @@ async function screenshots(language) {
       document.activeElement?.blur?.();
     `)
     await sleep(500)
-    const shot = await send('Page.captureScreenshot', { format: 'webp', quality: 85 })
+    // With the emulated size the screenshot ignores the scroll position: clip it there
+    const y = await js('window.scrollY')
+    const shot = await send('Page.captureScreenshot', { format: 'webp', quality: 85, captureBeyondViewport: true, clip: { x: 0, y, width: 1280, height: 860, scale: 1 } })
     writeFileSync(join(outDir, `${file}.webp`), Buffer.from(shot.result.data, 'base64'))
     console.log(`${language}/${file}.webp`)
   }

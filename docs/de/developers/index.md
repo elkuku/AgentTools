@@ -104,6 +104,40 @@ cd docs
 npm run screenshots:app   # optional: -- en de es
 ```
 
+## Der Eventkalender {#the-event-calendar}
+
+Die Website (`/events`) und die App (☰ → **Events**) zeigen die Ingress-Events weltweit als
+Monatskalender mit einer Zeitleiste darunter. Die Liste ist eine generierte Datei, auf GitHub Pages
+veröffentlicht als [`ingress-events.json`](https://elkuku.github.io/AgentTools/ingress-events.json):
+
+- `symfony console app:events:fetch` liest [ingress.com/news](https://ingress.com/news): die
+  Quartalspläne, die Mission-Day-Listen, die Season-Übersichten (für ein Quartal ohne Plan) und die
+  anderen Artikel von etwa einem Jahr. Ein Artikel gibt das erste Zeitfenster in seinem Text als
+  Event, außer ein Plan hat es schon (dann nennt er nur ein geschwärztes `▓▓▓▓▓▓▓`), und seine
+  Kampagnen („… is free“, „… for 15,000 CMU“, „Free/Premium Campaign: …“). Nur für CMU verkaufte
+  Events sind `paid`.
+- Jedes Event bekommt seine `details` (die „Campaign Details“ des Artikels: Stufen, Aufgaben,
+  Ziele; oder die Hinweise der Übersicht) und von [ingress.plus](https://ingress.plus/badges)
+  `medal` und `medalImage`. Wenn ingress.plus nicht antwortet, haben die Events nur keine Medaille
+  von dort.
+- Wenn ingress.com nicht antwortet, bleibt die Datei, wie sie ist; ohne Änderung wird sie nicht
+  angefasst. Einträge ohne echtes Datum („Early May“) werden als Warnungen gemeldet.
+- `.github/workflows/symfony-pages.yml` führt das täglich aus. Die Seite wird nur neu gebaut, wenn
+  sich die Liste geändert hat. Wenn ingress.com nicht antwortet, bleibt die veröffentlichte Liste
+  und der Lauf schlägt fehl.
+- Die Website lädt die veröffentlichte Datei (`INGRESS_EVENTS_URL`) und behält sie eine Stunde,
+  neue Events brauchen also weder Commit noch Deployment. Ist GitHub Pages nicht erreichbar, bleibt
+  die zuletzt geladene Liste, sonst die committete `web/data/ingress-events.json`.
+- First Saturdays und Second Sundays, die keine Seite nennt, werden aus dem Kalender berechnet
+  (`confirmed: false`) und wie die anderen gezeigt.
+- Beide zeigen zuerst unsere eigenen Medaillenbilder (First Saturday, Second Sunday, Mission Day
+  und eine Sondermedaille, die am letzten Tag des Events endet und mit ihm ein Wort im Namen
+  teilt), sonst die von ingress.plus. Jedes Event über mehrere Tage bekommt in der Reihenfolge
+  seines Beginns eine Farbe der kategorialen Palette, dieselbe für seine Linie im Kalender und in
+  der Zeitleiste.
+- Die App lädt `GET /api/events` von der Website und behält die letzte Liste in ihren Dateien
+  (`events.json`) für offline.
+
 ## Die Linkliste {#the-link-list}
 
 Die Ingress-Linkliste der Website (`/links`) und der App (☰ → **Links**) ist eine Markdown-Datei,
@@ -128,7 +162,7 @@ https).
 
 ## Die Badge-Prüfung {#the-badge-check}
 
-Der Workflow Badge check läuft jeden Tag. Er vergleicht [ingress.plus](https://ingress.plus/badges) mit `.github/badges-known.tsv`, sucht die Seiten aus `.github/badges-watch.tsv` und schreibt alles Neue in ein Issue (Label `new-badges`). Das Issue wird jeden Tag aktualisiert und schließt sich, sobald nichts mehr neu ist.
+Der Workflow Badge check läuft jeden Tag. Er vergleicht [ingress.plus](https://ingress.plus/badges) mit `.github/badges-known.tsv`, sucht die Seiten aus `.github/badges-watch.tsv` und schreibt alles Neue in ein Issue (Label `new-badges`). Das Issue wird jeden Tag aktualisiert und schließt sich, sobald nichts mehr neu ist. Eine Zeile in `.github/badges-watch.tsv` ist eine Seitenadresse mit einer Notiz (ein 404 heißt: noch nicht veröffentlicht) oder `news:` mit einem regulären Ausdruck für die Adresse eines Artikels auf der ersten Seite von [ingress.com/news](https://ingress.com/news), für Seiten, deren Adresse Niantic erst beim Veröffentlichen wählt (`news:ingress-?year-?15`).
 
 So fügst du eine neue Medaille hinzu:
 

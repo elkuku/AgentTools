@@ -6,7 +6,7 @@ administradores encuentran un token para su botón **Authorize** en su página d
 
 ## Autenticación {#authentication}
 
-Cada petición excepto `GET /api/links` necesita un token de ID de Google emitido para el cliente OAuth Web:
+Cada petición excepto `GET /api/links`, `GET /api/events` y `GET /api/history/{slug}` necesita un token de ID de Google emitido para el cliente OAuth Web:
 
 ```http
 Authorization: Bearer <Google ID token>
@@ -32,6 +32,7 @@ son `application/problem+json` con un `detail`, incluido el `401` de un token au
 | `GET` | `/api/agents` | Los agentes que muestran su perfil. |
 | `GET` | `/api/agents/{agentName}` | Un agente con las partes que muestra (`404` si es privado). |
 | `GET` | `/api/users` | Administradores: cada usuario con lo que muestra. |
+| `GET` | `/api/events` | Los [eventos de Ingress](./#the-event-calendar): `events` (type, title, start, end, startsAt, endsAt, location, url, source, confirmed, paid, medal, medalImage, details: líneas de `text` con sus `items`) y `generatedAt`. Los campos sin valor se omiten. Sin token; en caché una hora. |
 | `GET` | `/api/links` | La [lista de enlaces](./#the-link-list): secciones con sus enlaces (title, url, description). Sin token; en caché una hora. |
 
 ## Guardar estadísticas {#saving-stats}
