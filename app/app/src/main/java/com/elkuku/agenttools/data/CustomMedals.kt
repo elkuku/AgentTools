@@ -103,7 +103,7 @@ val CUSTOM_MEDALS = listOf(
     CustomMedal("anomaly", "interitus", "Interitus", endDate = "2014-06-21"),
     CustomMedal("anomaly", "recursion", "Recursion", endDate = "2014-03-29"),
     // annual
-    CustomMedal("annual", "vector", "Vector", listOf("bronze", "silver", "gold", "platinum", "black"), endDate = "2026-11-15"),
+    CustomMedal("annual", "vector", "Vector", listOf("bronze", "silver", "gold", "platinum", "black"), endDate = "2026-11-24"),
     CustomMedal("annual", "voyager", "Voyager", listOf("bronze", "silver", "gold", "platinum", "black"), endDate = "2025-11-24"),
     CustomMedal("annual", "catalyst", "Catalyst", listOf("bronze", "silver", "gold", "platinum", "black"), endDate = "2024-11-18"),
     CustomMedal("annual", "paragon", "Paragon", listOf("bronze", "silver", "gold", "platinum", "black"), endDate = "2023-11-20"),

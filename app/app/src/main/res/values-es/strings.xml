@@ -302,7 +302,6 @@
     <string name="events_previous_month">Mes anterior</string>
     <string name="events_next_month">Mes siguiente</string>
     <string name="events_today">Hoy</string>
-    <string name="events_expected">Previsto</string>
     <string name="events_updated">Último cambio: %1$s</string>
     <plurals name="events_count">
         <item quantity="one">%1$d evento</item>
@@ -315,6 +314,16 @@
     <string name="event_type_second_sunday">Second Sunday</string>
     <string name="event_type_shard">Evento de Shards</string>
     <string name="event_type_global">Evento global</string>
+    <string name="events_paid_events">Eventos de pago</string>
+    <string name="events_paid">De pago</string>
+    <string name="events_ends">Termina %1$s</string>
+    <string name="events_starts">Empieza</string>
+    <string name="events_ends_on">Termina</string>
+    <string name="events_several_days">Varios días</string>
+    <string name="events_details">Detalles</string>
+    <string name="events_mission_days">Mission Days</string>
+    <!-- A day on the timeline (java.time pattern) -->
+    <string name="events_day_pattern">EEE, d MMM</string>
 
     <!-- History -->
     <string name="history">Historia</string>

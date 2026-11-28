@@ -102,15 +102,14 @@ fun LinksScreen(
                 }
 
                 Text(stringResource(R.string.links_intro), style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = { uriHandler.openUri(SUGGEST_LINK_URL) }) {
+                    Text(stringResource(R.string.links_suggest))
+                }
 
                 when {
                     sections == null -> Unit
                     sections.isEmpty() -> Text(stringResource(R.string.links_empty))
                     else -> sections.forEach { section -> LinkSectionCard(section, onOpen = uriHandler::openUri) }
-                }
-
-                OutlinedButton(onClick = { uriHandler.openUri(SUGGEST_LINK_URL) }) {
-                    Text(stringResource(R.string.links_suggest))
                 }
             }
         }
