@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller\Events;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 
 /**
  * /events and GET /api/events, for everyone: the calendar from tests/fixtures/ingress-events.json
@@ -60,7 +61,9 @@ class EventsTest extends WebTestCase
         self::assertSelectorExists('a.event-day[href="/events?day=2026-12-10"] .event-day-line-through[style="--lane: var(--series-1)"]');
 
         $form = $crawler->filter('form:has(#events-paid)')->form();
-        $form['paid']->untick();
+        $field = $form['paid'];
+        self::assertInstanceOf(ChoiceFormField::class, $field);
+        $field->untick();
         $crawler = $client->submit($form);
 
         self::assertResponseIsSuccessful();
@@ -87,7 +90,9 @@ class EventsTest extends WebTestCase
         self::assertSelectorTextContains('.event-timeline', 'Zhuhai, China');
 
         $form = $crawler->filter('form:has(#events-md)')->form();
-        $form['md']->untick();
+        $field = $form['md'];
+        self::assertInstanceOf(ChoiceFormField::class, $field);
+        $field->untick();
         $client->submit($form);
 
         self::assertResponseIsSuccessful();
