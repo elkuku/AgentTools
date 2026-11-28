@@ -2,7 +2,8 @@ name: Badge check
 
 # Looks once a day for what ingress.plus has that .github/badges-known.tsv does not, and for the
 # pages of .github/badges-watch.tsv. Anything new goes into one issue (label new-badges), updated
-# each day and closed when the lists are up to date.
+# each day and closed when the lists are up to date. The job "history" does the same for what the
+# history documents (docs/events/) miss of the published Ingress events (label history).
 on:
     schedule:
         - cron: '29 6 * * *'
@@ -36,4 +37,45 @@ jobs:
                       fi
                   elif [ -n "$issue" ]; then
                       gh issue close "$issue" --comment "Nothing new any more ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))."
+                  fi
+
+    history:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: web
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: none
+                  extensions: mbstring, xml, ctype, iconv, intl, dom, filter, json
+
+            - name: Install dependencies
+              uses: php-actions/composer@v6
+              with:
+                  working_dir: web
+
+            # The published list (INGRESS_EVENTS_URL in .env), against docs/events/
+            - name: Compare the history documents
+              run: bin/console app:history:check --no-ansi --output="$GITHUB_WORKSPACE/issue.md" | tee -a "$GITHUB_STEP_SUMMARY"
+
+            - name: Open, update or close the issue
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+              run: |
+                  issue=$(gh issue list --label history --state open --json number --jq '.[0].number // empty')
+                  if [ -f "$GITHUB_WORKSPACE/issue.md" ]; then
+                      if [ -n "$issue" ]; then
+                          gh issue edit "$issue" --body-file "$GITHUB_WORKSPACE/issue.md"
+                      else
+                          gh label create history --color 1d76db --description 'The history documents miss events' --force
+                          gh issue create --title 'History documents behind the events' --label history --body-file "$GITHUB_WORKSPACE/issue.md"
+                      fi
+                  elif [ -n "$issue" ]; then
+                      gh issue close "$issue" --comment "Nothing missing any more ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))."
                   fi

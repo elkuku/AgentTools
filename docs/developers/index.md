@@ -171,6 +171,8 @@ with entries `- [Title](https://…) — Description` (the description is option
 
 The Badge check workflow runs every day. It compares [ingress.plus](https://ingress.plus/badges) with `.github/badges-known.tsv` and looks for the pages in `.github/badges-watch.tsv`, and puts anything new into one issue (label `new-badges`). The issue is updated each day and closes when nothing is new any more. A line of `.github/badges-watch.tsv` is a page address with a note (a 404 means not published yet), or `news:` and a regular expression for an article address on the first page of [ingress.com/news](https://ingress.com/news), for pages whose address Niantic only picks when publishing (`news:ingress-?year-?15`).
 
+Its second job, history, runs `symfony console app:history:check` against the published events and the documents in `docs/events/`: a Mission Day or XM Anomaly site of the list that is not in its document, a row still marked "(upcoming)" after its day, and a past event with a medal of its own (ours or ingress.plus') that neither `operations.md` nor `ingress-years.md` names go into one issue (label `history`), updated each day and closed when the documents are up to date.
+
 To add a new medal:
 
 1. Convert its images to 150 px lossless WebP in `app/app/src/main/assets/custom_medals`.

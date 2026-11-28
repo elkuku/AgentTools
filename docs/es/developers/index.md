@@ -162,6 +162,8 @@ con entradas `- [Título](https://…) — Descripción` (la descripción es opc
 
 El workflow Badge check se ejecuta cada día. Compara [ingress.plus](https://ingress.plus/badges) con `.github/badges-known.tsv`, busca las páginas de `.github/badges-watch.tsv` y pone todo lo nuevo en una issue (etiqueta `new-badges`). La issue se actualiza cada día y se cierra cuando ya no hay nada nuevo. Una línea de `.github/badges-watch.tsv` es la dirección de una página con una nota (un 404 significa que aún no está publicada), o `news:` y una expresión regular para la dirección de un artículo en la primera página de [ingress.com/news](https://ingress.com/news), para páginas cuya dirección Niantic solo elige al publicar (`news:ingress-?year-?15`).
 
+Su segundo job, history, ejecuta `symfony console app:history:check` con los eventos publicados y los documentos de `docs/events/`: un Mission Day o un sitio de Anomalía XM de la lista que no está en su documento, una fila que sigue marcada «(upcoming)» después de su día y un evento pasado con una medalla propia (nuestra o de ingress.plus) que ni `operations.md` ni `ingress-years.md` nombran van a una issue (etiqueta `history`), que se actualiza cada día y se cierra cuando los documentos están al día.
+
 Para añadir una medalla nueva:
 
 1. Convierte sus imágenes a WebP sin pérdida de 150 px en `app/app/src/main/assets/custom_medals`.
